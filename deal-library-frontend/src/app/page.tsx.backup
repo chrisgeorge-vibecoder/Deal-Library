@@ -1,0 +1,1029 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { flushSync } from 'react-dom';
+import { Deal, DealFilters, Persona, AudienceInsights, GeoCard } from '@/types/deal';
+import { MarketSizing } from '@/components/MarketSizingCard';
+import { mockDeals } from '@/data/mockDeals';
+import { sampleAudienceInsights, sampleMarketSizing, sampleGeoCards } from '@/data/sampleCards';
+import ChatInterface from '@/components/ChatInterface';
+// Sidebar is now handled by AppLayout
+import FilterPanel from '@/components/FilterPanel';
+import DealGrid from '@/components/DealGrid';
+import CustomDealForm from '@/components/CustomDealForm';
+import DealDetailModal from '@/components/DealDetailModal';
+import PersonaDetailModal from '@/components/PersonaDetailModal';
+import { AudienceInsightsDetailModal } from '@/components/AudienceInsightsDetailModal';
+import { MarketSizingDetailModal } from '@/components/MarketSizingDetailModal';
+import GeoDetailModal from '@/components/GeoDetailModal';
+import AudienceExplorer from '@/components/AudienceExplorer';
+import SavedCards from '@/components/SavedCards';
+import { TrendingUp, Users, DollarSign, Clock, ShoppingCart, Globe } from 'lucide-react';
+
+// Advanced search and relevance scoring system
+interface DealScore {
+  deal: Deal;
+  score: number;
+  reasons: string[];
+}
+
+// Saved cards interface
+interface SavedCard {
+  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards';
+  data: Deal | Persona | AudienceInsights | MarketSizing | GeoCard;
+  savedAt: string;
+}
+
+function calculateDealRelevanceScore(deal: Deal, query: string): DealScore {
+  const queryLower = query.toLowerCase();
+  const reasons: string[] = [];
+  let score = 0;
+
+  // Define comprehensive keyword mappings and weights
+  const keywordMappings: { [key: string]: { keywords: string[], weight: number, category: string } } = {
+    // Tech & Digital
+    'tech': { keywords: ['tech', 'technology', 'digital', 'mobile', 'app', 'software', 'platform', 'api', 'integration'], weight: 3, category: 'tech' },
+    'mobile': { keywords: ['mobile', 'smartphone', 'ios', 'android', 'app', 'mobile display'], weight: 3, category: 'mobile' },
+    'web': { keywords: ['web', 'website', 'browser', 'desktop', 'display'], weight: 2, category: 'web' },
+    
+    // Demographics
+    'millennials': { keywords: ['millennials', 'young adults', 'gen y', 'digital natives', '25-40'], weight: 3, category: 'demographic' },
+    'genz': { keywords: ['gen z', 'gen-z', 'zillennials', 'teens', 'young'], weight: 3, category: 'demographic' },
+    'enterprise': { keywords: ['enterprise', 'business', 'b2b', 'corporate', 'professional', 'decision makers'], weight: 3, category: 'business' },
+    'luxury': { keywords: ['luxury', 'premium', 'high-end', 'upscale', 'affluent', 'wealthy'], weight: 3, category: 'luxury' },
+    
+    // Industries
+    'grocery': { keywords: ['grocery', 'food', 'shopping', 'cpg', 'consumer goods', 'retail', 'supermarket'], weight: 4, category: 'grocery' },
+    'sports': { keywords: ['sports', 'athletic', 'fitness', 'gaming', 'entertainment', 'fans'], weight: 4, category: 'sports' },
+    'gaming': { keywords: ['gaming', 'games', 'esports', 'entertainment', 'mobile games'], weight: 4, category: 'gaming' },
+    'travel': { keywords: ['travel', 'tourism', 'vacation', 'trip', 'destination', 'hotel'], weight: 4, category: 'travel' },
+    'fashion': { keywords: ['fashion', 'clothing', 'apparel', 'style', 'beauty', 'cosmetics'], weight: 4, category: 'fashion' },
+    'automotive': { keywords: ['automotive', 'cars', 'vehicles', 'auto', 'driving', 'car'], weight: 4, category: 'automotive' },
+    'finance': { keywords: ['finance', 'financial', 'banking', 'investment', 'money', 'fintech'], weight: 4, category: 'finance' },
+    'health': { keywords: ['health', 'wellness', 'medical', 'fitness', 'healthcare', 'pharma'], weight: 4, category: 'health' },
+    
+    // Media Types
+    'video': { keywords: ['video', 'youtube', 'streaming', 'tv', 'video ads'], weight: 3, category: 'media' },
+    'social': { keywords: ['social', 'facebook', 'instagram', 'twitter', 'social media'], weight: 3, category: 'media' },
+    'audio': { keywords: ['audio', 'podcast', 'radio', 'spotify', 'music'], weight: 3, category: 'media' },
+    'display': { keywords: ['display', 'banner', 'web display', 'mobile display'], weight: 2, category: 'media' }
+  };
+
+  // Extract and expand keywords from query
+  const queryWords = queryLower.split(/\s+/).filter(word => word.length > 2);
+  const expandedKeywords = new Set<string>();
+  
+  queryWords.forEach(word => {
+    expandedKeywords.add(word);
+    // Find matching categories
+    Object.entries(keywordMappings).forEach(([key, mapping]) => {
+      if (mapping.keywords.some(keyword => keyword.includes(word) || word.includes(keyword))) {
+        mapping.keywords.forEach(keyword => expandedKeywords.add(keyword));
+      }
+    });
+  });
+
+  // Score based on deal name (highest weight)
+  const dealNameLower = deal.dealName.toLowerCase();
+  const nameMatches = Array.from(expandedKeywords).filter(keyword => 
+    dealNameLower.includes(keyword)
+  );
+  if (nameMatches.length > 0) {
+    score += nameMatches.length * 10;
+    reasons.push(`Deal name matches: ${nameMatches.join(', ')}`);
+  }
+
+  // Score based on description (high weight)
+  const descriptionLower = deal.description.toLowerCase();
+  const descMatches = Array.from(expandedKeywords).filter(keyword => 
+    descriptionLower.includes(keyword)
+  );
+  if (descMatches.length > 0) {
+    score += descMatches.length * 8;
+    reasons.push(`Description matches: ${descMatches.join(', ')}`);
+  }
+
+  // Score based on targeting (high weight)
+  const targetingLower = deal.targeting.toLowerCase();
+  const targetingMatches = Array.from(expandedKeywords).filter(keyword => 
+    targetingLower.includes(keyword)
+  );
+  if (targetingMatches.length > 0) {
+    score += targetingMatches.length * 7;
+    reasons.push(`Targeting matches: ${targetingMatches.join(', ')}`);
+  }
+
+  // Score based on media type (medium weight)
+  const mediaTypeLower = deal.mediaType.toLowerCase();
+  const mediaMatches = Array.from(expandedKeywords).filter(keyword => 
+    mediaTypeLower.includes(keyword)
+  );
+  if (mediaMatches.length > 0) {
+    score += mediaMatches.length * 5;
+    reasons.push(`Media type matches: ${mediaMatches.join(', ')}`);
+  }
+
+  // Bonus scoring for specific industry matches
+  Object.entries(keywordMappings).forEach(([category, mapping]) => {
+    const categoryMatches = mapping.keywords.filter(keyword => 
+      queryLower.includes(keyword) && (
+        dealNameLower.includes(keyword) ||
+        descriptionLower.includes(keyword) ||
+        targetingLower.includes(keyword)
+      )
+    );
+    if (categoryMatches.length > 0) {
+      score += mapping.weight * categoryMatches.length;
+      reasons.push(`${category} industry match: ${categoryMatches.join(', ')}`);
+    }
+  });
+
+  // Exact phrase matching bonus
+  if (dealNameLower.includes(queryLower) || descriptionLower.includes(queryLower)) {
+    score += 15;
+    reasons.push('Exact phrase match');
+  }
+
+  // Partial phrase matching
+  const queryPhrases = queryLower.split(/\s+/);
+  const phraseMatches = queryPhrases.filter(phrase => 
+    phrase.length > 3 && (
+      dealNameLower.includes(phrase) ||
+      descriptionLower.includes(phrase) ||
+      targetingLower.includes(phrase)
+    )
+  );
+  if (phraseMatches.length > 0) {
+    score += phraseMatches.length * 3;
+    reasons.push(`Phrase matches: ${phraseMatches.join(', ')}`);
+  }
+
+  return { deal, score, reasons };
+}
+
+function getRelevantDeals(deals: Deal[], query: string, limit: number = 6): Deal[] {
+  if (!query.trim()) return deals.slice(0, limit);
+
+  // Calculate relevance scores for all deals
+  const scoredDeals: DealScore[] = deals.map(deal => 
+    calculateDealRelevanceScore(deal, query)
+  );
+
+  // Filter out deals with zero score and sort by relevance
+  const relevantDeals = scoredDeals
+    .filter(scored => scored.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit);
+
+  // Log scoring details for debugging
+  console.log(`Search query: "${query}"`);
+  console.log(`Found ${relevantDeals.length} relevant deals:`);
+  relevantDeals.forEach((scored, index) => {
+    console.log(`${index + 1}. ${scored.deal.dealName} (Score: ${scored.score})`);
+    console.log(`   Reasons: ${scored.reasons.join(', ')}`);
+  });
+
+  return relevantDeals.map(scored => scored.deal);
+}
+
+export default function HomePage() {
+  const [deals, setDeals] = useState<Deal[]>([]);
+  const [filteredDeals, setFilteredDeals] = useState<Deal[]>([]);
+  const [filters, setFilters] = useState<DealFilters>({
+    search: '',
+    targeting: '',
+    environment: '',
+    mediaType: '',
+    dateRange: { start: '', end: '' },
+  });
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isCustomDealFormOpen, setIsCustomDealFormOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentChatId, setCurrentChatId] = useState<string>('default');
+  const [resetChat, setResetChat] = useState(false);
+  const [cart, setCart] = useState<Deal[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [isDealModalOpen, setIsDealModalOpen] = useState(false);
+  const [aiResponse, setAiResponse] = useState<string>('');
+  const [aiDeals, setAiDeals] = useState<Deal[]>([]); // Track deals from current AI response
+  const [isAiSearch, setIsAiSearch] = useState(false);
+  const [showAudienceExplorer, setShowAudienceExplorer] = useState(false);
+  const [personas, setPersonas] = useState<Persona[]>([]);
+  const [aiPersonas, setAiPersonas] = useState<Persona[]>([]); // Track personas from current AI response
+  const [aiAudienceInsights, setAiAudienceInsights] = useState<AudienceInsights[]>([]); // Track audience insights from current AI response
+  const [aiMarketSizing, setAiMarketSizing] = useState<MarketSizing[]>([]); // Track market sizing from current AI response
+  const [aiGeoCards, setAiGeoCards] = useState<GeoCard[]>([]); // Track geo cards from current AI response
+  // Sidebar and saved cards are now handled by AppLayout
+  
+  // Modal states for saved card clicks
+  const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
+  const [isPersonaModalOpen, setIsPersonaModalOpen] = useState(false);
+  const [selectedAudienceInsights, setSelectedAudienceInsights] = useState<AudienceInsights | null>(null);
+  const [isAudienceInsightsModalOpen, setIsAudienceInsightsModalOpen] = useState(false);
+  const [selectedMarketSizing, setSelectedMarketSizing] = useState<MarketSizing | null>(null);
+  const [isMarketSizingModalOpen, setIsMarketSizingModalOpen] = useState(false);
+  const [selectedGeo, setSelectedGeo] = useState<GeoCard | null>(null);
+  const [isGeoModalOpen, setIsGeoModalOpen] = useState(false);
+  const [chatInputValue, setChatInputValue] = useState('');
+
+  // Fetch deals from backend API
+  useEffect(() => {
+    const fetchDeals = async (retryCount = 0) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch('http://localhost:3002/api/deals');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setDeals(data.deals || []);
+        setFilteredDeals(data.deals || []);
+        console.log('✅ Successfully loaded deals:', data.deals?.length || 0);
+      } catch (err) {
+        console.error('Error fetching deals:', err);
+        
+        // Retry up to 3 times with exponential backoff
+        if (retryCount < 3) {
+          console.log(`🔄 Retrying fetch deals (attempt ${retryCount + 1}/3)...`);
+          setTimeout(() => {
+            fetchDeals(retryCount + 1);
+          }, Math.pow(2, retryCount) * 1000); // 1s, 2s, 4s
+          return;
+        }
+        
+        console.log('🔄 Apps Script is down, but the app will still work for audience insights and market sizing');
+        // Show a helpful message instead of an error
+        setError('⚠️ Data source temporarily unavailable. You can still explore audience insights and market sizing cards!');
+        setDeals([]);
+        setFilteredDeals([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDeals();
+  }, []);
+
+  // Fetch personas from backend API
+  useEffect(() => {
+    const fetchPersonas = async () => {
+      try {
+        const response = await fetch('http://localhost:3002/api/personas');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('🎭 Fetched personas:', data?.length || 0);
+        setPersonas(data || []);
+      } catch (err) {
+        console.error('Error fetching personas:', err);
+        setPersonas([]);
+      }
+    };
+
+    fetchPersonas();
+  }, []);
+
+  // Filter deals based on current filters
+  useEffect(() => {
+    console.log('🔄 useEffect triggered:', { dealsLength: deals.length, isAiSearch, filtersSearch: filters.search });
+    if (deals.length === 0) return; // Don't filter if no deals loaded yet
+    if (isAiSearch) {
+      console.log('🚫 Skipping useEffect - AI search in progress');
+      return; // Don't override AI search results
+    }
+    
+    setLoading(true);
+    
+    let filtered = deals;
+
+    // Apply search filter with relevance scoring
+    if (filters.search) {
+      filtered = getRelevantDeals(deals, filters.search, 20); // Get top 20 most relevant deals
+    }
+
+    // Apply other filters to the search results
+    filtered = filtered.filter((deal) => {
+
+      // Targeting filter
+      if (filters.targeting && deal.targeting !== filters.targeting) {
+        return false;
+      }
+
+      // Environment filter
+      if (filters.environment && deal.environment !== filters.environment) {
+        return false;
+      }
+
+      // Media Type filter
+      if (filters.mediaType && deal.mediaType !== filters.mediaType) {
+        return false;
+      }
+
+      // Date range filter
+      if (filters.dateRange.start) {
+        const startDate = new Date(filters.dateRange.start);
+        const dealFlightDate = new Date(deal.flightDate);
+        if (dealFlightDate < startDate) return false;
+      }
+
+      if (filters.dateRange.end) {
+        const endDate = new Date(filters.dateRange.end);
+        const dealFlightDate = new Date(deal.flightDate);
+        if (dealFlightDate > endDate) return false;
+      }
+
+      return true;
+    });
+
+    setFilteredDeals(filtered);
+    setLoading(false);
+  }, [deals, filters, isAiSearch]);
+
+  // Saved cards localStorage handling is now in AppLayout
+
+  // Handle custom events from AppLayout
+  useEffect(() => {
+    const handleOpenCustomDealForm = () => {
+      setIsCustomDealFormOpen(true);
+    };
+
+    const handleOpenCart = () => {
+      setIsCartOpen(true);
+    };
+
+    const handleOpenIntelligenceCards = () => {
+      setShowAudienceExplorer(true);
+    };
+
+    const handleNewChat = () => {
+      const newChatId = `chat-${Date.now()}`;
+      setCurrentChatId(newChatId);
+      setFilters(prev => ({ ...prev, search: '' }));
+      // Reset the chat interface by clearing any search state
+      setFilteredDeals(deals); // Show all deals again
+      setIsAiSearch(false); // Reset AI search flag
+      setResetChat(true); // Trigger chat reset
+      // Reset the flag after a brief moment
+      setTimeout(() => setResetChat(false), 100);
+    };
+
+    const handleCardClick = (card: SavedCard) => {
+      switch (card.type) {
+        case 'deal':
+          setSelectedDeal(card.data as Deal);
+          setIsDealModalOpen(true);
+          break;
+        case 'persona':
+          setSelectedPersona(card.data as Persona);
+          setIsPersonaModalOpen(true);
+          break;
+        case 'audience-insights':
+          setSelectedAudienceInsights(card.data as AudienceInsights);
+          setIsAudienceInsightsModalOpen(true);
+          break;
+        case 'market-sizing':
+          setSelectedMarketSizing(card.data as MarketSizing);
+          setIsMarketSizingModalOpen(true);
+          break;
+        case 'geo-cards':
+          setSelectedGeo(card.data as GeoCard);
+          setIsGeoModalOpen(true);
+          break;
+        default:
+          console.log('Unknown card type:', card.type);
+      }
+    };
+
+    const handleUnsaveCard = (cardId: string) => {
+      // This will be handled by the AppLayout component
+      console.log('Unsave card:', cardId);
+    };
+
+    const handleSaveCard = (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards', data: any }) => {
+      // This will be handled by the AppLayout component
+      console.log('Save card:', card);
+    };
+
+    const isCardSaved = (cardId: string) => {
+      // This will be handled by the AppLayout component
+      return false;
+    };
+
+    window.addEventListener('openCustomDealForm', handleOpenCustomDealForm);
+    window.addEventListener('openCart', handleOpenCart);
+    window.addEventListener('openIntelligenceCards', handleOpenIntelligenceCards);
+    window.addEventListener('newChat', handleNewChat);
+
+    return () => {
+      window.removeEventListener('openCustomDealForm', handleOpenCustomDealForm);
+      window.removeEventListener('openCart', handleOpenCart);
+      window.removeEventListener('openIntelligenceCards', handleOpenIntelligenceCards);
+      window.removeEventListener('newChat', handleNewChat);
+    };
+  }, []);
+
+  const handleSearch = async (query: string, chatMessages?: Array<{role: string, content: string}>, cardTypes?: string[]) => {
+    console.log('🔍 AI Search query:', query);
+    console.log('🔍 Raw query for debugging:', JSON.stringify(query));
+    console.log('🎯 Selected card types:', cardTypes);
+    setLoading(true);
+    
+    // Clear previous AI response to prevent showing stale data
+    setAiResponse('');
+    setAiDeals([]);
+    setAiPersonas([]);
+    setAiAudienceInsights([]);
+    setAiMarketSizing([]);
+    setAiGeoCards([]);
+    
+    // Use card types if provided, otherwise fall back to keyword detection
+    const queryLower = query.toLowerCase();
+    let isDealQuery = false;
+    let isPersonaQuery = false;
+    let isAudienceInsightsQuery = false;
+    let isMarketSizingQuery = false;
+    let isGeoQuery = false;
+
+    // Always check for explicit audience insights keywords first (highest priority)
+    const audienceInsightsKeywords = ['audience insights', 'audience behavior', 'audience characteristics', 'audience demographics', 'media strategy', 'building.*strategy', 'media director', 'targeting strategy', 'audience strategy', 'marketing strategy', 'market trends', 'help me with', 'fans', 'fanbase', 'demographics', 'tell me about', 'analyze.*audience', 'who are', 'what are', 'sports fans', 'baseball', 'football', 'basketball', 'soccer', 'hockey', 'tennis', 'golf', 'nfl', 'mlb', 'nba', 'nhl', 'mls', 'college sports', 'athletic', 'sporting', 'viewers', 'spectators', 'attendees'];
+    isAudienceInsightsQuery = audienceInsightsKeywords.some(keyword => {
+      if (keyword.includes('.*')) {
+        // Handle regex-like patterns
+        const regex = new RegExp(keyword, 'i');
+        return regex.test(queryLower);
+      }
+      return queryLower.includes(keyword);
+    });
+
+    if (isAudienceInsightsQuery) {
+      console.log('🎯 Audience insights query detected - prioritizing over card type selection');
+    } else if (cardTypes && cardTypes.length > 0) {
+      // Use explicit card type selection
+      console.log('🎯 Using card type selection:', cardTypes);
+      isDealQuery = cardTypes.includes('deals');
+      isPersonaQuery = cardTypes.includes('personas');
+      isAudienceInsightsQuery = cardTypes.includes('audience-insights');
+      isMarketSizingQuery = cardTypes.includes('market-sizing');
+      isGeoQuery = cardTypes.includes('geographic');
+    } else {
+      // Fall back to keyword detection for other categories
+      console.log('🔍 No card types selected, using keyword detection');
+      const explicitDealKeywords = ['request deal', 'request deals', 'show deals', 'find deals', 'recommend deals', 'deal recommendations', 'deal recs', 'provide relevant deals', 'relevant deals', 'reach new parents', 'reach parents', 'target new parents', 'target parents'];
+      const explicitlyWantsDeals = explicitDealKeywords.some(k => queryLower.includes(k));
+
+      // Check for market sizing queries ONLY if not explicitly asking for deals
+      const marketSizingKeywords = ['market size', 'market sizing', 'how big', 'total market', 'addressable market', 'market opportunity', 'population'];
+      isMarketSizingQuery = !explicitlyWantsDeals && marketSizingKeywords.some(keyword => queryLower.includes(keyword));
+      
+      // Set other query types based on keyword detection
+      isDealQuery = explicitlyWantsDeals;
+      
+      // Add more keyword detection logic here as needed
+      const personaKeywords = ['persona', 'personas', 'show me personas', 'browse personas'];
+      isPersonaQuery = personaKeywords.some(keyword => queryLower.includes(keyword));
+      
+      const geoKeywords = ['geographic', 'geography', 'location', 'where are', 'regional analysis', 'geographic targeting', 'location-based', 'geographic distribution'];
+      isGeoQuery = geoKeywords.some(keyword => queryLower.includes(keyword));
+      
+      // If no specific category is detected, default to general search (which will return AI response without specific card types)
+      if (!isDealQuery && !isPersonaQuery && !isAudienceInsightsQuery && !isMarketSizingQuery && !isGeoQuery) {
+        console.log('🔍 No specific category detected, using general search');
+        // For general queries, we'll use the deals search endpoint which can handle general questions
+        isDealQuery = true; // Use deals endpoint as it can handle general AI responses
+      }
+    }
+    
+    try {
+      if (isMarketSizingQuery) {
+        console.log('📈 Market sizing query detected - making API call');
+        try {
+          console.log('📈 Making market sizing API call with query:', query);
+          const sizingResponse = await fetch('http://localhost:3002/api/market-sizing', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              query,
+              conversationHistory: chatMessages || []
+            }),
+          });
+
+          console.log('📈 Market sizing API response status:', sizingResponse.status);
+          
+          if (sizingResponse.ok) {
+            const sizingData = await sizingResponse.json();
+            console.log('📈 AI-generated market sizing response:', sizingData);
+            console.log('📈 AI-generated market sizing:', sizingData.marketSizing?.length || 0, 'cards');
+            setAiMarketSizing(sizingData.marketSizing || []);
+            setAiResponse(sizingData.aiResponse || '');
+            setLoading(false);
+            return; // Exit early for market sizing queries
+          } else {
+            console.log('📈 Market sizing API failed, fallback to sample data');
+            setAiMarketSizing(sampleMarketSizing.slice(0, 2));
+            setLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.error('📈 Error fetching AI market sizing:', error);
+          console.log('📈 Fallback to sample market sizing');
+          setAiMarketSizing(sampleMarketSizing.slice(0, 2));
+          setLoading(false);
+          return;
+        }
+      }
+    
+      // Handle deal queries
+      if (isDealQuery) {
+        console.log('🛒 Deal query detected - making API call');
+        try {
+          // Use AI search endpoint with conversation history
+          const response = await fetch('http://localhost:3002/api/deals/search', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              query,
+              conversationHistory: chatMessages || [],
+              forceDeals: isDealQuery // Force deals when user explicitly selects Deals card type
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log(`🤖 AI Search result:`, data);
+          console.log(`🤖 AI Search deals count:`, data.deals?.length);
+          console.log(`🤖 AI Search isGeneralQuestion:`, data.isGeneralQuestion);
+          
+          // Set AI search flag FIRST using flushSync to prevent useEffect from overriding
+          console.log('🚩 Setting isAiSearch to true');
+          flushSync(() => {
+            setIsAiSearch(true);
+          });
+          
+          // If user explicitly selected "Deals", show deals regardless of backend's isGeneralQuestion flag
+          if (isDealQuery && data.isGeneralQuestion) {
+            console.log('💬 Backend thinks this is a general question, but user selected Deals - showing deals anyway');
+          }
+          
+          // Check if this is a general question AND user didn't explicitly select deals
+          if (data.isGeneralQuestion && !isDealQuery) {
+            console.log('💬 General question detected - no deals to show');
+            setFilteredDeals([]);
+            setAiDeals([]);
+            setAiResponse(data.aiResponse || '');
+          } else {
+            // Update filtered deals with AI results
+            console.log('🎯 Setting AI search results:', data.deals?.length, 'deals');
+            const aiResultDeals = data.deals || [];
+            setFilteredDeals(aiResultDeals);
+            
+            // Store AI response AND deals for ChatInterface to use
+            console.log('🎯 Setting aiDeals:', aiResultDeals.length, 'deals');
+            setAiDeals(aiResultDeals); // Track which deals belong to this AI response
+            setAiResponse(data.aiResponse || '');
+          }
+          
+        } catch (error) {
+          console.error('🛒 Error fetching deals:', error);
+          setAiDeals([]);
+          setAiResponse('Sorry, I encountered an error while searching for deals.');
+        }
+      }
+    
+      // Handle persona queries
+      if (isPersonaQuery) {
+        console.log('🎭 Persona query detected');
+        console.log('🎭 Available personas count:', personas.length);
+        
+        // Find relevant personas based on query content
+        const queryWords = queryLower.split(' ').filter(word => word.length > 2);
+        console.log('🎭 Query words for matching:', queryWords);
+        
+        const relevantPersonas = personas.filter(persona => {
+          const personaText = `${persona.name} ${persona.category} ${persona.coreInsight}`.toLowerCase();
+          
+          // Check for query word matches in persona content
+          const hasQueryMatch = queryWords.some(word => personaText.includes(word));
+          
+          // Also check for broader category matches
+          const categoryMatch = queryWords.some(word => {
+            if (word.includes('software') || word.includes('tech') || word.includes('digital')) {
+              return persona.category === 'Technology' || personaText.includes('software') || personaText.includes('tech') || personaText.includes('digital');
+            }
+            return false;
+          });
+          
+          return hasQueryMatch || categoryMatch;
+        }).slice(0, 6); // Limit to 6 personas
+        
+        console.log('🎭 Setting relevant personas:', relevantPersonas.length);
+        setAiPersonas(relevantPersonas);
+        setAiResponse(`Here are ${relevantPersonas.length} personas related to your query.`);
+        setLoading(false);
+      }
+    
+      // Handle audience insights queries
+      if (isAudienceInsightsQuery) {
+        console.log('📊 Audience insights query detected - making API call');
+        
+        // Call the audience insights API
+        try {
+          console.log('📊 Making audience insights API call with query:', query);
+          const insightsResponse = await fetch('http://localhost:3002/api/audience-insights', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              query,
+              conversationHistory: chatMessages || []
+            }),
+          });
+
+          console.log('📊 Audience insights API response status:', insightsResponse.status);
+          
+          if (insightsResponse.ok) {
+            const insightsData = await insightsResponse.json();
+            console.log('📊 AI-generated audience insights response:', insightsData);
+            console.log('📊 AI-generated audience insights:', insightsData.audienceInsights?.length || 0, 'cards');
+            setAiAudienceInsights(insightsData.audienceInsights || []);
+            setAiResponse(insightsData.aiResponse || '');
+          } else {
+            console.log('📊 Audience insights API failed, fallback to sample data');
+            setAiAudienceInsights(sampleAudienceInsights.slice(0, 2));
+            setAiResponse('Generated audience insights based on your query.');
+          }
+        } catch (error) {
+          console.error('📊 Error fetching AI audience insights:', error);
+          console.log('📊 Fallback to sample audience insights');
+          setAiAudienceInsights(sampleAudienceInsights.slice(0, 2));
+          setAiResponse('Generated audience insights based on your query.');
+        }
+      }
+    
+      // Handle geographic queries
+      if (isGeoQuery) {
+        console.log('🗺️ Geographic query detected - making API call');
+        try {
+          console.log('🗺️ Making geographic insights API call with query:', query);
+          const geoResponse = await fetch('http://localhost:3002/api/geographic-insights', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              query,
+              conversationHistory: chatMessages || []
+            }),
+          });
+
+          console.log('🗺️ Geographic insights API response status:', geoResponse.status);
+          
+          if (geoResponse.ok) {
+            const geoData = await geoResponse.json();
+            console.log('🗺️ AI-generated geographic insights response:', geoData);
+            console.log('🗺️ AI-generated geographic insights:', geoData.geoCards?.length || 0, 'cards');
+            
+            // Ensure real API data has sampleData: false
+            const realGeoData = (geoData.geoCards || []).map((card: any) => ({
+              ...card,
+              sampleData: false
+            }));
+            
+            setAiGeoCards(realGeoData);
+            setAiResponse(geoData.aiResponse || '');
+          } else {
+            console.log('🗺️ Geographic insights API failed, fallback to sample data');
+            setAiGeoCards(sampleGeoCards.slice(0, 2));
+          }
+        } catch (error) {
+          console.error('🗺️ Error fetching AI geographic insights:', error);
+          console.log('🗺️ Fallback to sample geographic insights');
+          setAiGeoCards(sampleGeoCards.slice(0, 2));
+        }
+      }
+    
+    } catch (error) {
+      console.error('❌ AI Search failed:', error);
+      
+      // Note: Audience insights cards are already set above if isAudienceInsightsQuery is true
+      
+      // Fallback to local search
+      console.log('🔄 Falling back to local search');
+      setFilters(prev => ({ ...prev, search: query }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFiltersChange = (newFilters: DealFilters) => {
+    setFilters(newFilters);
+    setIsAiSearch(false); // Reset AI search flag when filters change
+  };
+
+  const handleDealClick = (deal: Deal) => {
+    console.log('Deal clicked:', deal);
+    setSelectedDeal(deal);
+    setIsDealModalOpen(true);
+  };
+
+  const handlePersonaClick = (persona: Persona) => {
+    console.log('Persona clicked:', persona);
+    // Navigate to Persona Explorer and filter by this persona
+    setShowAudienceExplorer(true);
+  };
+
+  // Duplicate functions removed - handled by event listeners
+
+  const handleAddToCart = (deal: Deal) => {
+    setCart(prev => {
+      // Check if deal is already in cart
+      if (prev.some(item => item.id === deal.id)) {
+        return prev; // Don't add duplicates
+      }
+      return [...prev, deal];
+    });
+  };
+
+  const handleRemoveFromCart = (dealId: string) => {
+    setCart(prev => prev.filter(deal => deal.id !== dealId));
+  };
+
+  const handleClearCart = () => {
+    setCart([]);
+  };
+
+  const isInCart = (dealId: string) => {
+    return cart.some(deal => deal.id === dealId);
+  };
+
+}  return (
+    <>
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col h-screen pb-32">
+          {/* Error Message */}
+          {error && (
+            <div className="mx-4 mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-yellow-800 text-sm">{error}</p>
+            </div>
+          )}
+
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col h-full">
+            {showAudienceExplorer ? (
+              <AudienceExplorer
+                onBack={() => setShowAudienceExplorer(false)}
+                onDealClick={handleDealClick}
+                onAddToCart={handleAddToCart}
+                onRemoveFromCart={handleRemoveFromCart}
+                isInCart={isInCart}
+                // Save functionality handled by AppLayout
+                onSwitchToChat={(query) => {
+                  setShowAudienceExplorer(false);
+                  setChatInputValue(query);
+                }}
+              />
+            ) : (
+              <ChatInterface
+              onSearch={handleSearch}
+              deals={aiDeals}
+              loading={loading}
+              onDealClick={handleDealClick}
+              onFilterToggle={() => setIsFilterOpen(true)}
+              resetChat={resetChat}
+              onAddToCart={handleAddToCart}
+              onRemoveFromCart={handleRemoveFromCart}
+              isInCart={isInCart}
+              // Sidebar state handled by AppLayout
+              aiResponse={aiResponse}
+              aiPersonas={aiPersonas}
+              aiAudienceInsights={aiAudienceInsights}
+              aiMarketSizing={aiMarketSizing}
+              aiGeoCards={aiGeoCards}
+              onPersonaClick={handlePersonaClick}
+              inputValue={chatInputValue}
+              onInputValueChange={setChatInputValue}
+              // Save functionality handled by AppLayout
+            />
+            )}
+          </div>
+        </main>
+      </div>
+
+      {/* Filter Panel */}
+      <FilterPanel
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+      />
+
+        {/* Custom Deal Form */}
+        <CustomDealForm
+          isOpen={isCustomDealFormOpen}
+          onClose={() => setIsCustomDealFormOpen(false)}
+        />
+
+        {/* Deal Detail Modal */}
+        <DealDetailModal
+          deal={selectedDeal}
+          isOpen={isDealModalOpen}
+          onClose={() => {
+            setIsDealModalOpen(false);
+            setSelectedDeal(null);
+          }}
+          onAddToCart={handleAddToCart}
+          onRemoveFromCart={handleRemoveFromCart}
+          isInCart={isInCart}
+          // Save functionality handled by AppLayout
+        />
+
+        {/* Persona Detail Modal */}
+        <PersonaDetailModal
+          persona={selectedPersona}
+          isOpen={isPersonaModalOpen}
+          onClose={() => {
+            setIsPersonaModalOpen(false);
+            setSelectedPersona(null);
+          }}
+          onViewDeals={(persona) => {
+            setIsPersonaModalOpen(false);
+            setSelectedPersona(null);
+            // Switch to chat interface and populate input with search query
+            setShowAudienceExplorer(false);
+            setChatInputValue(`request deals for ${persona.name} persona`);
+          }}
+          // Save functionality handled by AppLayout
+        />
+
+        {/* Audience Insights Detail Modal */}
+        {selectedAudienceInsights && (
+          <AudienceInsightsDetailModal
+            insights={selectedAudienceInsights}
+            isOpen={isAudienceInsightsModalOpen}
+            onClose={() => {
+              setIsAudienceInsightsModalOpen(false);
+              setSelectedAudienceInsights(null);
+            }}
+            onViewDeals={(insights) => {
+              setIsAudienceInsightsModalOpen(false);
+              setSelectedAudienceInsights(null);
+              // Switch to chat interface and populate input with search query
+              setShowAudienceExplorer(false);
+              setChatInputValue(`request deals for ${insights.audienceName} audience`);
+            }}
+            // Save functionality handled by AppLayout
+          />
+        )}
+
+        {/* Market Sizing Detail Modal */}
+        {selectedMarketSizing && (
+          <MarketSizingDetailModal
+            sizing={selectedMarketSizing}
+            isOpen={isMarketSizingModalOpen}
+            onClose={() => {
+              setIsMarketSizingModalOpen(false);
+              setSelectedMarketSizing(null);
+            }}
+            onViewDeals={(sizing) => {
+              setIsMarketSizingModalOpen(false);
+              setSelectedMarketSizing(null);
+              // Switch to chat interface and populate input with search query
+              setShowAudienceExplorer(false);
+              setChatInputValue(`request deals for ${sizing.marketName} market`);
+            }}
+            // Save functionality handled by AppLayout
+          />
+        )}
+
+        {/* Geo Detail Modal */}
+        {selectedGeo && (
+          <GeoDetailModal
+            geo={selectedGeo}
+            isOpen={isGeoModalOpen}
+            onClose={() => {
+              setIsGeoModalOpen(false);
+              setSelectedGeo(null);
+            }}
+            onViewDeals={(geo) => {
+              setIsGeoModalOpen(false);
+              setSelectedGeo(null);
+              // Switch to chat interface and populate input with search query
+              setShowAudienceExplorer(false);
+              setChatInputValue(`request deals for ${geo.audienceName} geographic targeting`);
+            }}
+            // Save functionality handled by AppLayout
+          />
+        )}
+
+        {/* Cart Modal */}
+        {isCartOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setIsCartOpen(false);
+              }
+            }}
+          >
+            <div 
+              className="bg-white rounded-xl shadow-sovrn-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center p-6 border-b border-neutral-200">
+                <h2 className="text-xl font-bold text-neutral-900">Selected Deals</h2>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={handleClearCart}
+                    className="btn-secondary text-sm"
+                    disabled={cart.length === 0}
+                  >
+                    Clear All
+                  </button>
+                  <button 
+                    onClick={() => setIsCartOpen(false)}
+                    className="text-neutral-500 hover:text-neutral-700"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                {cart.length === 0 ? (
+                  <div className="text-center py-12">
+                    <ShoppingCart className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-neutral-500 mb-2">Your cart is empty</h3>
+                    <p className="text-neutral-400">Add deals to your cart to get started</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {cart.map((deal) => (
+                      <div key={deal.id} className="card p-4 flex items-center justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-neutral-900 mb-1">{deal.dealName}</h3>
+                          <p className="text-sm text-neutral-600 mb-2">{deal.description}</p>
+                          <div className="flex items-center space-x-4 text-xs text-neutral-500">
+                            <span className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full">
+                              {deal.mediaType}
+                            </span>
+                            <span className="px-2 py-1 bg-secondary-100 text-secondary-700 rounded-full">
+                              {deal.environment}
+                            </span>
+                            <span>{deal.bidGuidance}</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveFromCart(deal.id)}
+                          className="text-red-500 hover:text-red-700 p-2"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                    
+                    <div className="border-t border-neutral-200 pt-4 mt-6">
+                      <div className="flex justify-between items-center">
+                        <span className="text-lg font-semibold text-neutral-900">
+                          {cart.length} deal{cart.length !== 1 ? 's' : ''} selected
+                        </span>
+                        <div className="flex space-x-3">
+                          <button
+                            onClick={() => setIsCartOpen(false)}
+                            className="btn-secondary"
+                          >
+                            Continue Shopping
+                          </button>
+                          <button className="btn-primary">
+                            Export Selected Deals
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+    </>
+  );
+}

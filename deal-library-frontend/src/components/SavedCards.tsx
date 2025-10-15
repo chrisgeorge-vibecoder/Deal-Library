@@ -1,10 +1,10 @@
 import React from 'react';
-import { BookmarkCheck, X, ShoppingCart, Users, BarChart3, MapPin, Lightbulb } from 'lucide-react';
+import { BookmarkCheck, X, ShoppingCart, Users, BarChart3, MapPin, Lightbulb, TrendingUp } from 'lucide-react';
 import { Deal, Persona, AudienceInsights, MarketSizing, GeoCard } from '@/types/deal';
 
 interface SavedCard {
   type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards';
-  data: Deal | Persona | AudienceInsights | MarketSizing | GeoCard;
+  data: any;
   savedAt: string;
 }
 

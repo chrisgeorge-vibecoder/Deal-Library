@@ -53,11 +53,7 @@ function calculateDealRelevanceScore(deal: Deal, query: string): DealScore {
     reasons.push('Description contains search terms');
   }
   
-  // Category match
-  if ((deal.category || '').toLowerCase().includes(queryLower)) {
-    score += 25;
-    reasons.push('Category match');
-  }
+  // Category field no longer exists on Deal; skip
   
   // Media type match
   if ((deal.mediaType || '').toLowerCase().includes(queryLower)) {
@@ -87,9 +83,8 @@ interface HomePageProps {
   isSaved?: (cardId: string) => boolean;
 }
 
-export default function HomePage({ 
-  sidebarOpen = true
-}: Partial<HomePageProps>) {
+export default function HomePage() {
+  const sidebarOpen = true;
   // Get save/unsave functions from context instead of props
   const { onSaveCard, onUnsaveCard, isSaved } = useSaveCard();
   const { onAddToCart, onRemoveFromCart, isInCart } = useCart();

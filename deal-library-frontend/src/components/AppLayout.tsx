@@ -54,7 +54,7 @@ import { MarketSizing } from '@/components/MarketSizingCard';
 // Saved cards interface
 interface SavedCard {
   type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards';
-  data: Deal | Persona | AudienceInsights | MarketSizing | GeoCard;
+  data: Deal | Persona | AudienceInsights | MarketSizing | GeoCard | any;
   savedAt: string;
 }
 
@@ -202,7 +202,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const handleExportCart = () => {
     const exportData = cart.map(deal => ({
       'Deal Name': deal.dealName,
-      'Category': deal.category,
+      // Category removed from Deal; include mediaType instead
+      'Category': '',
       'Deal ID': deal.dealId,
       'Media Type': deal.mediaType,
       'Description': deal.description
@@ -269,17 +270,20 @@ export default function AppLayout({ children }: AppLayoutProps) {
       if (cardData.type === 'persona') {
         // Persona card from Audience Insights page - has full structure
         const personaData: Persona = {
-          id: cardData.segment || cardData.title,
+          id: cardData.segmentId || cardData.segment || cardData.title,
           name: cardData.title,
-          description: cardData.description,
-          category: cardData.category,
-          demographics: {
-            age: '',
-            income: '',
-            location: '',
-            interests: []
-          },
-          insights: cardData.description
+          emoji: cardData.emoji || '🧭',
+          category: cardData.category || 'Audience',
+          dealCount: 0,
+          segmentId: cardData.segmentId || cardData.segment || cardData.title,
+          coreInsight: cardData.coreInsight || cardData.description || '',
+          creativeHooks: cardData.creativeHooks || [],
+          mediaTargeting: cardData.mediaTargeting || [],
+          audienceMotivation: cardData.audienceMotivation || '',
+          actionableStrategy: {
+            creativeHook: (cardData.creativeHooks && cardData.creativeHooks[0]) || '',
+            mediaTargeting: (cardData.mediaTargeting && cardData.mediaTargeting[0]) || ''
+          }
         };
         handleSaveCard({ type: 'persona', data: personaData });
       } else {
@@ -336,7 +340,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   <div className="flex items-center space-x-3">
                     <div className="w-20 h-10 flex items-center justify-center">
                       <img
-                        src="/sovrn-logo.jpg"
+                        src="/Sovrn-logo.jpg"
                         alt="Sovrn Logo"
                         className="h-10 w-auto object-contain"
                         onError={(e) => {
@@ -488,7 +492,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           setIsGeoModalOpen(false);
           setSelectedGeo(null);
           // Navigate to main chat with pre-populated prompt
-          const dealPrompt = `Find relevant deals for ${geo.audienceName} in ${geo.location}`;
+          const dealPrompt = `Find relevant deals for ${geo.audienceName}`;
           window.location.href = `/?prompt=${encodeURIComponent(dealPrompt)}`;
         }}
         onSaveCard={handleSaveCard}

@@ -7,6 +7,7 @@ interface CustomDealFormProps {
 }
 
 export default function CustomDealForm({ isOpen, onClose }: CustomDealFormProps) {
+  const readOnly = process.env.NEXT_PUBLIC_READ_ONLY === 'true';
   const [formData, setFormData] = useState({
     companyName: '',
     contactEmail: '',
@@ -19,6 +20,11 @@ export default function CustomDealForm({ isOpen, onClose }: CustomDealFormProps)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (readOnly) {
+      alert('Read-only mode: submissions are disabled for this environment.');
+      onClose();
+      return;
+    }
     console.log('Custom deal request submitted:', formData);
     // TODO: Submit to backend API
     onClose();
@@ -167,22 +173,26 @@ export default function CustomDealForm({ isOpen, onClose }: CustomDealFormProps)
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-neutral-200">
+          <div className="flex justify-end gap-4 pt-4 border-t border-neutral-200">
             <button
               type="button"
               onClick={onClose}
-              className="btn-secondary"
+              className="px-6 py-3 rounded-lg border border-neutral-300 text-neutral-700 font-medium hover:bg-neutral-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn-primary flex items-center gap-2"
+              disabled={readOnly}
+              className="px-6 py-3 rounded-lg bg-gradient-to-r from-brand-gold to-brand-orange text-brand-charcoal font-semibold hover:shadow-sovrn transition-all duration-200 flex items-center gap-2"
             >
               <Send className="w-4 h-4" />
               Submit Request
             </button>
           </div>
+          {readOnly && (
+            <p className="text-xs text-neutral-500 mt-2">Read-only mode is enabled in this environment.</p>
+          )}
         </form>
       </div>
     </div>

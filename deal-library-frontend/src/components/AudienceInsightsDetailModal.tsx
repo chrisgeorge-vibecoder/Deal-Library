@@ -3,7 +3,7 @@ import { X, ShoppingCart, Users, Target, Lightbulb, TrendingUp, Clock, Smartphon
 import { AudienceInsights } from './AudienceInsightsCard';
 
 interface AudienceInsightsDetailModalProps {
-  insights: AudienceInsights;
+  insights: AudienceInsights | null;
   isOpen: boolean;
   onClose: () => void;
   onViewDeals: (insights: AudienceInsights) => void;
@@ -29,7 +29,7 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
     insights: insights?.audienceName
   });
 
-  if (!isOpen) return null;
+  if (!isOpen || !insights) return null;
 
   return (
     <div 

@@ -1015,7 +1015,7 @@ export default function AudienceInsightsPage() {
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ level, percentage }) => `${level}: ${Math.round(percentage)}%`}
+                          label={({ level, percentage }: any) => `${level}: ${Math.round(Number(percentage))}%`}
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="percentage"
@@ -1222,16 +1222,58 @@ export default function AudienceInsightsPage() {
               {/* Channel Recommendations */}
               <div className="bg-white rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Channel/Media Recommendations</h3>
-                <ul className="space-y-3">
-                  {report.strategicInsights.channelRecommendations.map((channel, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="text-brand-orange mt-1">●</span>
-                      <div className="text-sm text-gray-700 leading-relaxed">
-                        {typeof channel === 'string' ? renderMarkdown(channel) : JSON.stringify(channel)}
+                <div className="space-y-4">
+                  {report.strategicInsights.channelRecommendations.map((channel, index) => {
+                    // Handle both string and object formats
+                    if (typeof channel === 'string') {
+                      return (
+                        <div key={index} className="flex items-start gap-2">
+                          <span className="text-brand-orange mt-1">●</span>
+                          <div className="text-sm text-gray-700 leading-relaxed">
+                            {renderMarkdown(channel)}
+                          </div>
+                        </div>
+                      );
+                    }
+                    
+                    // Format object with proper structure
+                    const channelObj = channel as any;
+                    return (
+                      <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-brand-orange transition-colors">
+                        <h4 className="font-semibold text-gray-900 mb-3 text-base flex items-center gap-2">
+                          <span className="text-brand-orange">▸</span>
+                          {channelObj.channel}
+                        </h4>
+                        <div className="space-y-2 ml-5">
+                          {channelObj.where && (
+                            <div className="flex items-start gap-2">
+                              <span className="font-medium text-gray-700 text-sm min-w-[60px]">Where:</span>
+                              <span className="text-sm text-gray-600">{channelObj.where}</span>
+                            </div>
+                          )}
+                          {channelObj.when && (
+                            <div className="flex items-start gap-2">
+                              <span className="font-medium text-gray-700 text-sm min-w-[60px]">When:</span>
+                              <span className="text-sm text-gray-600">{channelObj.when}</span>
+                            </div>
+                          )}
+                          {channelObj.who && (
+                            <div className="flex items-start gap-2">
+                              <span className="font-medium text-gray-700 text-sm min-w-[60px]">Who:</span>
+                              <span className="text-sm text-gray-600">{channelObj.who}</span>
+                            </div>
+                          )}
+                          {channelObj.why && (
+                            <div className="flex items-start gap-2">
+                              <span className="font-medium text-gray-700 text-sm min-w-[60px]">Why:</span>
+                              <span className="text-sm text-gray-600">{channelObj.why}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </li>
-                  ))}
-                </ul>
+                    );
+                  })}
+                </div>
               </div>
             </section>
 

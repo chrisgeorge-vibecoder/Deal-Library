@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovrn Sales Prospecting Tool - Audience Infographics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #282828;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .tool-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .panel h2 {
+            color: #282828;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #FFD42B;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #282828;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #FFD42B;
+        }
+        
+        .overlap-options {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .overlap-option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .overlap-option:hover {
+            border-color: #FFD42B;
+            background: #fffbf0;
+        }
+        
+        .overlap-option.selected {
+            border-color: #FF9A00;
+            background: linear-gradient(135deg, #fff7e6 0%, #ffe6cc 100%);
+            font-weight: 600;
+        }
+        
+        .overlap-name {
+            font-size: 15px;
+            color: #282828;
+        }
+        
+        .overlap-percent {
+            font-size: 18px;
+            font-weight: 700;
+            color: #FF9A00;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #FFD42B 0%, #FF9A00 100%);
+            color: #282828;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 154, 0, 0.4);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #preview-card {
+            text-align: center;
+            min-height: 450px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .placeholder {
+            color: #999;
+            font-size: 16px;
+        }
+        
+        .download-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #D45087 0%, #2F4A7C 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .email-template {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #FFD42B;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #282828;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        
+        .copy-btn {
+            width: 100%;
+            padding: 12px;
+            background: #2F4A7C;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background: #1e3050;
+        }
+        
+        .brands-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .brands-list li {
+            padding: 12px 15px;
+            background: #f9f9f9;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 3px solid #FFD42B;
+            font-size: 14px;
+            color: #282828;
+        }
+        
+        .info-badge {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 1024px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Sovrn Sales Prospecting Tool</h1>
+            <p>Generate custom audience infographics, email templates, and brand recommendations in seconds</p>
+        </div>
+        
+        <div class="tool-container">
+            <!-- Left Panel: Input -->
+            <div class="panel">
+                <h2>1. Select Your Audience</h2>
+                
+                <div class="form-group">
+                    <label for="segment-select">Choose Commerce Audience Segment</label>
+                    <select id="segment-select">
+                        <option value="">-- Select a segment --</option>
+                    </select>
+                </div>
+                
+                <div id="overlap-section" class="hidden">
+                    <div class="form-group">
+                        <label>Top 5 Overlapping Products <span class="info-badge">Select One</span></label>
+                        <div id="overlap-options" class="overlap-options">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                    
+                    <button id="generate-btn" class="generate-btn" disabled>
+                        🎨 Generate Infographic & Email
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Preview -->
+            <div class="panel">
+                <h2>2. Your Infographic</h2>
+                <div id="preview-card">
+                    <p class="placeholder">👆 Select a segment and overlap product to generate your infographic</p>
+                </div>
+                <button id="download-btn" class="download-btn hidden">
+                    📥 Download as JPG
+                </button>
+            </div>
+        </div>
+        
+        <!-- Bottom Panels -->
+        <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <!-- Email Template -->
+            <div class="panel">
+                <h2>3. Your Prospecting Email</h2>
+                <div id="email-container" class="hidden">
+                    <div id="email-template" class="email-template"></div>
+                    <button id="copy-email-btn" class="copy-btn">
+                        📋 Copy Email to Clipboard
+                    </button>
+                </div>
+                <p id="email-placeholder" class="placeholder">Generate an infographic to see your custom email template</p>
+            </div>
+            
+            <!-- Brand Recommendations -->
+            <div class="panel">
+                <h2>4. Recommended Brands to Target</h2>
+                <div id="brands-container" class="hidden">
+                    <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                        Top brands that would be interested in this audience:
+                    </p>
+                    <ul id="brands-list" class="brands-list"></ul>
+                </div>
+                <p id="brands-placeholder" class="placeholder">Brand recommendations will appear here</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Commerce audience data (we'll load the top segments here)
+        const audienceData = {
+            "Camping & Hiking": {
+                size: "9.9M",
+                overlaps: [
+                    { name: "Speakers", emoji: "🔊", percent: 55 },
+                    { name: "Shaving & Grooming", emoji: "🪒", percent: 40 },
+                    { name: "Exercise & Fitness", emoji: "💪", percent: 39 },
+                    { name: "Outdoor Furniture", emoji: "🪑", percent: 38 },
+                    { name: "Outdoor Recreation", emoji: "⛺", percent: 38 }
+                ],
+                insight: "Adventure seekers want their soundtrack everywhere. Perfect for wireless, weather-resistant, or rugged audio solutions.",
+                brands: ["REI", "Patagonia", "The North Face", "Columbia Sportswear", "Bass Pro Shops", "Cabela's", "Arc'teryx", "Osprey", "Black Diamond", "Mountain Hardwear"]
+            },
+            "Coffee": {
+                size: "10M",
+                overlaps: [
+                    { name: "Household Supplies", emoji: "🏠", percent: 52 },
+                    { name: "Exercise & Fitness", emoji: "💪", percent: 50 },
+                    { name: "Alcoholic Beverages", emoji: "🍷", percent: 46 },
+                    { name: "Laptops", emoji: "💻", percent: 44 },
+                    { name: "Shaving & Grooming", emoji: "🪒", percent: 44 }
+                ],
+                insight: "Health-conscious early risers fuel their active lifestyles with quality coffee. Premium wellness audience perfect for fitness tech and performance products.",
+                brands: ["Starbucks", "Blue Bottle Coffee", "Nespresso", "Peet's Coffee", "Lavazza", "Illy", "Trade Coffee", "Atlas Coffee Club", "Bulletproof", "Four Sigmatic"]
+            },
+            "Dog Supplies": {
+                size: "5M",
+                overlaps: [
+                    { name: "Entertainment Centers & TV Stands", emoji: "📺", percent: 60 },
+                    { name: "Vehicles & Parts", emoji: "🚗", percent: 55 },
+                    { name: "Beds & Accessories", emoji: "🛏️", percent: 46 },
+                    { name: "Laptops", emoji: "💻", percent: 45 },
+                    { name: "Network Software", emoji: "💾", percent: 45 }
+                ],
+                insight: "Pet parents invest in comfortable, entertainment-rich home environments. Homebodies who value quality family time and cozy spaces.",
+                brands: ["Chewy", "Petco", "PetSmart", "The Farmer's Dog", "BarkBox", "Ollie", "Nom Nom", "Wild Earth", "Spot & Tango", "PetPlate"]
+            },
+            "Activewear": {
+                size: "10M",
+                overlaps: [
+                    { name: "Outerwear", emoji: "🧥", percent: 66 },
+                    { name: "3D Printers", emoji: "🖨️", percent: 55 },
+                    { name: "Cabinets & Storage", emoji: "🗄️", percent: 54 },
+                    { name: "Shorts", emoji: "🩳", percent: 53 },
+                    { name: "Building Materials", emoji: "🔨", percent: 52 }
+                ],
+                insight: "Active consumers don't let weather stop them. Athleisure lifestyle audience that values performance fabrics and versatility.",
+                brands: ["Lululemon", "Nike", "Adidas", "Under Armour", "Athleta", "Outdoor Voices", "Alo Yoga", "Gymshark", "Rhone", "Vuori"]
+            },
+            "Exercise & Fitness": {
+                size: "15M",
+                overlaps: [
+                    { name: "Shaving & Grooming", emoji: "🪒", percent: 58 },
+                    { name: "Alcoholic Beverages", emoji: "🍷", percent: 55 },
+                    { name: "Outdoor Furniture", emoji: "🪑", percent: 54 },
+                    { name: "Sporting Goods", emoji: "⚽", percent: 53 },
+                    { name: "Outerwear", emoji: "🧥", percent: 52 }
+                ],
+                insight: "Fitness enthusiasts invest in comprehensive wellness. High-earning, health-conscious consumers who prioritize quality and performance.",
+                brands: ["Peloton", "Apple Fitness+", "Mirror", "Tonal", "Whoop", "Oura Ring", "Theragun", "TRX", "Rogue Fitness", "NordicTrack"]
+            },
+            "Laptops": {
+                size: "12M",
+                overlaps: [
+                    { name: "Network Software", emoji: "💾", percent: 72 },
+                    { name: "Tablets", emoji: "📱", percent: 68 },
+                    { name: "Computer Monitors", emoji: "🖥️", percent: 65 },
+                    { name: "Office Supplies", emoji: "📎", percent: 62 },
+                    { name: "Headphones", emoji: "🎧", percent: 60 }
+                ],
+                insight: "Tech-savvy professionals building complete digital workspaces. Remote workers and digital nomads investing in productivity tools.",
+                brands: ["Apple", "Dell", "HP", "Lenovo", "Microsoft Surface", "ASUS", "Acer", "Razer", "MSI", "System76"]
+            },
+            "Pet Supplies": {
+                size: "18M",
+                overlaps: [
+                    { name: "Household Supplies", emoji: "🏠", percent: 55 },
+                    { name: "Lawn & Garden", emoji: "🌱", percent: 52 },
+                    { name: "Home Security", emoji: "🔒", percent: 48 },
+                    { name: "Furniture", emoji: "🛋️", percent: 47 },
+                    { name: "Cleaning Supplies", emoji: "🧹", percent: 45 }
+                ],
+                insight: "Homeowners who treat pets as family. Well-organized households investing in quality home products and pet care.",
+                brands: ["Chewy", "PetSmart", "Petco", "Purina", "Blue Buffalo", "Hill's Pet Nutrition", "Royal Canin", "Iams", "Freshpet", "Stella & Chewy's"]
+            },
+            "Sporting Goods": {
+                size: "14M",
+                overlaps: [
+                    { name: "Exercise & Fitness", emoji: "💪", percent: 62 },
+                    { name: "Activewear", emoji: "👟", percent: 58 },
+                    { name: "Outdoor Recreation", emoji: "⛺", percent: 55 },
+                    { name: "Energy Drinks", emoji: "⚡", percent: 52 },
+                    { name: "Protein Supplements", emoji: "🥤", percent: 50 }
+                ],
+                insight: "Active lifestyle enthusiasts across multiple sports. Performance-driven consumers who invest in quality gear and nutrition.",
+                brands: ["Dick's Sporting Goods", "Academy Sports", "REI", "Nike", "Adidas", "Wilson", "Spalding", "Easton", "Rawlings", "Under Armour"]
+            }
+        };
+        
+        let selectedSegment = null;
+        let selectedOverlap = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            populateSegments();
+            setupEventListeners();
+        });
+        
+        function populateSegments() {
+            const select = document.getElementById('segment-select');
+            Object.keys(audienceData).sort().forEach(segment => {
+                const option = document.createElement('option');
+                option.value = segment;
+                option.textContent = `${segment} (${audienceData[segment].size} buyers)`;
+                select.appendChild(option);
+            });
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('segment-select').addEventListener('change', handleSegmentChange);
+            document.getElementById('generate-btn').addEventListener('click', generateInfographic);
+            document.getElementById('download-btn').addEventListener('click', downloadCard);
+            document.getElementById('copy-email-btn').addEventListener('click', copyEmail);
+        }
+        
+        function handleSegmentChange(e) {
+            selectedSegment = e.target.value;
+            selectedOverlap = null;
+            
+            if (selectedSegment) {
+                showOverlaps();
+            } else {
+                document.getElementById('overlap-section').classList.add('hidden');
+            }
+            
+            document.getElementById('generate-btn').disabled = true;
+        }
+        
+        function showOverlaps() {
+            const section = document.getElementById('overlap-section');
+            const container = document.getElementById('overlap-options');
+            container.innerHTML = '';
+            
+            const data = audienceData[selectedSegment];
+            data.overlaps.forEach((overlap, index) => {
+                const div = document.createElement('div');
+                div.className = 'overlap-option';
+                div.dataset.index = index;
+                div.innerHTML = `
+                    <span class="overlap-name">${overlap.emoji} ${overlap.name}</span>
+                    <span class="overlap-percent">${overlap.percent}%</span>
+                `;
+                div.addEventListener('click', () => selectOverlap(index));
+                container.appendChild(div);
+            });
+            
+            section.classList.remove('hidden');
+        }
+        
+        function selectOverlap(index) {
+            document.querySelectorAll('.overlap-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelector(`[data-index="${index}"]`).classList.add('selected');
+            
+            selectedOverlap = index;
+            document.getElementById('generate-btn').disabled = false;
+        }
+        
+        function generateInfographic() {
+            const data = audienceData[selectedSegment];
+            const overlap = data.overlaps[selectedOverlap];
+            
+            // Generate card
+            const card = createCard(selectedSegment, data.size, overlap, data.insight);
+            document.getElementById('preview-card').innerHTML = card;
+            document.getElementById('download-btn').classList.remove('hidden');
+            
+            // Generate email
+            const email = createEmail(selectedSegment, data.size, overlap);
+            document.getElementById('email-template').textContent = email;
+            document.getElementById('email-container').classList.remove('hidden');
+            document.getElementById('email-placeholder').classList.add('hidden');
+            
+            // Show brands
+            showBrands(data.brands);
+        }
+        
+        function createCard(segment, size, overlap, insight) {
+            const segmentEmoji = getSegmentEmoji(segment);
+            return `
+                <svg id="generated-card" width="350" height="450" viewBox="0 0 350 450" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD42B;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#FF9A00;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <rect width="350" height="120" fill="url(#cardGrad)"/>
+                    
+                    <text x="175" y="40" font-family="system-ui, sans-serif" font-size="32" font-weight="bold" fill="#282828" text-anchor="middle">
+                        ${segmentEmoji}
+                    </text>
+                    
+                    <text x="175" y="70" font-family="system-ui, sans-serif" font-size="20" font-weight="bold" fill="#282828" text-anchor="middle">
+                        ${segment}
+                    </text>
+                    
+                    <text x="175" y="95" font-family="system-ui, sans-serif" font-size="14" fill="#282828" text-anchor="middle" opacity="0.8">
+                        ${size} Commerce Buyers
+                    </text>
+                    
+                    <rect y="120" width="350" height="330" fill="#ffffff"/>
+                    
+                    <text x="175" y="160" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#666" text-anchor="middle">
+                        TOP OVERLAP
+                    </text>
+                    
+                    <text x="175" y="210" font-family="system-ui, sans-serif" font-size="52" font-weight="bold" fill="#FF9A00" text-anchor="middle">
+                        ${overlap.percent}%
+                    </text>
+                    
+                    <text x="175" y="240" font-family="system-ui, sans-serif" font-size="18" font-weight="600" fill="#282828" text-anchor="middle">
+                        ${overlap.emoji} ${overlap.name}
+                    </text>
+                    
+                    <line x1="30" y1="270" x2="320" y2="270" stroke="#e0e0e0" stroke-width="1"/>
+                    
+                    <text x="175" y="300" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#666" text-anchor="middle">
+                        WHY IT MATTERS
+                    </text>
+                    
+                    ${wrapText(insight, 175, 325, 12, 20, 290)}
+                    
+                    <rect y="400" width="350" height="50" fill="#f9f9f9"/>
+                    <text x="175" y="430" font-family="system-ui, sans-serif" font-size="10" fill="#666" text-anchor="middle">
+                        Powered by the Sovrn Data Collective
+                    </text>
+                </svg>
+            `;
+        }
+        
+        function wrapText(text, x, startY, fontSize, lineHeight, maxWidth) {
+            const words = text.split(' ');
+            let lines = [];
+            let currentLine = [];
+            
+            words.forEach(word => {
+                currentLine.push(word);
+                const testLine = currentLine.join(' ');
+                if (testLine.length > 50) {
+                    currentLine.pop();
+                    lines.push(currentLine.join(' '));
+                    currentLine = [word];
+                }
+            });
+            if (currentLine.length > 0) {
+                lines.push(currentLine.join(' '));
+            }
+            
+            return lines.map((line, i) => 
+                `<text x="${x}" y="${startY + (i * lineHeight)}" font-family="system-ui, sans-serif" font-size="${fontSize}" fill="#282828" text-anchor="middle">${line}</text>`
+            ).join('\n');
+        }
+        
+        function getSegmentEmoji(segment) {
+            const emojis = {
+                "Camping & Hiking": "🏕️",
+                "Coffee": "☕",
+                "Dog Supplies": "🐕",
+                "Activewear": "👟",
+                "Exercise & Fitness": "💪",
+                "Laptops": "💻",
+                "Pet Supplies": "🐾",
+                "Sporting Goods": "⚽"
+            };
+            return emojis[segment] || "📊";
+        }
+        
+        function createEmail(segment, size, overlap) {
+            const firstName = "[First Name]";
+            const brandName = "[Brand Name]";
+            
+            return `Subject: ${overlap.percent}% of ${segment} buyers are also shopping for ${overlap.name}
+
+Hi ${firstName},
+
+I came across something in our commerce data that immediately made me think of ${brandName}.
+
+[Insert Infographic Image Here]
+
+${size} consumers are actively shopping for ${segment.toLowerCase()}, and ${overlap.percent}% of them are also purchasing ${overlap.name.toLowerCase()}.
+
+That's a highly qualified audience with proven purchase intent across both categories.
+
+We can help ${brandName} reach these ${size} buyers through our Sovrn Data Collective—real commerce signals from actual transactions, not modeled data.
+
+Are you free for a quick call this week to explore how we could activate this audience for your Q4 campaigns?
+
+Best,
+[Your Name]
+[Your Title]
+Sovrn
+
+P.S. This data includes ZIP-level targeting, demographic overlays, and cross-purchase insights. Happy to share more specifics.`;
+        }
+        
+        function showBrands(brands) {
+            const list = document.getElementById('brands-list');
+            list.innerHTML = '';
+            
+            brands.forEach(brand => {
+                const li = document.createElement('li');
+                li.textContent = brand;
+                list.appendChild(li);
+            });
+            
+            document.getElementById('brands-container').classList.remove('hidden');
+            document.getElementById('brands-placeholder').classList.add('hidden');
+        }
+        
+        function downloadCard() {
+            const svg = document.getElementById('generated-card');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 350;
+            canvas.height = 450;
+            const ctx = canvas.getContext('2d');
+            
+            const img = new Image();
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+            
+            img.onload = function() {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 350, 450);
+                ctx.drawImage(img, 0, 0);
+                
+                canvas.toBlob(function(blob) {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    const filename = `${selectedSegment.replace(/\s+/g, '-')}-${audienceData[selectedSegment].overlaps[selectedOverlap].name.replace(/\s+/g, '-')}-Audience.jpg`;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                }, 'image/jpeg', 0.95);
+                
+                URL.revokeObjectURL(url);
+            };
+            
+            img.src = url;
+        }
+        
+        function copyEmail() {
+            const email = document.getElementById('email-template').textContent;
+            navigator.clipboard.writeText(email).then(() => {
+                const btn = document.getElementById('copy-email-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied to Clipboard!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+

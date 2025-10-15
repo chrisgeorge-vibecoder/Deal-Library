@@ -20,6 +20,9 @@ const HEADER_ROW = 1; // Row number with headers
  */
 function doGet(e) {
   const action = e.parameter.action || 'health';
+  if (!authorizeRequest(e)) {
+    return createErrorResponse('Unauthorized', 401);
+  }
   
   try {
     switch (action) {
@@ -50,6 +53,9 @@ function doGet(e) {
  */
 function doPost(e) {
   const action = e.parameter.action || 'create';
+  if (!authorizeRequest(e)) {
+    return createErrorResponse('Unauthorized', 401);
+  }
   
   try {
     const data = JSON.parse(e.postData.contents);
@@ -268,6 +274,20 @@ function getSheet() {
   }
   
   return sheet;
+}
+
+/**
+ * Authorization check using Script Properties stored secret
+ */
+function authorizeRequest(e) {
+  var props = PropertiesService.getScriptProperties();
+  var expected = props.getProperty('APPS_SCRIPT_SHARED_SECRET');
+  if (!expected) {
+    // If not set, allow only read-only GETs for safety
+    return e && e.parameter && e.parameter.action ? (e.parameter.action === 'health' || e.parameter.action === 'deals' || e.parameter.action === 'deal') : true;
+  }
+  var provided = (e && e.parameter && e.parameter.api_key) || '';
+  return provided && provided === expected;
 }
 
 /**

@@ -9,8 +9,9 @@ interface AudienceInsightsReport {
   segment: string;
   category: string;
   executiveSummary: string;
-  personaName: string;  // NEW: Generated persona name
-  personaEmoji: string;  // NEW: Emoji for category
+  personaName: string;  // AI-generated persona name
+  personaEmoji: string;  // Emoji for category
+  personaDescription?: string;  // AI-generated visual persona description
   keyMetrics: {
     medianHHI: number;
     medianHHIvsNational: number;
@@ -262,18 +263,19 @@ class AudienceInsightsService {
     );
     console.log(`📝 Generated executive summary (${Date.now() - stepStart}ms)\n`);
     
-    // Generate persona name and emoji
-    const personaName = this.generatePersonaName(segment, demographics, overlaps, commerceBaseline);
-    const personaEmoji = this.getEmojiForCategory(category || 'General', segment);
-    console.log(`👤 Generated persona: "${personaName}" ${personaEmoji}`);
+    // Generate AI-powered persona with visual description
+    stepStart = Date.now();
+    const personaResult = await this.generateAIPersona(segment, category || 'General', demographics, overlaps, geoIntelligence, commerceBaseline);
+    console.log(`👤 Generated AI persona: "${personaResult.name}" ${personaResult.emoji} (${Date.now() - stepStart}ms)`);
 
     // Compile final report
     const report: AudienceInsightsReport = {
       segment,
       category: category || 'General',
       executiveSummary,
-      personaName,
-      personaEmoji,
+      personaName: personaResult.name,
+      personaEmoji: personaResult.emoji,
+      personaDescription: personaResult.description,  // NEW: Visual persona description
       keyMetrics: {
         medianHHI: demographics.medianHHI,
         medianHHIvsNational: demographics.medianHHIvsNational,
@@ -694,12 +696,22 @@ class AudienceInsightsService {
     // Find dominant urbanicity
     const topUrbanRural = Object.entries(urbanRuralBuckets).sort((a, b) => b[1] - a[1])[0]?.[0] || 'suburban';
 
-    // Convert buckets to percentages
-    const incomeDistribution = Object.entries(incomeBuckets).map(([bracket, count]) => ({
-      bracket,
-      percentage: (count / totalWeight) * 100,
-      nationalAvg: this.getNationalIncomeBracketAvg(bracket),
-    }));
+    // Convert buckets to percentages and sort by income order
+    const incomeBracketOrder: Record<string, number> = {
+      'Under $50k': 1,
+      '$50k-$75k': 2,
+      '$75k-$100k': 3,
+      '$100k-$150k': 4,
+      '$150k+': 5
+    };
+    
+    const incomeDistribution = Object.entries(incomeBuckets)
+      .map(([bracket, count]) => ({
+        bracket,
+        percentage: (count / totalWeight) * 100,
+        nationalAvg: this.getNationalIncomeBracketAvg(bracket),
+      }))
+      .sort((a, b) => (incomeBracketOrder[a.bracket] || 999) - (incomeBracketOrder[b.bracket] || 999));
 
     const educationLevels = Object.entries(educationBuckets).map(([level, count]) => ({
       level,
@@ -1302,6 +1314,79 @@ class AudienceInsightsService {
   /**
    * Generate strategic insights with Gemini
    */
+  /**
+   * Generate AI-powered persona with visual description
+   */
+  private async generateAIPersona(
+    segment: string,
+    category: string,
+    demographics: any,
+    overlaps: any[],
+    geoIntelligence: any,
+    commerceBaseline: any
+  ): Promise<{ name: string; emoji: string; description: string }> {
+    console.log(`👤 Generating AI persona for: "${segment}"`);
+
+    const vsCommerce = {
+      income: ((demographics.medianHHI / commerceBaseline.medianHHI) - 1) * 100,
+      education: ((demographics.educationBachelors / commerceBaseline.educationBachelorsPlus) - 1) * 100,
+    };
+
+    const prompt = `You are creating a vivid, memorable persona for the "${segment}" audience (${category} category).
+
+DATA CONTEXT:
+- Income: $${demographics.medianHHI.toFixed(0)} (${vsCommerce.income >= 0 ? '+' : ''}${vsCommerce.income.toFixed(1)}% vs typical online shopper)
+- Age: ${demographics.topAgeBracket}, median ${demographics.medianAge.toFixed(1)} years
+- Education: ${demographics.educationProfile}
+- Family: ${demographics.familyProfile}, ${demographics.avgHouseholdSize.toFixed(1)} people per household
+- Location: ${geoIntelligence.topCities.slice(0, 3).map((c: any) => `${c.city} ${c.state}`).join(', ')}
+- Lifestyle: ${demographics.lifestyle?.selfEmployed && demographics.lifestyle.selfEmployed > 12 ? `${demographics.lifestyle.selfEmployed.toFixed(0)}% entrepreneurs, ` : ''}${demographics.lifestyle?.avgCommuteTime && demographics.lifestyle.avgCommuteTime > 25 ? `${demographics.lifestyle.avgCommuteTime.toFixed(0)}-min commute, ` : ''}${demographics.lifestyle?.stemDegree && demographics.lifestyle.stemDegree > 15 ? `tech-savvy (${demographics.lifestyle.stemDegree.toFixed(0)}% STEM), ` : ''}${demographics.lifestyle?.charitableGivers && demographics.lifestyle.charitableGivers > 40 ? `values-driven (${demographics.lifestyle.charitableGivers.toFixed(0)}% donate)` : 'typical lifestyle'}
+- Top Overlap: ${overlaps[0]?.segment || 'N/A'} (${overlaps[0]?.overlapPercentage.toFixed(1) || '0'}%)
+
+TASK: Create a persona that brings this audience to life visually and emotionally.
+
+Return ONLY valid JSON in this exact format:
+{
+  "name": "The [Adjective] [Segment] [Descriptor]" (e.g., "The Affluent Coffee Enthusiast", "The Family-First Baby Monitor Parent", "The Tech-Savvy Fitness Tracker User"),
+  "emoji": "single emoji that represents this category/segment" (e.g., ☕ for coffee, 👶 for baby products, 💪 for fitness),
+  "description": "Paint a vivid picture in 2-3 sentences. Describe what they LOOK like doing on a typical Saturday morning, what's in their shopping cart, where they live, what they care about. Make it visual and specific - cite the data (income, location, lifestyle) but make it human and relatable. Example: 'Picture them at 7am in their suburban Ashburn home, brewing premium coffee while meal-prepping organic lunches for their two kids before a $95k dual-income workday. Their Amazon cart mixes baby monitors with home office upgrades—safety and productivity in equal measure. They're nest-builders: 78% homeowners who research extensively, prioritize wellness (62% buy organic), and invest in long-term quality over quick fixes.'"
+}`;
+
+    const gemini = this.getGeminiService();
+    if (!gemini) {
+      console.log('⚠️  Gemini not available, using rule-based persona');
+      return {
+        name: this.generatePersonaName(segment, demographics, overlaps, commerceBaseline),
+        emoji: this.getEmojiForCategory(category, segment),
+        description: `The ${segment} audience represents ${demographics.affluenceLevel.toLowerCase()} consumers with a median income of $${demographics.medianHHI.toFixed(0)}, primarily in the ${demographics.topAgeBracket} age range, concentrated in ${geoIntelligence.topCities[0]?.city}, ${geoIntelligence.topCities[0]?.state} and similar markets.`
+      };
+    }
+
+    try {
+      const result = await gemini['model'].generateContent(prompt);
+      const responseText = result.response.text();
+      
+      // Extract JSON
+      const firstBrace = responseText.indexOf('{');
+      const lastBrace = responseText.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1) {
+        const jsonStr = responseText.substring(firstBrace, lastBrace + 1);
+        const persona = JSON.parse(jsonStr);
+        console.log(`✅ AI Persona: "${persona.name}" ${persona.emoji}`);
+        return persona;
+      }
+      
+      throw new Error('Could not extract JSON from Gemini response');
+    } catch (error) {
+      console.error('❌ Error generating AI persona:', error);
+      return {
+        name: this.generatePersonaName(segment, demographics, overlaps, commerceBaseline),
+        emoji: this.getEmojiForCategory(category, segment),
+        description: `The ${segment} audience represents ${demographics.affluenceLevel.toLowerCase()} consumers with a median income of $${demographics.medianHHI.toFixed(0)}, primarily in the ${demographics.topAgeBracket} age range, concentrated in ${geoIntelligence.topCities[0]?.city}, ${geoIntelligence.topCities[0]?.state} and similar markets.`
+      };
+    }
+  }
+
   private async generateStrategicInsights(
     segment: string,
     category: string,

@@ -14,7 +14,7 @@ const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
 });
 
 interface GeoDetailModalProps {
-  geo: GeoCard;
+  geo: GeoCard | null;
   isOpen: boolean;
   onClose: () => void;
   onViewDeals?: (geo: GeoCard) => void;
@@ -32,7 +32,7 @@ export default function GeoDetailModal({
   onUnsaveCard,
   isSaved
 }: GeoDetailModalProps) {
-  if (!isOpen) return null;
+  if (!isOpen || !geo) return null;
 
   return (
     <div 

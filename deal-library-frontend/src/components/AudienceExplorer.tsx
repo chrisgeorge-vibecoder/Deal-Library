@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Deal, Persona, AudienceInsights, GeoCard } from '@/types/deal';
 import { MarketSizing } from './MarketSizingCard';
-import { Search, Filter, Users, Target, Lightbulb, TrendingUp, MapPin, BarChart3, ShoppingCart, Trash2 } from 'lucide-react';
+import { Search, Filter, Users, Target, Lightbulb, TrendingUp, MapPin, BarChart3, ShoppingCart, Trash2, Sparkles } from 'lucide-react';
 import DealCard from './DealCard';
 import DealDetailModal from './DealDetailModal';
 import PersonaDetailModal from './PersonaDetailModal';
@@ -663,23 +663,30 @@ export default function AudienceExplorer({
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-neutral-200 bg-white">
-        <div className="flex items-center gap-4">
-          <div>
-            <h1 className="text-xl font-semibold text-neutral-800">Intelligence Cards</h1>
-            <p className="text-sm text-neutral-600">Discover insights across all card types</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-800 text-sm font-medium rounded-full">
-            <Search className="w-4 h-4" />
-            {searchResults.length} Results
+      <div className="pt-6 pb-6 bg-gradient-to-r from-indigo-50 to-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-neutral-900 flex items-center gap-3">
+                <Sparkles className="w-8 h-8 text-brand-orange" />
+                Intelligence Cards
+              </h1>
+              <p className="text-neutral-600 mt-2">
+                Discover insights across all card types
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-800 text-sm font-medium rounded-full">
+                <Search className="w-4 h-4" />
+                {searchResults.length} Results
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Category Selection */}
-      <div className="p-6 border-b border-neutral-200 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="space-y-6">
           {/* Main Categories */}
           <div>
@@ -854,7 +861,8 @@ export default function AudienceExplorer({
       </div>
 
       {/* Search Results */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error ? (
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
@@ -904,6 +912,7 @@ export default function AudienceExplorer({
             </p>
           </div>
         )}
+        </div>
       </div>
 
       {/* Modals */}

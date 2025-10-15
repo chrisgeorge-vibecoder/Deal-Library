@@ -1,4 +1,4 @@
-import { Plus, Sparkles, Users } from 'lucide-react';
+import { Plus, Sparkles, Users, ShoppingCart } from 'lucide-react';
 import SavedCards from './SavedCards';
 import Link from 'next/link';
 

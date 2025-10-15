@@ -2,19 +2,33 @@ import { Deal } from '../types/deal';
 import { PersonaService } from './personaService';
 
 export class AppsScriptService {
-  private baseUrl: string;
+  private baseUrl: string | null;
   private personaService: PersonaService;
 
   constructor() {
     const url = process.env.GOOGLE_APPS_SCRIPT_URL;
+    const sharedSecret = process.env.APPS_SCRIPT_SHARED_SECRET;
     
     if (!url) {
-      throw new Error('GOOGLE_APPS_SCRIPT_URL environment variable is required');
+      console.warn('⚠️  GOOGLE_APPS_SCRIPT_URL not configured - Apps Script integration will be unavailable');
+      this.baseUrl = null;
+    } else {
+      // Append a shared secret as query param if configured
+      if (sharedSecret) {
+        const hasQuery = url.includes('?');
+        this.baseUrl = `${url}${hasQuery ? '&' : '?'}api_key=${encodeURIComponent(sharedSecret)}`;
+      } else {
+        this.baseUrl = url;
+      }
+      console.log('✅ AppsScriptService initialized');
     }
+
+    // Helper to join query params safely
+    const makeUrlWith = (base: string, suffix: string) => `${base}${base.includes('?') ? '&' : '?'}${suffix}`;
+    // Bind helpers for reuse
+    (this as any)._makeUrlWith = makeUrlWith;
     
-    this.baseUrl = url;
     this.personaService = new PersonaService();
-    console.log('✅ AppsScriptService initialized with URL:', this.baseUrl);
   }
 
   /**
@@ -22,6 +36,11 @@ export class AppsScriptService {
    */
   async getAllDeals(): Promise<Deal[]> {
     console.log('🔍 AppsScriptService.getAllDeals called, baseUrl:', this.baseUrl);
+
+    if (!this.baseUrl) {
+      console.warn('⚠️  Apps Script URL not configured - returning empty deals array');
+      return [];
+    }
 
     try {
       const response = await fetch(this.baseUrl, { redirect: 'follow' });
@@ -76,7 +95,8 @@ export class AppsScriptService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}?action=deal&id=${encodeURIComponent(id)}`);
+      const makeUrlWith: (base: string, suffix: string) => string = (this as any)._makeUrlWith;
+      const response = await fetch(makeUrlWith(this.baseUrl, `action=deal&id=${encodeURIComponent(id)}`));
       
       if (response.status === 404) {
         return null;
@@ -103,7 +123,8 @@ export class AppsScriptService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}?action=create`, {
+      const makeUrlWith: (base: string, suffix: string) => string = (this as any)._makeUrlWith;
+      const response = await fetch(makeUrlWith(this.baseUrl, 'action=create'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +153,8 @@ export class AppsScriptService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}?action=update`, {
+      const makeUrlWith: (base: string, suffix: string) => string = (this as any)._makeUrlWith;
+      const response = await fetch(makeUrlWith(this.baseUrl, 'action=update'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,7 +198,8 @@ export class AppsScriptService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}?action=custom-deal-request`, {
+      const makeUrlWith: (base: string, suffix: string) => string = (this as any)._makeUrlWith;
+      const response = await fetch(makeUrlWith(this.baseUrl, 'action=custom-deal-request'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -205,7 +228,8 @@ export class AppsScriptService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}?action=health`);
+      const makeUrlWith: (base: string, suffix: string) => string = (this as any)._makeUrlWith;
+      const response = await fetch(makeUrlWith(this.baseUrl, 'action=health'));
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

@@ -1,0 +1,4977 @@
+{
+  "3D Printers": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Oral Care",
+        "percent": 24
+      },
+      {
+        "name": "Outerwear",
+        "percent": 23
+      },
+      {
+        "name": "Pet Supplies",
+        "percent": 20
+      },
+      {
+        "name": "Sofas",
+        "percent": 19
+      },
+      {
+        "name": "Water",
+        "percent": 19
+      }
+    ]
+  },
+  "Activewear": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Outerwear",
+        "percent": 66
+      },
+      {
+        "name": "3D Printers",
+        "percent": 55
+      },
+      {
+        "name": "Cabinets & Storage",
+        "percent": 54
+      },
+      {
+        "name": "Shorts",
+        "percent": 53
+      },
+      {
+        "name": "Building Materials",
+        "percent": 52
+      }
+    ]
+  },
+  "Advertising & Marketing": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Sporting Goods",
+        "percent": 60
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 56
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 55
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 55
+      },
+      {
+        "name": "Outdoor Furniture",
+        "percent": 54
+      }
+    ]
+  },
+  "Agriculture": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Lawn & Garden",
+        "percent": 45
+      },
+      {
+        "name": "Sleeping Aids",
+        "percent": 36
+      },
+      {
+        "name": "Coffee",
+        "percent": 31
+      },
+      {
+        "name": "Food Storage Accessories",
+        "percent": 29
+      },
+      {
+        "name": "Food & Beverage Carriers",
+        "percent": 29
+      }
+    ]
+  },
+  "Alcoholic Beverages": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Athletics",
+        "percent": 50
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 49
+      },
+      {
+        "name": "Laptops",
+        "percent": 42
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 42
+      },
+      {
+        "name": "Shoes",
+        "percent": 38
+      }
+    ]
+  },
+  "Animals & Pet Supplies": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Home & Garden",
+        "percent": 17
+      },
+      {
+        "name": "Furniture",
+        "percent": 17
+      },
+      {
+        "name": "Outerwear",
+        "percent": 7
+      },
+      {
+        "name": "Oral Care",
+        "percent": 6
+      },
+      {
+        "name": "Shorts",
+        "percent": 6
+      }
+    ]
+  },
+  "Antivirus & Security Software": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Indoor Games",
+        "percent": 35
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 31
+      },
+      {
+        "name": "Household Appliances",
+        "percent": 27
+      },
+      {
+        "name": "Vision Care",
+        "percent": 24
+      },
+      {
+        "name": "Linens & Bedding",
+        "percent": 24
+      }
+    ]
+  },
+  "Arcade Equipment": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Electronics Accessories",
+        "percent": 16
+      },
+      {
+        "name": "Networking",
+        "percent": 15
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 14
+      },
+      {
+        "name": "Luggage & Bags",
+        "percent": 14
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 11
+      }
+    ]
+  },
+  "Arts & Entertainment": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Event Tickets",
+        "percent": 38
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 34
+      },
+      {
+        "name": "Food Items",
+        "percent": 34
+      },
+      {
+        "name": "Food Service",
+        "percent": 32
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 27
+      }
+    ]
+  },
+  "Athletics": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Laptops",
+        "percent": 65
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 65
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 62
+      },
+      {
+        "name": "Shoes",
+        "percent": 61
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 60
+      }
+    ]
+  },
+  "Audio": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Tablet Computers",
+        "percent": 27
+      },
+      {
+        "name": "Magazines & Newspapers",
+        "percent": 23
+      },
+      {
+        "name": "Cameras & Optics",
+        "percent": 21
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 18
+      },
+      {
+        "name": "Pasta & Noodles",
+        "percent": 17
+      }
+    ]
+  },
+  "Baby & Toddler": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Arts & Entertainment",
+        "percent": 27
+      },
+      {
+        "name": "Food Items",
+        "percent": 26
+      },
+      {
+        "name": "Food Service",
+        "percent": 24
+      },
+      {
+        "name": "Nursing & Feeding",
+        "percent": 23
+      },
+      {
+        "name": "Tablet Computers",
+        "percent": 21
+      }
+    ]
+  },
+  "Baby & Toddler Clothing": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Books",
+        "percent": 66
+      },
+      {
+        "name": "Media",
+        "percent": 63
+      },
+      {
+        "name": "Toys",
+        "percent": 61
+      },
+      {
+        "name": "Media",
+        "percent": 53
+      },
+      {
+        "name": "Clothing Accessories",
+        "percent": 51
+      }
+    ]
+  },
+  "Baby & Toddler Furniture": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Home & Garden",
+        "percent": 38
+      },
+      {
+        "name": "Toys",
+        "percent": 36
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 30
+      },
+      {
+        "name": "Clothing Accessories",
+        "percent": 27
+      },
+      {
+        "name": "Toys & Games",
+        "percent": 27
+      }
+    ]
+  },
+  "Baby Bathing": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Electronics Accessories",
+        "percent": 49
+      },
+      {
+        "name": "Chairs",
+        "percent": 46
+      },
+      {
+        "name": "Electronics Accessories",
+        "percent": 45
+      },
+      {
+        "name": "Video Game Consoles",
+        "percent": 40
+      },
+      {
+        "name": "Video Game Consoles",
+        "percent": 37
+      }
+    ]
+  },
+  "Baby Gift Sets": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Baby & Toddler",
+        "percent": 50
+      },
+      {
+        "name": "Food Service",
+        "percent": 45
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 42
+      },
+      {
+        "name": "Nursing & Feeding",
+        "percent": 40
+      },
+      {
+        "name": "Event Tickets",
+        "percent": 39
+      }
+    ]
+  },
+  "Baby Health": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Baby & Toddler",
+        "percent": 47
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 35
+      },
+      {
+        "name": "Food Items",
+        "percent": 34
+      },
+      {
+        "name": "Food Service",
+        "percent": 34
+      },
+      {
+        "name": "Nursing & Feeding",
+        "percent": 33
+      }
+    ]
+  },
+  "Baby Safety": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Cooking & Baking Ingredients",
+        "percent": 49
+      },
+      {
+        "name": "Cookware & Bakeware",
+        "percent": 42
+      },
+      {
+        "name": "Foot Care",
+        "percent": 39
+      },
+      {
+        "name": "Camping & Hiking",
+        "percent": 36
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 35
+      }
+    ]
+  },
+  "Baby Toys & Activity Equipment": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Electronics Accessories",
+        "percent": 79
+      },
+      {
+        "name": "Chairs",
+        "percent": 72
+      },
+      {
+        "name": "Electronics",
+        "percent": 69
+      },
+      {
+        "name": "Baby Transport",
+        "percent": 62
+      },
+      {
+        "name": "Video Game Consoles",
+        "percent": 60
+      }
+    ]
+  },
+  "Baby Transport": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Electronics Accessories",
+        "percent": 88
+      },
+      {
+        "name": "Networking",
+        "percent": 76
+      },
+      {
+        "name": "Baby Bathing",
+        "percent": 76
+      },
+      {
+        "name": "Storage Devices",
+        "percent": 68
+      },
+      {
+        "name": "Chairs",
+        "percent": 64
+      }
+    ]
+  },
+  "Baby Transport Accessories": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Baby & Toddler",
+        "percent": 30
+      },
+      {
+        "name": "Swaddling & Receiving Blankets",
+        "percent": 20
+      },
+      {
+        "name": "Nursing & Feeding",
+        "percent": 18
+      },
+      {
+        "name": "Food Service",
+        "percent": 18
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 16
+      }
+    ]
+  },
+  "Backpacks": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Toys",
+        "percent": 61
+      },
+      {
+        "name": "Media",
+        "percent": 58
+      },
+      {
+        "name": "Shirts & Tops",
+        "percent": 56
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 56
+      },
+      {
+        "name": "Books",
+        "percent": 55
+      }
+    ]
+  },
+  "Bathroom Accessories": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 68
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 62
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 60
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 55
+      },
+      {
+        "name": "Athletics",
+        "percent": 54
+      }
+    ]
+  },
+  "Beds & Accessories": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Athletics",
+        "percent": 64
+      },
+      {
+        "name": "Laptops",
+        "percent": 62
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 57
+      },
+      {
+        "name": "Shoes",
+        "percent": 57
+      },
+      {
+        "name": "Computers",
+        "percent": 57
+      }
+    ]
+  },
+  "Benches": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Electronics Accessories",
+        "percent": 34
+      },
+      {
+        "name": "Electronics",
+        "percent": 28
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 25
+      },
+      {
+        "name": "Video Game Consoles",
+        "percent": 22
+      },
+      {
+        "name": "Chairs",
+        "percent": 21
+      }
+    ]
+  },
+  "Beverages": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Outerwear",
+        "percent": 80
+      },
+      {
+        "name": "Shorts",
+        "percent": 63
+      },
+      {
+        "name": "Cabinets & Storage",
+        "percent": 59
+      },
+      {
+        "name": "Home & Garden",
+        "percent": 58
+      },
+      {
+        "name": "Pet Supplies",
+        "percent": 58
+      }
+    ]
+  },
+  "Books": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Media",
+        "percent": 68
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 51
+      },
+      {
+        "name": "Media",
+        "percent": 48
+      },
+      {
+        "name": "Clothing Accessories",
+        "percent": 47
+      },
+      {
+        "name": "Toys",
+        "percent": 47
+      }
+    ]
+  },
+  "Briefcases": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Non-Dairy Milk",
+        "percent": 78
+      },
+      {
+        "name": "Televisions",
+        "percent": 73
+      },
+      {
+        "name": "Video",
+        "percent": 68
+      },
+      {
+        "name": "Office Supplies",
+        "percent": 43
+      },
+      {
+        "name": "Benches",
+        "percent": 22
+      }
+    ]
+  },
+  "Building Materials": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Tea & Infusions",
+        "percent": 79
+      },
+      {
+        "name": "Sofas",
+        "percent": 76
+      },
+      {
+        "name": "Shorts",
+        "percent": 69
+      },
+      {
+        "name": "Cabinets & Storage",
+        "percent": 66
+      },
+      {
+        "name": "Beverages",
+        "percent": 56
+      }
+    ]
+  },
+  "Business & Home Security": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Outerwear",
+        "percent": 98
+      },
+      {
+        "name": "Shorts",
+        "percent": 96
+      },
+      {
+        "name": "Cabinets & Storage",
+        "percent": 94
+      },
+      {
+        "name": "Building Materials",
+        "percent": 94
+      },
+      {
+        "name": "Sofas",
+        "percent": 94
+      }
+    ]
+  },
+  "Business & Industrial": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Shaving & Grooming",
+        "percent": 43
+      },
+      {
+        "name": "Luggage & Bags",
+        "percent": 43
+      },
+      {
+        "name": "Components",
+        "percent": 43
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 41
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 41
+      }
+    ]
+  },
+  "Business & Productivity Software": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Televisions",
+        "percent": 44
+      },
+      {
+        "name": "Books",
+        "percent": 43
+      },
+      {
+        "name": "Video",
+        "percent": 43
+      },
+      {
+        "name": "Cookware & Bakeware",
+        "percent": 37
+      },
+      {
+        "name": "Cameras & Optics",
+        "percent": 33
+      }
+    ]
+  },
+  "Cabinets & Storage": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Shorts",
+        "percent": 54
+      },
+      {
+        "name": "Oral Care",
+        "percent": 48
+      },
+      {
+        "name": "Water",
+        "percent": 43
+      },
+      {
+        "name": "Building Materials",
+        "percent": 39
+      },
+      {
+        "name": "Outerwear",
+        "percent": 35
+      }
+    ]
+  },
+  "Camera Lenses": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Skirts",
+        "percent": 40
+      },
+      {
+        "name": "Lawn & Garden",
+        "percent": 36
+      },
+      {
+        "name": "Toys",
+        "percent": 36
+      },
+      {
+        "name": "Shirts & Tops",
+        "percent": 36
+      },
+      {
+        "name": "Books",
+        "percent": 36
+      }
+    ]
+  },
+  "Camera Parts & Accessories": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Cooking & Baking Ingredients",
+        "percent": 33
+      },
+      {
+        "name": "Frozen Desserts & Novelties",
+        "percent": 30
+      },
+      {
+        "name": "Soups & Broths",
+        "percent": 19
+      },
+      {
+        "name": "Audio",
+        "percent": 17
+      },
+      {
+        "name": "Food Items",
+        "percent": 17
+      }
+    ]
+  },
+  "Cameras": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Video",
+        "percent": 34
+      },
+      {
+        "name": "Hardware Accessories",
+        "percent": 33
+      },
+      {
+        "name": "Software",
+        "percent": 33
+      },
+      {
+        "name": "Nuts & Seeds",
+        "percent": 29
+      },
+      {
+        "name": "Electronics",
+        "percent": 28
+      }
+    ]
+  },
+  "Cameras & Optics": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Toys",
+        "percent": 24
+      },
+      {
+        "name": "Vehicles",
+        "percent": 24
+      },
+      {
+        "name": "Media",
+        "percent": 23
+      },
+      {
+        "name": "Outerwear",
+        "percent": 22
+      },
+      {
+        "name": "Televisions",
+        "percent": 20
+      }
+    ]
+  },
+  "Camping & Hiking": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Speakers",
+        "percent": 55
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 40
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 39
+      },
+      {
+        "name": "Outdoor Furniture",
+        "percent": 38
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 38
+      }
+    ]
+  },
+  "Cat Supplies": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Food Service",
+        "percent": 26
+      },
+      {
+        "name": "Foot Care",
+        "percent": 25
+      },
+      {
+        "name": "Food Items",
+        "percent": 25
+      },
+      {
+        "name": "Shorts",
+        "percent": 25
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 24
+      }
+    ]
+  },
+  "Chairs": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Electronics Accessories",
+        "percent": 85
+      },
+      {
+        "name": "Electronics",
+        "percent": 63
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 61
+      },
+      {
+        "name": "Video Game Consoles",
+        "percent": 56
+      },
+      {
+        "name": "Baby Bathing",
+        "percent": 46
+      }
+    ]
+  },
+  "Circuit Boards & Components": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Networking",
+        "percent": 51
+      },
+      {
+        "name": "Electronics Accessories",
+        "percent": 44
+      },
+      {
+        "name": "Cosmetics",
+        "percent": 42
+      },
+      {
+        "name": "Personal Care",
+        "percent": 42
+      },
+      {
+        "name": "Seasonings & Spices",
+        "percent": 40
+      }
+    ]
+  },
+  "Clothing": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Athletics",
+        "percent": 33
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 31
+      },
+      {
+        "name": "Sleeping Aids",
+        "percent": 30
+      },
+      {
+        "name": "Kitchen Appliances",
+        "percent": 29
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 27
+      }
+    ]
+  },
+  "Clothing Accessories": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 74
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 66
+      },
+      {
+        "name": "Books",
+        "percent": 56
+      },
+      {
+        "name": "Baby & Toddler Clothing",
+        "percent": 51
+      },
+      {
+        "name": "Foot Care",
+        "percent": 49
+      }
+    ]
+  },
+  "Coffee": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Household Supplies",
+        "percent": 52
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 50
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 46
+      },
+      {
+        "name": "Laptops",
+        "percent": 44
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 44
+      }
+    ]
+  },
+  "Communications": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Audio",
+        "percent": 37
+      },
+      {
+        "name": "Computers",
+        "percent": 35
+      },
+      {
+        "name": "Tablet Computers",
+        "percent": 32
+      },
+      {
+        "name": "Electronics",
+        "percent": 30
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 28
+      }
+    ]
+  },
+  "Components": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Shaving & Grooming",
+        "percent": 67
+      },
+      {
+        "name": "Shoes",
+        "percent": 66
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 61
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 57
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 57
+      }
+    ]
+  },
+  "Computer Software": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Software",
+        "percent": 49
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 38
+      },
+      {
+        "name": "Video",
+        "percent": 37
+      },
+      {
+        "name": "Software",
+        "percent": 33
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 32
+      }
+    ]
+  },
+  "Computers": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Communications",
+        "percent": 35
+      },
+      {
+        "name": "Audio",
+        "percent": 32
+      },
+      {
+        "name": "Electronics",
+        "percent": 31
+      },
+      {
+        "name": "Tablet Computers",
+        "percent": 31
+      },
+      {
+        "name": "Lawn & Garden",
+        "percent": 31
+      }
+    ]
+  },
+  "Condiments & Sauces": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Arts & Entertainment",
+        "percent": 44
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 39
+      },
+      {
+        "name": "Food Items",
+        "percent": 38
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 36
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 35
+      }
+    ]
+  },
+  "Condoms": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Household Supplies",
+        "percent": 61
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 60
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 53
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 50
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 50
+      }
+    ]
+  },
+  "Construction": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Shoes",
+        "percent": 80
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 79
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 78
+      },
+      {
+        "name": "Components",
+        "percent": 78
+      },
+      {
+        "name": "Luggage & Bags",
+        "percent": 75
+      }
+    ]
+  },
+  "Cooking & Baking Ingredients": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Tables",
+        "percent": 31
+      },
+      {
+        "name": "Foot Care",
+        "percent": 23
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 21
+      },
+      {
+        "name": "Food Items",
+        "percent": 20
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 20
+      }
+    ]
+  },
+  "Cookware & Bakeware": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Toys",
+        "percent": 61
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 51
+      },
+      {
+        "name": "Home & Garden",
+        "percent": 51
+      },
+      {
+        "name": "Media",
+        "percent": 51
+      },
+      {
+        "name": "Lawn & Garden",
+        "percent": 49
+      }
+    ]
+  },
+  "Cosmetic & Toiletry Bags": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 36
+      },
+      {
+        "name": "Arcade Equipment",
+        "percent": 30
+      },
+      {
+        "name": "Non-Dairy Milk",
+        "percent": 22
+      },
+      {
+        "name": "Speakers",
+        "percent": 19
+      },
+      {
+        "name": "Soups & Broths",
+        "percent": 16
+      }
+    ]
+  },
+  "Cosmetics": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Personal Care",
+        "percent": 91
+      },
+      {
+        "name": "Health & Beauty",
+        "percent": 85
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 42
+      },
+      {
+        "name": "Seasonings & Spices",
+        "percent": 37
+      },
+      {
+        "name": "Networking",
+        "percent": 27
+      }
+    ]
+  },
+  "Costumes & Accessories": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Storage Devices",
+        "percent": 51
+      },
+      {
+        "name": "Electronics",
+        "percent": 50
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 50
+      },
+      {
+        "name": "Software",
+        "percent": 49
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 47
+      }
+    ]
+  },
+  "Cycling": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Sporting Goods",
+        "percent": 74
+      },
+      {
+        "name": "Outdoor Furniture",
+        "percent": 72
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 70
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 66
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 65
+      }
+    ]
+  },
+  "DVDs & Videos": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 54
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 52
+      },
+      {
+        "name": "Laptops",
+        "percent": 47
+      },
+      {
+        "name": "Athletics",
+        "percent": 44
+      },
+      {
+        "name": "Communications",
+        "percent": 42
+      }
+    ]
+  },
+  "Dairy Products": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Skirts",
+        "percent": 34
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 33
+      },
+      {
+        "name": "Software",
+        "percent": 30
+      },
+      {
+        "name": "Beds & Accessories",
+        "percent": 29
+      },
+      {
+        "name": "Mattresses",
+        "percent": 28
+      }
+    ]
+  },
+  "Decor": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 61
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 57
+      },
+      {
+        "name": "Cookware & Bakeware",
+        "percent": 57
+      },
+      {
+        "name": "Toys",
+        "percent": 56
+      },
+      {
+        "name": "Vehicles",
+        "percent": 55
+      }
+    ]
+  },
+  "Diapering": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Baby & Toddler",
+        "percent": 54
+      },
+      {
+        "name": "Nursing & Feeding",
+        "percent": 33
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 32
+      },
+      {
+        "name": "Food Service",
+        "percent": 27
+      },
+      {
+        "name": "Marine Electronics",
+        "percent": 27
+      }
+    ]
+  },
+  "Dips & Spreads": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Arts & Entertainment",
+        "percent": 38
+      },
+      {
+        "name": "Food Items",
+        "percent": 36
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 36
+      },
+      {
+        "name": "Food Service",
+        "percent": 31
+      },
+      {
+        "name": "Nursing & Feeding",
+        "percent": 24
+      }
+    ]
+  },
+  "Dog Supplies": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 60
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 55
+      },
+      {
+        "name": "Beds & Accessories",
+        "percent": 46
+      },
+      {
+        "name": "Laptops",
+        "percent": 45
+      },
+      {
+        "name": "Network Software",
+        "percent": 45
+      }
+    ]
+  },
+  "Dresses": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Toys",
+        "percent": 90
+      },
+      {
+        "name": "Media",
+        "percent": 89
+      },
+      {
+        "name": "Books",
+        "percent": 78
+      },
+      {
+        "name": "Outerwear",
+        "percent": 69
+      },
+      {
+        "name": "Clothing Accessories",
+        "percent": 66
+      }
+    ]
+  },
+  "Duffel Bags": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Vehicles",
+        "percent": 45
+      },
+      {
+        "name": "Plumbing",
+        "percent": 43
+      },
+      {
+        "name": "Skirts",
+        "percent": 39
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 36
+      },
+      {
+        "name": "Antivirus & Security Software",
+        "percent": 33
+      }
+    ]
+  },
+  "Educational Software": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Electronics Accessories",
+        "percent": 82
+      },
+      {
+        "name": "Networking",
+        "percent": 79
+      },
+      {
+        "name": "Electronics Accessories",
+        "percent": 77
+      },
+      {
+        "name": "Toys & Games",
+        "percent": 56
+      },
+      {
+        "name": "Networking",
+        "percent": 53
+      }
+    ]
+  },
+  "Educational Toys": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Media",
+        "percent": 68
+      },
+      {
+        "name": "Toys",
+        "percent": 42
+      },
+      {
+        "name": "Books",
+        "percent": 37
+      },
+      {
+        "name": "Toys & Games",
+        "percent": 35
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 35
+      }
+    ]
+  },
+  "Electronics": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Electronics Accessories",
+        "percent": 42
+      },
+      {
+        "name": "Video",
+        "percent": 39
+      },
+      {
+        "name": "Networking",
+        "percent": 38
+      },
+      {
+        "name": "Storage Devices",
+        "percent": 31
+      },
+      {
+        "name": "Communications",
+        "percent": 31
+      }
+    ]
+  },
+  "Electronics Accessories": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Networking",
+        "percent": 57
+      },
+      {
+        "name": "Electronics",
+        "percent": 56
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 52
+      },
+      {
+        "name": "Networking",
+        "percent": 45
+      },
+      {
+        "name": "Chairs",
+        "percent": 43
+      }
+    ]
+  },
+  "Emergency Preparedness": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Household Supplies",
+        "percent": 64
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 64
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 63
+      },
+      {
+        "name": "Kitchen Appliances",
+        "percent": 62
+      },
+      {
+        "name": "Communications",
+        "percent": 60
+      }
+    ]
+  },
+  "Entertainment Centers & TV Stands": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Laptops",
+        "percent": 62
+      },
+      {
+        "name": "Components",
+        "percent": 56
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 56
+      },
+      {
+        "name": "Beds & Accessories",
+        "percent": 54
+      },
+      {
+        "name": "Shoes",
+        "percent": 53
+      }
+    ]
+  },
+  "Event Tickets": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Arts & Entertainment",
+        "percent": 48
+      },
+      {
+        "name": "Food Items",
+        "percent": 47
+      },
+      {
+        "name": "Radar Detectors",
+        "percent": 42
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 40
+      },
+      {
+        "name": "Food Service",
+        "percent": 39
+      }
+    ]
+  },
+  "Exercise & Fitness": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Laptops",
+        "percent": 56
+      },
+      {
+        "name": "Shoes",
+        "percent": 55
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 52
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 50
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 47
+      }
+    ]
+  },
+  "Feminine Sanitary Supplies": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Shoes",
+        "percent": 64
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 63
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 60
+      },
+      {
+        "name": "Components",
+        "percent": 58
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 55
+      }
+    ]
+  },
+  "Fencing & Barriers": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Components",
+        "percent": 60
+      },
+      {
+        "name": "Laptops",
+        "percent": 56
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 52
+      },
+      {
+        "name": "Beds & Accessories",
+        "percent": 51
+      },
+      {
+        "name": "Shoes",
+        "percent": 46
+      }
+    ]
+  },
+  "Film & Television": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Lawn & Garden",
+        "percent": 59
+      },
+      {
+        "name": "Household Appliances",
+        "percent": 39
+      },
+      {
+        "name": "Luggage & Bags",
+        "percent": 35
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 32
+      },
+      {
+        "name": "Computers",
+        "percent": 32
+      }
+    ]
+  },
+  "Finance & Insurance": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Baby & Toddler Furniture",
+        "percent": 26
+      },
+      {
+        "name": "Oral Care",
+        "percent": 25
+      },
+      {
+        "name": "Office Supplies",
+        "percent": 23
+      },
+      {
+        "name": "Business & Industrial",
+        "percent": 19
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 19
+      }
+    ]
+  },
+  "Fireplace & Wood Stove Accessories": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Personal Care",
+        "percent": 71
+      },
+      {
+        "name": "Media",
+        "percent": 71
+      },
+      {
+        "name": "Health & Beauty",
+        "percent": 69
+      },
+      {
+        "name": "Cosmetics",
+        "percent": 68
+      },
+      {
+        "name": "Operating Systems",
+        "percent": 56
+      }
+    ]
+  },
+  "Fireplaces": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Electronics",
+        "percent": 35
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 34
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 34
+      },
+      {
+        "name": "Shelving",
+        "percent": 33
+      },
+      {
+        "name": "Video",
+        "percent": 32
+      }
+    ]
+  },
+  "Fitness & Nutrition": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Vehicles",
+        "percent": 34
+      },
+      {
+        "name": "Clothing Accessories",
+        "percent": 33
+      },
+      {
+        "name": "Vision Care",
+        "percent": 30
+      },
+      {
+        "name": "Toys",
+        "percent": 30
+      },
+      {
+        "name": "Household Appliances",
+        "percent": 29
+      }
+    ]
+  },
+  "Food & Beverage Carriers": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Lawn & Garden",
+        "percent": 31
+      },
+      {
+        "name": "Skirts",
+        "percent": 27
+      },
+      {
+        "name": "Computers",
+        "percent": 22
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 22
+      },
+      {
+        "name": "Media",
+        "percent": 22
+      }
+    ]
+  },
+  "Food Items": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Food Service",
+        "percent": 35
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 33
+      },
+      {
+        "name": "Soups & Broths",
+        "percent": 25
+      },
+      {
+        "name": "Pasta & Noodles",
+        "percent": 25
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 24
+      }
+    ]
+  },
+  "Food Service": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Food Items",
+        "percent": 35
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 26
+      },
+      {
+        "name": "Soups & Broths",
+        "percent": 25
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 24
+      },
+      {
+        "name": "Condiments & Sauces",
+        "percent": 22
+      }
+    ]
+  },
+  "Food Storage": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Pasta & Noodles",
+        "percent": 28
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 28
+      },
+      {
+        "name": "Soups & Broths",
+        "percent": 24
+      },
+      {
+        "name": "Audio",
+        "percent": 23
+      },
+      {
+        "name": "Cameras & Optics",
+        "percent": 23
+      }
+    ]
+  },
+  "Food Storage Accessories": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Cookware & Bakeware",
+        "percent": 50
+      },
+      {
+        "name": "Toys",
+        "percent": 48
+      },
+      {
+        "name": "Books",
+        "percent": 46
+      },
+      {
+        "name": "Media",
+        "percent": 45
+      },
+      {
+        "name": "Baby & Toddler Clothing",
+        "percent": 43
+      }
+    ]
+  },
+  "Foot Care": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Arts & Entertainment",
+        "percent": 24
+      },
+      {
+        "name": "Food Service",
+        "percent": 23
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 22
+      },
+      {
+        "name": "Food Items",
+        "percent": 22
+      },
+      {
+        "name": "Home & Garden",
+        "percent": 21
+      }
+    ]
+  },
+  "Forestry & Logging": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Arts & Entertainment",
+        "percent": 66
+      },
+      {
+        "name": "Tablet Computers",
+        "percent": 47
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 45
+      },
+      {
+        "name": "Nursing & Feeding",
+        "percent": 44
+      },
+      {
+        "name": "Food Items",
+        "percent": 44
+      }
+    ]
+  },
+  "Frozen Desserts & Novelties": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Baby & Toddler",
+        "percent": 22
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 21
+      },
+      {
+        "name": "Pasta & Noodles",
+        "percent": 21
+      },
+      {
+        "name": "Food Service",
+        "percent": 17
+      },
+      {
+        "name": "Food Items",
+        "percent": 17
+      }
+    ]
+  },
+  "Furniture": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Animals & Pet Supplies",
+        "percent": 17
+      },
+      {
+        "name": "Tea & Infusions",
+        "percent": 16
+      },
+      {
+        "name": "Outerwear",
+        "percent": 8
+      },
+      {
+        "name": "Shorts",
+        "percent": 7
+      },
+      {
+        "name": "Oral Care",
+        "percent": 7
+      }
+    ]
+  },
+  "Furniture Sets": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Cosmetics",
+        "percent": 36
+      },
+      {
+        "name": "Personal Care",
+        "percent": 32
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 27
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 26
+      },
+      {
+        "name": "Pasta & Noodles",
+        "percent": 25
+      }
+    ]
+  },
+  "Futons": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Shaving & Grooming",
+        "percent": 9
+      },
+      {
+        "name": "Shoes",
+        "percent": 9
+      },
+      {
+        "name": "Components",
+        "percent": 9
+      },
+      {
+        "name": "Juice",
+        "percent": 8
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 8
+      }
+    ]
+  },
+  "GPS Tracking Devices": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Audio",
+        "percent": 22
+      },
+      {
+        "name": "Tablet Computers",
+        "percent": 22
+      },
+      {
+        "name": "Shelving",
+        "percent": 21
+      },
+      {
+        "name": "Communications",
+        "percent": 19
+      },
+      {
+        "name": "Electronics",
+        "percent": 19
+      }
+    ]
+  },
+  "Games": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Electronics Accessories",
+        "percent": 70
+      },
+      {
+        "name": "Electronics",
+        "percent": 62
+      },
+      {
+        "name": "Chairs",
+        "percent": 59
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 52
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 46
+      }
+    ]
+  },
+  "Gardening": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Lawn & Garden",
+        "percent": 43
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 37
+      },
+      {
+        "name": "Luggage & Bags",
+        "percent": 36
+      },
+      {
+        "name": "Shoes",
+        "percent": 36
+      },
+      {
+        "name": "Toys & Games",
+        "percent": 35
+      }
+    ]
+  },
+  "General Office Supplies": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Home & Garden",
+        "percent": 53
+      },
+      {
+        "name": "Toys",
+        "percent": 48
+      },
+      {
+        "name": "Cookware & Bakeware",
+        "percent": 43
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 41
+      },
+      {
+        "name": "Media",
+        "percent": 40
+      }
+    ]
+  },
+  "Gift Giving": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Outdoor Recreation",
+        "percent": 47
+      },
+      {
+        "name": "Lawn & Garden",
+        "percent": 46
+      },
+      {
+        "name": "Outdoor Furniture",
+        "percent": 40
+      },
+      {
+        "name": "Luggage & Bags",
+        "percent": 40
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 39
+      }
+    ]
+  },
+  "Golf": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "DVDs & Videos",
+        "percent": 26
+      },
+      {
+        "name": "Electronics",
+        "percent": 23
+      },
+      {
+        "name": "Communications",
+        "percent": 22
+      },
+      {
+        "name": "Microphones",
+        "percent": 21
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 20
+      }
+    ]
+  },
+  "Hairdressing & Cosmetology": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Network Software",
+        "percent": 73
+      },
+      {
+        "name": "Laptops",
+        "percent": 72
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 71
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 70
+      },
+      {
+        "name": "Communications",
+        "percent": 66
+      }
+    ]
+  },
+  "Hardware": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Furniture",
+        "percent": 22
+      },
+      {
+        "name": "Animals & Pet Supplies",
+        "percent": 13
+      },
+      {
+        "name": "Oral Care",
+        "percent": 9
+      },
+      {
+        "name": "Shorts",
+        "percent": 8
+      },
+      {
+        "name": "Shorts",
+        "percent": 7
+      }
+    ]
+  },
+  "Hardware Accessories": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Software",
+        "percent": 26
+      },
+      {
+        "name": "Nuts & Seeds",
+        "percent": 26
+      },
+      {
+        "name": "Electronics",
+        "percent": 24
+      },
+      {
+        "name": "Video",
+        "percent": 23
+      },
+      {
+        "name": "Skirts",
+        "percent": 21
+      }
+    ]
+  },
+  "Health & Beauty": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Cosmetics",
+        "percent": 90
+      },
+      {
+        "name": "Personal Care",
+        "percent": 90
+      },
+      {
+        "name": "Sleeping Aids",
+        "percent": 26
+      },
+      {
+        "name": "Operating Systems",
+        "percent": 19
+      },
+      {
+        "name": "Microphones",
+        "percent": 18
+      }
+    ]
+  },
+  "Hobbies & Creative Arts": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Shorts",
+        "percent": 65
+      },
+      {
+        "name": "Outerwear",
+        "percent": 59
+      },
+      {
+        "name": "Water",
+        "percent": 43
+      },
+      {
+        "name": "Kitchen Tools & Utensils",
+        "percent": 40
+      },
+      {
+        "name": "Clothing Accessories",
+        "percent": 38
+      }
+    ]
+  },
+  "Home & Garden": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Toys",
+        "percent": 53
+      },
+      {
+        "name": "Outerwear",
+        "percent": 40
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 38
+      },
+      {
+        "name": "Media",
+        "percent": 37
+      },
+      {
+        "name": "Clothing Accessories",
+        "percent": 35
+      }
+    ]
+  },
+  "Hotel & Hospitality": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Food Items",
+        "percent": 43
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 38
+      },
+      {
+        "name": "Swaddling & Receiving Blankets",
+        "percent": 38
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 37
+      },
+      {
+        "name": "Radar Detectors",
+        "percent": 35
+      }
+    ]
+  },
+  "Household Appliance Accessories": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 31
+      },
+      {
+        "name": "Vision Care",
+        "percent": 24
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 23
+      },
+      {
+        "name": "Communications",
+        "percent": 22
+      },
+      {
+        "name": "Frozen Desserts & Novelties",
+        "percent": 21
+      }
+    ]
+  },
+  "Household Appliances": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Home & Garden",
+        "percent": 26
+      },
+      {
+        "name": "Media",
+        "percent": 25
+      },
+      {
+        "name": "Toys",
+        "percent": 22
+      },
+      {
+        "name": "Vision Care",
+        "percent": 20
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 18
+      }
+    ]
+  },
+  "Household Cleaning Supplies": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Seasonings & Spices",
+        "percent": 42
+      },
+      {
+        "name": "Marine Electronics",
+        "percent": 27
+      },
+      {
+        "name": "Non-Dairy Milk",
+        "percent": 25
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 21
+      },
+      {
+        "name": "Nursing & Feeding",
+        "percent": 20
+      }
+    ]
+  },
+  "Household Paper Products": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Toys",
+        "percent": 43
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 39
+      },
+      {
+        "name": "Household Appliances",
+        "percent": 31
+      },
+      {
+        "name": "Plumbing",
+        "percent": 31
+      },
+      {
+        "name": "Clothing Accessories",
+        "percent": 30
+      }
+    ]
+  },
+  "Household Supplies": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Shoes",
+        "percent": 70
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 70
+      },
+      {
+        "name": "Laptops",
+        "percent": 66
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 64
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 62
+      }
+    ]
+  },
+  "Indoor Games": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 45
+      },
+      {
+        "name": "Components",
+        "percent": 45
+      },
+      {
+        "name": "Laptops",
+        "percent": 45
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 40
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 39
+      }
+    ]
+  },
+  "Juice": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Office Supplies",
+        "percent": 37
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 32
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 26
+      },
+      {
+        "name": "Beds & Accessories",
+        "percent": 25
+      },
+      {
+        "name": "Software",
+        "percent": 24
+      }
+    ]
+  },
+  "Kitchen & Dining": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Media",
+        "percent": 54
+      },
+      {
+        "name": "Clothing Accessories",
+        "percent": 47
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 43
+      },
+      {
+        "name": "Household Appliances",
+        "percent": 40
+      },
+      {
+        "name": "Toys",
+        "percent": 40
+      }
+    ]
+  },
+  "Kitchen Appliance Accessories": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Communications",
+        "percent": 45
+      },
+      {
+        "name": "Speakers",
+        "percent": 41
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 39
+      },
+      {
+        "name": "Frozen Desserts & Novelties",
+        "percent": 37
+      },
+      {
+        "name": "Software",
+        "percent": 36
+      }
+    ]
+  },
+  "Kitchen Appliances": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Vehicles & Parts",
+        "percent": 68
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 67
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 61
+      },
+      {
+        "name": "Computers",
+        "percent": 59
+      },
+      {
+        "name": "Clothing",
+        "percent": 58
+      }
+    ]
+  },
+  "Kitchen Tools & Utensils": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Tea & Infusions",
+        "percent": 73
+      },
+      {
+        "name": "Shorts",
+        "percent": 57
+      },
+      {
+        "name": "Building Materials",
+        "percent": 55
+      },
+      {
+        "name": "Cabinets & Storage",
+        "percent": 53
+      },
+      {
+        "name": "Sofas",
+        "percent": 50
+      }
+    ]
+  },
+  "Laptops": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Athletics",
+        "percent": 72
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 69
+      },
+      {
+        "name": "Shoes",
+        "percent": 68
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 68
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 67
+      }
+    ]
+  },
+  "Laundry Supplies": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Network Software",
+        "percent": 74
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 70
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 67
+      },
+      {
+        "name": "Laptops",
+        "percent": 65
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 65
+      }
+    ]
+  },
+  "Lawn & Garden": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Household Supplies",
+        "percent": 49
+      },
+      {
+        "name": "Shoes",
+        "percent": 49
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 46
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 44
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 43
+      }
+    ]
+  },
+  "Lighting": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Household Supplies",
+        "percent": 43
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 41
+      },
+      {
+        "name": "Audio",
+        "percent": 38
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 36
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 35
+      }
+    ]
+  },
+  "Linens & Bedding": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Toys",
+        "percent": 40
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 36
+      },
+      {
+        "name": "Outerwear",
+        "percent": 35
+      },
+      {
+        "name": "Computers",
+        "percent": 33
+      },
+      {
+        "name": "Plants",
+        "percent": 33
+      }
+    ]
+  },
+  "Live Animals": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Video Game Consoles",
+        "percent": 41
+      },
+      {
+        "name": "Cameras & Optics",
+        "percent": 37
+      },
+      {
+        "name": "Marine Electronics",
+        "percent": 27
+      },
+      {
+        "name": "Non-Dairy Milk",
+        "percent": 27
+      },
+      {
+        "name": "Seasonings & Spices",
+        "percent": 23
+      }
+    ]
+  },
+  "Locks & Keys": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Tablet Computers",
+        "percent": 35
+      },
+      {
+        "name": "Food Items",
+        "percent": 33
+      },
+      {
+        "name": "Food Service",
+        "percent": 27
+      },
+      {
+        "name": "Audio",
+        "percent": 25
+      },
+      {
+        "name": "Vehicle Parts & Accessories",
+        "percent": 19
+      }
+    ]
+  },
+  "Luggage & Bags": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Household Supplies",
+        "percent": 37
+      },
+      {
+        "name": "Components",
+        "percent": 37
+      },
+      {
+        "name": "Laptops",
+        "percent": 36
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 35
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 35
+      }
+    ]
+  },
+  "Magazines & Newspapers": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Tablet Computers",
+        "percent": 39
+      },
+      {
+        "name": "Communications",
+        "percent": 37
+      },
+      {
+        "name": "Computers",
+        "percent": 31
+      },
+      {
+        "name": "Audio",
+        "percent": 28
+      },
+      {
+        "name": "GPS Tracking Devices",
+        "percent": 23
+      }
+    ]
+  },
+  "Manufacturing": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 75
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 57
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 55
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 53
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 52
+      }
+    ]
+  },
+  "Marine Electronics": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Vision Care",
+        "percent": 23
+      },
+      {
+        "name": "Food Items",
+        "percent": 14
+      },
+      {
+        "name": "Food Service",
+        "percent": 13
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 13
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 12
+      }
+    ]
+  },
+  "Mattresses": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Beds & Accessories",
+        "percent": 72
+      },
+      {
+        "name": "Laptops",
+        "percent": 65
+      },
+      {
+        "name": "Shoes",
+        "percent": 63
+      },
+      {
+        "name": "Luggage & Bags",
+        "percent": 57
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 54
+      }
+    ]
+  },
+  "Media": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Toys",
+        "percent": 52
+      },
+      {
+        "name": "Home & Garden",
+        "percent": 37
+      },
+      {
+        "name": "Books",
+        "percent": 36
+      },
+      {
+        "name": "Dresses",
+        "percent": 34
+      },
+      {
+        "name": "Educational Toys",
+        "percent": 34
+      }
+    ]
+  },
+  "Medical": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Lawn & Garden",
+        "percent": 37
+      },
+      {
+        "name": "Cameras & Optics",
+        "percent": 32
+      },
+      {
+        "name": "Video",
+        "percent": 31
+      },
+      {
+        "name": "Office Supplies",
+        "percent": 27
+      },
+      {
+        "name": "Televisions",
+        "percent": 26
+      }
+    ]
+  },
+  "Messenger Bags": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Household Paper Products",
+        "percent": 38
+      },
+      {
+        "name": "Cookware & Bakeware",
+        "percent": 37
+      },
+      {
+        "name": "Puzzles",
+        "percent": 27
+      },
+      {
+        "name": "Nuts & Seeds",
+        "percent": 27
+      },
+      {
+        "name": "Sleeping Aids",
+        "percent": 26
+      }
+    ]
+  },
+  "Microphones": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Arts & Entertainment",
+        "percent": 21
+      },
+      {
+        "name": "Nuts & Seeds",
+        "percent": 15
+      },
+      {
+        "name": "Food Service",
+        "percent": 15
+      },
+      {
+        "name": "Food Items",
+        "percent": 15
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 15
+      }
+    ]
+  },
+  "Mobile Phones": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Soups & Broths",
+        "percent": 25
+      },
+      {
+        "name": "Vehicle Parts & Accessories",
+        "percent": 11
+      },
+      {
+        "name": "Food Service",
+        "percent": 10
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 9
+      },
+      {
+        "name": "Optics",
+        "percent": 8
+      }
+    ]
+  },
+  "Music & Sound Recordings": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Electronics",
+        "percent": 54
+      },
+      {
+        "name": "Electronics Accessories",
+        "percent": 53
+      },
+      {
+        "name": "Networking",
+        "percent": 46
+      },
+      {
+        "name": "Toys & Games",
+        "percent": 45
+      },
+      {
+        "name": "Luggage & Bags",
+        "percent": 41
+      }
+    ]
+  },
+  "Network Software": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Laptops",
+        "percent": 73
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 72
+      },
+      {
+        "name": "Shoes",
+        "percent": 67
+      },
+      {
+        "name": "Components",
+        "percent": 66
+      },
+      {
+        "name": "Athletics",
+        "percent": 65
+      }
+    ]
+  },
+  "Networking": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Electronics Accessories",
+        "percent": 57
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 48
+      },
+      {
+        "name": "Toys & Games",
+        "percent": 47
+      },
+      {
+        "name": "Electronics",
+        "percent": 38
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 32
+      }
+    ]
+  },
+  "Non-Dairy Milk": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Televisions",
+        "percent": 37
+      },
+      {
+        "name": "Video",
+        "percent": 34
+      },
+      {
+        "name": "Office Supplies",
+        "percent": 30
+      },
+      {
+        "name": "Office Supplies",
+        "percent": 21
+      },
+      {
+        "name": "Briefcases",
+        "percent": 20
+      }
+    ]
+  },
+  "Nursing & Feeding": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Baby & Toddler",
+        "percent": 49
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 40
+      },
+      {
+        "name": "Food Items",
+        "percent": 37
+      },
+      {
+        "name": "Food Service",
+        "percent": 36
+      },
+      {
+        "name": "Event Tickets",
+        "percent": 34
+      }
+    ]
+  },
+  "Nuts & Seeds": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Household Supplies",
+        "percent": 30
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 28
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 28
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 28
+      },
+      {
+        "name": "Athletics",
+        "percent": 28
+      }
+    ]
+  },
+  "Office Equipment": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 29
+      },
+      {
+        "name": "Microphones",
+        "percent": 27
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 25
+      },
+      {
+        "name": "Home & Garden",
+        "percent": 25
+      },
+      {
+        "name": "Vision Care",
+        "percent": 25
+      }
+    ]
+  },
+  "Office Furniture": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Laptops",
+        "percent": 76
+      },
+      {
+        "name": "Shoes",
+        "percent": 74
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 71
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 70
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 65
+      }
+    ]
+  },
+  "Office Supplies": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Sleeping Aids",
+        "percent": 42
+      },
+      {
+        "name": "Non-Dairy Milk",
+        "percent": 38
+      },
+      {
+        "name": "Juice",
+        "percent": 37
+      },
+      {
+        "name": "Vehicles",
+        "percent": 30
+      },
+      {
+        "name": "Televisions",
+        "percent": 27
+      }
+    ]
+  },
+  "Operating Systems": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Beds & Accessories",
+        "percent": 29
+      },
+      {
+        "name": "Tables",
+        "percent": 29
+      },
+      {
+        "name": "Laptops",
+        "percent": 27
+      },
+      {
+        "name": "Kitchen Appliances",
+        "percent": 26
+      },
+      {
+        "name": "Components",
+        "percent": 26
+      }
+    ]
+  },
+  "Optics": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Food Service",
+        "percent": 35
+      },
+      {
+        "name": "Food Service",
+        "percent": 35
+      },
+      {
+        "name": "Mobile Phones",
+        "percent": 34
+      },
+      {
+        "name": "Condiments & Sauces",
+        "percent": 29
+      },
+      {
+        "name": "Food Items",
+        "percent": 29
+      }
+    ]
+  },
+  "Oral Care": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Outerwear",
+        "percent": 39
+      },
+      {
+        "name": "Water",
+        "percent": 35
+      },
+      {
+        "name": "Building Materials",
+        "percent": 30
+      },
+      {
+        "name": "Shorts",
+        "percent": 30
+      },
+      {
+        "name": "Pet Supplies",
+        "percent": 29
+      }
+    ]
+  },
+  "Outdoor Furniture": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Laptops",
+        "percent": 63
+      },
+      {
+        "name": "Athletics",
+        "percent": 59
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 55
+      },
+      {
+        "name": "Indoor Games",
+        "percent": 35
+      },
+      {
+        "name": "Storage Devices",
+        "percent": 35
+      }
+    ]
+  },
+  "Outdoor Play Equipment": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Beds & Accessories",
+        "percent": 48
+      },
+      {
+        "name": "Components",
+        "percent": 45
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 42
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 41
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 40
+      }
+    ]
+  },
+  "Outdoor Recreation": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Shoes",
+        "percent": 72
+      },
+      {
+        "name": "Laptops",
+        "percent": 72
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 66
+      },
+      {
+        "name": "Luggage & Bags",
+        "percent": 65
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 62
+      }
+    ]
+  },
+  "Outerwear": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Shorts",
+        "percent": 48
+      },
+      {
+        "name": "Home & Garden",
+        "percent": 45
+      },
+      {
+        "name": "Oral Care",
+        "percent": 39
+      },
+      {
+        "name": "Shorts",
+        "percent": 35
+      },
+      {
+        "name": "Water",
+        "percent": 29
+      }
+    ]
+  },
+  "Party & Celebration": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Baby & Toddler Furniture",
+        "percent": 50
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 43
+      },
+      {
+        "name": "Food & Beverage Carriers",
+        "percent": 39
+      },
+      {
+        "name": "Vehicles",
+        "percent": 38
+      },
+      {
+        "name": "Oral Care",
+        "percent": 30
+      }
+    ]
+  },
+  "Pasta & Noodles": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Tablet Computers",
+        "percent": 17
+      },
+      {
+        "name": "Audio",
+        "percent": 15
+      },
+      {
+        "name": "Communications",
+        "percent": 11
+      },
+      {
+        "name": "Nuts & Seeds",
+        "percent": 11
+      },
+      {
+        "name": "Vehicle Parts & Accessories",
+        "percent": 11
+      }
+    ]
+  },
+  "Personal Care": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Cosmetics",
+        "percent": 91
+      },
+      {
+        "name": "Health & Beauty",
+        "percent": 88
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 42
+      },
+      {
+        "name": "Seasonings & Spices",
+        "percent": 38
+      },
+      {
+        "name": "Networking",
+        "percent": 28
+      }
+    ]
+  },
+  "Pet Supplies": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Outerwear",
+        "percent": 74
+      },
+      {
+        "name": "Home & Garden",
+        "percent": 62
+      },
+      {
+        "name": "Cabinets & Storage",
+        "percent": 62
+      },
+      {
+        "name": "3D Printers",
+        "percent": 62
+      },
+      {
+        "name": "Building Materials",
+        "percent": 60
+      }
+    ]
+  },
+  "Photography": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Toys",
+        "percent": 50
+      },
+      {
+        "name": "Tables",
+        "percent": 44
+      },
+      {
+        "name": "Lawn & Garden",
+        "percent": 39
+      },
+      {
+        "name": "Books",
+        "percent": 39
+      },
+      {
+        "name": "Shirts & Tops",
+        "percent": 39
+      }
+    ]
+  },
+  "Piercing & Tattooing": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Speakers",
+        "percent": 63
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 55
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 54
+      },
+      {
+        "name": "Laptops",
+        "percent": 50
+      },
+      {
+        "name": "Shoes",
+        "percent": 50
+      }
+    ]
+  },
+  "Plants": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Storage Devices",
+        "percent": 60
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 58
+      },
+      {
+        "name": "Audio",
+        "percent": 57
+      },
+      {
+        "name": "Sunglasses",
+        "percent": 54
+      },
+      {
+        "name": "Nuts & Seeds",
+        "percent": 54
+      }
+    ]
+  },
+  "Plumbing": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Laptops",
+        "percent": 52
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 49
+      },
+      {
+        "name": "Shoes",
+        "percent": 48
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 44
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 43
+      }
+    ]
+  },
+  "Pool & Spa": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Arts & Entertainment",
+        "percent": 28
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 27
+      },
+      {
+        "name": "Food Items",
+        "percent": 26
+      },
+      {
+        "name": "Dips & Spreads",
+        "percent": 26
+      },
+      {
+        "name": "Food Service",
+        "percent": 25
+      }
+    ]
+  },
+  "Potty Training": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Vision Care",
+        "percent": 14
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 13
+      },
+      {
+        "name": "Frozen Desserts & Novelties",
+        "percent": 11
+      },
+      {
+        "name": "Non-Dairy Milk",
+        "percent": 11
+      },
+      {
+        "name": "Forestry & Logging",
+        "percent": 10
+      }
+    ]
+  },
+  "Puzzles": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Toys",
+        "percent": 85
+      },
+      {
+        "name": "Media",
+        "percent": 67
+      },
+      {
+        "name": "Outerwear",
+        "percent": 66
+      },
+      {
+        "name": "Cookware & Bakeware",
+        "percent": 65
+      },
+      {
+        "name": "Toys & Games",
+        "percent": 59
+      }
+    ]
+  },
+  "Radar Detectors": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Mobile Phones",
+        "percent": 5
+      },
+      {
+        "name": "Electronics Accessories",
+        "percent": 4
+      },
+      {
+        "name": "Soups & Broths",
+        "percent": 4
+      },
+      {
+        "name": "Electronics",
+        "percent": 4
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 4
+      }
+    ]
+  },
+  "Retail": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Kitchen Appliances",
+        "percent": 76
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 75
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 75
+      },
+      {
+        "name": "Network Software",
+        "percent": 73
+      },
+      {
+        "name": "Vehicles & Parts",
+        "percent": 71
+      }
+    ]
+  },
+  "Science & Laboratory": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Beds & Accessories",
+        "percent": 60
+      },
+      {
+        "name": "Components",
+        "percent": 59
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 54
+      },
+      {
+        "name": "Laptops",
+        "percent": 48
+      },
+      {
+        "name": "DVDs & Videos",
+        "percent": 48
+      }
+    ]
+  },
+  "Seasonings & Spices": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Household Supplies",
+        "percent": 40
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 40
+      },
+      {
+        "name": "Personal Care",
+        "percent": 38
+      },
+      {
+        "name": "Cosmetics",
+        "percent": 37
+      },
+      {
+        "name": "Laptops",
+        "percent": 34
+      }
+    ]
+  },
+  "Shaving & Grooming": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Shoes",
+        "percent": 24
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 22
+      },
+      {
+        "name": "Clothing",
+        "percent": 22
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 22
+      },
+      {
+        "name": "Animals & Pet Supplies",
+        "percent": 22
+      }
+    ]
+  },
+  "Shelving": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Juice",
+        "percent": 49
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 43
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 40
+      },
+      {
+        "name": "Athletics",
+        "percent": 40
+      },
+      {
+        "name": "Beds & Accessories",
+        "percent": 40
+      }
+    ]
+  },
+  "Shirts & Tops": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Shaving & Grooming",
+        "percent": 80
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 74
+      },
+      {
+        "name": "Shoes",
+        "percent": 73
+      },
+      {
+        "name": "Laptops",
+        "percent": 70
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 68
+      }
+    ]
+  },
+  "Shoes": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Household Supplies",
+        "percent": 65
+      },
+      {
+        "name": "Laptops",
+        "percent": 64
+      },
+      {
+        "name": "Laptops",
+        "percent": 63
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 62
+      },
+      {
+        "name": "Athletics",
+        "percent": 61
+      }
+    ]
+  },
+  "Shorts": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Tea & Infusions",
+        "percent": 40
+      },
+      {
+        "name": "Oral Care",
+        "percent": 40
+      },
+      {
+        "name": "3D Printers",
+        "percent": 36
+      },
+      {
+        "name": "Building Materials",
+        "percent": 34
+      },
+      {
+        "name": "Sofas",
+        "percent": 34
+      }
+    ]
+  },
+  "Signage": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Shaving & Grooming",
+        "percent": 81
+      },
+      {
+        "name": "Shoes",
+        "percent": 80
+      },
+      {
+        "name": "Components",
+        "percent": 75
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 73
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 69
+      }
+    ]
+  },
+  "Skirts": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Vehicles",
+        "percent": 24
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 18
+      },
+      {
+        "name": "Yoga & Pilates",
+        "percent": 14
+      },
+      {
+        "name": "Household Appliances",
+        "percent": 14
+      },
+      {
+        "name": "Water",
+        "percent": 14
+      }
+    ]
+  },
+  "Sleeping Aids": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Electronics Accessories",
+        "percent": 31
+      },
+      {
+        "name": "Health & Beauty",
+        "percent": 26
+      },
+      {
+        "name": "Personal Care",
+        "percent": 26
+      },
+      {
+        "name": "Cosmetics",
+        "percent": 26
+      },
+      {
+        "name": "Networking",
+        "percent": 25
+      }
+    ]
+  },
+  "Sofas": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Shorts",
+        "percent": 91
+      },
+      {
+        "name": "Outerwear",
+        "percent": 87
+      },
+      {
+        "name": "Cabinets & Storage",
+        "percent": 81
+      },
+      {
+        "name": "Building Materials",
+        "percent": 80
+      },
+      {
+        "name": "3D Printers",
+        "percent": 79
+      }
+    ]
+  },
+  "Software": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Shoes",
+        "percent": 37
+      },
+      {
+        "name": "Laptops",
+        "percent": 37
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 37
+      },
+      {
+        "name": "Athletics",
+        "percent": 37
+      },
+      {
+        "name": "Components",
+        "percent": 36
+      }
+    ]
+  },
+  "Soups & Broths": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Radar Detectors",
+        "percent": 32
+      },
+      {
+        "name": "Food Service",
+        "percent": 25
+      },
+      {
+        "name": "Food Items",
+        "percent": 25
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 21
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 21
+      }
+    ]
+  },
+  "Speakers": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Arcade Equipment",
+        "percent": 33
+      },
+      {
+        "name": "Video",
+        "percent": 31
+      },
+      {
+        "name": "Camping & Hiking",
+        "percent": 28
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 27
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 27
+      }
+    ]
+  },
+  "Sporting Goods": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Shoes",
+        "percent": 69
+      },
+      {
+        "name": "Laptops",
+        "percent": 68
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 65
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 63
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 62
+      }
+    ]
+  },
+  "Sports & Energy Drinks": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 48
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 46
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 44
+      },
+      {
+        "name": "Shoes",
+        "percent": 41
+      },
+      {
+        "name": "Indoor Games",
+        "percent": 39
+      }
+    ]
+  },
+  "Sports Toys": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Speakers",
+        "percent": 43
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 43
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 42
+      },
+      {
+        "name": "Outdoor Furniture",
+        "percent": 42
+      },
+      {
+        "name": "Software",
+        "percent": 42
+      }
+    ]
+  },
+  "Storage Devices": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Office Supplies",
+        "percent": 40
+      },
+      {
+        "name": "Indoor Games",
+        "percent": 38
+      },
+      {
+        "name": "Electronics Accessories",
+        "percent": 31
+      },
+      {
+        "name": "Electronics",
+        "percent": 31
+      },
+      {
+        "name": "Networking",
+        "percent": 29
+      }
+    ]
+  },
+  "Suitcases": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Toys & Games",
+        "percent": 46
+      },
+      {
+        "name": "Beds & Accessories",
+        "percent": 33
+      },
+      {
+        "name": "Animals & Pet Supplies",
+        "percent": 32
+      },
+      {
+        "name": "Toys",
+        "percent": 29
+      },
+      {
+        "name": "Clothing",
+        "percent": 28
+      }
+    ]
+  },
+  "Sunglasses": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Laptops",
+        "percent": 71
+      },
+      {
+        "name": "Shoes",
+        "percent": 68
+      },
+      {
+        "name": "Household Supplies",
+        "percent": 66
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 66
+      },
+      {
+        "name": "Athletics",
+        "percent": 60
+      }
+    ]
+  },
+  "Swaddling & Receiving Blankets": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Food Items",
+        "percent": 44
+      },
+      {
+        "name": "Arts & Entertainment",
+        "percent": 42
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 37
+      },
+      {
+        "name": "Food Service",
+        "percent": 35
+      },
+      {
+        "name": "Radar Detectors",
+        "percent": 31
+      }
+    ]
+  },
+  "Tables": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "3D Printers",
+        "percent": 40
+      },
+      {
+        "name": "Sports & Energy Drinks",
+        "percent": 33
+      },
+      {
+        "name": "Operating Systems",
+        "percent": 29
+      },
+      {
+        "name": "Plumbing",
+        "percent": 23
+      },
+      {
+        "name": "Baby Gift Sets",
+        "percent": 22
+      }
+    ]
+  },
+  "Tablet Computers": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Audio",
+        "percent": 38
+      },
+      {
+        "name": "Communications",
+        "percent": 32
+      },
+      {
+        "name": "Computers",
+        "percent": 31
+      },
+      {
+        "name": "Food Items",
+        "percent": 23
+      },
+      {
+        "name": "Soups & Broths",
+        "percent": 23
+      }
+    ]
+  },
+  "Tea & Infusions": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Shorts",
+        "percent": 41
+      },
+      {
+        "name": "Building Materials",
+        "percent": 39
+      },
+      {
+        "name": "Sofas",
+        "percent": 36
+      },
+      {
+        "name": "Kitchen Tools & Utensils",
+        "percent": 36
+      },
+      {
+        "name": "Beverages",
+        "percent": 25
+      }
+    ]
+  },
+  "Televisions": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Non-Dairy Milk",
+        "percent": 33
+      },
+      {
+        "name": "Vehicles",
+        "percent": 28
+      },
+      {
+        "name": "Video",
+        "percent": 28
+      },
+      {
+        "name": "Office Supplies",
+        "percent": 27
+      },
+      {
+        "name": "Sleeping Aids",
+        "percent": 24
+      }
+    ]
+  },
+  "Tools": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Shaving & Grooming",
+        "percent": 81
+      },
+      {
+        "name": "Shoes",
+        "percent": 80
+      },
+      {
+        "name": "Components",
+        "percent": 77
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 75
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 71
+      }
+    ]
+  },
+  "Toys": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Media",
+        "percent": 44
+      },
+      {
+        "name": "Sleeping Aids",
+        "percent": 40
+      },
+      {
+        "name": "Toys & Games",
+        "percent": 33
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 32
+      },
+      {
+        "name": "Toys & Games",
+        "percent": 31
+      }
+    ]
+  },
+  "Toys & Games": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 52
+      },
+      {
+        "name": "Networking",
+        "percent": 47
+      },
+      {
+        "name": "Exercise & Fitness",
+        "percent": 43
+      },
+      {
+        "name": "Shaving & Grooming",
+        "percent": 39
+      },
+      {
+        "name": "Electronics Accessories",
+        "percent": 39
+      }
+    ]
+  },
+  "Vehicle Parts & Accessories": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Shorts",
+        "percent": 41
+      },
+      {
+        "name": "Outerwear",
+        "percent": 41
+      },
+      {
+        "name": "3D Printers",
+        "percent": 39
+      },
+      {
+        "name": "Sofas",
+        "percent": 36
+      },
+      {
+        "name": "Cabinets & Storage",
+        "percent": 32
+      }
+    ]
+  },
+  "Vehicles": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 33
+      },
+      {
+        "name": "Home & Garden",
+        "percent": 31
+      },
+      {
+        "name": "Office Supplies",
+        "percent": 30
+      },
+      {
+        "name": "Televisions",
+        "percent": 28
+      },
+      {
+        "name": "Vision Care",
+        "percent": 24
+      }
+    ]
+  },
+  "Vehicles & Parts": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Shoes",
+        "percent": 41
+      },
+      {
+        "name": "Laptops",
+        "percent": 39
+      },
+      {
+        "name": "Components",
+        "percent": 36
+      },
+      {
+        "name": "Outdoor Recreation",
+        "percent": 35
+      },
+      {
+        "name": "Beds & Accessories",
+        "percent": 35
+      }
+    ]
+  },
+  "Video": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Televisions",
+        "percent": 28
+      },
+      {
+        "name": "Electronics",
+        "percent": 24
+      },
+      {
+        "name": "Business & Industrial",
+        "percent": 19
+      },
+      {
+        "name": "Computer Software",
+        "percent": 18
+      },
+      {
+        "name": "Software",
+        "percent": 18
+      }
+    ]
+  },
+  "Video Game Consoles": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Electronics Accessories",
+        "percent": 68
+      },
+      {
+        "name": "Chairs",
+        "percent": 56
+      },
+      {
+        "name": "Circuit Boards & Components",
+        "percent": 48
+      },
+      {
+        "name": "Electronics",
+        "percent": 44
+      },
+      {
+        "name": "Baby Bathing",
+        "percent": 40
+      }
+    ]
+  },
+  "Vision Care": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 45
+      },
+      {
+        "name": "Household Appliances",
+        "percent": 41
+      },
+      {
+        "name": "Fitness & Nutrition",
+        "percent": 30
+      },
+      {
+        "name": "Media",
+        "percent": 28
+      },
+      {
+        "name": "Foot Care",
+        "percent": 24
+      }
+    ]
+  },
+  "Water": {
+    "size": "19",
+    "overlaps": [
+      {
+        "name": "Oral Care",
+        "percent": 35
+      },
+      {
+        "name": "Shorts",
+        "percent": 32
+      },
+      {
+        "name": "Outerwear",
+        "percent": 29
+      },
+      {
+        "name": "Kitchen Tools & Utensils",
+        "percent": 23
+      },
+      {
+        "name": "Cabinets & Storage",
+        "percent": 21
+      }
+    ]
+  },
+  "Winter Sports & Activities": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Arts & Entertainment",
+        "percent": 45
+      },
+      {
+        "name": "Baby & Toddler",
+        "percent": 44
+      },
+      {
+        "name": "Food Items",
+        "percent": 37
+      },
+      {
+        "name": "Swaddling & Receiving Blankets",
+        "percent": 31
+      },
+      {
+        "name": "Food Service",
+        "percent": 30
+      }
+    ]
+  },
+  "Wood Stoves": {
+    "size": "4",
+    "overlaps": [
+      {
+        "name": "Vehicles & Parts",
+        "percent": 49
+      },
+      {
+        "name": "Communications",
+        "percent": 45
+      },
+      {
+        "name": "Entertainment Centers & TV Stands",
+        "percent": 38
+      },
+      {
+        "name": "Electronics",
+        "percent": 34
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 34
+      }
+    ]
+  },
+  "Yoga & Pilates": {
+    "size": "9",
+    "overlaps": [
+      {
+        "name": "Household Supplies",
+        "percent": 68
+      },
+      {
+        "name": "Laptops",
+        "percent": 66
+      },
+      {
+        "name": "Alcoholic Beverages",
+        "percent": 61
+      },
+      {
+        "name": "Sporting Goods",
+        "percent": 55
+      },
+      {
+        "name": "Indoor Games",
+        "percent": 55
+      }
+    ]
+  }
+}

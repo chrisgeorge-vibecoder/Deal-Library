@@ -1,0 +1,419 @@
+
+> marketing-co-pilot-backend@1.0.0 start
+> node dist/index.js
+
+✅ Loaded commerce baseline from cache (calculated 10/9/2025, 8:00:53 PM)
+📊 Loading user-level overlap data from CSV: /Users/cgeorge/Deal-Library/deal-library-backend/data/199_Audience_Overlap_Data.csv
+✅ Loaded user-level overlap data from CSV
+   📊 199 segments with overlap data
+   🔗 970 total overlap relationships
+   ☕ Coffee overlaps: Household Supplies (52%), Exercise & Fitness (50%), Alcoholic Beverages (46%)
+⚠️  Missing environment variables (development): GOOGLE_APPS_SCRIPT_URL
+Some features may be limited without these variables.
+📁 Loaded persisted state from previous session
+🔄 PersistenceService initialized - context will be preserved across restarts
+⚠️  GOOGLE_APPS_SCRIPT_URL not configured - Apps Script integration will be unavailable
+✅ Gemini AI service initialized
+🔄 Initializing embedding service...
+✅ Vector embeddings service initialized
+🚀 Sovrn Marketing Co-Pilot Backend running on port 3002
+📊 Environment: development
+🔗 Health check: http://localhost:3002/health
+
+📦 Auto-loading commerce audience data...
+📊 Loading Commerce Audience segments data from CSV...
+✅ Commerce audience data loaded successfully:
+   📍 2071130 ZIP codes
+   🎯 196 audience segments
+   📊 Average weight: 1803
+✅ Commerce data loaded: 2,071,130 records, 196 segments
+
+📋 API endpoints:
+   GET    /api/deals
+   GET    /api/deals/:id
+   POST   /api/deals
+   PUT    /api/deals/:id
+   POST   /api/custom-deal-request
+   POST   /api/deals/search
+   POST   /api/audience-insights
+   POST   /api/market-sizing
+   POST   /api/geographic-insights
+   POST   /api/unified-search
+   POST   /api/census/load
+   POST   /api/census/query
+   POST   /api/census/zip-codes
+   POST   /api/census/search-location
+   GET    /api/census/status
+   POST   /api/commerce-audiences/load
+   GET    /api/commerce-audiences/segments
+   POST   /api/commerce-audiences/search-zip-codes
+   POST   /api/commerce-audiences/zip-codes-data
+   GET    /api/commerce-audiences/status
+   POST   /api/audience-geo-analysis/generate
+   GET    /api/audience-geo-analysis/segments
+   GET    /api/audience-geo-analysis/status
+   POST   /api/audience-geo-analysis/export-pdf
+✅ Embedding service initialized
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [32m200[0m 6.978 ms - 59[0m
+[0mGET /api/audience-insights [33m404[0m 0.852 ms - 79[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [32m200[0m 0.982 ms - 59[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/personas [32m200[0m 3.325 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.787 ms - -[0m
+🔍 Hybrid AI Search request: "I'm the CMO of Old Navy and I want to reach new parents. What is the market size?"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 13.337 ms - 226[0m
+[0mGET /api/audience-insights [33m404[0m 0.534 ms - 79[0m
+🎯 Generating Audience Insights Report for: Audio
+   Include Commercial ZIPs: NO (default: residential only)
+
+================================================================================
+🎯 Generating Audience Insights Report for: "Audio"
+   Include Commercial ZIPs: NO (residential only)
+================================================================================
+
+📊 Using cached commerce baseline (121.4h old)
+📊 Commerce baseline: $85,245, 36.3% edu (0ms)
+🔍 Getting top geo concentration for: "Audio"
+   🔍 Found 12867 rows, deduplicated to 12867 unique ZIPs
+📊 Found 100 ZIP codes for "Audio"
+📈 Segment baseline: 6,272,591 total weight, 19.008 per 1000 people nationally
+📊 Loading US Census data from CSV...
+📈 Processing 41552 census records...
+✅ Census data loaded successfully:
+   📍 33782 zip codes
+   🏛️ 56 states
+   👥 Average population: 9,933
+   💰 Average income: $69,157
+🏘️  Filtered to 35 true ZCTA ZIPs (removed 15 non-ZCTAs like P.O. boxes)
+🏢 Filtered out 3 downtown commercial ZIPs (population < 10k)
+📊 Over-indexing insights (top 5 by penetration):
+   1. 20024 (Washington, District of Columbia): 24413% over-index (weight: 75,161, pop: 16,197)
+   2. 75212 (Dallas, Texas): 13547% over-index (weight: 72,127, pop: 28,010)
+   3. 77002 (Houston, Texas): 12708% over-index (weight: 47,381, pop: 19,616)
+   4. 11222 (Brooklyn, New York): 12559% over-index (weight: 98,874, pop: 41,418)
+   5. 76118 (Fort Worth, Texas): 12309% over-index (weight: 40,910, pop: 17,486)
+✅ Returning 32 ZIP codes
+   #1 by volume: 30349 (Atlanta, Georgia) - weight: 109,232, 7312% over-index
+📍 Found 32 high-concentration ZIP codes (1517ms)
+📊 Aggregating demographics for 32 ZIP codes
+   Median HHI: 71972 (+2.2% vs national) - Middle
+   Top age bracket: 40-49, Median: 36.0
+   Education (Bachelor's+): 30.1% (-13.9% vs national) - Mixed Education
+   Family: Family-Focused (avg 3.3 people, +32.4% vs national)
+   Location: Suburban Homeowners (48% homeowners, median home value $395628)
+   Six-figure households: 16%
+   🆕 LIFESTYLE: SelfEmp 13.1%, Married 37.2%, DualInc 53.2%, Commute 29min, Charity 18.1%, STEM 43.3%
+📊 Aggregated demographics for 32 ZIPs (1ms)
+🗺️  Identified top markets: Dallas, Houston, Washington (0ms)
+🔗 Calculating behavioral overlaps for: "Audio"
+   ⚡ Using pre-calculated overlaps (instant lookup!)
+   ✅ Found top 5 overlapping segments
+      1. Tablet Computers: 27.0% overlap
+      2. Magazines & Newspapers: 23.0% overlap
+      3. Cameras & Optics: 21.0% overlap
+      4. Baby & Toddler: 18.0% overlap
+      5. Pasta & Noodles: 17.0% overlap
+🔗 Identified 5 overlapping segments (1ms)
+📊 vs Commerce: Income -15.6%, Education -17.0%
+✨ Generating strategic insights with Gemini for: "Audio"
+✅ Gemini service initialized for Audience Insights
+📄 Raw Gemini response length: 5250 chars
+✅ Parsed JSON from code block
+✨ Generated strategic insights with Gemini (23900ms)
+📝 Generating executive summary with Gemini
+📝 Generated executive summary (7495ms)
+
+👤 Generating AI persona for: "Audio"
+✅ AI Persona: "The Tech-Savvy Family Listener" 🎧
+👤 Generated AI persona: "The Tech-Savvy Family Listener" 🎧 (7575ms)
+💾 Report cached for "Audio"
+⏱️  TOTAL REPORT GENERATION TIME: 40.49s
+
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+⚠️  No deals available for matching
+[0mPOST /api/audience-insights/generate [32m200[0m 40491.370 ms - 13904[0m
+[0mPOST /api/market-sizing [33m400[0m 0.950 ms - 78[0m
+📊 Generating market sizing for query: "Audio market size in New York"
+📊 Gemini market sizing response: ```json
+{
+  "marketSizing": [
+    {
+      "id": "nyc-consumer-audio-devices-2024",
+      "marketName": "Consumer Audio Devices & Accessories Market in New York City",
+      "totalMarketSize": "$1.25B",
+      "growthRate": "+9.5%",
+      "addressableMarket": "65% of NYC households",
+      "addressableValue": "$812.5M",
+      "demographics": {
+        "population": "8.4M residents, 3.4M households",
+        "targetAge": "18-65 (primary consumers), 25-45 (early adopters/premium segment)",
+        "penetration": "85% smartphone owners, 60% wireless headphone users"
+      },
+      "growthTrends": {
+        "growthRate": "+9.5% YoY (CAGR 2024-2028)",
+        "seasonality": "Q4 (Holiday season) accounts for 35-40% of annual sales; Q2 (summer travel/outdoor activities) sees moderate spikes.",
+        "keyOpportunities": [
+          "Premium & High-Resolution Audio: Growing demand for audiophile-grade equipment.",
+          "Smart Audio Integration: Devices with voice assistants and smart home connectivity.",
+          "Personalized Audio: Custom-fit earbuds, adaptive sound profiles.",
+          "Work-From-Home (WFH) & Hybrid Solutions: High-quality headsets and conferencing audio."
+        ]
+      },
+      "marketInsights": {
+        "keyDrivers": [
+          "High disposable income and tech-savvy population in NYC.",
+          "Proliferation of streaming services (music, podcasts, video) driving demand for better audio output.",
+          "Increased adoption of wireless and truly wireless (TWS) technologies.",
+          "Focus on personal well-being and immersive entertainment experiences."
+        ],
+        "barriers": [
+          "Price sensitivity in certain segments despite overall affluence.",
+          "Intense competition from established brands and new entrants.",
+          "Rapid technological obsolescence leading to shorter product lifecycles.",
+          "Environmental concerns regarding e-waste and sustainability."
+        ],
+        "opportunities": [
+          "Niche markets: Gaming audio, professional content creation, fitness-specific audio.",
+          "Subscription models for premium audio features or device upgrades.",
+          "Integration with health and wellness tracking (e.g., hearing health, stress reduction).",
+          "Retail experiences: Experiential showrooms and personalized consultations."
+        ]
+      },
+      "sources": [
+        { "title": "Consumer Technology Association (CTA) Market Research", "url": "https://www.cta.tech", "note": "Benchmark for US consumer electronics market trends." },
+        { "title": "NYC Department of City Planning Demographics", "url": "https://www1.nyc.gov/site/planning/index.page", "note": "Population and household data." }
+      ]
+    },
+    {
+      "id": "nyc-audio-content-services-2024",
+      "marketName": "Audio Content Consumption & Services Market in New York City",
+      "totalMarketSize": "$1.8B",
+      "growthRate": "+12.0%",
+      "addressableMarket": "75% of NYC residents (digital audio content)",
+      "addressableValue": "$1.35B",
+      "demographics": {
+        "population": "8.4M residents",
+        "targetAge": "16-55 (primary content consumers), 25-40 (high podcast/premium subscriber base)",
+        "penetration": "70% music streaming subscribers, 45% regular podcast listeners"
+      },
+      "growthTrends": {
+        "growthRate": "+12.0% YoY (CAGR 2024-2028)",
+        "seasonality": "Music streaming consistent year-round; podcast listenership peaks during commutes/leisure; live audio events peak in spring/fall.",
+        "keyOpportunities": [
+          "Podcast Monetization: Increased ad spending, premium subscriptions, and live podcast events.",
+          "Spatial Audio & Immersive Experiences: Adoption of advanced audio formats in music and storytelling.",
+          "Hyper-Local Content: Growth in NYC-specific podcasts, news, and cultural audio guides.",
+          "Interactive Audio: Live audio rooms, social audio platforms, and gamified audio experiences."
+        ]
+      },
+      "marketInsights": {
+        "keyDrivers": [
+          "High smartphone penetration and ubiquitous internet access in NYC.",
+          "Diverse and culturally rich population driving demand for varied content.",
+          "Commuter culture fostering high podcast and music streaming consumption.",
+          "Growth of creator economy and independent audio producers.",
+          "Strong live entertainment scene (concerts, theater, comedy) contributing to overall audio spend."
+        ],
+        "barriers": [
+          "Subscription fatigue and competition for consumer attention.",
+          "Content discovery challenges in an oversaturated market.",
+          "Ad-blocker usage impacting ad-supported revenue models.",
+          "Piracy and unauthorized content distribution."
+        ],
+        "opportunities": [
+          "Personalized content curation and recommendation engines.",
+          "Integration of audio content with smart city initiatives and public transport.",
+          "Educational and professional development audio courses.",
+          "Partnerships between audio platforms and NYC cultural institutions/venues."
+        ]
+      },
+      "sources": [
+        { "title": "Statista Digital Music & Podcast Revenue Reports", "url": "https://www.statista.com", "note": "Global and US benchmarks for audio content revenue." },
+        { "title": "Edison Research Infinite Dial Study", "url": "https://www.edisonresearch.com/the-infinite-dial-2023/", "note": "US podcast and digital audio consumption trends." }
+      ]
+    }
+  ],
+  "aiResponse": "The audio market in New York City is a dynamic and significant sector, driven by a tech-savvy population and a vibrant cultural landscape. We've analyzed it across two key segments: Consumer Audio Devices & Accessories, and Audio Content Consumption & Services. The total market for these combined segments in NYC is estimated to be around **$3.05 billion annually**, with strong growth projected for the coming years.\n\n**Consumer Audio Devices & Accessories** is a robust market valued at approximately **$1.25 billion**, fueled by the demand for premium, wireless, and smart audio solutions. New Yorkers are keen on upgrading their personal audio experiences, especially with the rise of remote work and immersive entertainment. Key opportunities lie in high-resolution audio, smart home integration, and specialized devices for niche activities like gaming or fitness.\n\nMeanwhile, the **Audio Content Consumption & Services** market is even larger, estimated at **$1.8 billion**. This segment is experiencing rapid growth, primarily driven by the widespread adoption of music streaming, the podcast boom, and a thriving live audio scene. Opportunities abound in personalized and hyper-local content, spatial audio experiences, and innovative monetization strategies for creators. Both segments present compelling avenues for businesses looking to innovate and capture market share in this bustling metropolis."
+}
+```
+[0mPOST /api/market-sizing [32m200[0m 21125.606 ms - 6092[0m
+📊 Generating market sizing for query: "WHat is the market size for pet owners?"
+📊 Gemini market sizing response: ```json
+{
+  "marketSizing": [
+    {
+      "id": "us-pet-care-market-2024",
+      "marketName": "U.S. Pet Care Market (Spending by Pet Owners)",
+      "totalMarketSize": "$147.0B",
+      "growthRate": "+5.9%",
+      "addressableMarket": "66% of U.S. households",
+      "addressableValue": "$147.0B",
+      "demographics": {
+        "population": "66% of U.S. households (approximately 86.9 million homes) own a pet.",
+        "targetAge": "Millennials (33%), Gen X (25%), and Baby Boomers (24%) are the largest pet owner groups, with Gen Z showing the fastest growth in pet adoption.",
+        "penetration": "High engagement across categories: 78% of dog owners and 63% of cat owners purchase premium food. Over 50% of pet owners utilize online channels for pet supplies."
+      },
+      "growthTrends": {
+        "growthRate": "Projected annual growth of +5-7% YoY for the next 3-5 years, driven by sustained demand and premiumization.",
+        "seasonality": "Spending spikes around holidays (pet gifts, travel services), and summer (outdoor activities, pet-friendly travel). Routine spending on food and veterinary care remains consistent year-round.",
+        "keyOpportunities": [
+          "Humanization of pets continues to drive premiumization across all product and service categories.",
+          "Significant growth in pet health & wellness, including pet insurance, specialized supplements, and prescription diets.",
+          "Expansion of pet services such as daycare, grooming, training, and tech-enabled solutions (e.g., pet sitting apps).",
+          "Increasing demand for sustainable, ethically sourced, and natural pet products."
+        ]
+      },
+      "marketInsights": {
+        "keyDrivers": [
+          "Increasing pet ownership rates, particularly among younger generations who view pets as family members.",
+          "The 'humanization of pets' trend, leading to higher spending on quality products and services.",
+          "The convenience and accessibility offered by e-commerce and subscription models for pet supplies.",
+          "A growing focus on pet health, wellness, and longevity, boosting demand for advanced veterinary care and specialized nutrition."
+        ],
+        "barriers": [
+          "Economic downturns can impact discretionary spending on premium pet products and services.",
+          "The high cost of pet ownership (especially veterinary care and specialized food) can lead to price sensitivity for some consumer segments.",
+          "Potential regulatory changes in pet food safety, animal welfare, or pet-related services."
+        ],
+        "opportunities": [
+          "Development of personalized pet nutrition and health plans based on breed, age, and specific health needs.",
+          "Integration of wearable tech and smart home devices for pet monitoring, safety, and entertainment.",
+          "Expansion of pet-friendly travel and hospitality services to cater to owners who travel with their pets.",
+          "Introduction of mental wellness products and services for pets, addressing anxiety and behavioral issues."
+        ]
+      },
+      "sources": [
+        { "title": "APPA National Pet Owners Survey 2023-2024", "url": "https://www.americanpetproducts.org/press_industrytrends.asp", "note": "Total market size, growth rate, household penetration, and demographic insights." },
+        { "title": "Statista - Pet Care Market U.S.", "url": "https://www.statista.com/outlook/cmo/pet-care/united-states", "note": "Supports growth projections and market segmentation data." }
+      ]
+    }
+  ],
+  "aiResponse": "Great question! When we talk about the 'market size for pet owners,' we're essentially looking at the U.S. Pet Care Market, which represents the total spending by these households. This market is robust and growing, driven by the strong bond between owners and their pets.\n\nOur analysis shows the **U.S. Pet Care Market reached an impressive $147.0 billion in 2023**, growing by **+5.9%** over the previous year. This market is primarily fueled by the **66% of U.S. households** that own at least one pet. Key growth drivers include the humanization of pets, a strong focus on health and wellness, and the increasing adoption of e-commerce for pet supplies. Opportunities abound in personalized nutrition, pet tech, and specialized services. You'll find a detailed breakdown in the card below."
+}
+```
+[0mPOST /api/market-sizing [32m200[0m 20234.011 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/personas [36m304[0m 1.452 ms - -[0m
+📊 Generating market sizing for query: "automotive trends"
+📊 Gemini market sizing response: ```json
+{
+  "marketSizing": [
+    {
+      "id": "global-ev-market-2024",
+      "marketName": "Global Electric Vehicle (EV) Market (Passenger & Commercial)",
+      "totalMarketSize": "$650 Billion",
+      "growthRate": "+25% CAGR (2023-2030)",
+      "addressableMarket": "28% of total new vehicle sales market",
+      "addressableValue": "$650 Billion",
+      "demographics": {
+        "population": "Early adopters: Higher-income households (>$100k annual income), urban/suburban dwellers, environmentally conscious (Gen Z, Millennials, some Gen X). Mainstream: Expanding to middle-income segments, families, and fleet operators.",
+        "targetAge": "25-65 (broadening from initial younger, tech-savvy demographic)",
+        "penetration": "~15-20% of new vehicle sales globally in 2023, projected to reach 40-50% by 2030."
+      },
+      "growthTrends": {
+        "growthRate": "+25% CAGR, driven by increasing consumer demand, supportive government policies (subsidies, emissions targets), and expanding charging infrastructure.",
+        "seasonality": "Generally stable, but slight peaks around new model releases and year-end sales events. Policy changes can also create short-term spikes.",
+        "keyOpportunities": [
+          "Fleet Electrification: Significant untapped potential in commercial fleets (delivery, ride-sharing, corporate).",
+          "Battery Technology Advancements: Lower costs, increased range, faster charging will accelerate adoption.",
+          "Emerging Markets: India, Southeast Asia, Latin America represent future growth hubs as infrastructure develops.",
+          "Vehicle-to-Grid (V2G) Integration: Monetizing EV batteries for grid stability and energy management."
+        ]
+      },
+      "marketInsights": {
+        "keyDrivers": [
+          "Government incentives & regulations (emissions standards, ZEV mandates).",
+          "Decreasing battery costs and improving energy density.",
+          "Expanding public and private charging networks.",
+          "Growing consumer environmental awareness and demand for sustainable transport.",
+          "Improved EV performance (range, acceleration, reduced maintenance)."
+        ],
+        "barriers": [
+          "High upfront purchase price (though decreasing).",
+          "Range anxiety and perceived lack of charging infrastructure in some regions.",
+          "Long charging times for non-fast chargers.",
+          "Grid capacity concerns and electricity price volatility.",
+          "Limited model availability in certain segments (e.g., heavy-duty trucks, specific utility vehicles)."
+        ],
+        "opportunities": [
+          "Development of ultra-fast charging and battery swapping technologies.",
+          "Solid-state batteries offering higher energy density and safety.",
+          "Subscription models for battery ownership or vehicle access.",
+          "Integration with smart home energy systems and renewable energy sources.",
+          "Expansion into niche vehicle segments (e.g., off-road EVs, specialized commercial vehicles)."
+        ]
+      },
+      "sources": [
+        { "title": "IEA Global EV Outlook 2023", "url": "https://www.iea.org/reports/global-ev-outlook-2023", "note": "Supports market size, growth, and trends" },
+        { "title": "BloombergNEF EV Outlook", "url": "https://about.bnef.com/electric-vehicle-outlook/", "note": "Supports growth projections and market drivers" }
+      ]
+    },
+    {
+      "id": "global-automotive-software-connected-car-2024",
+      "marketName": "Global Automotive Software & Connected Car Services Market",
+      "totalMarketSize": "$210 Billion",
+      "growthRate": "+18% CAGR (2023-2030)",
+      "addressableMarket": "85% of new vehicles sold globally",
+      "addressableValue": "$210 Billion",
+      "demographics": {
+        "population": "Primary users: New vehicle buyers across all age groups, with higher engagement among tech-savvy Millennials and Gen Z. Target segments: Premium vehicle owners (for advanced features), fleet operators (for telematics and predictive maintenance), urban commuters (for navigation and traffic services).",
+        "targetAge": "18-75 (broad appeal across driving ages)",
+        "penetration": "~70% of new vehicles sold globally have some level of connectivity; ~40% offer advanced ADAS features."
+      },
+      "growthTrends": {
+        "growthRate": "+18% CAGR, driven by the shift to Software-Defined Vehicles (SDVs), increasing demand for advanced safety features (ADAS), and the rise of subscription-based services.",
+        "seasonality": "Tied to new vehicle sales cycles, with peaks often aligning with new model year releases and major auto shows.",
+        "keyOpportunities": [
+          "Subscription Services: Monetization of features like advanced navigation, performance upgrades, and entertainment.",
+          "AI & Machine Learning Integration: Enhancing ADAS, predictive maintenance, and personalized in-car experiences.",
+          "Cybersecurity Solutions: Growing demand for robust security as vehicles become more connected and vulnerable.",
+          "Vehicle-to-Everything (V2X) Communication: Enabling safer and more efficient traffic flow through communication with infrastructure and other vehicles."
+        ]
+      },
+      "marketInsights": {
+        "keyDrivers": [
+          "Regulatory mandates for safety features (e.g., AEB, lane-keeping assist).",
+          "Consumer demand for convenience, personalization, and seamless digital integration.",
+          "Increasing complexity of vehicle systems requiring sophisticated software management.",
+          "Rise of autonomous driving development and associated software requirements.",
+          "New business models enabled by connectivity (e.g., usage-based insurance, predictive maintenance)."
+        ],
+        "barriers": [
+          "Cybersecurity risks and data privacy concerns.",
+          "High development costs and complexity of integrating diverse software systems.",
+          "Fragmentation of operating systems and industry standards.",
+          "Consumer reluctance to pay for subscription features post-purchase.",
+          "Regulatory hurdles for data sharing and autonomous driving deployment."
+        ],
+        "opportunities": [
+          "Over-the-Air (OTA) updates for continuous improvement and new feature deployment.",
+          "Integration with smart city infrastructure and intelligent transportation systems.",
+          "Personalized in-car commerce and infotainment experiences.",
+          "Advanced telematics for insurance, fleet management, and logistics optimization.",
+          "Development of robust, standardized software platforms for the automotive industry."
+        ]
+      },
+      "sources": [
+        { "title": "Grand View Research - Automotive Software Market", "url": "https://www.grandviewresearch.com/industry-analysis/automotive-software-market", "note": "Supports market size, growth, and segmentation" },
+        { "title": "Statista - Connected Car Market", "url": "https://www.statista.com/outlook/automotive/connected-car/worldwide", "note": "Supports market size, penetration, and trends" }
+      ]
+    }
+  ],
+  "aiResponse": "Here are two comprehensive market sizing cards detailing key automotive trends. The first card focuses on the rapidly expanding Global Electric Vehicle (EV) Market, highlighting its significant growth drivers and opportunities for fleet electrification and battery technology. The second card delves into the Global Automotive Software & Connected Car Services Market, emphasizing the shift towards software-defined vehicles, the rise of subscription models, and the critical role of AI and cybersecurity. Both cards provide actionable insights into market size, demographics, growth trajectories, and strategic opportunities for businesses operating within or looking to enter these dynamic segments of the automotive industry."
+}
+```
+[0mPOST /api/market-sizing [32m200[0m 28290.375 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 1.026 ms - -[0m

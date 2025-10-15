@@ -32,32 +32,34 @@ export const errorHandler = (
     message = 'Validation Error';
   }
 
-  if (error.name === 'CastError') {
-    statusCode = 400;
-    message = 'Invalid ID format';
-  }
+  // Remove legacy DB-specific branches to avoid confusing responses
 
-  if (error.name === 'MongoError' && (error as any).code === 11000) {
-    statusCode = 400;
-    message = 'Duplicate field value';
+  // Log error for debugging (avoid leaking internals in prod)
+  if (process.env.NODE_ENV !== 'production') {
+    console.error('Error:', {
+      message: error.message,
+      stack: error.stack,
+      statusCode,
+      url: req.url,
+      method: req.method,
+      timestamp: new Date().toISOString()
+    });
+  } else {
+    console.error('Error:', {
+      message: message,
+      statusCode,
+      url: req.url,
+      method: req.method,
+      timestamp: new Date().toISOString()
+    });
   }
-
-  // Log error for debugging
-  console.error('Error:', {
-    message: error.message,
-    stack: error.stack,
-    statusCode,
-    url: req.url,
-    method: req.method,
-    timestamp: new Date().toISOString()
-  });
 
   // Send error response
   res.status(statusCode).json({
     error: {
       message,
       statusCode,
-      ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+      ...(process.env.NODE_ENV !== 'production' && { stack: error.stack })
     }
   });
 };

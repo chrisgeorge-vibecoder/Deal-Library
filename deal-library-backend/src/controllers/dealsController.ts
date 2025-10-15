@@ -79,7 +79,16 @@ export class DealsController {
         };
       }
 
-      const allDeals = await this.appsScriptService.getAllDeals();
+      let allDeals: Deal[] = [];
+      
+      try {
+        allDeals = await this.appsScriptService.getAllDeals();
+      } catch (error) {
+        console.warn('⚠️ Apps Script service unavailable, using sample deals');
+        // Fallback to sample deals when Apps Script is not available
+        allDeals = this.getSampleDeals();
+      }
+      
       const filteredDeals = this.filterDeals(allDeals, filters);
       
       // Pagination
@@ -1379,7 +1388,14 @@ export class DealsController {
       const report = await audienceInsightsService.generateReport(segment, category, includeCommercialZips || false);
       
       // Get recommended deals using simple keyword matching
-      const allDeals = await this.appsScriptService.getAllDeals();
+      let allDeals: Deal[] = [];
+      try {
+        allDeals = await this.appsScriptService.getAllDeals();
+      } catch (error) {
+        console.warn('⚠️ Apps Script service unavailable for audience insights, using sample deals');
+        // Fallback to sample deals when Apps Script is not available
+        allDeals = this.getSampleDeals();
+      }
       const recommendedDeals = await audienceInsightsService.getRecommendedDeals(segment, category, allDeals);
       
       res.json({
@@ -1451,6 +1467,156 @@ export class DealsController {
         message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
+  }
+
+  /**
+   * Get sample deals for fallback when Apps Script is unavailable
+   */
+  private getSampleDeals(): Deal[] {
+    const now = new Date().toISOString();
+    
+    return [
+      {
+        id: 'sample-001',
+        dealName: 'CommerceData_Electronics_Premium',
+        dealId: 'ECOM-ELEC-001',
+        description: 'Target high-value electronics shoppers with proven purchase intent',
+        targeting: 'Electronics shoppers, Premium devices',
+        environment: 'Production',
+        mediaType: 'Multi-format',
+        flightDate: '2024-01-15',
+        bidGuidance: '$3.50 - $4.50 CPM',
+        createdBy: 'System',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: 'sample-002',
+        dealName: 'CommerceData_Apparel_Fashion',
+        dealId: 'ECOM-FASH-002',
+        description: 'Reach fashion-forward shoppers actively browsing clothing and accessories',
+        targeting: 'Fashion shoppers, Apparel buyers',
+        environment: 'Production',
+        mediaType: 'Display',
+        flightDate: '2024-02-01',
+        bidGuidance: '$2.80 - $3.20 CPM',
+        createdBy: 'System',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: 'sample-003',
+        dealName: 'CommerceData_Home_Garden',
+        dealId: 'ECOM-HOME-003',
+        description: 'Connect with home improvement enthusiasts and garden shoppers',
+        targeting: 'Home & Garden buyers',
+        environment: 'Production',
+        mediaType: 'Native',
+        flightDate: '2024-01-20',
+        bidGuidance: '$2.50 - $3.00 CPM',
+        createdBy: 'System',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: 'sample-004',
+        dealName: 'CommerceData_Health_Beauty',
+        dealId: 'ECOM-HB-004',
+        description: 'Target health and beauty shoppers with high purchase frequency',
+        targeting: 'Health & Beauty shoppers',
+        environment: 'Production',
+        mediaType: 'Video',
+        flightDate: '2024-02-10',
+        bidGuidance: '$3.00 - $3.50 CPM',
+        createdBy: 'System',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: 'sample-005',
+        dealName: 'CommerceData_Baby_Toddler',
+        dealId: 'ECOM-BABY-005',
+        description: 'Reach new parents and caregivers shopping for baby products',
+        targeting: 'Baby & Toddler shoppers, New parents',
+        environment: 'Production',
+        mediaType: 'Multi-format',
+        flightDate: '2024-01-25',
+        bidGuidance: '$3.80 - $4.20 CPM',
+        createdBy: 'System',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: 'sample-006',
+        dealName: 'CommerceData_Pet_Supplies',
+        dealId: 'ECOM-PET-006',
+        description: 'Target pet owners actively purchasing pet food and supplies',
+        targeting: 'Pet owners, Animal care shoppers',
+        environment: 'Production',
+        mediaType: 'Display',
+        flightDate: '2024-02-05',
+        bidGuidance: '$2.90 - $3.40 CPM',
+        createdBy: 'System',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: 'sample-007',
+        dealName: 'CommerceData_Sporting_Goods',
+        dealId: 'ECOM-SPORT-007',
+        description: 'Connect with active lifestyle and fitness enthusiasts',
+        targeting: 'Sporting goods shoppers, Fitness buyers',
+        environment: 'Production',
+        mediaType: 'CTV',
+        flightDate: '2024-01-30',
+        bidGuidance: '$3.20 - $3.70 CPM',
+        createdBy: 'System',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: 'sample-008',
+        dealName: 'CommerceData_Food_Beverage',
+        dealId: 'ECOM-FOOD-008',
+        description: 'Target food and beverage shoppers with high repeat purchase rates',
+        targeting: 'Food shoppers, Beverage buyers',
+        environment: 'Production',
+        mediaType: 'Native',
+        flightDate: '2024-02-15',
+        bidGuidance: '$2.60 - $3.10 CPM',
+        createdBy: 'System',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: 'sample-009',
+        dealName: 'CommerceData_Furniture',
+        dealId: 'ECOM-FURN-009',
+        description: 'Reach high-value furniture shoppers with strong purchase intent',
+        targeting: 'Furniture buyers, Home furnishing shoppers',
+        environment: 'Production',
+        mediaType: 'Video',
+        flightDate: '2024-01-18',
+        bidGuidance: '$4.00 - $4.50 CPM',
+        createdBy: 'System',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: 'sample-010',
+        dealName: 'CommerceData_Toys_Games',
+        dealId: 'ECOM-TOY-010',
+        description: 'Target parents and gift-givers shopping for toys and games',
+        targeting: 'Toy shoppers, Parents, Gift buyers',
+        environment: 'Production',
+        mediaType: 'Multi-format',
+        flightDate: '2024-02-20',
+        bidGuidance: '$3.30 - $3.80 CPM',
+        createdBy: 'System',
+        createdAt: now,
+        updatedAt: now
+      }
+    ];
   }
 
 }

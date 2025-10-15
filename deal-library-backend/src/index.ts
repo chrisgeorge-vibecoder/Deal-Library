@@ -15,23 +15,33 @@ import { PersistenceService } from './services/persistenceService';
 // Load environment variables
 dotenv.config();
 
-// Validate required environment variables
-const requiredEnvVars = ['GEMINI_API_KEY', 'GOOGLE_APPS_SCRIPT_URL'];
-const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+// Validate environment variables
+const recommendedEnvVars = ['GEMINI_API_KEY'];
+const requiredEnvVarsProd = ['GOOGLE_APPS_SCRIPT_URL'];
 
-if (missingVars.length > 0) {
-  console.error('❌ Missing required environment variables:', missingVars.join(', '));
-  console.error('Please set the following environment variables:');
-  missingVars.forEach(varName => {
-    console.error(`  - ${varName}`);
-  });
-  process.exit(1);
+const missingRecommended = recommendedEnvVars.filter(varName => !process.env[varName]);
+const missingRequired = requiredEnvVarsProd.filter(varName => !process.env[varName]);
+
+if (process.env.NODE_ENV === 'production') {
+  if (missingRequired.length > 0) {
+    console.error('❌ Missing required environment variables for production:', missingRequired.join(', '));
+    process.exit(1);
+  }
+  if (missingRecommended.length > 0) {
+    console.warn('⚠️  Missing recommended environment variables (some features will be disabled):', missingRecommended.join(', '));
+  }
+} else {
+  if (missingRecommended.length > 0 || missingRequired.length > 0) {
+    const allMissing = [...missingRecommended, ...missingRequired];
+    console.warn('⚠️  Missing environment variables (development):', allMissing.join(', '));
+    console.warn('Some features may be limited without these variables.');
+  } else {
+    console.log('✅ All environment variables are set');
+  }
 }
 
-console.log('✅ All required environment variables are set');
-
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // Initialize controllers and services
 const persistenceService = new PersistenceService();
@@ -39,14 +49,34 @@ const dealsController = new DealsController();
 const personaService = new PersonaService();
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+  frameguard: { action: 'sameorigin' },
+  referrerPolicy: { policy: 'no-referrer' },
+  crossOriginEmbedderPolicy: false, // avoid issues with PDF/image proxying
+  crossOriginResourcePolicy: { policy: 'same-origin' },
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", 'https:'],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
+      connectSrc: ["'self'", 'https:', 'http://localhost:3002']
+    }
+  }
+}));
 app.use(corsMiddleware);
 
 // Compression middleware
 app.use(compression());
 
 // Logging middleware
-app.use(morgan('combined'));
+if (process.env.NODE_ENV === 'production') {
+  // Minimal logs in production
+  app.use(morgan('tiny'));
+} else if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan('dev'));
+}
 
 // Rate limiting
 const limiter = rateLimit({
@@ -165,6 +195,28 @@ app.post('/api/audience-geo-analysis/export-pdf', (req, res) => dealsController.
 app.post('/api/audience-insights/generate', (req, res) => dealsController.generateAudienceInsightsReport(req, res));
 app.post('/api/persona/generate', (req, res) => dealsController.generatePersonaCard(req, res));
 
+// Commerce Baseline API Route
+app.get('/api/commerce-baseline', async (req, res) => {
+  try {
+    const { commerceBaselineService } = await import('./services/commerceBaselineService');
+    const baseline = await commerceBaselineService.getBaseline();
+    const info = commerceBaselineService.getBaselineInfo();
+    
+    res.json({
+      success: true,
+      baseline,
+      info
+    });
+  } catch (error) {
+    console.error('Error fetching commerce baseline:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch commerce baseline'
+    });
+  }
+});
+
+
 // Error handling middleware
 app.use(notFoundHandler);
 app.use(errorHandler);
@@ -175,16 +227,18 @@ app.listen(PORT, async () => {
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
   
-  // Auto-load commerce audience data on startup
-  console.log(`\n📦 Auto-loading commerce audience data...`);
-  try {
-    const { commerceAudienceService } = await import('./services/commerceAudienceService');
-    const result = await commerceAudienceService.loadCommerceData();
-    if (result.success) {
-      console.log(`✅ Commerce data loaded: ${result.stats?.totalRecords.toLocaleString()} records, ${result.stats?.audienceSegments.length} segments\n`);
+  // Auto-load commerce audience data on startup (optional)
+  if (process.env.AUTO_LOAD_COMMERCE_DATA === 'true') {
+    console.log(`\n📦 Auto-loading commerce audience data...`);
+    try {
+      const { commerceAudienceService } = await import('./services/commerceAudienceService');
+      const result = await commerceAudienceService.loadCommerceData();
+      if (result.success) {
+        console.log(`✅ Commerce data loaded: ${result.stats?.totalRecords.toLocaleString()} records, ${result.stats?.audienceSegments.length} segments\n`);
+      }
+    } catch (error) {
+      console.error(`⚠️  Failed to auto-load commerce data:`, error);
     }
-  } catch (error) {
-    console.error(`⚠️  Failed to auto-load commerce data:`, error);
   }
   console.log(`📋 API endpoints:`);
   console.log(`   GET    /api/deals`);

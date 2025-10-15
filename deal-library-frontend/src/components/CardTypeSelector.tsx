@@ -81,7 +81,7 @@ export default function CardTypeSelector({
                 key={cardType.id}
                 onClick={() => toggleCardType(cardType.id)}
                 className={`
-                  flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all
+                  flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all
                   border-2 hover:scale-105 active:scale-95
                   ${isSelected 
                     ? 'bg-blue-50 border-blue-300 text-blue-700 shadow-sm' 

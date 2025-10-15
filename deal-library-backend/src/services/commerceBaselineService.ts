@@ -68,7 +68,7 @@ export class CommerceBaselineService {
           ...data,
           calculatedAt: new Date(data.calculatedAt)
         };
-        this.lastCalculated = this.baseline.calculatedAt;
+        this.lastCalculated = this.baseline?.calculatedAt || null;
         console.log(`✅ Loaded commerce baseline from cache (calculated ${this.lastCalculated?.toLocaleString() || 'unknown'})`);
       }
     } catch (error) {

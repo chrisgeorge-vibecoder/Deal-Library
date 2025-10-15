@@ -519,9 +519,6 @@ export default function ChatInterface({
                             const event = new CustomEvent('openAudienceInsightsModal', { detail: { audienceInsights: insights } });
                             window.dispatchEvent(event);
                           }}
-                          onSaveCard={onSaveCard}
-                          onUnsaveCard={onUnsaveCard}
-                          isSaved={isSaved}
                         />
                       ))}
                     </div>
@@ -547,9 +544,6 @@ export default function ChatInterface({
                             const event = new CustomEvent('openMarketSizingModal', { detail: { marketSizing: sizing } });
                             window.dispatchEvent(event);
                           }}
-                          onSaveCard={onSaveCard}
-                          onUnsaveCard={onUnsaveCard}
-                          isSaved={isSaved}
                         />
                       ))}
                     </div>
@@ -568,9 +562,6 @@ export default function ChatInterface({
                             const event = new CustomEvent('openGeoModal', { detail: { geo: geo } });
                             window.dispatchEvent(event);
                           }}
-                          onSaveCard={onSaveCard}
-                          onUnsaveCard={onUnsaveCard}
-                          isSaved={isSaved}
                         />
                       ))}
                     </div>

@@ -3,7 +3,7 @@ import { X, BarChart3, TrendingUp, Users, Target, Globe, DollarSign, Calendar, L
 import { MarketSizing } from './MarketSizingCard';
 
 interface MarketSizingDetailModalProps {
-  sizing: MarketSizing;
+  sizing: MarketSizing | null;
   isOpen: boolean;
   onClose: () => void;
   onViewDeals?: (sizing: MarketSizing) => void;

@@ -1,0 +1,9 @@
+
+# Copy these lines and add them to your .env file:
+# Location: deal-library-backend/.env
+
+# Supabase Database Configuration
+SUPABASE_URL=https://eibebfevxkskffepguya.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpYmViZmV2eGtza2ZmZXBndXlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3NTA5OTksImV4cCI6MjA3NjMyNjk5OX0.CyuV-YgzB4lbuZXwAuECVAZQwsn6G8FXu_5xvfsY_TE
+USE_SUPABASE=false
+

@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { SupabaseService } from './supabaseService';
 
 export interface CommerceAudienceData {
   zipCode: string;
@@ -20,15 +21,109 @@ export class CommerceAudienceService {
   private commerceData: CommerceAudienceData[] = [];
   private isLoaded = false;
   private dataFilePath: string;
+  private useSupabase: boolean;
 
   constructor() {
     this.dataFilePath = path.join(__dirname, '../../data/commerce_audience_segments.csv');
+    this.useSupabase = process.env.USE_SUPABASE === 'true';
+    
+    if (this.useSupabase) {
+      console.log('🛒 CommerceAudienceService: Supabase mode enabled');
+    } else {
+      console.log('🛒 CommerceAudienceService: CSV mode (fallback)');
+    }
   }
 
   /**
-   * Load commerce audience data from CSV file
+   * Load commerce audience data from Supabase or CSV file
    */
   async loadCommerceData(): Promise<{ success: boolean; message: string; stats?: any }> {
+    if (this.useSupabase) {
+      return this.loadFromSupabase();
+    } else {
+      return this.loadFromCSV();
+    }
+  }
+
+  /**
+   * Load commerce audience data from Supabase
+   */
+  private async loadFromSupabase(): Promise<{ success: boolean; message: string; stats?: any }> {
+    try {
+      console.log('📊 Loading Commerce Audience segments data from Supabase...');
+      
+      const supabase = SupabaseService.getClient();
+      
+      // Fetch all commerce records (need to override default 1000 limit)
+      const { data: records, error } = await supabase
+        .from('commerce_audience_segments')
+        .select('sanitized_value, weight, audience_name, seed, dt')
+        .limit(5000000); // Request up to 5M records
+      
+      if (error) {
+        throw new Error(`Supabase query failed: ${error.message}`);
+      }
+      
+      if (!records || records.length === 0) {
+        console.warn('⚠️  No commerce data found in Supabase, falling back to CSV');
+        return this.loadFromCSV();
+      }
+      
+      console.log(`📈 Processing ${records.length} commerce records from Supabase...`);
+      
+      this.commerceData = [];
+      
+      for (const record of records) {
+        const sanitizedValue = record.sanitized_value;
+        
+        // Only process US data (NA_US_ prefix)
+        if (sanitizedValue && sanitizedValue.startsWith('NA_US_')) {
+          const zipCode = sanitizedValue.replace('NA_US_', '');
+          
+          // Validate ZIP code format (5 digits)
+          if (/^\d{5}$/.test(zipCode)) {
+            this.commerceData.push({
+              zipCode,
+              weight: record.weight || 0,
+              audienceName: record.audience_name?.trim() || '',
+              seed: record.seed?.trim() || '',
+              date: record.dt || ''
+            });
+          }
+        }
+      }
+      
+      this.isLoaded = true;
+      
+      const stats = {
+        totalRecords: this.commerceData.length,
+        audienceSegments: this.getAudienceSegments(),
+        averageWeight: this.commerceData.reduce((sum, item) => sum + item.weight, 0) / this.commerceData.length,
+        topZipCodes: this.getTopZipCodesByWeight(5)
+      };
+      
+      console.log(`✅ Commerce audience data loaded from Supabase:`);
+      console.log(`   📍 ${stats.totalRecords.toLocaleString()} ZIP codes`);
+      console.log(`   🎯 ${stats.audienceSegments.length} audience segments`);
+      console.log(`   📊 Average weight: ${stats.averageWeight.toFixed(0)}`);
+      
+      return {
+        success: true,
+        message: 'Commerce audience data loaded from Supabase successfully',
+        stats
+      };
+      
+    } catch (error) {
+      console.error('Error loading commerce data from Supabase:', error);
+      console.log('⚠️  Falling back to CSV loading...');
+      return this.loadFromCSV();
+    }
+  }
+
+  /**
+   * Load commerce audience data from CSV file (original method, now as fallback)
+   */
+  private async loadFromCSV(): Promise<{ success: boolean; message: string; stats?: any }> {
     try {
       console.log('📊 Loading Commerce Audience segments data from CSV...');
       

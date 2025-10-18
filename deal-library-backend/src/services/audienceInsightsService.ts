@@ -2,6 +2,7 @@ import { commerceAudienceService } from './commerceAudienceService';
 import { CensusDataService } from './censusDataService';
 import { GeminiService } from './geminiService';
 import { commerceBaselineService } from './commerceBaselineService';
+import { SupabaseService } from './supabaseService';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -70,16 +71,22 @@ class AudienceInsightsService {
   private overlapsFilePath: string;
   private reportCache: Map<string, { report: AudienceInsightsReport; timestamp: number }> = new Map(); // Cache for generated reports
   private reportCacheTimeout: number = 1000 * 60 * 60; // 1 hour cache
+  private useSupabase: boolean;
   
   constructor() {
     // Use singleton instance to share loaded census data across requests
     this.censusDataService = CensusDataService.getInstance();
     this.overlapsFilePath = path.join(__dirname, '../../data/199_Audience_Overlap_Data.csv');
+    this.useSupabase = process.env.USE_SUPABASE === 'true';
     
     // Try to load pre-calculated overlaps from CSV
     this.loadOverlapsCache();
     
     // Don't initialize Gemini in constructor - it will be lazy-loaded when first needed
+    
+    if (this.useSupabase) {
+      console.log('💾 AudienceInsightsService: Supabase caching enabled');
+    }
   }
   
   /**
@@ -197,12 +204,21 @@ class AudienceInsightsService {
   async generateReport(segment: string, category?: string, includeCommercialZips: boolean = false): Promise<AudienceInsightsReport> {
     const startTime = Date.now();
     
-    // Check cache first
+    // Check cache first (Supabase or in-memory)
     const cacheKey = `${segment}|${category}|${includeCommercialZips}`;
-    const cached = this.reportCache.get(cacheKey);
-    if (cached && (Date.now() - cached.timestamp < this.reportCacheTimeout)) {
-      console.log(`💨 Returning cached report for "${segment}" (${((Date.now() - cached.timestamp) / 1000 / 60).toFixed(1)} minutes old)`);
-      return cached.report;
+    
+    if (this.useSupabase) {
+      const cachedReport = await this.getFromSupabaseCache(cacheKey);
+      if (cachedReport) {
+        console.log(`💨 Returning cached report from Supabase for "${segment}"`);
+        return cachedReport;
+      }
+    } else {
+      const cached = this.reportCache.get(cacheKey);
+      if (cached && (Date.now() - cached.timestamp < this.reportCacheTimeout)) {
+        console.log(`💨 Returning cached report for "${segment}" (${((Date.now() - cached.timestamp) / 1000 / 60).toFixed(1)} minutes old)`);
+        return cached.report;
+      }
     }
     
     console.log(`\n${'='.repeat(80)}`);
@@ -309,8 +325,12 @@ class AudienceInsightsService {
       strategicInsights,
     };
 
-    // Cache the report
-    this.reportCache.set(cacheKey, { report, timestamp: Date.now() });
+    // Cache the report (Supabase or in-memory)
+    if (this.useSupabase) {
+      await this.saveToSupabaseCache(cacheKey, segment, category || 'General', report);
+    } else {
+      this.reportCache.set(cacheKey, { report, timestamp: Date.now() });
+    }
     console.log(`💾 Report cached for "${segment}"`);
     console.log(`⏱️  TOTAL REPORT GENERATION TIME: ${((Date.now() - startTime) / 1000).toFixed(2)}s\n`);
 
@@ -1873,6 +1893,76 @@ Be specific. Cite actual numbers. Make it memorable.`;
     };
     
     return categoryEmojis[category] || '🎯';
+  }
+
+  /**
+   * Get cached report from Supabase
+   */
+  private async getFromSupabaseCache(cacheKey: string): Promise<AudienceInsightsReport | null> {
+    try {
+      const supabase = SupabaseService.getClient();
+      
+      const { data, error } = await supabase
+        .from('audience_reports_cache')
+        .select('report_data, created_at, expires_at')
+        .eq('cache_key', cacheKey)
+        .single();
+      
+      if (error || !data) {
+        return null;
+      }
+      
+      // Check if cache has expired
+      if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        console.log(`⏰ Cache expired for key: ${cacheKey}`);
+        return null;
+      }
+      
+      return data.report_data as AudienceInsightsReport;
+      
+    } catch (error) {
+      console.error('Error fetching from Supabase cache:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Save report to Supabase cache
+   */
+  private async saveToSupabaseCache(
+    cacheKey: string, 
+    segment: string, 
+    category: string, 
+    report: AudienceInsightsReport
+  ): Promise<void> {
+    try {
+      const supabase = SupabaseService.getClient();
+      
+      const expiresAt = new Date(Date.now() + this.reportCacheTimeout);
+      
+      const { error } = await supabase
+        .from('audience_reports_cache')
+        .upsert({
+          cache_key: cacheKey,
+          segment,
+          category,
+          report_data: report,
+          expires_at: expiresAt.toISOString()
+        }, { onConflict: 'cache_key' });
+      
+      if (error) {
+        console.error('Error saving to Supabase cache:', error.message);
+        // Fallback to in-memory cache
+        this.reportCache.set(cacheKey, { report, timestamp: Date.now() });
+      } else {
+        console.log(`💾 Report cached in Supabase (expires: ${expiresAt.toLocaleTimeString()})`);
+      }
+      
+    } catch (error) {
+      console.error('Error with Supabase cache:', error);
+      // Fallback to in-memory cache
+      this.reportCache.set(cacheKey, { report, timestamp: Date.now() });
+    }
   }
 }
 

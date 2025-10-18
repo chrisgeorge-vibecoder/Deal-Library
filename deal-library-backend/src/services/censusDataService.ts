@@ -5,6 +5,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { SupabaseService } from './supabaseService';
 import { 
   CensusZipCodeData, 
   CensusInsights, 
@@ -65,9 +66,17 @@ export class CensusDataService {
   private censusData: Map<string, CensusZipCodeData> = new Map();
   private isLoaded: boolean = false;
   private dataPath: string;
+  private useSupabase: boolean;
 
   constructor() {
     this.dataPath = path.join(__dirname, '../../data/uszips.csv');
+    this.useSupabase = process.env.USE_SUPABASE === 'true';
+    
+    if (this.useSupabase) {
+      console.log('📊 CensusDataService: Supabase mode enabled');
+    } else {
+      console.log('📊 CensusDataService: CSV mode (fallback)');
+    }
   }
 
   // Singleton pattern to share loaded census data across all services
@@ -79,9 +88,205 @@ export class CensusDataService {
   }
 
   /**
-   * Load census data from CSV file
+   * Load census data from Supabase or CSV file
    */
   public async loadCensusData(): Promise<CensusDataImportResult> {
+    if (this.useSupabase) {
+      return this.loadFromSupabase();
+    } else {
+      return this.loadFromCSV();
+    }
+  }
+
+  /**
+   * Load census data from Supabase
+   */
+  private async loadFromSupabase(): Promise<CensusDataImportResult> {
+    console.log('📊 Loading US Census data from Supabase...');
+    
+    const result: CensusDataImportResult = {
+      success: false,
+      recordsProcessed: 0,
+      recordsImported: 0,
+      errors: [],
+      summary: {
+        totalZipCodes: 0,
+        states: [],
+        averagePopulation: 0,
+        averageIncome: 0
+      }
+    };
+
+    try {
+      const supabase = SupabaseService.getClient();
+      
+      // Fetch all census records (disable default 1000 limit)
+      const { data: censusRecords, error } = await supabase
+        .from('census_data')
+        .select('*')
+        .limit(50000); // Request up to 50K records
+      
+      if (error) {
+        throw new Error(`Supabase query failed: ${error.message}`);
+      }
+      
+      if (!censusRecords || censusRecords.length === 0) {
+        throw new Error('No census data found in Supabase');
+      }
+      
+      console.log(`📈 Processing ${censusRecords.length} census records from Supabase...`);
+      
+      const stateSet = new Set<string>();
+      let totalPopulation = 0;
+      let totalIncome = 0;
+      let validRecords = 0;
+      
+      for (const record of censusRecords) {
+        result.recordsProcessed++;
+        
+        const censusEntry: CensusZipCodeData = {
+          zipCode: record.zip,
+          latitude: record.lat || 0,
+          longitude: record.lng || 0,
+          population: record.population || 0,
+          demographics: {
+            ageMedian: record.age_median || 0,
+            ageDistribution: {
+              under18: (record.age_under_10 || 0) + (record.age_10_to_19 || 0),
+              age18to24: 0,
+              age25to44: (record.age_20s || 0) + (record.age_30s || 0) + (record.age_40s || 0),
+              age45to64: (record.age_50s || 0) + (record.age_60s || 0),
+              age65plus: (record.age_70s || 0) + (record.age_over_80 || 0)
+            },
+            ethnicity: {
+              white: record.race_white || 0,
+              black: record.race_black || 0,
+              asian: record.race_asian || 0,
+              hispanic: record.hispanic || 0,
+              nativeAmerican: 0,
+              pacificIslander: 0,
+              other: 0,
+              twoOrMore: 0
+            },
+            education: {
+              lessThanHighSchool: 0,
+              highSchoolGraduate: 0,
+              someCollege: 0,
+              bachelorDegree: record.education_bachelors || 0,
+              graduateDegree: record.education_graduate || 0
+            },
+            householdSize: {
+              average: record.family_size || 0,
+              median: record.family_size || 0
+            },
+            lifestyle: {
+              selfEmployed: record.self_employed || 0,
+              married: record.married || 0,
+              dualIncome: record.family_dual_income || 0,
+              commuteTime: record.commute_time || 0,
+              charitableGivers: record.charitable_givers || 0,
+              stemDegree: record.education_stem_degree || 0
+            }
+          },
+          economics: {
+            householdIncome: {
+              median: record.income_household_median || 0,
+              average: record.income_household_median || 0,
+              distribution: {
+                under25k: 0,
+                between25k50k: 0,
+                between50k75k: 0,
+                between75k100k: 0,
+                between100k150k: 0,
+                between150k200k: 0,
+                over200k: 0
+              }
+            },
+            povertyRate: record.poverty || 0,
+            unemploymentRate: record.unemployment_rate || 0,
+            employmentBySector: {
+              agriculture: 0,
+              construction: 0,
+              manufacturing: 0,
+              retail: 0,
+              healthcare: 0,
+              education: 0,
+              technology: 0,
+              finance: 0,
+              government: 0,
+              other: 0
+            }
+          },
+          geography: {
+            state: record.state_name || '',
+            county: record.county_name || '',
+            city: record.city || '',
+            metroArea: record.cbsa_name || '',
+            urbanRural: record.cbsa_metro ? 'urban' as const : 'rural' as const,
+            commuteTime: {
+              average: record.commute_time || 0,
+              median: record.commute_time || 0,
+              distribution: {
+                under15min: 0,
+                between15to30min: 0,
+                between30to45min: 0,
+                between45to60min: 0,
+                over60min: 0
+              }
+            },
+            housing: {
+              medianHomeValue: record.home_value || 0,
+              medianRent: record.rent_median || 0,
+              ownerOccupiedRate: record.home_ownership || 0,
+              averageBedrooms: 0
+            }
+          },
+          lastUpdated: new Date().toISOString()
+        };
+        
+        this.censusData.set(record.zip, censusEntry);
+        result.recordsImported++;
+        validRecords++;
+        
+        if (record.state_id) {
+          stateSet.add(record.state_id);
+        }
+        
+        totalPopulation += record.population || 0;
+        totalIncome += record.income_household_median || 0;
+      }
+      
+      this.isLoaded = true;
+      result.success = true;
+      result.summary = {
+        totalZipCodes: validRecords,
+        states: Array.from(stateSet),
+        averagePopulation: validRecords > 0 ? Math.round(totalPopulation / validRecords) : 0,
+        averageIncome: validRecords > 0 ? Math.round(totalIncome / validRecords) : 0
+      };
+      
+      console.log(`✅ Loaded ${validRecords} ZIP codes from Supabase`);
+      console.log(`   States: ${result.summary.states.length}`);
+      console.log(`   Avg Population: ${result.summary.averagePopulation.toLocaleString()}`);
+      console.log(`   Avg Income: $${result.summary.averageIncome.toLocaleString()}`);
+      
+      return result;
+      
+    } catch (error) {
+      console.error('Error loading census data from Supabase:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      result.errors.push({ row: 0, error: errorMessage });
+      
+      // Fallback to CSV if Supabase fails
+      console.log('⚠️  Falling back to CSV loading...');
+      return this.loadFromCSV();
+    }
+  }
+
+  /**
+   * Load census data from CSV file (original method, now as fallback)
+   */
+  private async loadFromCSV(): Promise<CensusDataImportResult> {
     console.log('📊 Loading US Census data from CSV...');
     
     const result: CensusDataImportResult = {

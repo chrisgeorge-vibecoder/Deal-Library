@@ -11,6 +11,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { corsMiddleware } from './middleware/cors';
 import { PersonaService } from './services/personaService';
 import { PersistenceService } from './services/persistenceService';
+import { SupabaseService } from './services/supabaseService';
 
 // Load environment variables
 dotenv.config();
@@ -216,6 +217,115 @@ app.get('/api/commerce-baseline', async (req, res) => {
   }
 });
 
+
+// Admin endpoints for Supabase data management
+app.post('/api/admin/reload-census', async (req, res) => {
+  try {
+    const { CensusDataService } = await import('./services/censusDataService');
+    const censusService = CensusDataService.getInstance();
+    const result = await censusService.loadCensusData();
+    
+    res.json({
+      success: result.success,
+      message: 'Census data reloaded',
+      stats: result.summary
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to reload census data'
+    });
+  }
+});
+
+app.post('/api/admin/reload-commerce', async (req, res) => {
+  try {
+    const { commerceAudienceService } = await import('./services/commerceAudienceService');
+    const result = await commerceAudienceService.loadCommerceData();
+    
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to reload commerce data'
+    });
+  }
+});
+
+app.post('/api/admin/clear-cache', async (req, res) => {
+  try {
+    if (process.env.USE_SUPABASE === 'true') {
+      const supabase = SupabaseService.getClient();
+      
+      // Delete expired cache entries
+      const { error } = await supabase
+        .from('audience_reports_cache')
+        .delete()
+        .lt('expires_at', new Date().toISOString());
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      res.json({
+        success: true,
+        message: 'Expired cache entries cleared from Supabase'
+      });
+    } else {
+      res.json({
+        success: true,
+        message: 'In-memory cache (no persistent cache to clear)'
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to clear cache'
+    });
+  }
+});
+
+app.get('/api/admin/supabase-status', async (req, res) => {
+  try {
+    const enabled = process.env.USE_SUPABASE === 'true';
+    
+    if (!enabled) {
+      res.json({
+        enabled: false,
+        message: 'Supabase is disabled. Using CSV fallback.'
+      });
+      return;
+    }
+    
+    const supabase = SupabaseService.getClient();
+    
+    // Query record counts from each table
+    const [censusCount, commerceCount, overlapCount, personaCount, cacheCount] = await Promise.all([
+      supabase.from('census_data').select('*', { count: 'exact', head: true }),
+      supabase.from('commerce_audience_segments').select('*', { count: 'exact', head: true }),
+      supabase.from('audience_overlaps').select('*', { count: 'exact', head: true }),
+      supabase.from('generated_personas').select('*', { count: 'exact', head: true }),
+      supabase.from('audience_reports_cache').select('*', { count: 'exact', head: true })
+    ]);
+    
+    res.json({
+      enabled: true,
+      tables: {
+        census_data: censusCount.count || 0,
+        commerce_audience_segments: commerceCount.count || 0,
+        audience_overlaps: overlapCount.count || 0,
+        generated_personas: personaCount.count || 0,
+        audience_reports_cache: cacheCount.count || 0
+      },
+      message: 'Supabase is active and connected'
+    });
+  } catch (error) {
+    res.status(500).json({
+      enabled: true,
+      error: error instanceof Error ? error.message : 'Failed to query Supabase status'
+    });
+  }
+});
 
 // Error handling middleware
 app.use(notFoundHandler);

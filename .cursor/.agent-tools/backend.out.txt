@@ -170,3 +170,30 @@ Some features may be limited without these variables.
    🎯 196 audience segments
    📊 Average weight: 1803
 [0mPOST /api/commerce-audiences/load [32m200[0m 2352.591 ms - 21250[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 1.861 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.834 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.625 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.335 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.685 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.516 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.663 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.459 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.571 ms - -[0m

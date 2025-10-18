@@ -1,4 +1,4 @@
-import { X, Send } from 'lucide-react';
+import { X, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface CustomDealFormProps {
@@ -17,17 +17,61 @@ export default function CustomDealForm({ isOpen, onClose }: CustomDealFormProps)
     timeline: '',
     additionalNotes: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (readOnly) {
       alert('Read-only mode: submissions are disabled for this environment.');
       onClose();
       return;
     }
-    console.log('Custom deal request submitted:', formData);
-    // TODO: Submit to backend API
-    onClose();
+
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+
+    try {
+      const response = await fetch('/api/send-custom-deal-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus('success');
+        // Reset form
+        setFormData({
+          companyName: '',
+          contactEmail: '',
+          campaignObjectives: '',
+          targetAudience: '',
+          budget: '',
+          timeline: '',
+          additionalNotes: ''
+        });
+        // Close modal after 2 seconds
+        setTimeout(() => {
+          onClose();
+          setSubmitStatus('idle');
+        }, 2000);
+      } else {
+        setSubmitStatus('error');
+        setErrorMessage(result.error || 'Failed to submit request. Please try again.');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      setErrorMessage('Network error. Please check your connection and try again.');
+      console.error('Error submitting custom deal request:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -172,22 +216,47 @@ export default function CustomDealForm({ isOpen, onClose }: CustomDealFormProps)
             />
           </div>
 
+          {/* Success/Error Messages */}
+          {submitStatus === 'success' && (
+            <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+              <CheckCircle className="w-5 h-5" />
+              <span className="font-medium">Request Submitted. A member of the Sovrn team will be in touch shortly!</span>
+            </div>
+          )}
+          
+          {submitStatus === 'error' && (
+            <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+              <AlertCircle className="w-5 h-5" />
+              <span className="font-medium">{errorMessage}</span>
+            </div>
+          )}
+
           {/* Submit Button */}
           <div className="flex justify-end gap-4 pt-4 border-t border-neutral-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 rounded-lg border border-neutral-300 text-neutral-700 font-medium hover:bg-neutral-50 transition-colors"
+              disabled={isSubmitting}
+              className="px-6 py-3 rounded-lg border border-neutral-300 text-neutral-700 font-medium hover:bg-neutral-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={readOnly}
-              className="px-6 py-3 rounded-lg bg-gradient-to-r from-brand-gold to-brand-orange text-brand-charcoal font-semibold hover:shadow-sovrn transition-all duration-200 flex items-center gap-2"
+              disabled={readOnly || isSubmitting}
+              className="px-6 py-3 rounded-lg bg-gradient-to-r from-brand-gold to-brand-orange text-brand-charcoal font-semibold hover:shadow-sovrn transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Send className="w-4 h-4" />
-              Submit Request
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-brand-charcoal border-t-transparent rounded-full animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Submit Request
+                </>
+              )}
             </button>
           </div>
           {readOnly && (

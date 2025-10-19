@@ -95,7 +95,9 @@ class AudienceInsightsService {
   private getGeminiService(): GeminiService | null {
     if (this.geminiService === null) {
       try {
-        this.geminiService = new GeminiService();
+        // Initialize Gemini with Supabase if available for RAG support
+        const supabase = process.env.USE_SUPABASE === 'true' ? require('./supabaseService').SupabaseService.getClient() : null;
+        this.geminiService = new GeminiService(supabase);
         console.log('✅ Gemini service initialized for Audience Insights');
       } catch (error) {
         console.warn('⚠️  Gemini service not available - will use fallback insights');
@@ -1538,20 +1540,68 @@ Return as JSON:
   "targetPersona": "A vivid, 5-sentence narrative synthesizing ALL the data (demographics, geography, overlaps). Include: life stage, WHERE they live (cite top 2-3 cities), income level, family structure, what drives purchases, and non-obvious insights from overlaps. Ground EVERY detail in the data.",
   
   "messagingRecommendations": [
-    "Not keywords - VALUE PROPOSITIONS tied to data. E.g., 'Premium Quality for Growing Families' (cite: 60% suburban homeowners, 45% with children, avg household 3.2 people)",
-    "Each must reference specific demographics or behaviors",
-    "Focus on what makes THIS audience unique",
-    "Include both functional AND emotional benefits",
-    "Make them campaign-ready, not generic"
+    {
+      "valueProposition": "Not keywords - VALUE PROPOSITIONS tied to data. E.g., 'Premium Quality for Growing Families'",
+      "dataBacking": "cite specific data: 60% suburban homeowners, 45% with children, avg household 3.2 people",
+      "emotionalBenefit": "functional AND emotional benefits",
+      "campaignReady": true
+    }
   ],
   
   "channelRecommendations": [
-    "SPECIFIC with geo-targeting: 'Instagram Reels targeting 25-40 year-olds in [TOP 3 CITIES from data] with [specific content type based on overlaps]'",
-    "Include WHERE (specific DMAs/cities), WHEN (commute times if avg >25min, work schedules if self-employed >10%), WHO (exact demo), and WHY (based on overlaps/behaviors)",
-    "Consider LIFESTYLE data: long commute → Spotify/podcast ads during drive times; high charitable → cause marketing; STEM → tech forums; dual income → premium channels; self-employed → LinkedIn B2B",
-    "Don't say 'social media' - say which platform, which demo, which creative, which daypart",
-    "Cite the data that supports each recommendation including lifestyle metrics"
-  ]
+    {
+      "platform": "Instagram Reels",
+      "targeting": "25-40 year-olds in [TOP 3 CITIES from data]",
+      "contentType": "specific content type based on overlaps",
+      "timing": "WHEN based on commute times, work schedules",
+      "rationale": "Cite the data that supports this recommendation",
+      "estimatedPerformance": {
+        "expectedCTR": "2.1-2.8%",
+        "targetCPM": "$12-18",
+        "conversionRate": "1.2-2.1%"
+      }
+    }
+  ],
+
+  "implementationRoadmap": {
+    "phase1": {
+      "duration": "2-3 weeks",
+      "budget": "$5,000-$8,000",
+      "actions": [
+        "Launch geo-targeted campaigns in top 3 markets",
+        "Test 3-4 creative variants per platform"
+      ],
+      "successMetrics": {
+        "CTR": ">2.0%",
+        "CPA": "<$65",
+        "ROAS": ">3.5x"
+      }
+    },
+    "phase2": {
+      "duration": "4-6 weeks",
+      "budget": "$15,000-$25,000",
+      "actions": [
+        "Scale winning creative to additional markets",
+        "Implement advanced attribution tracking"
+      ],
+      "successMetrics": {
+        "Volume": "800+ conversions",
+        "Efficiency": "20% improvement in CPA"
+      }
+    }
+  },
+
+  "competitiveIntelligence": {
+    "marketPosition": "How this segment compares to category averages",
+    "whiteSpaceOpportunities": ["Untapped channels or messaging angles"],
+    "differentiationAdvantages": ["What makes this audience unique vs competitors"]
+  },
+
+  "seasonalOptimization": {
+    "peakPeriods": ["When this audience is most active"],
+    "opportunityWindows": ["Best times for testing new campaigns"],
+    "budgetAllocation": ["Recommended spend distribution across calendar year"]
+  }
 }
 
 Return ONLY valid JSON, no additional text.`;

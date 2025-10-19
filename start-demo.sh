@@ -49,6 +49,23 @@ kill_port() {
     sleep 2
 }
 
+# Function to cleanup all development processes
+cleanup_all() {
+    print_status "Cleaning up all development processes..."
+    
+    # Kill all nodemon and ts-node processes
+    pkill -f "nodemon.*src/index.ts" 2>/dev/null || true
+    pkill -f "ts-node.*src/index.ts" 2>/dev/null || true
+    pkill -f "next dev" 2>/dev/null || true
+    
+    # Kill specific ports
+    kill_port 3000
+    kill_port 3001
+    kill_port 3002
+    
+    sleep 3
+}
+
 # Function to start backend
 start_backend() {
     print_status "Starting backend server..."
@@ -57,8 +74,8 @@ start_backend() {
     kill_port 3002
     
     # Start backend in background
-    cd "/Users/cgeorge/Deal Library/deal-library-backend"
-    npm run dev > ../backend.log 2>&1 &
+    cd "/Users/cgeorge/Deal-Library/deal-library-backend"
+    PORT=3002 npm run dev > ../backend.log 2>&1 &
     BACKEND_PID=$!
     
     # Wait for backend to start
@@ -84,8 +101,8 @@ start_frontend() {
     kill_port 3000
     
     # Start frontend in background
-    cd "/Users/cgeorge/Deal Library/deal-library-frontend"
-    npm run dev > ../frontend.log 2>&1 &
+    cd "/Users/cgeorge/Deal-Library/deal-library-frontend"
+    PORT=3000 npm run dev > ../frontend.log 2>&1 &
     FRONTEND_PID=$!
     
     # Wait for frontend to start
@@ -184,8 +201,11 @@ trap cleanup SIGINT SIGTERM
 echo ""
 print_status "Preparing demo environment..."
 
+# Cleanup any existing processes first
+cleanup_all
+
 # Check if we're in the right directory
-if [ ! -d "/Users/cgeorge/Deal Library/deal-library-backend" ] || [ ! -d "/Users/cgeorge/Deal Library/deal-library-frontend" ]; then
+if [ ! -d "/Users/cgeorge/Deal-Library/deal-library-backend" ] || [ ! -d "/Users/cgeorge/Deal-Library/deal-library-frontend" ]; then
     print_error "Could not find backend or frontend directories"
     exit 1
 fi

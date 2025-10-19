@@ -159,3 +159,45 @@ export interface GeoCard {
     note?: string;
   }[];
 }
+
+export interface MarketingSWOT {
+  id: string;
+  companyName: string;
+  swot: {
+    strengths: Array<{ title: string; description: string }>;
+    weaknesses: Array<{ title: string; description: string }>;
+    opportunities: Array<{ title: string; description: string }>;
+    threats: Array<{ title: string; description: string }>;
+  };
+  summary: string;
+  recommendedActions: string[];
+  sampleData?: boolean;
+}
+
+export interface CompanyProfile {
+  id: string;
+  stockSymbol: string;
+  companyInfo: {
+    name: string;
+    sector: string;
+    marketCap: string;
+    recentPrice: string;
+  };
+  recentPerformance: {
+    earningsSummary: string;
+    keyMetrics: Array<{ metric: string; value: string; trend: 'positive' | 'negative' | 'neutral' }>;
+    executiveSummary: string;
+  };
+  competitiveAnalysis: {
+    mainCompetitors: Array<{ name: string; strength: string }>;
+    competitivePosition: string;
+    marketShare: string;
+  };
+  growthOpportunities: Array<{ opportunity: string; potential: string }>;
+  investmentOutlook: {
+    strengths: string[];
+    risks: string[];
+    recommendation: string;
+  };
+  sampleData?: boolean;
+}

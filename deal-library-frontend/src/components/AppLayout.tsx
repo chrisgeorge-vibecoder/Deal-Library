@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 // Create context for sidebar state
 const SidebarContext = createContext<{
@@ -47,14 +47,16 @@ import { AudienceInsightsDetailModal } from './AudienceInsightsDetailModal';
 import { MarketSizingDetailModal } from './MarketSizingDetailModal';
 import GeoDetailModal from './GeoDetailModal';
 import DealDetailModal from './DealDetailModal';
+import { MarketingSWOTDetailModal } from './MarketingSWOTDetailModal';
+import { CompanyProfileDetailModal } from './CompanyProfileDetailModal';
 import CustomDealForm from './CustomDealForm';
-import { Deal, Persona, AudienceInsights, GeoCard } from '@/types/deal';
+import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile } from '@/types/deal';
 import { MarketSizing } from '@/components/MarketSizingCard';
 
 // Saved cards interface
 interface SavedCard {
-  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards';
-  data: Deal | Persona | AudienceInsights | MarketSizing | GeoCard | any;
+  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'research' | 'marketing-swot' | 'company-profile';
+  data: Deal | Persona | AudienceInsights | MarketSizing | GeoCard | MarketingSWOT | CompanyProfile | any;
   savedAt: string;
 }
 
@@ -66,6 +68,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
   const pathname = usePathname();
+  const router = useRouter();
 
   // Modal states
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
@@ -78,6 +81,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [isGeoModalOpen, setIsGeoModalOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [isDealModalOpen, setIsDealModalOpen] = useState(false);
+  const [selectedMarketingSWOT, setSelectedMarketingSWOT] = useState<MarketingSWOT | null>(null);
+  const [isMarketingSWOTModalOpen, setIsMarketingSWOTModalOpen] = useState(false);
+  const [selectedCompanyProfile, setSelectedCompanyProfile] = useState<CompanyProfile | null>(null);
+  const [isCompanyProfileModalOpen, setIsCompanyProfileModalOpen] = useState(false);
   
   // Cart and Custom Deal Form states
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -134,6 +141,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
         return `market-sizing-${(card.data as MarketSizing).marketName}`;
       case 'geo-cards':
         return `geo-cards-${(card.data as GeoCard).id}`;
+      case 'marketing-swot':
+        return `marketing-swot-${(card.data as MarketingSWOT).companyName}`;
+      case 'company-profile':
+        return `company-profile-${(card.data as CompanyProfile).stockSymbol}`;
+      case 'research':
+        return `research-${(card.data as any).id}`;
       default:
         return '';
     }
@@ -163,6 +176,18 @@ export default function AppLayout({ children }: AppLayoutProps) {
       case 'deal':
         setSelectedDeal(card.data as Deal);
         setIsDealModalOpen(true);
+        break;
+      case 'marketing-swot':
+        setSelectedMarketingSWOT(card.data as MarketingSWOT);
+        setIsMarketingSWOTModalOpen(true);
+        break;
+      case 'company-profile':
+        setSelectedCompanyProfile(card.data as CompanyProfile);
+        setIsCompanyProfileModalOpen(true);
+        break;
+      case 'research':
+        // Navigate to research library page and open the specific study modal
+        router.push(`/research?openStudy=${card.data.id}`);
         break;
       default:
         console.warn('Unknown card type:', card.type);
@@ -254,6 +279,18 @@ export default function AppLayout({ children }: AppLayoutProps) {
       setIsDealModalOpen(true);
     };
 
+    const handleOpenMarketingSWOTModal = (event: any) => {
+      console.log('🎯 AppLayout: Opening Marketing SWOT modal', event.detail.swot);
+      setSelectedMarketingSWOT(event.detail.swot);
+      setIsMarketingSWOTModalOpen(true);
+    };
+
+    const handleOpenCompanyProfileModal = (event: any) => {
+      console.log('📊 AppLayout: Opening Company Profile modal', event.detail.profile);
+      setSelectedCompanyProfile(event.detail.profile);
+      setIsCompanyProfileModalOpen(true);
+    };
+
     const handleOpenCart = () => {
       setIsCartOpen(true);
     };
@@ -297,6 +334,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
     window.addEventListener('openMarketSizingModal', handleOpenMarketSizingModal);
     window.addEventListener('openGeoModal', handleOpenGeoModal);
     window.addEventListener('openDealModal', handleOpenDealModal);
+    window.addEventListener('openMarketingSWOTModal', handleOpenMarketingSWOTModal);
+    window.addEventListener('openCompanyProfileModal', handleOpenCompanyProfileModal);
     window.addEventListener('openCart', handleOpenCart);
     window.addEventListener('openCustomDealForm', handleOpenCustomDealForm);
     window.addEventListener('saveCard', handleSaveCardEvent);
@@ -307,6 +346,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
       window.removeEventListener('openMarketSizingModal', handleOpenMarketSizingModal);
       window.removeEventListener('openGeoModal', handleOpenGeoModal);
       window.removeEventListener('openDealModal', handleOpenDealModal);
+      window.removeEventListener('openMarketingSWOTModal', handleOpenMarketingSWOTModal);
+      window.removeEventListener('openCompanyProfileModal', handleOpenCompanyProfileModal);
       window.removeEventListener('openCart', handleOpenCart);
       window.removeEventListener('openCustomDealForm', handleOpenCustomDealForm);
       window.removeEventListener('saveCard', handleSaveCardEvent);
@@ -314,7 +355,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }, []);
 
   // Determine if we should show the header based on the current page
-  const showHeader = pathname === '/' || pathname === '/intelligence-cards' || pathname === '/audience-insights';
+  const showHeader = pathname === '/' || pathname === '/intelligence-cards' || pathname === '/audience-insights' || pathname === '/research';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -616,6 +657,30 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </div>
         </div>
       )}
+
+      <MarketingSWOTDetailModal
+        swot={selectedMarketingSWOT}
+        isOpen={isMarketingSWOTModalOpen}
+        onClose={() => {
+          setIsMarketingSWOTModalOpen(false);
+          setSelectedMarketingSWOT(null);
+        }}
+        onSaveCard={handleSaveCard}
+        onUnsaveCard={handleUnsaveCard}
+        isSaved={isCardSaved}
+      />
+
+      <CompanyProfileDetailModal
+        profile={selectedCompanyProfile}
+        isOpen={isCompanyProfileModalOpen}
+        onClose={() => {
+          setIsCompanyProfileModalOpen(false);
+          setSelectedCompanyProfile(null);
+        }}
+        onSaveCard={handleSaveCard}
+        onUnsaveCard={handleUnsaveCard}
+        isSaved={isCardSaved}
+      />
 
       {/* Custom Deal Form Modal */}
       {isCustomDealFormOpen && (

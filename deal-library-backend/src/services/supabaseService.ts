@@ -6,9 +6,10 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
  */
 export class SupabaseService {
   private static instance: SupabaseClient | null = null;
+  private static serviceRoleInstance: SupabaseClient | null = null;
 
   /**
-   * Get or create Supabase client instance
+   * Get or create Supabase client instance (using anon key)
    */
   public static getClient(): SupabaseClient {
     if (!SupabaseService.instance) {
@@ -34,6 +35,34 @@ export class SupabaseService {
   }
 
   /**
+   * Get Supabase client with service role key (for admin operations like storage)
+   */
+  public static getServiceRoleClient(): SupabaseClient {
+    if (!SupabaseService.serviceRoleInstance) {
+      const supabaseUrl = process.env.SUPABASE_URL;
+      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+
+      if (!supabaseUrl || !serviceRoleKey) {
+        throw new Error(
+          'Supabase service role key not configured. Please set SUPABASE_SERVICE_ROLE_KEY or fallback to SUPABASE_ANON_KEY.'
+        );
+      }
+
+      console.log('🔌 Initializing Supabase service role client...');
+      console.log('🔌 Using key format:', serviceRoleKey.length > 50 ? 'JWT Token' : 'Short Key');
+      
+      SupabaseService.serviceRoleInstance = createClient(supabaseUrl, serviceRoleKey, {
+        auth: {
+          persistSession: false,
+        },
+      });
+      console.log('✅ Supabase service role client initialized');
+    }
+
+    return SupabaseService.serviceRoleInstance;
+  }
+
+  /**
    * Check if Supabase is configured and enabled
    */
   public static isEnabled(): boolean {
@@ -45,6 +74,7 @@ export class SupabaseService {
    */
   public static reset(): void {
     SupabaseService.instance = null;
+    SupabaseService.serviceRoleInstance = null;
   }
 }
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import { BookmarkCheck, X, ShoppingCart, Users, BarChart3, MapPin, Lightbulb, TrendingUp } from 'lucide-react';
-import { Deal, Persona, AudienceInsights, MarketSizing, GeoCard } from '@/types/deal';
+import { BookmarkCheck, X, ShoppingCart, Users, BarChart3, MapPin, Lightbulb, TrendingUp, BookOpen, Target, Building2 } from 'lucide-react';
+import { Deal, Persona, AudienceInsights, MarketSizing, GeoCard, MarketingSWOT, CompanyProfile } from '@/types/deal';
 
 interface SavedCard {
-  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards';
+  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'research' | 'marketing-swot' | 'company-profile';
   data: any;
   savedAt: string;
 }
@@ -27,6 +27,12 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return <BarChart3 className="w-4 h-4 text-orange-600" />;
       case 'geo-cards':
         return <MapPin className="w-4 h-4 text-indigo-600" />;
+      case 'research':
+        return <BookOpen className="w-4 h-4 text-teal-600" />;
+      case 'marketing-swot':
+        return <Target className="w-4 h-4 text-red-600" />;
+      case 'company-profile':
+        return <Building2 className="w-4 h-4 text-emerald-600" />;
       default:
         return <BookmarkCheck className="w-4 h-4 text-gray-600" />;
     }
@@ -44,6 +50,12 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return (card.data as MarketSizing).marketName;
       case 'geo-cards':
         return (card.data as GeoCard).audienceName;
+      case 'research':
+        return (card.data as any).title;
+      case 'marketing-swot':
+        return `Marketing SWOT: ${(card.data as MarketingSWOT).companyName}`;
+      case 'company-profile':
+        return `${(card.data as CompanyProfile).companyInfo.name} (${(card.data as CompanyProfile).stockSymbol})`;
       default:
         return 'Unknown Card';
     }
@@ -63,6 +75,14 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return 'Market Analysis';
       case 'geo-cards':
         return 'Geo Insights';
+      case 'research':
+        const research = card.data as any;
+        return `${research.source || 'Research'} • ${research.category || 'Study'}`;
+      case 'marketing-swot':
+        return 'Marketing SWOT Analysis';
+      case 'company-profile':
+        const profile = card.data as CompanyProfile;
+        return `Company Profile • ${profile.companyInfo.sector || 'Public Company'}`;
       default:
         return '';
     }
@@ -80,6 +100,12 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return `market-sizing-${(card.data as MarketSizing).marketName}`;
       case 'geo-cards':
         return `geo-cards-${(card.data as GeoCard).id}`;
+      case 'research':
+        return `research-${(card.data as any).id}`;
+      case 'marketing-swot':
+        return `marketing-swot-${(card.data as MarketingSWOT).companyName}`;
+      case 'company-profile':
+        return `company-profile-${(card.data as CompanyProfile).stockSymbol}`;
       default:
         return '';
     }

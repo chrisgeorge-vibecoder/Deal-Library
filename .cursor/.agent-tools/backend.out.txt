@@ -197,3 +197,385 @@ Some features may be limited without these variables.
 🔍 AppsScriptService.getAllDeals called, baseUrl: null
 ⚠️  Apps Script URL not configured - returning empty deals array
 [0mGET /api/deals [36m304[0m 0.571 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.563 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.202 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.463 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.150 ms - -[0m
+🔍 Hybrid AI Search request: "What are the latest programmatic advertising trends?"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 2.953 ms - 197[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.424 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.791 ms - -[0m
+🔍 Hybrid AI Search request: "What percentage of digital ad spend is programmatic?"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 0.819 ms - 197[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.815 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.873 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.557 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.150 ms - -[0m
+🔍 Hybrid AI Search request: "What percentage of digital ad spend is programmatic?"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 1.225 ms - 197[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.339 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.307 ms - -[0m
+🔍 Hybrid AI Search request: "What percentage of digital ad spend is programmatic?"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 1.544 ms - 197[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.318 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.536 ms - -[0m
+🔍 Hybrid AI Search request: "What percentage of digital ad spend is programmatic?"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 1.186 ms - 197[0m
+💾 State persisted successfully
+Error fetching deal: Error: GOOGLE_APPS_SCRIPT_URL environment variable is required
+    at AppsScriptService.getDealById (/Users/cgeorge/Deal-Library/deal-library-backend/dist/services/appsScriptService.js:71:19)
+    at DealsController.getDealById (/Users/cgeorge/Deal-Library/deal-library-backend/dist/controllers/dealsController.js:103:55)
+    at /Users/cgeorge/Deal-Library/deal-library-backend/dist/index.js:129:57
+    at Layer.handle [as handle_request] (/Users/cgeorge/Deal-Library/deal-library-backend/node_modules/express/lib/router/layer.js:95:5)
+    at next (/Users/cgeorge/Deal-Library/deal-library-backend/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/Users/cgeorge/Deal-Library/deal-library-backend/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/Users/cgeorge/Deal-Library/deal-library-backend/node_modules/express/lib/router/layer.js:95:5)
+    at /Users/cgeorge/Deal-Library/deal-library-backend/node_modules/express/lib/router/index.js:284:15
+    at param (/Users/cgeorge/Deal-Library/deal-library-backend/node_modules/express/lib/router/index.js:365:14)
+    at param (/Users/cgeorge/Deal-Library/deal-library-backend/node_modules/express/lib/router/index.js:376:14)
+[0mGET /api/deals/search [31m500[0m 2.061 ms - 100[0m
+[0mGET /health [32m200[0m 0.342 ms - 195[0m
+🔍 Hybrid AI Search request: "test"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 0.534 ms - 149[0m
+🔍 Hybrid AI Search request: "test"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 0.489 ms - 149[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.306 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.167 ms - -[0m
+📊 Generating market sizing for query: "What's the market size for luxury fashion?"
+[0mGET /api/admin/supabase-status [32m200[0m 4090.097 ms - 198[0m
+📊 Gemini market sizing response: ```json
+{
+  "marketSizing": [
+    {
+      "id": "luxury-fashion-global-2024",
+      "marketName": "Global Luxury Fashion Market (Apparel, Footwear, Accessories)",
+      "totalMarketSize": "$260B",
+      "growthRate": "+7-9% CAGR (2024-2028)",
+      "addressableMarket": "Globally, affluent consumers and high-net-worth individuals (HNWIs) who have the purchasing power and inclination for luxury goods.",
+      "addressableValue": "$260B (representing the total spending by this segment on luxury fashion)",
+      "demographics": {
+        "population": "Globally, an estimated 500M+ affluent consumers (income >$100k/year) and HNWIs form the core purchasing base.",
+        "targetAge": "25-55 (Millennials and Gen Z are increasingly driving growth, while Gen X and Boomers maintain significant purchasing power).",
+        "penetration": "Approximately 20-30% of affluent consumers regularly purchase luxury fashion items annually, with higher penetration in key urban centers and emerging markets."
+      },
+      "growthTrends": {
+        "growthRate": "+7-9% YoY, primarily fueled by rising affluence in emerging markets, the continued shift to digital channels, and the growing influence of younger generations.",
+        "seasonality": "Peak sales typically occur during Q4 (holiday season), Q1 (new collection launches and fashion weeks), and Q2/Q3 (summer collections, travel-related purchases, and pre-fall drops).",
+        "keyOpportunities": [
+          "Digitalization & E-commerce: Continued investment in online platforms, virtual try-on, and immersive digital experiences (e.g., metaverse integration).",
+          "Sustainability & Ethical Sourcing: Growing consumer demand for eco-friendly materials, transparent supply chains, and circular economy models (resale, rental).",
+          "Personalization & Customization: Offering bespoke services, limited editions, and unique product customization to cater to individual preferences.",
+          "Experiential Retail: Creating unique in-store and brand experiences that go beyond mere transactions, fostering deeper customer engagement.",
+          "Resale & Rental Market: Tapping into the burgeoning secondary market for luxury goods, appealing to younger, value-conscious, and sustainability-minded consumers."
+        ]
+      },
+      "marketInsights": {
+        "keyDrivers": [
+          "Rising Global Affluence: Growth in high-net-worth individuals and the expanding middle-class in emerging economies (especially Asia-Pacific).",
+          "Digital Transformation: E-commerce platforms, social media marketing, and influencer collaborations are crucial for reach and engagement.",
+          "Aspirational Consumption: The desire for status, self-expression, and high-quality, durable goods continues to drive purchases across various income brackets.",
+          "Cultural Influence: The impact of celebrities, fashion weeks, and global trends significantly shapes consumer preferences and demand."
+        ],
+        "barriers": [
+          "Economic Volatility: Global recessions, inflation, and geopolitical instability can impact discretionary spending on luxury goods.",
+          "Counterfeiting: The persistent threat of counterfeit products undermines brand integrity and revenue.",
+          "Sustainability Scrutiny: Increasing pressure from consumers and regulators to adopt ethical practices and reduce environmental footprint.",
+          "Supply Chain Disruptions: Geopolitical events, natural disasters, and logistics challenges can impact production and delivery."
+        ],
+        "opportunities": [
+          "Emerging Markets Expansion: Significant growth potential in Asia-Pacific (particularly China and Southeast Asia), the Middle East, and Latin America.",
+          "Gen Z & Millennial Engagement: Developing tailored marketing strategies and product lines to capture and retain younger, digitally native, and socially conscious consumers.",
+          "Technology Integration: Leveraging AI for personalized recommendations, blockchain for authenticity tracking, and AR/VR for immersive shopping experiences.",
+          "Direct-to-Consumer (DTC) Models: Strengthening owned retail channels (online and offline) to build stronger customer relationships and improve margin control."
+        ]
+      },
+      "sources": [
+        { "title": "Bain & Company - Luxury Study 2023", "url": "https://www.bain.com/insights/luxury-study-2023-spring-update/", "note": "Overall personal luxury goods market size, growth trends, and consumer insights." },
+        { "title": "Statista - Luxury Goods Market Outlook", "url": "https://www.statista.com/outlook/cmo/luxury-goods/worldwide", "note": "Market size projections and segment analysis for luxury goods." },
+        { "title": "Deloitte - Global Powers of Luxury Goods 2023", "url": "https://www2.deloitte.com/global/en/pages/consumer/articles/global-powers-of-luxury-goods.html", "note": "Industry trends, key drivers, and financial performance of leading luxury companies." }
+      ]
+    }
+  ],
+  "aiResponse": "Certainly! The luxury fashion market is a dynamic and significant segment of the global economy, characterized by strong growth and evolving consumer preferences. Here's a comprehensive market sizing overview with key insights and opportunities:"
+}
+```
+[0mPOST /api/market-sizing [32m200[0m 18496.676 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 19.254 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.334 ms - -[0m
+🔍 Hybrid AI Search request: "Find relevant deals for the Global Luxury Fashion Market (Apparel, Footwear, Accessories) market"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 8.587 ms - 241[0m
+🔍 Hybrid AI Search request: "Find relevant deals for the Global Luxury Fashion Market (Apparel, Footwear, Accessories) market"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 45.703 ms - 241[0m
+🔍 Hybrid AI Search request: "Find relevant deals for the Global Luxury Fashion Market (Apparel, Footwear, Accessories) market"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 1.488 ms - 241[0m
+[0mGET /api/admin/supabase-status [32m200[0m 3516.044 ms - 198[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.550 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.333 ms - -[0m
+🎯 Audience Insights request: "Analyze the demographics of coffee drinkers"
+🎯 Gemini generating audience insights for: "Analyze the demographics of coffee drinkers"
+🎯 Gemini audience insights response: ```json
+{
+  "audienceInsights": [
+    {
+      "id": "coffee_drinkers_strategic_insights",
+      "audienceName": "Coffee Drinkers",
+      "demographics": {
+        "ageRange": "25-54 (Core), 18-65+ (Broad)",
+        "incomeRange": "$50k+ (with a significant segment >$75k for specialty)",
+        "genderSplit": "52% Female, 48% Male",
+        "topLocations": ["Urban & Suburban areas across North America", "Pacific Northwest", "Northeast US", "California"]
+      },
+      "behavior": {
+        "deviceUsage": {
+          "mobile": 60,
+          "desktop": 25,
+          "smart_home_devices": 15
+        },
+        "peakHours": ["6-9 AM (Morning Ritual)", "10-11 AM (Mid-morning Break)", "2-3 PM (Afternoon Boost)"],
+        "purchaseFrequency": "Daily to 3-4 times per week (mix of home brew & out-of-home)",
+        "avgOrderValue": "$4-7 (out-of-home), $15-30 (at-home beans/grounds)"
+      },
+      "insights": {
+        "keyCharacteristics": [
+          "Ritualistic: Coffee is a non-negotiable part of daily routine, providing comfort and a sense of normalcy.",
+          "Energy & Focus Seekers: Primary driver for consumption, especially during workdays and for productivity.",
+          "Social & Experiential: Cafes serve as 'third spaces' for connection, work, and leisure; specialty coffee offers an exploration of taste and origin.",
+          "Convenience-Driven: Value quick access, easy preparation, and on-the-go options for busy lifestyles.",
+          "Quality & Sustainability Conscious (growing segment): Increasing demand for ethically sourced, high-quality beans and environmentally friendly practices."
+        ],
+        "interests": ["Productivity", "Wellness & Self-care", "Food & Beverage Exploration", "Social Connection", "Sustainability & Ethical Sourcing", "Home Goods & Kitchen Tech"],
+        "painPoints": [
+          "Cost Escalation: Daily cafe visits can be expensive, leading to a search for value or home-brewing solutions.",
+          "Inconsistent Quality: Disappointment with poorly prepared coffee or stale beans, especially for discerning drinkers.",
+          "Time Constraints: Rushed mornings mean less time for elaborate brewing or cafe queues.",
+          "Environmental Impact: Guilt over single-use cups or non-recyclable packaging.",
+          "Decision Fatigue: Overwhelmed by choices in cafes or grocery aisles, seeking clear guidance."
+        ]
+      },
+      "creativeGuidance": {
+        "messagingTone": "Invigorating, comforting, sophisticated (for premium), authentic, community-focused, empowering.",
+        "visualStyle": "Warm, inviting, clean, aesthetically pleasing, showing moments of enjoyment/productivity, natural light, diverse individuals. Emphasize steam, rich colors, and texture.",
+        "keyMessages": [
+          "Elevate your everyday ritual.",
+          "Fuel your ambition, naturally.",
+          "Taste the difference quality makes.",
+          "Your moment of calm, perfected.",
+          "Sustainably sourced, exceptionally brewed."
+        ],
+        "avoidMessaging": [
+          "Generic 'wake up' slogans without deeper benefit.",
+          "Overly complex jargon about brewing (unless targeting enthusiasts).",
+          "Artificial or overly staged imagery that lacks authenticity.",
+          "Guilt-tripping about consumption habits or environmental impact without offering solutions."
+        ]
+      },
+      "mediaStrategy": {
+        "preferredChannels": [
+          "Social Media (Instagram, TikTok, Pinterest for visual storytelling, influencer partnerships)",
+          "Connected TV (CTV) & Streaming Audio (Podcasts for lifestyle programming, morning news, wellness content)",
+          "Out-of-Home (OOH) near cafes, commuter routes, grocery stores",
+          "Digital Display & Video (contextual targeting on food/lifestyle blogs, news sites)",
+          "Email Marketing (loyalty programs, subscription services, new product launches)"
+        ],
+        "optimalTiming": [
+          "Morning (6-10 AM): High impact for 'start your day' messaging.",
+          "Mid-day (1-3 PM): Afternoon slump, 'pick-me-up' messaging.",
+          "Weekend Mornings: Leisurely consumption, specialty coffee focus."
+        ],
+        "creativeFormats": [
+          "Short-form video (recipes, brewing tips, origin stories, 'day in the life')",
+          "Visually rich imagery (product shots, lifestyle scenes, cafe aesthetics)",
+          "Interactive polls/quizzes (flavor preferences, brewing methods)",
+          "Loyalty program sign-ups and subscription service promotions",
+          "User-generated content campaigns and challenges"
+        ],
+        "targetingApproach": "Behavioral (interests in food & beverage, wellness, productivity, sustainability, home tech) + Demographic (age, income, urban/suburban location) + Psychographic (lifestyle segments like busy professionals, mindful consumers, foodies) + Contextual (ads on sites/apps related to morning routines, news, work) + Geo-fencing (around cafes, grocery stores)."
+      },
+      "sources": [
+        {
+          "title": "National Coffee Association (NCA) - National Coffee Data Trends (NCDT) Report",
+          "url": "https://www.ncausa.org/Industry-Resources/Market-Research/NCDT-Reports",
+          "note": "Comprehensive annual report on US coffee consumption habits and trends."
+        },
+        {
+          "title": "Statista - Coffee Market Reports & Consumer Insights",
+          "url": "https://www.statista.com/markets/413/coffee/",
+          "note": "Global and regional data on coffee market size, consumption, and consumer behavior."
+        },
+        {
+          "title": "Specialty Coffee Association (SCA) - Industry Insights & Research",
+          "url": "https://sca.coffee/research",
+          "note": "Focuses on the specialty coffee segment, consumer preferences, and sustainability."
+        },
+        {
+          "title": "Mintel - Coffee & Tea US Reports",
+          "url": "https://www.mintel.com/food-and-drink-market-reports/coffee-and-tea",
+          "note": "Market research on consumer attitudes, purchasing habits, and innovation in the coffee and tea sectors."
+        }
+      ]
+    }
+  ],
+  "aiResponse": "Comprehensive strategic analysis of the coffee drinkers audience with actionable insights for creative and media planning."
+}
+```
+✅ Generated 1 audience insights cards
+[0mPOST /api/audience-insights [32m200[0m 24506.698 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.312 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.191 ms - -[0m
+🔍 Hybrid AI Search request: "Find relevant deals for the Coffee Drinkers audience"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 1.213 ms - 197[0m
+🔍 Hybrid AI Search request: "Find relevant deals for the Coffee Drinkers audience"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 0.594 ms - 197[0m
+🔍 Hybrid AI Search request: "Show me deals for reaching sports fans"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 0.744 ms - 183[0m
+[0mGET /api/audience-geo-analysis/segments [36m304[0m 1037.431 ms - -[0m
+🎯 Generating Audience Insights Report for: Cameras (Cameras & Optics)
+   Include Commercial ZIPs: NO (default: residential only)
+
+================================================================================
+🎯 Generating Audience Insights Report for: "Cameras"
+   Include Commercial ZIPs: NO (residential only)
+================================================================================
+
+📊 Using cached commerce baseline (11.7h old)
+📊 Commerce baseline: $0, 0% edu (1ms)
+🔍 Getting top geo concentration for: "Cameras"
+   🔍 Found 23494 rows, deduplicated to 12581 unique ZIPs
+📊 Found 100 ZIP codes for "Cameras"
+📈 Segment baseline: 5,361,594 total weight, 16.247 per 1000 people nationally
+🏘️  Filtered to 37 true ZCTA ZIPs (removed 13 non-ZCTAs like P.O. boxes)
+🏢 Filtered out 3 downtown commercial ZIPs (population < 10k)
+📊 Over-indexing insights (top 5 by penetration):
+   1. 20024 (Washington, District of Columbia): 22176% over-index (weight: 58,357, pop: 16,197)
+   2. 77002 (Houston, Texas): 19466% over-index (weight: 62,039, pop: 19,616)
+   3. 43215 (Columbus, Ohio): 17665% over-index (weight: 48,788, pop: 16,999)
+   4. 75212 (Dallas, Texas): 16350% over-index (weight: 74,406, pop: 28,010)
+   5. 11222 (Brooklyn, New York): 13649% over-index (weight: 91,847, pop: 41,418)
+✅ Returning 34 ZIP codes
+   #1 by volume: 30349 (Atlanta, Georgia) - weight: 93,667, 7335% over-index
+📍 Found 34 high-concentration ZIP codes (780ms)
+📊 Aggregating demographics for 34 ZIP codes
+   Median HHI: 74297 (+5.5% vs national) - Middle
+   Top age bracket: 40-49, Median: 35.8
+   Education (Bachelor's+): 32.6% (-6.9% vs national) - Mixed Education
+   Family: Family-Focused (avg 3.3 people, +30.3% vs national)
+   Location: Suburban Homeowners (44% homeowners, median home value $455211)
+   Six-figure households: 21%
+   🆕 LIFESTYLE: SelfEmp 13.2%, Married 37.0%, DualInc 53.3%, Commute 28min, Charity 18.3%, STEM 43.9%
+📊 Aggregated demographics for 34 ZIPs (1ms)
+🗺️  Identified top markets: Houston, Dallas, Las Vegas (0ms)
+🔗 Calculating behavioral overlaps for: "Cameras"
+   ⚡ Using pre-calculated overlaps (instant lookup!)
+   ✅ Found top 5 overlapping segments
+      1. Video: 34.0% overlap
+      2. Hardware Accessories: 33.0% overlap
+      3. Software: 33.0% overlap
+      4. Nuts & Seeds: 29.0% overlap
+      5. Electronics: 28.0% overlap
+🔗 Identified 5 overlapping segments (1ms)
+📊 vs Commerce: Income +Infinity%, Education +Infinity%
+✨ Generating strategic insights with Gemini for: "Cameras"
+📄 Raw Gemini response length: 4562 chars
+✅ Parsed JSON from code block
+✨ Generated strategic insights with Gemini (21801ms)
+📝 Generating executive summary with Gemini
+📝 Generated executive summary (6696ms)
+
+👤 Generating AI persona for: "Cameras"
+✅ AI Persona: "The Creative Family Documentarian" 📸
+👤 Generated AI persona: "The Creative Family Documentarian" 📸 (6736ms)
+💾 Report cached for "Cameras"
+⏱️  TOTAL REPORT GENERATION TIME: 36.02s
+
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+⚠️  No deals available for matching
+[0mPOST /api/audience-insights/generate [32m200[0m 36018.280 ms - -[0m
+[0mGET /api/audience-geo-analysis/segments [36m304[0m 843.132 ms - -[0m
+🎯 Generating Audience Insights Report for: Cameras (Cameras & Optics)
+   Include Commercial ZIPs: NO (default: residential only)
+💨 Returning cached report for "Cameras" (0.4 minutes old)
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+⚠️  No deals available for matching
+[0mPOST /api/audience-insights/generate [32m200[0m 1.027 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.327 ms - -[0m
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mGET /api/deals [36m304[0m 0.365 ms - -[0m
+🔍 Hybrid AI Search request: "Show me deals for reaching sports fans"
+🔍 AppsScriptService.getAllDeals called, baseUrl: null
+⚠️  Apps Script URL not configured - returning empty deals array
+[0mPOST /api/deals/search [32m200[0m 1.224 ms - 183[0m

@@ -155,23 +155,32 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
               </div>
               <div>
                 <h4 className="text-sm font-medium text-gray-700 mb-3">Purchase Behavior</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Clock className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">Peak Hours</span>
-                    <span className="text-sm font-medium text-gray-900">{insights.behavior.peakHours.join(', ')}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <TrendingUp className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">Frequency</span>
-                    <span className="text-sm font-medium text-gray-900">{insights.behavior.purchaseFrequency}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <DollarSign className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">Avg Order</span>
-                    <span className="text-sm font-medium text-gray-900">{insights.behavior.avgOrderValue}</span>
-                  </div>
-                </div>
+                <ul className="space-y-2">
+                  <li className="text-sm text-gray-600 flex items-start">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                    <div>
+                      <span className="font-medium text-gray-700">Peak Hours: </span>
+                      {Array.isArray(insights.behavior.peakHours) 
+                        ? insights.behavior.peakHours.join(', ')
+                        : insights.behavior.peakHours
+                      }
+                    </div>
+                  </li>
+                  <li className="text-sm text-gray-600 flex items-start">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                    <div>
+                      <span className="font-medium text-gray-700">Frequency: </span>
+                      {insights.behavior.purchaseFrequency}
+                    </div>
+                  </li>
+                  <li className="text-sm text-gray-600 flex items-start">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                    <div>
+                      <span className="font-medium text-gray-700">Avg Order: </span>
+                      {insights.behavior.avgOrderValue}
+                    </div>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>

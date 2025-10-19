@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { Deal, Persona, AudienceInsights, GeoCard } from '@/types/deal';
+import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile } from '@/types/deal';
 import { useSidebar } from './AppLayout';
 import DealGrid from './DealGrid';
 import AudienceInsightsCard from './AudienceInsightsCard';
 import MarketSizingCard, { MarketSizing } from './MarketSizingCard';
 import { GeoCard as GeoCardComponent } from './GeoCard';
+import MarketingSWOTCard from './MarketingSWOTCard';
+import CompanyProfileCard from './CompanyProfileCard';
 import { Send, Bot, User, Filter, Sparkles, ShoppingCart, Trash2, Users } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -20,6 +22,9 @@ interface ChatMessage {
   audienceInsights?: AudienceInsights[];
   marketSizing?: MarketSizing[];
   geoCards?: GeoCard[];
+  marketingSWOT?: MarketingSWOT[];
+  companyProfiles?: CompanyProfile[];
+  coaching?: any;
 }
 
 interface ChatInterfaceProps {
@@ -37,10 +42,13 @@ interface ChatInterfaceProps {
   aiAudienceInsights?: AudienceInsights[];
   aiMarketSizing?: MarketSizing[];
   aiGeoCards?: GeoCard[];
+  aiMarketingSWOT?: MarketingSWOT[];
+  aiCompanyProfiles?: CompanyProfile[];
+  aiCoaching?: any;
   onPersonaClick?: (persona: Persona) => void;
   inputValue?: string;
   onInputValueChange?: (value: string) => void;
-  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards', data: any }) => void;
+  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile', data: any }) => void;
   onUnsaveCard?: (cardId: string) => void;
   isSaved?: (cardId: string) => boolean;
   sidebarOpen?: boolean;
@@ -61,6 +69,9 @@ export default function ChatInterface({
   aiAudienceInsights,
   aiMarketSizing,
   aiGeoCards,
+  aiMarketingSWOT,
+  aiCompanyProfiles,
+  aiCoaching,
   onPersonaClick,
   inputValue: externalInputValue,
   onInputValueChange,
@@ -93,16 +104,18 @@ export default function ChatInterface({
   
   const lastProcessedResponse = useRef<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize welcome message
   useEffect(() => {
     if (messages.length === 0) {
-      setMessages([{
+      const welcomeMessage = {
         id: 'welcome',
-        type: 'assistant',
+        type: 'assistant' as const,
         content: "Hi! I'm your Marketing Co-Pilot. Ask me anything about media or marketing and I can help you with strategy, audience insights, discovering deals, and more.",
         timestamp: new Date().toLocaleTimeString(),
-      }]);
+      };
+      setMessages([welcomeMessage]);
     }
   }, []);
 
@@ -183,11 +196,18 @@ export default function ChatInterface({
     scrollToBottom();
   }, [messages]);
 
+  // Track aiCoaching prop changes (debug mode only)
+  useEffect(() => {
+    // Debug logs removed - issue resolved
+  }, [aiCoaching]);
+
   // Handle AI response when it comes in
   useEffect(() => {
     if (aiResponse && aiResponse.trim() !== '' && isTyping && aiResponse !== lastProcessedResponse.current) {
       lastProcessedResponse.current = aiResponse;
       const isConversationalResponse = !deals || deals.length === 0;
+      
+      // Creating assistant message
       
       const assistantMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,
@@ -204,26 +224,36 @@ export default function ChatInterface({
         marketSizing: aiMarketSizing && aiMarketSizing.length > 0 ? aiMarketSizing : undefined,
         // Include geo cards if available
         geoCards: aiGeoCards && aiGeoCards.length > 0 ? aiGeoCards : undefined,
+        // Include marketing SWOT if available
+        marketingSWOT: aiMarketingSWOT && aiMarketingSWOT.length > 0 ? aiMarketingSWOT : undefined,
+        // Include company profiles if available
+        companyProfiles: aiCompanyProfiles && aiCompanyProfiles.length > 0 ? aiCompanyProfiles : undefined,
+        // Include coaching insights if available - handle both null and undefined
+        coaching: aiCoaching && typeof aiCoaching === 'object' && aiCoaching !== null ? aiCoaching : undefined,
       };
+
+      console.log('🎯 Assistant message created with coaching:', assistantMessage.coaching);
 
       setMessages(prev => [...prev, assistantMessage]);
       setIsTyping(false);
+      
+      // Clear the typing timeout since we got a response
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+      }
     }
-  }, [aiResponse, isTyping, deals, aiPersonas, aiAudienceInsights, aiMarketSizing, aiGeoCards]);
+  }, [aiResponse, isTyping, deals, aiPersonas, aiAudienceInsights, aiMarketSizing, aiGeoCards, aiMarketingSWOT, aiCompanyProfiles, aiCoaching]);
 
   // Handle audience insights updates after the initial message is created
   useEffect(() => {
     if (aiAudienceInsights && aiAudienceInsights.length > 0) {
-      console.log('🎯 Audience insights received:', aiAudienceInsights.length);
-      console.log('🎯 Current messages length:', messages.length);
       
       // Check if we already have audience insights in the last message
       const lastMessage = messages[messages.length - 1];
       const hasExistingInsights = lastMessage?.audienceInsights && lastMessage.audienceInsights.length > 0;
       
       if (!hasExistingInsights) {
-        console.log('🎯 Adding audience insights to messages');
-        
         setMessages(prev => {
           const updatedMessages = [...prev];
           
@@ -231,13 +261,11 @@ export default function ChatInterface({
           if (updatedMessages.length > 0) {
             const lastMsg = updatedMessages[updatedMessages.length - 1];
             if (lastMsg && lastMsg.type === 'assistant') {
-              console.log('🎯 Updating last assistant message with audience insights');
               updatedMessages[updatedMessages.length - 1] = {
                 ...lastMsg,
                 audienceInsights: aiAudienceInsights
               };
             } else {
-              console.log('🎯 Creating new message for audience insights');
               const newMessage: ChatMessage = {
                 id: `assistant-insights-${Date.now()}`,
                 type: 'assistant',
@@ -267,6 +295,45 @@ export default function ChatInterface({
     }
   }, [aiAudienceInsights]);
 
+  // Handle coaching insights updates after the initial message is created
+  useEffect(() => {
+    if (aiCoaching && typeof aiCoaching === 'object' && aiCoaching !== null && messages.length > 0) {
+      // Check if we already have coaching in the last message
+      const lastMessage = messages[messages.length - 1];
+      const hasExistingCoaching = lastMessage?.coaching && 
+        typeof lastMessage.coaching === 'object' && 
+        lastMessage.coaching !== null;
+      
+      if (!hasExistingCoaching) {
+        setMessages(prev => {
+          const updatedMessages = [...prev];
+          
+          // Try to update the last assistant message
+          if (updatedMessages.length > 0) {
+            const lastMsg = updatedMessages[updatedMessages.length - 1];
+            if (lastMsg && lastMsg.type === 'assistant') {
+              updatedMessages[updatedMessages.length - 1] = {
+                ...lastMsg,
+                coaching: aiCoaching
+              };
+            }
+          }
+          
+          return updatedMessages;
+        });
+      }
+    }
+  }, [aiCoaching, messages.length]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
@@ -281,6 +348,15 @@ export default function ChatInterface({
     setMessages(prev => [...prev, userMessage]);
     handleSetInputValue('');
     setIsTyping(true);
+
+    // Set a timeout to reset typing state if no response comes within 60 seconds
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    typingTimeoutRef.current = setTimeout(() => {
+      console.warn('⏰ Typing state timeout - resetting to prevent infinite loading');
+      setIsTyping(false);
+    }, 60000);
 
     // Convert messages to conversation history format with deal context
     const conversationHistory = messages.map(msg => {
@@ -330,11 +406,55 @@ export default function ChatInterface({
 
   const handleExampleClick = (example: string) => {
     handleSetInputValue(example);
+    
+    // Also trigger the search immediately
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      type: 'user',
+      content: example,
+      timestamp: new Date().toLocaleTimeString(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setIsTyping(true);
+
+    // Set a timeout to reset typing state if no response comes within 60 seconds
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    typingTimeoutRef.current = setTimeout(() => {
+      console.warn('⏰ Typing state timeout - resetting to prevent infinite loading');
+      setIsTyping(false);
+    }, 60000);
+
+    // Convert messages to conversation history format
+    const conversationHistory = messages.map(msg => {
+      if (msg.type === 'user') {
+        return {
+          role: 'user',
+          content: msg.content
+        };
+      } else {
+        let content = msg.content;
+        if (msg.deals && msg.deals.length > 0) {
+          const dealNames = msg.deals.map(d => d.dealName).join(', ');
+          content = `${msg.content}\n\nRecommended deals: ${dealNames}`;
+        }
+        return {
+          role: 'assistant',
+          content
+        };
+      }
+    });
+
+    // Trigger search
+    onSearch(example, conversationHistory, selectedCardTypes);
   };
 
   const examplePrompts = [
-    "I'm the CMO of Old Navy and I want to reach new parents.",
-    "I'm a Media Director building a pet related media strategy."
+    "Show me CTV deals for sports fans.",
+    "Analyze the demographics of coffee drinkers.",
+    "What's the market size for luxury fashion?"
   ];
 
   // Remove the loading state check - let the component render normally
@@ -567,6 +687,144 @@ export default function ChatInterface({
                     </div>
                   </div>
                 )}
+
+                {message.marketingSWOT && message.marketingSWOT.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-neutral-600 mb-3">Marketing SWOT analysis:</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {message.marketingSWOT.map((swot) => (
+                        <MarketingSWOTCard
+                          key={swot.id}
+                          swot={swot}
+                          onClick={() => {
+                            console.log('Marketing SWOT card clicked:', swot);
+                            const event = new CustomEvent('openMarketingSWOTModal', { detail: { swot: swot } });
+                            window.dispatchEvent(event);
+                          }}
+                          onViewDetails={() => {
+                            console.log('Marketing SWOT View Details clicked:', swot);
+                            const event = new CustomEvent('openMarketingSWOTModal', { detail: { swot: swot } });
+                            window.dispatchEvent(event);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {message.companyProfiles && message.companyProfiles.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-neutral-600 mb-3">Company profile analysis:</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {message.companyProfiles.map((profile) => (
+                        <CompanyProfileCard
+                          key={profile.id}
+                          profile={profile}
+                          onClick={() => {
+                            console.log('Company Profile card clicked:', profile);
+                            const event = new CustomEvent('openCompanyProfileModal', { detail: { profile: profile } });
+                            window.dispatchEvent(event);
+                          }}
+                          onViewDetails={() => {
+                            console.log('Company Profile View Details clicked:', profile);
+                            const event = new CustomEvent('openCompanyProfileModal', { detail: { profile: profile } });
+                            window.dispatchEvent(event);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Coaching Insights */}
+                {message.coaching && typeof message.coaching === 'object' && message.coaching !== null && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-neutral-600 mb-3">🎯 Strategic Coaching:</p>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      {message.coaching.strategyRationale && (
+                        <div className="mb-4">
+                          <h4 className="font-semibold text-blue-900 text-sm mb-2">Strategy Rationale</h4>
+                          <p className="text-sm text-blue-800">{message.coaching.strategyRationale}</p>
+                        </div>
+                      )}
+                      
+                      {message.coaching.hiddenOpportunities && message.coaching.hiddenOpportunities.length > 0 && (
+                        <div className="mb-4">
+                          <h4 className="font-semibold text-blue-900 text-sm mb-2">Hidden Opportunities</h4>
+                          <ul className="text-sm text-blue-800 list-disc list-inside">
+                            {message.coaching.hiddenOpportunities.map((opportunity: string, index: number) => (
+                              <li key={index}>{opportunity}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {message.coaching.riskWarnings && message.coaching.riskWarnings.length > 0 && (
+                        <div className="mb-4">
+                          <h4 className="font-semibold text-orange-900 text-sm mb-2">Risk Warnings</h4>
+                          <ul className="text-sm text-orange-800 list-disc list-inside">
+                            {message.coaching.riskWarnings.map((warning: string, index: number) => (
+                              <li key={index}>{warning}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {message.coaching.testingFramework && (
+                        <div className="mb-4">
+                          <h4 className="font-semibold text-blue-900 text-sm mb-2">Testing Framework</h4>
+                          <div className="text-sm text-blue-800">
+                            {message.coaching.testingFramework.minimumBudget && (
+                              <p><strong>Budget:</strong> {message.coaching.testingFramework.minimumBudget}</p>
+                            )}
+                            {message.coaching.testingFramework.testDuration && (
+                              <p><strong>Duration:</strong> {message.coaching.testingFramework.testDuration}</p>
+                            )}
+                            {message.coaching.testingFramework.successMetrics && message.coaching.testingFramework.successMetrics.length > 0 && (
+                              <div>
+                                <strong>Success Metrics:</strong>
+                                <ul className="list-disc list-inside ml-2">
+                                  {message.coaching.testingFramework.successMetrics.map((metric: string, index: number) => (
+                                    <li key={index}>{metric}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {message.coaching.quickWins && message.coaching.quickWins.length > 0 && (
+                        <div className="mb-4">
+                          <h4 className="font-semibold text-green-900 text-sm mb-2">Quick Wins</h4>
+                          <ul className="text-sm text-green-800 list-disc list-inside">
+                            {message.coaching.quickWins.map((win: string, index: number) => (
+                              <li key={index}>{win}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {message.coaching.scalingPath && message.coaching.scalingPath.length > 0 && (
+                        <div className="mb-4">
+                          <h4 className="font-semibold text-blue-900 text-sm mb-2">Scaling Path</h4>
+                          <ol className="text-sm text-blue-800 list-decimal list-inside">
+                            {message.coaching.scalingPath.map((step: string, index: number) => (
+                              <li key={index}>{step}</li>
+                            ))}
+                          </ol>
+                        </div>
+                      )}
+                      
+                      {message.coaching.competitiveIntelligence && (
+                        <div className="mb-0">
+                          <h4 className="font-semibold text-purple-900 text-sm mb-2">Competitive Intelligence</h4>
+                          <p className="text-sm text-purple-800">{message.coaching.competitiveIntelligence}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className={`text-xs text-neutral-500 mt-2 ${message.type === 'user' ? 'text-right' : 'text-left'}`}>
@@ -610,7 +868,7 @@ export default function ChatInterface({
       {/* Chat Input */}
       <div className={`border-t border-neutral-200 bg-white shadow-lg fixed bottom-0 right-0 z-50 transition-all duration-300 ${sidebarOpen ? 'left-80' : 'left-16'}`}>
         {/* Example Prompts */}
-        {messages.length === 1 && (
+        {messages.length === 1 && messages[0]?.type === 'assistant' && !loading && (
           <div className="px-4 pt-4 pb-2">
             <div className="bg-neutral-50 rounded-xl p-4 shadow-lg">
               <p className="text-sm font-medium text-neutral-700 mb-3">Try asking:</p>

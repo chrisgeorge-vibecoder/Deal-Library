@@ -38,25 +38,42 @@ export class AppsScriptService {
     console.log('🔍 AppsScriptService.getAllDeals called, baseUrl:', this.baseUrl);
 
     if (!this.baseUrl) {
-      console.warn('⚠️  Apps Script URL not configured - returning empty deals array');
-      return [];
+      console.error('❌ GOOGLE_APPS_SCRIPT_URL not configured - cannot fetch real deals');
+      throw new Error('GOOGLE_APPS_SCRIPT_URL environment variable is required to fetch real deals');
     }
 
     try {
-      const response = await fetch(this.baseUrl, { redirect: 'follow' });
+      // Call the Apps Script with the deals action parameter
+      const urlWithAction = `${this.baseUrl}${this.baseUrl.includes('?') ? '&' : '?'}action=deals`;
+      console.log('🔍 Calling Apps Script URL:', urlWithAction);
+      
+      const response = await fetch(urlWithAction, { redirect: 'follow' });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const data = await response.json() as { success: boolean; deals: any[]; total: number; error?: string };
+      const responseText = await response.text();
+      console.log('📄 Apps Script response:', responseText.substring(0, 500));
       
-      if (!data.success) {
-        throw new Error(`Apps Script error: ${data.error || 'Unknown error'}`);
+      let data: any;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ Failed to parse Apps Script response as JSON:', responseText);
+        throw new Error(`Invalid JSON response from Apps Script: ${parseError}`);
       }
       
+      // Handle Apps Script response format - it returns the data directly, not wrapped in success/error
+      if (data.error) {
+        throw new Error(`Apps Script error: ${data.error}`);
+      }
+      
+      // The Apps Script returns deals directly as an array
+      const rawDeals = Array.isArray(data) ? data : (data.deals || []);
+      
       // Convert the raw deal data to our Deal format
-      const deals: Deal[] = data.deals.map((deal: any, index: number) => {
+      const deals: Deal[] = rawDeals.map((deal: any, index: number) => {
         const dealName = deal['Deal Name'] || deal.dealName || '';
         const personaInsights = this.personaService.matchDealToPersona(dealName) || undefined;
         
@@ -80,8 +97,24 @@ export class AppsScriptService {
       console.log(`✅ Successfully fetched ${deals.length} deals from Apps Script`);
       return deals;
     } catch (error) {
-      console.error('Error fetching deals from Apps Script:', error);
-      throw new Error(`Apps Script error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('❌ Error fetching deals from Apps Script:', error);
+      
+      // Provide more specific error messages
+      if (error instanceof Error) {
+        if (error.message.includes('HTTP error! status: 401')) {
+          throw new Error('Apps Script authorization failed - check API key configuration');
+        } else if (error.message.includes('HTTP error! status: 403')) {
+          throw new Error('Apps Script access denied - check deployment permissions');
+        } else if (error.message.includes('HTTP error! status: 404')) {
+          throw new Error('Apps Script not found - check URL configuration');
+        } else if (error.message.includes('Invalid JSON')) {
+          throw new Error('Apps Script returned invalid response - check script deployment');
+        } else {
+          throw new Error(`Apps Script error: ${error.message}`);
+        }
+      } else {
+        throw new Error(`Apps Script error: Unknown error - ${error}`);
+      }
     }
   }
 

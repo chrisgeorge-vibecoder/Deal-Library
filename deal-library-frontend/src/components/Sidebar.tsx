@@ -1,9 +1,9 @@
-import { Plus, Sparkles, Users, ShoppingCart } from 'lucide-react';
+import { Plus, Sparkles, Users, ShoppingCart, BookOpen } from 'lucide-react';
 import SavedCards from './SavedCards';
 import Link from 'next/link';
 
 interface SavedCard {
-  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards';
+  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'research';
   data: any;
   savedAt: string;
 }
@@ -76,7 +76,7 @@ export default function Sidebar({
 
       {/* Navigation */}
       <div className="p-4 border-b border-neutral-200">
-        <h3 className="text-sm font-medium text-neutral-700 mb-3">Tools</h3>
+        <h3 className="text-sm font-medium text-neutral-700 mb-3">Resources</h3>
         <div className="space-y-2">
           <Link
             href="/audience-insights"
@@ -91,6 +91,13 @@ export default function Sidebar({
           >
             <Users className="w-4 h-4" />
             Intelligence Cards
+          </Link>
+          <Link
+            href="/research"
+            className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
+          >
+            <BookOpen className="w-4 h-4" />
+            Research Library
           </Link>
         </div>
       </div>

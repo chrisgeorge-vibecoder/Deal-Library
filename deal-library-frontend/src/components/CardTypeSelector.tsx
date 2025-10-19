@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShoppingCart, Users, Lightbulb, BarChart3, MapPin } from 'lucide-react';
+import { ShoppingCart, Users, Lightbulb, BarChart3, MapPin, Target, Building2 } from 'lucide-react';
 
 export interface CardType {
   id: string;
@@ -40,6 +40,18 @@ export const CARD_TYPES: CardType[] = [
     name: 'Geographic',
     icon: MapPin,
     description: 'Geographic targeting insights'
+  },
+  {
+    id: 'marketing-swot',
+    name: 'Marketing SWOT',
+    icon: Target,
+    description: 'Marketing SWOT analysis for companies'
+  },
+  {
+    id: 'company-profile',
+    name: 'Company Profile',
+    icon: Building2,
+    description: 'Public company financial analysis'
   }
 ];
 

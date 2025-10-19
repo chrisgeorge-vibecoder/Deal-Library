@@ -1,26 +1,30 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Deal, Persona, AudienceInsights, GeoCard } from '@/types/deal';
+import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile } from '@/types/deal';
 import { MarketSizing } from './MarketSizingCard';
-import { Search, Filter, Users, Target, Lightbulb, TrendingUp, MapPin, BarChart3, ShoppingCart, Trash2, Sparkles } from 'lucide-react';
+import { Search, Filter, Users, Target, Lightbulb, TrendingUp, MapPin, BarChart3, ShoppingCart, Trash2, Sparkles, Building2 } from 'lucide-react';
 import DealCard from './DealCard';
 import DealDetailModal from './DealDetailModal';
 import PersonaDetailModal from './PersonaDetailModal';
 import { AudienceInsightsDetailModal } from './AudienceInsightsDetailModal';
 import { MarketSizingDetailModal } from './MarketSizingDetailModal';
 import GeoDetailModal from './GeoDetailModal';
+import MarketingSWOTCard from './MarketingSWOTCard';
+import CompanyProfileCard from './CompanyProfileCard';
+import { MarketingSWOTDetailModal } from './MarketingSWOTDetailModal';
+import { CompanyProfileDetailModal } from './CompanyProfileDetailModal';
 
 interface AudienceExplorerProps {
   onDealClick: (deal: Deal) => void;
   onAddToCart: (deal: Deal) => void;
   onRemoveFromCart: (dealId: string) => void;
   isInCart: (dealId: string) => boolean;
-  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards', data: any }) => void;
+  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile', data: any }) => void;
   onUnsaveCard?: (cardId: string) => void;
   isSaved?: (cardId: string) => boolean;
   onSwitchToChat?: (query: string) => void;
 }
 
-type CardType = 'all' | 'deals' | 'personas' | 'audience-insights' | 'market-sizing' | 'geo-cards';
+type CardType = 'all' | 'deals' | 'personas' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile';
 
 interface SearchResult {
   type: CardType;
@@ -84,13 +88,28 @@ export default function AudienceExplorer({
   const [selectedAudienceInsights, setSelectedAudienceInsights] = useState<AudienceInsights | null>(null);
   const [selectedMarketSizing, setSelectedMarketSizing] = useState<MarketSizing | null>(null);
   const [selectedGeoCard, setSelectedGeoCard] = useState<GeoCard | null>(null);
+  const [selectedMarketingSWOT, setSelectedMarketingSWOT] = useState<MarketingSWOT | null>(null);
+  const [selectedCompanyProfile, setSelectedCompanyProfile] = useState<CompanyProfile | null>(null);
   const [isDealModalOpen, setIsDealModalOpen] = useState(false);
   const [isPersonaModalOpen, setIsPersonaModalOpen] = useState(false);
   const [isAudienceInsightsModalOpen, setIsAudienceInsightsModalOpen] = useState(false);
   const [isMarketSizingModalOpen, setIsMarketSizingModalOpen] = useState(false);
   const [isGeoModalOpen, setIsGeoModalOpen] = useState(false);
+  const [isMarketingSWOTModalOpen, setIsMarketingSWOTModalOpen] = useState(false);
+  const [isCompanyProfileModalOpen, setIsCompanyProfileModalOpen] = useState(false);
 
   const categories: Category[] = [
+    {
+      id: 'audiences',
+      name: 'Audience Insights',
+      description: 'Explore audience data and behavioral insights',
+      icon: Lightbulb,
+      subcategories: [
+        { id: 'audience-insights', name: 'Audience Analytics', description: 'Deep audience behavior insights', cardType: 'audience-insights' },
+        { id: 'demographics', name: 'Demographics', description: 'Age, gender, income insights', cardType: 'audience-insights' },
+        { id: 'interests', name: 'Interests & Behaviors', description: 'Consumer interests and online behavior', cardType: 'audience-insights' }
+      ]
+    },
     {
       id: 'personas',
       name: 'Audience Personas',
@@ -107,6 +126,21 @@ export default function AudienceExplorer({
         { id: 'professional-personas', name: 'Professional', description: 'Career and business-focused personas', cardType: 'personas' },
         { id: 'lifestyle-personas', name: 'Lifestyle & Wellness', description: 'Health, fitness, and lifestyle personas', cardType: 'personas' },
         { id: 'tech-personas', name: 'Technology & Digital', description: 'Tech-savvy and digital-first personas', cardType: 'personas' }
+      ]
+    },
+    {
+      id: 'company-profile',
+      name: 'Company Profiles',
+      description: 'Public company financial analysis and business insights',
+      icon: Building2,
+      subcategories: [
+        { id: 'all-company-profiles', name: 'All Company Profiles', description: 'View all available company profiles', cardType: 'company-profile' },
+        { id: 'tech-companies', name: 'Technology', description: 'Technology and software company profiles', cardType: 'company-profile' },
+        { id: 'retail-companies', name: 'Retail & E-commerce', description: 'Retail and e-commerce company profiles', cardType: 'company-profile' },
+        { id: 'finance-companies', name: 'Financial Services', description: 'Banking and financial services profiles', cardType: 'company-profile' },
+        { id: 'healthcare-companies', name: 'Healthcare', description: 'Healthcare and pharmaceutical company profiles', cardType: 'company-profile' },
+        { id: 'manufacturing-companies', name: 'Manufacturing', description: 'Industrial and manufacturing company profiles', cardType: 'company-profile' },
+        { id: 'media-companies', name: 'Media & Entertainment', description: 'Media, entertainment, and advertising profiles', cardType: 'company-profile' }
       ]
     },
     {
@@ -130,14 +164,15 @@ export default function AudienceExplorer({
       ]
     },
     {
-      id: 'audiences',
-      name: 'Audience Insights',
-      description: 'Explore audience data and behavioral insights',
-      icon: Lightbulb,
+      id: 'geographic',
+      name: 'Geo Insights',
+      description: 'Location-based audience and market data',
+      icon: MapPin,
       subcategories: [
-        { id: 'audience-insights', name: 'Audience Analytics', description: 'Deep audience behavior insights', cardType: 'audience-insights' },
-        { id: 'demographics', name: 'Demographics', description: 'Age, gender, income insights', cardType: 'audience-insights' },
-        { id: 'interests', name: 'Interests & Behaviors', description: 'Consumer interests and online behavior', cardType: 'audience-insights' }
+        { id: 'all-geo', name: 'All Geographic Data', description: 'View all geographic insights', cardType: 'geo-cards' },
+        { id: 'regional-analysis', name: 'Regional Analysis', description: 'Regional market performance', cardType: 'geo-cards' },
+        { id: 'local-insights', name: 'Local Insights', description: 'City and local market data', cardType: 'geo-cards' },
+        { id: 'international', name: 'International Markets', description: 'Global market opportunities', cardType: 'geo-cards' }
       ]
     },
     {
@@ -153,15 +188,17 @@ export default function AudienceExplorer({
       ]
     },
     {
-      id: 'geographic',
-      name: 'Geo Insights',
-      description: 'Location-based audience and market data',
-      icon: MapPin,
+      id: 'marketing-swot',
+      name: 'Marketing SWOT',
+      description: 'Marketing SWOT analysis for companies and campaigns',
+      icon: Target,
       subcategories: [
-        { id: 'all-geo', name: 'All Geographic Data', description: 'View all geographic insights', cardType: 'geo-cards' },
-        { id: 'regional-analysis', name: 'Regional Analysis', description: 'Regional market performance', cardType: 'geo-cards' },
-        { id: 'local-insights', name: 'Local Insights', description: 'City and local market data', cardType: 'geo-cards' },
-        { id: 'international', name: 'International Markets', description: 'Global market opportunities', cardType: 'geo-cards' }
+        { id: 'all-swot', name: 'All Marketing SWOT', description: 'View all marketing SWOT analyses', cardType: 'marketing-swot' },
+        { id: 'digital-marketing-swot', name: 'Digital Marketing', description: 'Digital marketing SWOT analyses', cardType: 'marketing-swot' },
+        { id: 'brand-marketing-swot', name: 'Brand Marketing', description: 'Brand positioning SWOT analyses', cardType: 'marketing-swot' },
+        { id: 'product-marketing-swot', name: 'Product Marketing', description: 'Product launch and marketing SWOT', cardType: 'marketing-swot' },
+        { id: 'content-marketing-swot', name: 'Content Marketing', description: 'Content strategy SWOT analyses', cardType: 'marketing-swot' },
+        { id: 'social-media-swot', name: 'Social Media', description: 'Social media marketing SWOT', cardType: 'marketing-swot' }
       ]
     }
   ];
@@ -330,6 +367,76 @@ export default function AudienceExplorer({
             setError('Failed to load geographic insights. Please try again.');
           }
           break;
+          
+        case 'marketing-swot':
+          // For Marketing SWOT, we need a company name - use the search filter or show helpful message
+          if (!audienceFilter.trim()) {
+            setError('Please enter a company name in the search box to generate a Marketing SWOT analysis.');
+            setLoading(false);
+            return;
+          }
+          const companyName = audienceFilter.trim();
+          const swotResponse = await fetch('http://localhost:3002/api/marketing-swot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ companyName }),
+          });
+          
+          if (swotResponse.ok) {
+            const swotData = await swotResponse.json();
+            if (swotData.success && swotData.data) {
+              // The API returns a single SWOT result, not an array
+              const swotResult: MarketingSWOT = {
+                id: `swot-${Date.now()}`,
+                companyName: swotData.data.companyName,
+                swot: swotData.data.swot,
+                summary: swotData.data.summary,
+                recommendedActions: swotData.data.recommendedActions,
+                sampleData: false
+              };
+              results.push({ type: 'marketing-swot', data: swotResult });
+            }
+          } else {
+            console.error('Failed to fetch marketing SWOT:', swotResponse.statusText);
+            setError('Failed to load marketing SWOT analysis. Please try again.');
+          }
+          break;
+          
+        case 'company-profile':
+          // For Company Profile, we need a stock symbol - use the search filter or show helpful message
+          if (!audienceFilter.trim()) {
+            setError('Please enter a stock symbol in the search box to generate a Company Profile analysis.');
+            setLoading(false);
+            return;
+          }
+          const stockSymbol = audienceFilter.trim();
+          const profileResponse = await fetch('http://localhost:3002/api/company-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stockSymbol }),
+          });
+          
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json();
+            if (profileData.success && profileData.data) {
+              // The API returns a single company profile result, not an array
+              const profileResult: CompanyProfile = {
+                id: `profile-${Date.now()}`,
+                stockSymbol: profileData.data.stockSymbol || stockSymbol,
+                companyInfo: profileData.data.companyInfo,
+                recentPerformance: profileData.data.recentPerformance,
+                competitiveAnalysis: profileData.data.competitiveAnalysis,
+                growthOpportunities: profileData.data.growthOpportunities,
+                investmentOutlook: profileData.data.investmentOutlook,
+                sampleData: false
+              };
+              results.push({ type: 'company-profile', data: profileResult });
+            }
+          } else {
+            console.error('Failed to fetch company profiles:', profileResponse.statusText);
+            setError('Failed to load company profiles. Please try again.');
+          }
+          break;
       }
       
       console.log(`✅ Loaded ${results.length} results for ${subcategory.name}:`, results);
@@ -351,11 +458,11 @@ export default function AudienceExplorer({
         .flatMap(cat => cat.subcategories || [])
         .find(sub => sub.id === selectedSubcategory);
       
-      // Auto-load data when a subcategory is selected
+      // Auto-load data when a subcategory is selected (only for categories that don't require user input)
       if (subcategory && (subcategory.cardType === 'personas' || subcategory.cardType === 'deals')) {
         loadDataBySubcategory();
       } else {
-        // Clear results for other card types
+        // Clear results for other card types (including marketing-swot and company-profile that require user input)
         setSearchResults([]);
       }
     } else {
@@ -543,6 +650,14 @@ export default function AudienceExplorer({
         setSelectedGeoCard(result.data);
         setIsGeoModalOpen(true);
         break;
+      case 'marketing-swot':
+        setSelectedMarketingSWOT(result.data);
+        setIsMarketingSWOTModalOpen(true);
+        break;
+      case 'company-profile':
+        setSelectedCompanyProfile(result.data);
+        setIsCompanyProfileModalOpen(true);
+        break;
     }
   };
 
@@ -610,7 +725,7 @@ export default function AudienceExplorer({
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-neutral-900 group-hover:text-brand-gold transition-colors">
-                {result.data.dealName || result.data.name || result.data.marketName || result.data.title}
+                {result.data.dealName || result.data.name || result.data.marketName || result.data.title || result.data.companyName || result.data.stockSymbol}
               </h3>
               <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">
                 {getCardTypeLabel(result.type)}
@@ -654,6 +769,20 @@ export default function AudienceExplorer({
           <div className="flex items-center gap-2 text-xs text-brand-gold">
             <MapPin className="w-3 h-3" />
             <span>Geographic insights</span>
+          </div>
+        )}
+        
+        {result.type === 'marketing-swot' && (
+          <div className="flex items-center gap-2 text-xs text-brand-gold">
+            <Target className="w-3 h-3" />
+            <span>Marketing SWOT analysis</span>
+          </div>
+        )}
+        
+        {result.type === 'company-profile' && (
+          <div className="flex items-center gap-2 text-xs text-brand-gold">
+            <Building2 className="w-3 h-3" />
+            <span>Company profile</span>
           </div>
         )}
       </div>
@@ -778,6 +907,10 @@ export default function AudienceExplorer({
                         ? "Search market sizing (e.g., 'automotive', 'healthcare')..."
                         : selectedCategory === 'geographic'
                         ? "Search geographic insights (e.g., 'US', 'Europe')..."
+                        : selectedCategory === 'marketing-swot'
+                        ? "Search marketing SWOT analysis (e.g., 'company name', 'digital marketing')..."
+                        : selectedCategory === 'company-profile'
+                        ? "Search company profiles (e.g., 'Apple', 'technology', 'ticker symbol')..."
                         : "Search within selected category..."
                     }
                     value={audienceFilter}
@@ -1013,6 +1146,50 @@ export default function AudienceExplorer({
             setSelectedGeoCard(null);
             if (onSwitchToChat) {
               onSwitchToChat(`request deals for ${geo.audienceName} geographic targeting`);
+            }
+          }}
+          onSaveCard={onSaveCard}
+          onUnsaveCard={onUnsaveCard}
+          isSaved={isSaved}
+        />
+      )}
+
+      {isMarketingSWOTModalOpen && selectedMarketingSWOT && (
+        <MarketingSWOTDetailModal
+          swot={selectedMarketingSWOT}
+          isOpen={isMarketingSWOTModalOpen}
+          onClose={() => {
+            setIsMarketingSWOTModalOpen(false);
+            setSelectedMarketingSWOT(null);
+          }}
+          onViewDeals={(swot) => {
+            // Close modal and switch to chat interface
+            setIsMarketingSWOTModalOpen(false);
+            setSelectedMarketingSWOT(null);
+            if (onSwitchToChat) {
+              onSwitchToChat(`request deals for ${swot.companyName} marketing campaigns`);
+            }
+          }}
+          onSaveCard={onSaveCard}
+          onUnsaveCard={onUnsaveCard}
+          isSaved={isSaved}
+        />
+      )}
+
+      {isCompanyProfileModalOpen && selectedCompanyProfile && (
+        <CompanyProfileDetailModal
+          profile={selectedCompanyProfile}
+          isOpen={isCompanyProfileModalOpen}
+          onClose={() => {
+            setIsCompanyProfileModalOpen(false);
+            setSelectedCompanyProfile(null);
+          }}
+          onViewDeals={(profile) => {
+            // Close modal and switch to chat interface
+            setIsCompanyProfileModalOpen(false);
+            setSelectedCompanyProfile(null);
+            if (onSwitchToChat) {
+              onSwitchToChat(`request deals for ${profile.companyInfo.name} company campaigns`);
             }
           }}
           onSaveCard={onSaveCard}

@@ -26,7 +26,9 @@ export class DealsController {
     
     // Initialize Gemini service only if API key is available
     try {
-      this.geminiService = new GeminiService();
+      // Initialize Gemini with Supabase if available for RAG support
+      const supabase = process.env.USE_SUPABASE === 'true' ? require('../services/supabaseService').SupabaseService.getClient() : null;
+      this.geminiService = new GeminiService(supabase);
       console.log('✅ Gemini AI service initialized');
     } catch (error) {
       console.log('⚠️  Gemini AI service not available (missing API key)');
@@ -84,9 +86,14 @@ export class DealsController {
       try {
         allDeals = await this.appsScriptService.getAllDeals();
       } catch (error) {
-        console.warn('⚠️ Apps Script service unavailable, using sample deals');
-        // Fallback to sample deals when Apps Script is not available
-        allDeals = this.getSampleDeals();
+        console.error('❌ Apps Script service unavailable:', error instanceof Error ? error.message : 'Unknown error');
+        // Don't fallback to sample deals - require real Apps Script integration
+        res.status(503).json({
+          error: 'Deals service unavailable',
+          message: 'Real deals require Apps Script configuration. Please configure GOOGLE_APPS_SCRIPT_URL.',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        });
+        return;
       }
       
       const filteredDeals = this.filterDeals(allDeals, filters);
@@ -236,6 +243,73 @@ export class DealsController {
   }
 
   /**
+   * Correct common typos in user queries to improve intent understanding
+   */
+  private correctQueryTypos(query: string): { correctedQuery: string; corrections: string[] } {
+    const originalQuery = query.trim();
+    let correctedQuery = originalQuery;
+    const corrections: string[] = [];
+    
+    const queryLower = correctedQuery.toLowerCase();
+    
+    // Context-aware typo correction: "shoe" → "show" when it clearly means "show me"
+    if (queryLower.includes('shoe')) {
+      // Context indicators that suggest "shoe" should be "show"
+      const showContextIndicators = [
+        'me deals', 'me ', 'deals for', 'market for', 'reaching people',
+        'televisions', 'electronics', 'entertainment', 'sports', 'fashion'
+      ];
+      
+      // Negative indicators that suggest "shoe" should stay as "shoe"
+      const shoeContextIndicators = [
+        'shoe deal', 'shoe purchase', 'footwear', 'clothing', 'apparel', 'fashion accessories'
+      ];
+      
+      const hasShowContext = showContextIndicators.some(indicator => queryLower.includes(indicator));
+      const hasShoeContext = shoeContextIndicators.some(indicator => queryLower.includes(indicator));
+      
+      if (hasShowContext && !hasShoeContext) {
+        // Replace "shoe me" first, then standalone "shoe" if context suggests it
+        if (queryLower.includes('shoe me')) {
+          correctedQuery = correctedQuery.replace(/shoe me/gi, 'show me');
+          corrections.push('Corrected "shoe me" to "show me"');
+        } else {
+          correctedQuery = correctedQuery.replace(/shoe/gi, 'show');
+          corrections.push('Corrected "shoe" to "show" based on context indicating search intent');
+        }
+      }
+    }
+    
+    // Additional common typos for deal search context
+    const commonTypos = [
+      { pattern: /televison/gi, replacement: 'television', description: 'televison → television' },
+      { pattern: /elecronics/gi, replacement: 'electronics', description: 'elecronics → electronics' },
+      { pattern: /tecnology/gi, replacement: 'technology', description: 'tecnology → technology' },
+      { pattern: /automotve/gi, replacement: 'automotive', description: 'automotve → automotive' },
+    ];
+    
+    commonTypos.forEach(({ pattern, replacement, description }) => {
+      if (pattern.test(correctedQuery)) {
+        correctedQuery = correctedQuery.replace(pattern, replacement);
+        corrections.push(`Corrected "${description}"`);
+      }
+    });
+    
+    return { correctedQuery, corrections };
+  }
+
+  /**
+   * Enhance AI response with correction notice if corrections were made
+   */
+  private enhanceResponseWithCorrections(aiResponse: string, originalQuery: string, correctedQuery: string, corrections: string[]): string {
+    if (corrections.length > 0) {
+      const correctionNotice = `\n\n*Note: I corrected your query from "${originalQuery}" to "${correctedQuery}" to better understand your request.`;
+      return aiResponse + correctionNotice;
+    }
+    return aiResponse;
+  }
+
+  /**
    * AI-powered search using hybrid vector + Gemini approach
    */
   async searchDealsAI(req: Request, res: Response): Promise<void> {
@@ -250,18 +324,42 @@ export class DealsController {
         return;
       }
 
-      console.log(`🔍 Hybrid AI Search request: "${query}"`);
+      // Apply typo correction before processing
+      const { correctedQuery, corrections } = this.correctQueryTypos(query);
 
-      // Get all deals first
-      const allDeals = await this.appsScriptService.getAllDeals();
+      console.log(`🔍 Hybrid AI Search request: "${query}"`);
+      if (corrections.length > 0) {
+        console.log(`🔧 Query corrections applied: ${corrections.join(', ')}`);
+        console.log(`📝 Corrected query: "${correctedQuery}"`);
+      }
+
+      // Get all deals first with fallback to sample deals
+      let allDeals: Deal[] = [];
+      
+      try {
+        allDeals = await this.appsScriptService.getAllDeals();
+      } catch (error) {
+        console.error('❌ Apps Script service unavailable for search:', error instanceof Error ? error.message : 'Unknown error');
+        res.status(503).json({
+          error: 'Deals service unavailable',
+          message: 'Real deals require Apps Script configuration. Please configure GOOGLE_APPS_SCRIPT_URL.',
+          details: error instanceof Error ? error.message : 'Unknown error',
+          query: correctedQuery,
+          originalQuery: corrections.length > 0 ? query.trim() : undefined,
+          corrections: corrections.length > 0 ? corrections : undefined
+        });
+        return;
+      }
       
       if (allDeals.length === 0) {
         res.json({
           deals: [],
-          aiResponse: "I don't have any deals available to search through at the moment.",
-          searchMethod: 'fallback',
+          aiResponse: "No deals are currently available from the Apps Script data source.",
+          searchMethod: 'apps-script',
           confidence: 0,
-          query: query.trim()
+          query: correctedQuery,
+          originalQuery: corrections.length > 0 ? query.trim() : undefined,
+          corrections: corrections.length > 0 ? corrections : undefined
         });
         return;
       }
@@ -281,18 +379,60 @@ export class DealsController {
              - Bid Guidance: ${deal.bidGuidance}`
           ).join('\n\n');
 
-          const geminiResult = await this.geminiService.analyzeAllDeals(query.trim(), allDeals, conversationHistory, forceDeals);
+          const geminiResult = await this.geminiService.analyzeAllDeals(correctedQuery, allDeals, conversationHistory, forceDeals);
+          
+          // Check if this is a timeout response - if so, use fallback search
+          if (geminiResult.searchMethod === 'timeout-fallback') {
+            console.log('⏰ Gemini timed out, using fallback search for luxury/fashion query');
+            const fallbackResult = this.performFallbackSearch(correctedQuery, allDeals);
+            
+            // Enhance fallback for luxury/fashion queries
+            const queryLower = correctedQuery.toLowerCase();
+            const isLuxuryQuery = queryLower.includes('luxury') || queryLower.includes('fashion') || queryLower.includes('accessories');
+            
+            if (isLuxuryQuery && fallbackResult.deals.length === 0) {
+              // Try more specific keyword matching for luxury/fashion
+              const luxuryKeywords = ['fashion', 'clothing', 'accessories', 'luxury', 'premium', 'designer', 'apparel'];
+              const enhancedDeals = allDeals.filter(deal => {
+                const dealText = `${deal.dealName} ${deal.description} ${deal.targeting}`.toLowerCase();
+                return luxuryKeywords.some(keyword => dealText.includes(keyword));
+              }).slice(0, 6);
+              
+              if (enhancedDeals.length > 0) {
+                fallbackResult.deals = enhancedDeals;
+                fallbackResult.aiResponse = `I found ${enhancedDeals.length} deals related to luxury goods and fashion for your query. Due to high demand, I'm showing results from our fallback search.`;
+              }
+            }
+            
+            const fallbackCoaching = this.generateFallbackCoaching(correctedQuery, allDeals);
+            const enhancedAiResponse = this.enhanceResponseWithCorrections(fallbackResult.aiResponse, query.trim(), correctedQuery, corrections);
+            res.json({
+              deals: fallbackResult.deals,
+              aiResponse: enhancedAiResponse,
+              searchMethod: 'fallback-timeout',
+              confidence: 0.6,
+              query: correctedQuery,
+              originalQuery: query.trim(),
+              corrections: corrections,
+              coaching: fallbackCoaching
+            });
+            return;
+          }
           
           // Check if this is a general question - if so, return only the AI response
           // UNLESS forceDeals is true, in which case we should still try to return deals
-          if (geminiResult.deals.length === 0 && geminiResult.aiResponse && !forceDeals) {
+          if (geminiResult.deals.length === 0 && geminiResult.aiResponse && !forceDeals && geminiResult.searchMethod !== 'error-fallback') {
+            const enhancedAiResponse = this.enhanceResponseWithCorrections(geminiResult.aiResponse, query.trim(), correctedQuery, corrections);
             res.json({
               deals: [],
-              aiResponse: geminiResult.aiResponse,
+              aiResponse: enhancedAiResponse,
               searchMethod: 'gemini-direct',
               confidence: geminiResult.confidence,
-              query: query.trim(),
-              isGeneralQuestion: true
+              query: correctedQuery,
+              originalQuery: corrections.length > 0 ? query.trim() : undefined,
+              corrections: corrections.length > 0 ? corrections : undefined,
+              isGeneralQuestion: true,
+              coaching: geminiResult.coaching
             });
             return;
           }
@@ -301,7 +441,7 @@ export class DealsController {
           if (forceDeals && geminiResult.deals.length === 0) {
             console.log('🔧 Force deals mode: Finding relevant deals despite empty Gemini result');
             // Find deals that match common keywords in the query
-            const queryWords = query.toLowerCase().split(' ').filter(word => word.length > 2);
+            const queryWords = correctedQuery.toLowerCase().split(' ').filter(word => word.length > 2);
             const relevantDeals = allDeals.filter(deal => {
               const dealText = `${deal.dealName} ${deal.description} ${deal.targeting}`.toLowerCase();
               return queryWords.some(word => dealText.includes(word));
@@ -314,19 +454,47 @@ export class DealsController {
                 aiResponse: geminiResult.aiResponse || `Here are ${relevantDeals.length} relevant deals for your query.`,
                 searchMethod: 'gemini-direct-forced',
                 confidence: 0.6,
-                query: query.trim(),
-                isGeneralQuestion: false
+                query: correctedQuery,
+                originalQuery: corrections.length > 0 ? query.trim() : undefined,
+                corrections: corrections.length > 0 ? corrections : undefined,
+                isGeneralQuestion: false,
+                coaching: geminiResult.coaching
               });
               return;
             }
           }
           
           // Post-filter safeguard for known intents (e.g., new parents/baby/toddler)
-          const wantsParents = /(new parent|baby|toddler|infant|parents)/.test(query.trim().toLowerCase());
-          const wantsPets = /(pet|animal|dog|cat|integrated pet home manager)/.test(query.trim().toLowerCase());
+          const lowerQuery = correctedQuery.toLowerCase();
+          const wantsParents = /(new parent|baby|toddler|infant|parents|parenting|moms|mums|mothers|fathers)/.test(lowerQuery);
+          const wantsPets = /(pet|animal|dog|cat|integrated pet home manager)/.test(lowerQuery);
           let finalDeals = geminiResult.deals;
           
-          // CRITICAL FIX: If query is about pets but we got irrelevant deals, force pet deals
+          // CRITICAL FIX: Force correct deals for specific intent queries
+          // This prevents irrelevant deals (like Finance/Political) when user clearly wants parents/pets
+          
+          if (wantsParents) {
+            console.log('👶 Parent query detected, searching for baby/toddler/parent deals...');
+            const parentDeals = allDeals.filter(deal => {
+              const name = deal.dealName.toLowerCase();
+              const desc = (deal.description || '').toLowerCase();
+              return name.includes('baby') || 
+                     name.includes('toddler') || 
+                     name.includes('new parent') || 
+                     name.includes('family') ||
+                     desc.includes('baby') || 
+                     desc.includes('toddler') || 
+                     desc.includes('parent');
+            }).slice(0, 6);
+            
+            if (parentDeals.length > 0) {
+              console.log(`👶 Found ${parentDeals.length} relevant parent/baby deals, overriding Gemini results`);
+              finalDeals = parentDeals;
+            } else {
+              console.log('👶 No specific parent deals found, keeping Gemini results');
+            }
+          }
+          
           if (wantsPets && finalDeals.length > 0 && !finalDeals.some(deal => 
             deal.dealName.toLowerCase().includes('pet') || 
             deal.dealName.toLowerCase().includes('animal') ||
@@ -345,34 +513,20 @@ export class DealsController {
             }
           }
 
-          // Exact-intent override for Baby Health Purchase Intender
-          if (query.trim().toLowerCase().includes('baby health purchase intender')) {
-            const exact = allDeals.filter(d => d.dealName.toLowerCase().includes('baby & toddler purchase intender'));
-            if (exact.length > 0) {
-              finalDeals = exact.slice(0, 6);
-            }
-          }
-          if (wantsParents) {
-            const commerceOnly = allDeals.filter(d => d.dealName.toLowerCase().includes('purchase intender'));
-            const parentSignals = ['new parent', 'baby', 'toddler', 'infant', 'kids', 'children'];
-            const filtered = commerceOnly.filter(d => {
-              const name = d.dealName.toLowerCase();
-              const desc = (d.description || '').toLowerCase();
-              return parentSignals.some(s => name.includes(s) || desc.includes(s));
-            });
-            if (filtered.length > 0) {
-              finalDeals = filtered.slice(0, 6);
-            }
-          }
-
           console.log(`✅ Gemini found ${geminiResult.deals.length} relevant deals with confidence ${geminiResult.confidence}`);
+
+          // Add correction notice to AI response if corrections were made
+          const enhancedAiResponse = this.enhanceResponseWithCorrections(geminiResult.aiResponse, query.trim(), correctedQuery, corrections);
 
           res.json({
             deals: finalDeals,
-            aiResponse: geminiResult.aiResponse,
+            aiResponse: enhancedAiResponse,
             searchMethod: 'gemini-direct',
             confidence: geminiResult.confidence,
-            query: query.trim()
+            query: correctedQuery,
+            originalQuery: corrections.length > 0 ? query.trim() : undefined,
+            corrections: corrections.length > 0 ? corrections : undefined,
+            coaching: geminiResult.coaching
           });
           return;
 
@@ -385,7 +539,26 @@ export class DealsController {
       if (this.geminiService) {
         try {
           console.log('🤖 Using Gemini for AI search...');
-          const geminiResult = await this.geminiService.analyzeQuery(query.trim(), allDeals, conversationHistory);
+          const geminiResult = await this.geminiService.analyzeQuery(correctedQuery, allDeals, conversationHistory);
+          
+          // Check if this is also a timeout response
+          if (geminiResult.searchMethod === 'timeout-fallback') {
+            console.log('⏰ Second Gemini call also timed out, using enhanced fallback search');
+            const fallbackResult = this.performFallbackSearch(correctedQuery, allDeals);
+            
+            const fallbackCoaching = this.generateFallbackCoaching(correctedQuery, allDeals);
+            res.json({
+              deals: fallbackResult.deals,
+              aiResponse: fallbackResult.aiResponse || `I found ${fallbackResult.deals.length} deals using our fallback search method.`,
+              searchMethod: 'fallback-double-timeout',
+              confidence: 0.6,
+              query: correctedQuery,
+              originalQuery: corrections.length > 0 ? query.trim() : undefined,
+              corrections: corrections.length > 0 ? corrections : undefined,
+              coaching: fallbackCoaching
+            });
+            return;
+          }
           
           console.log(`✅ Gemini found ${geminiResult.deals.length} relevant deals with confidence ${geminiResult.confidence}`);
           
@@ -394,7 +567,10 @@ export class DealsController {
             aiResponse: geminiResult.aiResponse,
             searchMethod: 'gemini',
             confidence: geminiResult.confidence,
-            query: query.trim()
+            query: correctedQuery,
+            originalQuery: corrections.length > 0 ? query.trim() : undefined,
+            corrections: corrections.length > 0 ? corrections : undefined,
+            coaching: geminiResult.coaching
           });
           return;
 
@@ -406,14 +582,18 @@ export class DealsController {
       }
       
       // Fallback to rule-based search
-      const fallbackResult = this.performFallbackSearch(query.trim(), allDeals);
+      const fallbackResult = this.performFallbackSearch(correctedQuery, allDeals);
+      const fallbackCoaching = this.generateFallbackCoaching(correctedQuery, allDeals);
       
       res.json({
         deals: fallbackResult.deals,
         aiResponse: fallbackResult.aiResponse,
         searchMethod: 'fallback',
         confidence: 0.5,
-        query: query.trim()
+        query: correctedQuery,
+        originalQuery: corrections.length > 0 ? query.trim() : undefined,
+        corrections: corrections.length > 0 ? corrections : undefined,
+        coaching: fallbackCoaching
       });
 
     } catch (error) {
@@ -426,6 +606,332 @@ export class DealsController {
   }
 
   /**
+   * Generate fallback coaching data when AI coaching is not available
+   */
+  private generateFallbackCoaching(query: string, deals: Deal[]): any {
+    const lowerQuery = query.toLowerCase();
+    
+    // Get contextual coaching configurations
+    const coachingConfigs = this.getCoachingConfigurations();
+    
+    // Check each configuration for keyword matches
+    for (const config of coachingConfigs) {
+      const hasMatch = config.keywords.some(keyword => lowerQuery.includes(keyword));
+      if (hasMatch) {
+        return {
+          ...config.coaching,
+          testingFramework: {
+            minimumBudget: "$5,000",
+            testDuration: "2-4 weeks",
+            successMetrics: ["CTR", "conversion rate", "cost per acquisition", "quality score"]
+          },
+          quickWins: [
+            "Start with highest-scoring deals first for immediate impact",
+            "Implement A/B testing across different creative formats and audiences",
+            "Focus on timing optimization based on audience viewing patterns"
+          ],
+          scalingPath: [
+            "Scale winning creative formats and audience segments based on performance",
+            "Expand to similar demographic segments with proven success",
+            "Optimize campaigns based on real-time performance data and seasonal trends"
+          ]
+        };
+      }
+    }
+    
+    // Default fallback coaching
+    return {
+      strategyRationale: "These deals have been selected based on your query targeting specific audience segments and campaign objectives.",
+      hiddenOpportunities: ["Consider audience overlap analysis to identify cross-segment opportunities"],
+      riskWarnings: [
+        "Monitor audience saturation levels in high-performing segments",
+        "Watch for competitive pressure and market shifts in key demographics",
+        "Ensure creative messaging aligns with audience expectations and platform context"
+      ],
+      testingFramework: {
+        minimumBudget: "$5,000",
+        testDuration: "2-4 weeks",
+        successMetrics: ["CTR", "conversion rate", "cost per acquisition", "quality score"]
+      },
+      quickWins: [
+        "Start with highest-scoring deals first for immediate impact",
+        "Implement A/B testing across different creative formats and audiences",
+        "Focus on timing optimization based on audience viewing patterns"
+      ],
+      scalingPath: [
+        "Scale winning creative formats and audience segments based on performance",
+        "Expand to similar demographic segments with proven success",
+        "Optimize campaigns based on real-time performance data and seasonal trends"
+      ],
+      competitiveIntelligence: "Market analysis reveals competitive landscape intelligence: Typical CPM ranges $15-45 for premium segments, with 60-80% of competitors focusing on Q4 seasonal pushes. Opportunity exists in Q1-Q2 testing windows when competitive pressure drops 30-40%. Channel saturation varies significantly - mobile gaming shows 70% less competition than traditional display, while CTV sports inventory experiences 3x higher demand. Pricing strategies typically favor premium positioning (2x higher CPM but 40% better engagement) over volume plays in this vertical."
+    };
+  }
+
+  /**
+   * Centralized coaching configurations for different verticals/industries
+   * This should be kept in sync with the GeminiService configurations
+   */
+  private getCoachingConfigurations(): Array<{keywords: string[], coaching: {strategyRationale: string, hiddenOpportunities: string[], riskWarnings?: string[], competitiveIntelligence: string}}> {
+    return [
+      {
+        keywords: ['sports', 'athletic', 'fitness', 'exercise', 'mlb', 'nfl', 'nba', 'football', 'basketball', 'golf'],
+        coaching: {
+          strategyRationale: "Sports deals target highly engaged audiences during peak viewing moments, providing high brand awareness and engagement during live events and sports content consumption.",
+          hiddenOpportunities: [
+            "Sports fans show strong cross-purchase behavior with athletic gear and energy drinks",
+            "Live sports viewing creates time-sensitive, high-value advertising moments",
+            "Sports audiences are highly engaged during games with lower ad-skipping rates"
+          ],
+          competitiveIntelligence: "Sports CTV competitive landscape: Premium inventory commands $80-200 CPM during live events (3x standard rates), but competition peaks during major tournaments (NFL playoffs, March Madness). 70% of sports advertisers focus Q4-Q1, creating Q2-Q3 testing opportunities with 40% lower CPMs. Early booking (60-90 days) provides 25% cost advantages. Underutilized segments include women's sports (+25% growth, 50% less competition) and regional sports networks (localized targeting at 30% lower rates). Creative themes aligned with game narratives outperform generic messaging by 60%."
+        }
+      },
+      {
+        keywords: ['parent', 'baby', 'toddler', 'infant', 'mom', 'dad', 'family', 'parenting'],
+        coaching: {
+          strategyRationale: "Parent-focused deals target high-value audiences making significant family-related purchases. Parents are research-heavy buyers seeking trusted, safe options for their children.",
+          hiddenOpportunities: [
+            "Parents show strong cross-purchase behavior between baby products and family services",
+            "New parents are in a high-spending lifecycle stage with predictable purchase patterns",
+            "Parenting communities have high word-of-mouth influence and brand loyalty potential"
+          ],
+          competitiveIntelligence: "Parenting market competitive intelligence: High-value but fiercely contested segment with $35-75 CPM ranges (60% above category average). 85% of competitors focus on Q4 baby-related purchases, but Q2-Q3 shows 30% lower competition for family lifestyle products. Safety-focused messaging dominates (80% of campaigns), creating opportunity for innovation positioning. Trusted platform placement (parenting blogs, family apps) commands premium rates but delivers 45% higher engagement than general social. Under-targeted segments include fathers (only 25% of campaigns focus here despite equal purchasing influence) and working parents (flexible timing, higher disposable income)."
+        }
+      },
+      {
+        keywords: ['business', 'finance', 'financial', 'banking', 'investment', 'wealth', 'fintech', 'enterprise', 'corporate'],
+        coaching: {
+          strategyRationale: "Business and finance deals target high-income, decision-making professionals who consume financial content and business news. These audiences have significant purchasing power and make strategic financial decisions.",
+          hiddenOpportunities: [
+            "Finance professionals show strong cross-purchase behavior with business services and technology solutions",
+            "Business decision-makers have predictable quarterly budget cycles and longer sales consideration periods",
+            "Financial content consumption patterns correlate with investment and purchasing behaviors during market hours"
+          ],
+          riskWarnings: [
+            "Financial content has high regulatory scrutiny - ensure ad compliance and brand safety",
+            "Business audiences are sophisticated and sensitive to overly promotional messaging",
+            "Market volatility can significantly impact financial services ad performance",
+            "Ensure creative messaging aligns with professional credibility expectations"
+          ],
+          competitiveIntelligence: "Business/Finance competitive landscape: Premium segment with $50-120 CPM ranges (highest margins in adtech). 75% of competitors concentrate spend during earnings seasons (Q1, Q4), but Q2-Q3 offers 35% lower rates for testing. Thought leadership content dominates (65% of campaigns), but data-driven performance messaging shows 40% higher conversion. LinkedIn commands premium rates but delivers highest quality leads, while CTV business content shows 60% less saturation than anticipated. Key competitive advantage: Most business campaigns target 25-44 age range, but 45-65 decision-makers show 80% higher conversion rates despite 25% less competition."
+        }
+      },
+      {
+        keywords: ['pet', 'dog', 'cat', 'animal', 'puppy', 'kitten', 'pet owner'],
+        coaching: {
+          strategyRationale: "Pet-focused deals target passionate pet owners who prioritize quality and safety for their animals. Pet owners show strong brand loyalty and are willing to pay premium prices for trusted products.",
+          hiddenOpportunities: [
+            "Pet owners show strong cross-purchase behavior between pet food, toys, and veterinary services",
+            "Seasonal patterns align with pet adoption cycles and holidays (Christmas pets, spring training)",
+            "Pet communities have high engagement and influencer potential for word-of-mouth marketing"
+          ],
+          riskWarnings: [
+            "Pet owners are highly sensitive to product safety and ingredient quality claims",
+            "Regulatory compliance is critical for pet product advertising",
+            "Avoid messaging that could be perceived as harmful to animals"
+          ],
+          competitiveIntelligence: "Pet industry shows strong growth with premium positioning opportunities. Most competitors focus on price messaging, creating opportunity for quality and safety positioning at higher margins."
+        }
+      },
+      {
+        keywords: ['luxury', 'fashion', 'premium', 'designer', 'high-end', 'exclusive', 'upscale'],
+        coaching: {
+          strategyRationale: "Luxury deals target affluent consumers who value quality, exclusivity, and brand prestige. These audiences prioritize experience and craftsmanship over price.",
+          hiddenOpportunities: [
+            "Luxury consumers cross-shop across categories (fashion, travel, dining, automotive)",
+            "Seasonal and gifting occasions drive 70% of luxury purchases",
+            "Affluent audiences show strong brand loyalty and lifetime value"
+          ],
+          riskWarnings: [
+            "Premium audiences are sophisticated and sensitive to overt promotional messaging",
+            "Brand image and positioning must align with luxury expectations",
+            "Avoid price-focused messaging which can damage brand perception"
+          ],
+          competitiveIntelligence: "Luxury market shows strong resilience with premium audiences less price-sensitive. Opportunity exists in digital luxury experiences and sustainable luxury positioning."
+        }
+      },
+      {
+        keywords: ['camping', 'hiking', 'outdoor', 'recreation', 'backpacking', 'tent', 'trail', 'wilderness', 'nature', 'camp'],
+        coaching: {
+          strategyRationale: "Outdoor recreation deals target adventure-seekers and nature enthusiasts who prioritize quality gear and authentic experiences. These audiences value durability, functionality, and environmental responsibility in their purchases.",
+          hiddenOpportunities: [
+            "Outdoor enthusiasts show strong cross-purchase behavior between camping, hiking, fishing, and boating gear",
+            "Seasonal patterns peak during spring preparation and fall clearance, with steady summer activity",
+            "Outdoor communities have high user-generated content potential and strong brand advocacy"
+          ],
+          riskWarnings: [
+            "Outdoor audiences value authenticity and environmental responsibility - avoid greenwashing claims",
+            "Seasonal timing is critical - avoid promoting winter gear during summer peak season",
+            "Outdoor gear purchases are often research-heavy and comparison-driven"
+          ],
+          competitiveIntelligence: "Outdoor recreation shows consistent growth with premium quality positioning opportunities. Most competitors focus on price, creating opportunity for durability and performance messaging at higher margins. Peak competition during Q4 holiday season, but Q1-Q2 shows 30% lower rates for spring campaign testing. CPM typically ranges $18-35 for outdoor enthusiasts (40% above general display) with highest engagement during spring gear-up and fall clearance periods."
+        }
+      },
+      // Technology & Electronics
+      {
+        keywords: ['technology', 'tech', 'electronics', 'electronic', 'gadget', 'device', 'computer', 'software', 'app', 'digital'],
+        coaching: {
+          strategyRationale: "Technology deals target early adopters and tech-savvy consumers who value innovation, performance, and cutting-edge features. These audiences are well-informed and comparison-shop extensively.",
+          hiddenOpportunities: [
+            "Tech enthusiasts show strong cross-purchase behavior across electronics, software, and gaming categories",
+            "Product launch cycles and holiday seasons drive predictable purchasing patterns",
+            "Tech communities have high engagement and user-generated review content"
+          ],
+          riskWarnings: [
+            "Technology audiences are sophisticated and sensitive to outdated or inaccurate technical claims",
+            "Rapid innovation cycles require up-to-date messaging and feature accuracy",
+            "Price sensitivity varies significantly between early adopters and mainstream buyers"
+          ],
+          competitiveIntelligence: "Technology market shows high competition with premium positioning for quality and innovation. Most competitors focus on features, creating opportunity for performance and reliability messaging. Peak competition during Q4 holiday season and major product launches. CPM typically ranges $22-45 for tech enthusiasts with highest engagement during product launches and holiday seasons."
+        }
+      },
+      // Healthcare & Wellness
+      {
+        keywords: ['health', 'healthcare', 'medical', 'wellness', 'fitness', 'pharmacy', 'supplement', 'vitamin', 'medicine'],
+        coaching: {
+          strategyRationale: "Healthcare deals target health-conscious consumers seeking trusted medical and wellness solutions. These audiences prioritize safety, efficacy, and professional validation in their health decisions.",
+          hiddenOpportunities: [
+            "Health audiences show strong cross-purchase behavior between supplements, fitness, and medical products",
+            "Seasonal patterns align with flu season and New Year health resolutions",
+            "Health communities value expert recommendations and clinical validation"
+          ],
+          riskWarnings: [
+            "Healthcare advertising has strict regulatory requirements and compliance standards",
+            "Audiences are sensitive to medical claims and require authoritative sources",
+            "Avoid making unsubstantiated health claims that could violate advertising guidelines"
+          ],
+          competitiveIntelligence: "Healthcare market shows strong growth with strict regulatory oversight creating barriers to entry. Most competitors focus on generic health benefits, creating opportunity for clinical validation and professional endorsement messaging at premium margins. CPM typically ranges $25-50 for health audiences with highest engagement during New Year resolutions and flu seasons."
+        }
+      },
+      // Automotive
+      {
+        keywords: ['auto', 'automotive', 'car', 'vehicle', 'truck', 'motorcycle', 'driving', 'automobile', 'dealer'],
+        coaching: {
+          strategyRationale: "Automotive deals target vehicle owners and prospective buyers making significant purchases. These audiences value reliability, safety features, and long-term value in their automotive decisions.",
+          hiddenOpportunities: [
+            "Automotive audiences show strong cross-purchase behavior between vehicles, insurance, and maintenance services",
+            "Purchase cycles align with model year releases and end-of-year incentives",
+            "Automotive communities value detailed specifications and comparative analysis"
+          ],
+          riskWarnings: [
+            "Automotive advertising requires accuracy in specifications and pricing information",
+            "Audiences comparison-shop extensively across multiple dealerships and brands",
+            "Seasonal timing is critical - avoid promoting summer vehicles during winter"
+          ],
+          competitiveIntelligence: "Automotive market shows high competition with regional variations in pricing and availability. Most competitors focus on price, creating opportunity for safety and reliability positioning at higher margins. Peak competition during Q4 year-end sales. CPM typically ranges $35-80 for automotive audiences with highest engagement during model year releases and end-of-year sales."
+        }
+      },
+      // Travel & Hospitality
+      {
+        keywords: ['travel', 'vacation', 'tourism', 'hotel', 'flight', 'airline', 'booking', 'trip', 'destination'],
+        coaching: {
+          strategyRationale: "Travel deals target vacation planners and business travelers who value experiences, convenience, and value. These audiences research extensively and book during specific seasonal windows.",
+          hiddenOpportunities: [
+            "Travel audiences show strong cross-purchase behavior between flights, hotels, and activities",
+            "Booking patterns peak during specific seasonal windows (summer vacations, holiday travel)",
+            "Travel communities value authentic experiences and local recommendations"
+          ],
+          riskWarnings: [
+            "Travel audiences are price-sensitive and comparison-shop across multiple booking platforms",
+            "Seasonal timing is critical - avoid promoting summer destinations during winter",
+            "Travel disruption concerns require flexibility messaging and cancellation policies"
+          ],
+          competitiveIntelligence: "Travel market shows strong recovery with premium positioning for unique experiences. Most competitors focus on price, creating opportunity for experience and convenience messaging at higher margins. Peak competition during major holiday seasons. CPM typically ranges $20-40 for travel audiences with highest engagement during peak booking seasons."
+        }
+      },
+      // Gaming & Entertainment
+      {
+        keywords: ['gaming', 'video game', 'game', 'gamer', 'entertainment', 'streaming', 'esports', 'console'],
+        coaching: {
+          strategyRationale: "Gaming deals target passionate gamers and entertainment enthusiasts who value immersive experiences and community engagement. These audiences are highly engaged and brand-loyal to their preferred platforms.",
+          hiddenOpportunities: [
+            "Gaming audiences show strong cross-purchase behavior between games, hardware, and subscriptions",
+            "Purchase patterns align with major game releases and seasonal sales events",
+            "Gaming communities have high engagement and influencer marketing potential"
+          ],
+          riskWarnings: [
+            "Gaming audiences are sensitive to authenticity and avoid obviously commercial messaging",
+            "Platform exclusivity and hardware compatibility are critical messaging considerations",
+            "Avoid outdated gaming references or technology that doesn't align with current standards"
+          ],
+          competitiveIntelligence: "Gaming market shows explosive growth with premium positioning for exclusive content. Most competitors focus on price, creating opportunity for exclusive access and community features messaging at higher margins. Peak competition during major game releases and holiday seasons. CPM typically ranges $15-35 for gaming audiences with highest engagement during game launches and seasonal sales."
+        }
+      },
+      // Home & Garden
+      {
+        keywords: ['home', 'furniture', 'decor', 'kitchen', 'garden', 'lawn', 'appliance', 'bedding', 'bathroom'],
+        coaching: {
+          strategyRationale: "Home & garden deals target homeowners and renters making decisions about their living spaces. These audiences value quality, durability, and aesthetic appeal in home-related purchases.",
+          hiddenOpportunities: [
+            "Home audiences show strong cross-purchase behavior between furniture, appliances, and home decor",
+            "Seasonal patterns align with home improvement seasons (spring, fall) and holiday hosting",
+            "Home communities value before/after transformations and design inspiration"
+          ],
+          riskWarnings: [
+            "Home purchases are often expensive and require extensive research and comparison shopping",
+            "Seasonal timing is critical for garden and outdoor furniture promotions",
+            "Home audiences value quality and durability over price in major purchases"
+          ],
+          competitiveIntelligence: "Home market shows consistent demand with premium positioning for quality and design. Most competitors focus on price, creating opportunity for quality and aesthetic messaging at higher margins. Peak competition during spring and fall home improvement seasons. CPM typically ranges $18-40 for home audiences with highest engagement during improvement seasons."
+        }
+      },
+      // Food & Beverage
+      {
+        keywords: ['food', 'restaurant', 'beverage', 'drink', 'coffee', 'wine', 'beer', 'dining', 'cooking', 'recipe'],
+        coaching: {
+          strategyRationale: "Food & beverage deals target culinary enthusiasts and dining consumers who value taste, quality, and experience. These audiences are influenced by trends, reviews, and social proof.",
+          hiddenOpportunities: [
+            "Food audiences show strong cross-purchase behavior between dining, cooking, and specialty foods",
+            "Seasonal patterns align with holiday dining, summer grilling, and comfort food seasons",
+            "Food communities have high social sharing potential and user-generated content"
+          ],
+          riskWarnings: [
+            "Food audiences value authenticity and are sensitive to overly promotional messaging",
+            "Dietary restrictions and health consciousness require careful messaging considerations",
+            "Food trends change rapidly, requiring up-to-date and culturally sensitive content"
+          ],
+          competitiveIntelligence: "Food market shows strong social engagement with premium positioning for authentic experiences. Most competitors focus on price, creating opportunity for quality and experience messaging at higher margins. Peak competition during major dining seasons and holidays. CPM typically ranges $12-28 for food audiences with highest engagement during dining seasons."
+        }
+      },
+      // Beauty & Personal Care
+      {
+        keywords: ['beauty', 'cosmetic', 'skincare', 'makeup', 'personal care', 'grooming', 'hair', 'nail', 'spa'],
+        coaching: {
+          strategyRationale: "Beauty deals target consumers seeking self-care, confidence, and personal enhancement. These audiences value efficacy, ingredients, and social proof in beauty and personal care decisions.",
+          hiddenOpportunities: [
+            "Beauty audiences show strong cross-purchase behavior between skincare, makeup, and personal care products",
+            "Seasonal patterns align with special occasions, holidays, and self-care trends",
+            "Beauty communities have high social sharing potential and influencer marketing effectiveness"
+          ],
+          riskWarnings: [
+            "Beauty audiences are sensitive to ingredient claims and require transparency in product information",
+            "Cultural diversity and inclusivity are critical messaging considerations in beauty advertising",
+            "Avoid making unsubstantiated beauty claims that could violate advertising standards"
+          ],
+          competitiveIntelligence: "Beauty market shows strong growth with premium positioning for quality and efficacy. Most competitors focus on price, creating opportunity for ingredient quality and professional endorsement messaging at higher margins. Peak competition during holiday and special occasion seasons. CPM typically ranges $16-35 for beauty audiences with highest engagement during special occasions."
+        }
+      },
+      // Education & Learning
+      {
+        keywords: ['education', 'learning', 'course', 'training', 'school', 'university', 'college', 'student', 'skill'],
+        coaching: {
+          strategyRationale: "Education deals target learners and students seeking skill development and knowledge acquisition. These audiences value quality content, practical applicability, and career advancement potential.",
+          hiddenOpportunities: [
+            "Education audiences show strong cross-purchase behavior between different learning categories and skill development",
+            "Enrollment patterns align with academic cycles and career development seasons",
+            "Education communities value peer reviews and professional certification outcomes"
+          ],
+          riskWarnings: [
+            "Education audiences require transparency in course outcomes and certification validity",
+            "Avoid making unsubstantiated claims about career advancement or salary increases",
+            "Quality and accreditation are more important than price for serious learners"
+          ],
+          competitiveIntelligence: "Education market shows strong demand with premium positioning for quality and outcomes. Most competitors focus on price, creating opportunity for quality and career advancement messaging at higher margins. Peak competition during New Year and academic year starts. CPM typically ranges $14-32 for education audiences with highest engagement during enrollment seasons."
+        }
+      }
+    ];
+  }
+
+  /**
    * Fallback search when Gemini fails
    */
   private performFallbackSearch(query: string, deals: Deal[]): {
@@ -434,21 +940,40 @@ export class DealsController {
   } {
     const queryLower = query.toLowerCase();
     
-    // Simple keyword matching
+    // Extract keywords from query for better matching
+    const queryWords = queryLower.split(/\s+/).filter(word => word.length > 2);
+    
+    // Define luxury/fashion keywords for better matching
+    const luxuryKeywords = ['luxury', 'fashion', 'accessories', 'clothing', 'apparel', 'premium', 'designer', 'high-end', 'goods', 'market'];
+    
+    // Check if this is a luxury/fashion query
+    const isLuxuryQuery = luxuryKeywords.some(keyword => queryLower.includes(keyword));
+    
+    // Enhanced keyword matching
     const scoredDeals = deals.map(deal => {
       let score = 0;
+      const dealText = `${deal.dealName} ${deal.description} ${deal.targeting} ${deal.mediaType}`.toLowerCase();
       
-      // Check deal name
+      // Direct query match (highest priority)
       if (deal.dealName.toLowerCase().includes(queryLower)) score += 10;
-      
-      // Check description
       if (deal.description.toLowerCase().includes(queryLower)) score += 8;
-      
-      // Check targeting
       if (deal.targeting.toLowerCase().includes(queryLower)) score += 6;
       
-      // Check media type
-      if (deal.mediaType.toLowerCase().includes(queryLower)) score += 4;
+      // Word-by-word matching
+      queryWords.forEach(word => {
+        if (dealText.includes(word)) {
+          score += 3;
+        }
+      });
+      
+      // Luxury/fashion specific matching
+      if (isLuxuryQuery) {
+        luxuryKeywords.forEach(keyword => {
+          if (dealText.includes(keyword)) {
+            score += 5;
+          }
+        });
+      }
       
       return { deal, score };
     })
@@ -456,6 +981,21 @@ export class DealsController {
     .sort((a, b) => b.score - a.score)
     .slice(0, 6)
     .map(item => item.deal);
+
+    // If no matches found for luxury queries, try broader matching
+    if (scoredDeals.length === 0 && isLuxuryQuery) {
+      const broaderMatches = deals.filter(deal => {
+        const dealText = `${deal.dealName} ${deal.description}`.toLowerCase();
+        return luxuryKeywords.some(keyword => dealText.includes(keyword));
+      }).slice(0, 6);
+      
+      if (broaderMatches.length > 0) {
+        return {
+          deals: broaderMatches,
+          aiResponse: `I found ${broaderMatches.length} deals related to luxury goods and fashion that might be relevant to your query.`
+        };
+      }
+    }
 
     return {
       deals: scoredDeals,
@@ -714,7 +1254,7 @@ export class DealsController {
    */
   async unifiedSearch(req: Request, res: Response): Promise<void> {
     try {
-      const { query, cardType = 'all' } = req.body;
+      const { query, cardType = 'all', cardTypes } = req.body;
 
       if (!query || typeof query !== 'string') {
         res.status(400).json({
@@ -724,7 +1264,16 @@ export class DealsController {
         return;
       }
 
-      console.log(`🔍 Unified search: "${query}", type: ${cardType}`);
+      // Handle both single cardType and array of cardTypes for multiple selection
+      const rawRequestedTypes = cardTypes && Array.isArray(cardTypes) ? cardTypes : (cardType === 'all' ? ['deals', 'personas', 'audience-insights', 'market-sizing', 'geographic'] : [cardType]);
+      
+      // Normalize card type names (handle frontend/backend naming inconsistencies)
+      const requestedTypes = rawRequestedTypes.map(type => {
+        if (type === 'geo-cards') return 'geographic';
+        return type;
+      });
+      
+      console.log(`🔍 Unified search: "${query}", types: ${JSON.stringify(requestedTypes)}`);
 
       const results: any = {
         deals: [],
@@ -735,7 +1284,7 @@ export class DealsController {
       };
 
       // Search deals if requested
-      if (cardType === 'all' || cardType === 'deals') {
+      if (requestedTypes.includes('deals')) {
         try {
           const deals = await this.appsScriptService.getAllDeals();
           if (deals && deals.length > 0) {
@@ -753,7 +1302,7 @@ export class DealsController {
       }
 
       // Search personas if requested
-      if (cardType === 'all' || cardType === 'personas') {
+      if (requestedTypes.includes('personas')) {
         try {
           // First, check if query matches a commerce audience segment for dynamic persona generation
           const { commerceAudienceService } = require('../services/commerceAudienceService');
@@ -813,7 +1362,7 @@ export class DealsController {
       }
 
       // Generate AI-powered insights if requested
-      if (cardType === 'all' || cardType === 'audience-insights') {
+      if (requestedTypes.includes('audience-insights')) {
         try {
           if (this.geminiService) {
             const insightsResult = await this.geminiService.generateAudienceInsights(query);
@@ -825,7 +1374,7 @@ export class DealsController {
       }
 
       // Generate market sizing if requested
-      if (cardType === 'all' || cardType === 'market-sizing') {
+      if (requestedTypes.includes('market-sizing')) {
         try {
           if (this.geminiService) {
             const sizingResult = await this.geminiService.generateMarketSizing(query);
@@ -837,7 +1386,7 @@ export class DealsController {
       }
 
       // Generate geographic insights if requested
-      if (cardType === 'all' || cardType === 'geo-cards') {
+      if (requestedTypes.includes('geographic')) {
         try {
           if (this.geminiService) {
             const geoResult = await this.geminiService.generateGeographicInsights(query);
@@ -901,6 +1450,92 @@ export class DealsController {
       console.error('Error generating market sizing:', error);
       res.status(500).json({
         error: 'Failed to generate market sizing',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Generate Marketing SWOT analysis for a company
+   */
+  async generateMarketingSWOT(req: Request, res: Response): Promise<void> {
+    try {
+      const { companyName } = req.body;
+
+      if (!companyName || typeof companyName !== 'string') {
+        res.status(400).json({
+          error: 'Invalid request',
+          message: 'Company name is required and must be a string'
+        });
+        return;
+      }
+
+      if (!this.geminiService) {
+        res.status(503).json({
+          error: 'Service unavailable',
+          message: 'AI service is not available'
+        });
+        return;
+      }
+
+      const result = await this.geminiService.generateMarketingSWOT(companyName.trim());
+      
+      if (result.success) {
+        res.json(result);
+      } else {
+        res.status(500).json({
+          error: 'Failed to generate Marketing SWOT',
+          message: result.error || 'Marketing SWOT analysis failed'
+        });
+      }
+
+    } catch (error) {
+      console.error('Error generating Marketing SWOT:', error);
+      res.status(500).json({
+        error: 'Failed to generate Marketing SWOT',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Generate Company Profile analysis for a stock symbol
+   */
+  async generateCompanyProfile(req: Request, res: Response): Promise<void> {
+    try {
+      const { stockSymbol } = req.body;
+
+      if (!stockSymbol || typeof stockSymbol !== 'string') {
+        res.status(400).json({
+          error: 'Invalid request',
+          message: 'Stock symbol is required and must be a string'
+        });
+        return;
+      }
+
+      if (!this.geminiService) {
+        res.status(503).json({
+          error: 'Service unavailable',
+          message: 'AI service is not available'
+        });
+        return;
+      }
+
+      const result = await this.geminiService.generateCompanyProfile(stockSymbol.toUpperCase().trim());
+      
+      if (result.success) {
+        res.json(result);
+      } else {
+        res.status(500).json({
+          error: 'Failed to generate Company Profile',
+          message: result.error || 'Company profile analysis failed'
+        });
+      }
+
+    } catch (error) {
+      console.error('Error generating Company Profile:', error);
+      res.status(500).json({
+        error: 'Failed to generate Company Profile',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
@@ -1392,9 +2027,9 @@ export class DealsController {
       try {
         allDeals = await this.appsScriptService.getAllDeals();
       } catch (error) {
-        console.warn('⚠️ Apps Script service unavailable for audience insights, using sample deals');
-        // Fallback to sample deals when Apps Script is not available
-        allDeals = this.getSampleDeals();
+        console.error('❌ Apps Script service unavailable for audience insights:', error instanceof Error ? error.message : 'Unknown error');
+        // Don't fallback to sample deals - return empty recommended deals
+        allDeals = [];
       }
       const recommendedDeals = await audienceInsightsService.getRecommendedDeals(segment, category, allDeals);
       
@@ -1612,6 +2247,34 @@ export class DealsController {
         mediaType: 'Multi-format',
         flightDate: '2024-02-20',
         bidGuidance: '$3.30 - $3.80 CPM',
+        createdBy: 'System',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: 'sample-011',
+        dealName: 'Athletics_Purchase_Intender',
+        dealId: 'ATHLETICS-001',
+        description: 'Target sports fans actively shopping for athletic gear and equipment',
+        targeting: 'Sports fans, Athletics enthusiasts, Team supporters',
+        environment: 'Production',
+        mediaType: 'CTV',
+        flightDate: '2024-02-25',
+        bidGuidance: '$3.50 - $4.00 CPM',
+        createdBy: 'System',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: 'sample-012',
+        dealName: 'Exercise_Fitness_Purchase_Intender',
+        dealId: 'FITNESS-001',
+        description: 'Reach fitness enthusiasts shopping for exercise equipment and activewear',
+        targeting: 'Fitness enthusiasts, Exercise equipment buyers, Workout gear shoppers',
+        environment: 'Production',
+        mediaType: 'Video',
+        flightDate: '2024-03-01',
+        bidGuidance: '$3.20 - $3.80 CPM',
         createdBy: 'System',
         createdAt: now,
         updatedAt: now

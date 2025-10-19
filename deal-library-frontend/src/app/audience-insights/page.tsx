@@ -94,7 +94,7 @@ export default function AudienceInsightsPage() {
   const [error, setError] = useState('');
   const [includeCommercialZips, setIncludeCommercialZips] = useState(false);  // NEW: Toggle for downtown ZIPs
   const [showMap, setShowMap] = useState(false);  // Delay map loading to avoid chunk errors
-  // NEW: Recommended deals
+  const [recommendedDeals, setRecommendedDeals] = useState<any[]>([]);  // NEW: Recommended deals
   const [geoTab, setGeoTab] = useState<'populous' | 'indexing'>('populous');  // NEW: Geographic hotspots tab
   const reportRef = useRef<HTMLDivElement>(null);  // Ref for PDF export
 
@@ -113,9 +113,25 @@ export default function AudienceInsightsPage() {
     });
   };
 
-  // Load categories on mount
+  // Load categories on mount and test backend connectivity
   useEffect(() => {
     loadCategories();
+    
+    // Test backend connectivity
+    const testBackendConnection = async () => {
+      try {
+        const response = await fetch('http://localhost:3002/api/audience-geo-analysis/segments');
+        if (response.ok) {
+          console.log('✅ Backend connection successful');
+        } else {
+          console.warn(`⚠️ Backend responded with status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('❌ Backend connection failed:', error);
+      }
+    };
+    
+    testBackendConnection();
   }, []);
 
 
@@ -146,7 +162,10 @@ export default function AudienceInsightsPage() {
   }, [report]);
 
   // Helper functions for formatting
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | null | undefined) => {
+    if (amount === null || amount === undefined || isNaN(amount)) {
+      return '$0';
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -155,7 +174,10 @@ export default function AudienceInsightsPage() {
     }).format(amount);
   };
 
-  const formatPercentage = (value: number) => {
+  const formatPercentage = (value: number | null | undefined) => {
+    if (value === null || value === undefined || isNaN(value)) {
+      return 'N/A';
+    }
     const sign = value >= 0 ? '+' : '';
     return `${sign}${value.toFixed(1)}%`;
   };
@@ -310,13 +332,88 @@ export default function AudienceInsightsPage() {
       
       if (exactSegments.length > 0) {
         // Get all available segments from backend
-        const response = await fetch('http://localhost:3002/api/audience-geo-analysis/segments');
-        const data = await response.json();
+        console.log(`🔄 Loading segments for category: ${category}`);
+        console.log(`   Expected segments in mapping: ${exactSegments.join(', ')}`);
         
-        if (data.success) {
+        // First, ensure commerce data is loaded
+        try {
+          const statusResponse = await fetch('http://localhost:3002/api/commerce-audiences/status');
+          if (statusResponse.ok) {
+            const statusData = await statusResponse.json();
+            console.log('📊 Commerce data status:', statusData);
+            
+            if (!statusData.isLoaded || statusData.totalRecords === 0) {
+              console.log('🔄 Commerce data not loaded, attempting to load...');
+              const loadResponse = await fetch('http://localhost:3002/api/commerce-audiences/load', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+              });
+              
+              if (loadResponse.ok) {
+                const loadData = await loadResponse.json();
+                console.log('✅ Commerce data loaded:', loadData);
+              } else {
+                console.warn('⚠️ Failed to load commerce data, but continuing...');
+              }
+            }
+          }
+        } catch (statusError) {
+          console.warn('⚠️ Could not check commerce data status, continuing...', statusError);
+        }
+        
+        let data: any = null;
+        
+        // Try the primary endpoint first
+        try {
+          const response = await fetch('http://localhost:3002/api/audience-geo-analysis/segments');
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          data = await response.json();
+          console.log('📡 Backend response (primary endpoint):', data);
+        } catch (primaryError) {
+          console.warn('⚠️ Primary endpoint failed, trying fallback:', primaryError);
+          
+          // Try fallback endpoint
+          try {
+            const fallbackResponse = await fetch('http://localhost:3002/api/commerce-audiences/segments');
+            if (fallbackResponse.ok) {
+              data = await fallbackResponse.json();
+              console.log('📡 Backend response (fallback endpoint):', data);
+            } else {
+              throw new Error(`HTTP ${fallbackResponse.status}: ${fallbackResponse.statusText}`);
+            }
+          } catch (fallbackError) {
+            console.error('❌ Both endpoints failed:', { primaryError, fallbackError });
+            throw primaryError; // Re-throw the original error
+          }
+        }
+        
+        if (data && data.success && Array.isArray(data.segments)) {
+          // Handle both response formats:
+          // 1. /api/audience-geo-analysis/segments returns: { segments: string[] }
+          // 2. /api/commerce-audiences/segments returns: { segments: AudienceSegment[] }
+          
+          let backendSegmentNames: string[] = [];
+          if (data.segments.length > 0) {
+            // Check if segments are strings or objects with name property
+            if (typeof data.segments[0] === 'string') {
+              backendSegmentNames = data.segments as string[];
+            } else if (data.segments[0] && typeof data.segments[0] === 'object' && 'name' in data.segments[0]) {
+              backendSegmentNames = (data.segments as any[]).map(seg => seg.name);
+            } else {
+              console.error('❌ Unknown segment format:', data.segments[0]);
+              throw new Error('Unknown segment data format');
+            }
+          }
+          
+          console.log(`📋 Backend has ${backendSegmentNames.length} segments total`);
+          
           // Only show segments that exist in BOTH our mapping AND the backend data
           const availableSegments = exactSegments.filter(seg => 
-            data.segments.includes(seg)
+            backendSegmentNames.includes(seg)
           );
           
           // Sort alphabetically
@@ -324,15 +421,54 @@ export default function AudienceInsightsPage() {
           setSegments(sortedSegments);
           
           console.log(`📊 Mapped ${sortedSegments.length} exact segments for category: ${category}`);
-          console.log(`   Segments: ${sortedSegments.join(', ')}`);
+          console.log(`   Available segments: ${sortedSegments.join(', ')}`);
+          console.log(`   Expected segments in mapping: ${exactSegments.join(', ')}`);
+          
+          if (sortedSegments.length === 0) {
+            console.warn(`⚠️ No segments found in backend data for category mapping`);
+            console.log(`   Looking for: ${exactSegments.join(', ')}`);
+            console.log(`   Backend has: ${backendSegmentNames.slice(0, 10).join(', ')}${backendSegmentNames.length > 10 ? '...' : ''}`);
+          }
+        } else {
+          console.error('❌ Backend response error:', data);
+          setError(`Backend error: ${data?.message || 'Invalid response format'}`);
+          setSegments([]);
         }
       } else {
         console.warn(`⚠️ No segment mapping found for category: ${category}`);
+        console.log('🔄 Trying to load all segments from backend as fallback...');
+        
+        // Fallback: try to get all segments from backend
+        try {
+          const response = await fetch('http://localhost:3002/api/commerce-audiences/segments');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && Array.isArray(data.segments)) {
+              let allSegmentNames: string[] = [];
+              if (data.segments.length > 0 && typeof data.segments[0] === 'object' && 'name' in data.segments[0]) {
+                allSegmentNames = data.segments.map((seg: any) => seg.name);
+              } else if (typeof data.segments[0] === 'string') {
+                allSegmentNames = data.segments;
+              }
+              
+              if (allSegmentNames.length > 0) {
+                console.log(`📋 Found ${allSegmentNames.length} total segments, showing first 20 for debugging`);
+                setSegments(allSegmentNames.slice(0, 20));
+                setError(`No mapping found for category "${category}". Showing sample segments instead.`);
+                return;
+              }
+            }
+          }
+        } catch (fallbackError) {
+          console.error('❌ Fallback segment loading also failed:', fallbackError);
+        }
+        
         setSegments([]);
       }
     } catch (error) {
       console.error('Error loading segments:', error);
-      setError('Failed to load segments');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setError(`Failed to load segments: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -448,6 +584,7 @@ export default function AudienceInsightsPage() {
     setLoading(true);
     setError('');
     setReport(null);
+    setRecommendedDeals([]);
 
     try {
       console.log('🔍 [DEBUG] Generating report for:', { selectedCategory, selectedSegment });
@@ -482,6 +619,16 @@ export default function AudienceInsightsPage() {
         console.log('📊 [DEBUG] Key Metrics:', data.report.keyMetrics);
         
         setReport(data.report);
+        
+        // Set recommended deals if available
+        if (data.recommendedDeals && Array.isArray(data.recommendedDeals)) {
+          setRecommendedDeals(data.recommendedDeals);
+          console.log(`🎯 [DEBUG] Loaded ${data.recommendedDeals.length} recommended deals`);
+        } else {
+          setRecommendedDeals([]);
+          console.log('⚠️ [DEBUG] No recommended deals in response');
+        }
+        
         console.log(`✅ [DEBUG] Report generated successfully`);
       } else {
         console.error('❌ [DEBUG] Report generation failed:', data);
@@ -704,7 +851,7 @@ export default function AudienceInsightsPage() {
                   <div className="text-sm text-blue-700 font-medium mb-1">Median Household Income</div>
                   <div className="text-2xl font-bold text-blue-900">{formatCurrency(report.keyMetrics.medianHHI)}</div>
                   <div className="flex flex-col gap-0.5 mt-2 text-xs">
-                    <div className={`${report.keyMetrics.medianHHIvsCommerce >= 0 ? 'text-green-600' : 'text-red-600'} font-semibold`}>
+                    <div className={`${(report.keyMetrics.medianHHIvsCommerce ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'} font-semibold`}>
                       {formatPercentage(report.keyMetrics.medianHHIvsCommerce)} vs Online Shoppers ⭐
                     </div>
                     <div className="text-gray-500 text-[10px]">
@@ -721,9 +868,9 @@ export default function AudienceInsightsPage() {
 
                 <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
                   <div className="text-sm text-green-700 font-medium mb-1">Education Level</div>
-                  <div className="text-2xl font-bold text-green-900">{report.keyMetrics.educationLevel.toFixed(1)}%</div>
+                  <div className="text-2xl font-bold text-green-900">{(report.keyMetrics.educationLevel ?? 0).toFixed(1)}%</div>
                   <div className="flex flex-col gap-0.5 mt-2 text-xs">
-                    <div className={`${report.keyMetrics.educationVsCommerce >= 0 ? 'text-green-600' : 'text-red-600'} font-semibold`}>
+                    <div className={`${(report.keyMetrics.educationVsCommerce ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'} font-semibold`}>
                       {formatPercentage(report.keyMetrics.educationVsCommerce)} vs Online Shoppers ⭐
                     </div>
                     <div className="text-gray-500 text-[10px]">
@@ -1205,77 +1352,172 @@ export default function AudienceInsightsPage() {
               {/* Messaging Recommendations */}
               <div className="bg-white rounded-lg p-6 mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Messaging Recommendations</h3>
-                <div className="space-y-3">
-                  {report.strategicInsights.messagingRecommendations.map((msg, index) => (
-                    <div
-                      key={index}
-                      className="px-4 py-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200"
-                    >
-                      <p className="text-sm text-gray-800 leading-relaxed">
-                        {typeof msg === 'string' ? renderMarkdown(msg) : JSON.stringify(msg)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Channel Recommendations */}
-              <div className="bg-white rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Channel/Media Recommendations</h3>
                 <div className="space-y-4">
-                  {report.strategicInsights.channelRecommendations.map((channel, index) => {
-                    // Handle both string and object formats
-                    if (typeof channel === 'string') {
+                  {report.strategicInsights.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 ? (
+                    report.strategicInsights.messagingRecommendations.map((msg, index) => {
+                    if (typeof msg === 'string') {
                       return (
-                        <div key={index} className="flex items-start gap-2">
-                          <span className="text-brand-orange mt-1">●</span>
-                          <div className="text-sm text-gray-700 leading-relaxed">
-                            {renderMarkdown(channel)}
-                          </div>
+                        <div
+                          key={index}
+                          className="px-4 py-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200"
+                        >
+                          <p className="text-sm text-gray-800 leading-relaxed">
+                            {renderMarkdown(msg)}
+                          </p>
                         </div>
                       );
                     }
-                    
-                    // Format object with proper structure
-                    const channelObj = channel as any;
+
+                    // Handle JSON object format
+                    const msgObj = msg as any;
                     return (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-brand-orange transition-colors">
-                        <h4 className="font-semibold text-gray-900 mb-3 text-base flex items-center gap-2">
-                          <span className="text-brand-orange">▸</span>
-                          {channelObj.channel}
-                        </h4>
-                        <div className="space-y-2 ml-5">
-                          {channelObj.where && (
-                            <div className="flex items-start gap-2">
-                              <span className="font-medium text-gray-700 text-sm min-w-[60px]">Where:</span>
-                              <span className="text-sm text-gray-600">{channelObj.where}</span>
+                      <div
+                        key={index}
+                        className="bg-white border border-purple-200 rounded-lg p-5 hover:shadow-md transition-shadow"
+                      >
+                        {/* Value Proposition */}
+                        {msgObj.valueProposition && (
+                          <div className="mb-3">
+                            <h4 className="font-semibold text-purple-900 text-base mb-1">Value Proposition</h4>
+                            <p className="text-gray-800 leading-relaxed">{msgObj.valueProposition}</p>
+                          </div>
+                        )}
+
+                        {/* Data Backing */}
+                        {msgObj.dataBacking && (
+                          <div className="mb-3">
+                            <h4 className="font-semibold text-blue-900 text-sm mb-1">📊 Data Insights</h4>
+                            <p className="text-gray-700 text-sm leading-relaxed">{msgObj.dataBacking}</p>
+                          </div>
+                        )}
+
+                        {/* Emotional Benefits */}
+                        {msgObj.emotionalBenefit && (
+                          <div className="mb-2">
+                            <h4 className="font-semibold text-green-900 text-sm mb-1">💡 Emotional Benefits</h4>
+                            <p className="text-gray-700 text-sm leading-relaxed">{msgObj.emotionalBenefit}</p>
+                          </div>
+                        )}
+
+                        {/* Campaign Ready Indicator */}
+                        {msgObj.campaignReady !== undefined && (
+                          <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              msgObj.campaignReady 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-600'
+                            }`}>
+                              {msgObj.campaignReady ? '✅ Campaign Ready' : '⏳ In Development'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                    })
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p className="text-sm">No messaging recommendations are available for this segment.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </section>
+
+            {/* Recommended Deal Cards */}
+            {report && (
+              <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <Target className="w-6 h-6 text-brand-orange" />
+                  Recommended Deals for {report.segment}
+                </h2>
+                
+                {recommendedDeals.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {recommendedDeals.map((deal, index) => {
+                      const isCommerceAudience = (deal.dealName || '').toLowerCase().includes('purchase intender');
+                      return (
+                        <div
+                          key={deal.id || index}
+                          className={`card p-4 cursor-pointer hover:shadow-lg transition-all duration-200 group border ${
+                            isCommerceAudience 
+                              ? 'border-l-4 border-brand-gold bg-gradient-to-r from-brand-gold/5 to-transparent' 
+                              : 'border-gray-200 hover:border-brand-orange'
+                          }`}
+                          onClick={() => {
+                            // Navigate to main chat with this specific deal
+                            router.push(`/?deal=${encodeURIComponent(deal.dealId || deal.id)}`);
+                          }}
+                        >
+                          {/* Deal Header */}
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 group-hover:text-brand-orange transition-colors text-sm leading-tight mb-1">
+                                {deal.dealName}
+                              </h4>
+                              {isCommerceAudience && (
+                                <span className="text-sm text-brand-gold">🛍️ Commerce Audience</span>
+                              )}
                             </div>
-                          )}
-                          {channelObj.when && (
-                            <div className="flex items-start gap-2">
-                              <span className="font-medium text-gray-700 text-sm min-w-[60px]">When:</span>
-                              <span className="text-sm text-gray-600">{channelObj.when}</span>
-                            </div>
-                          )}
-                          {channelObj.who && (
-                            <div className="flex items-start gap-2">
-                              <span className="font-medium text-gray-700 text-sm min-w-[60px]">Who:</span>
-                              <span className="text-sm text-gray-600">{channelObj.who}</span>
-                            </div>
-                          )}
-                          {channelObj.why && (
-                            <div className="flex items-start gap-2">
-                              <span className="font-medium text-gray-700 text-sm min-w-[60px]">Why:</span>
-                              <span className="text-sm text-gray-600">{channelObj.why}</span>
+                          </div>
+
+                          {/* Description */}
+                          <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-3">
+                            {deal.description}
+                          </p>
+
+                          {/* Deal Details */}
+                          <div className="space-y-2 text-xs text-gray-500">
+                            {deal.environment && (
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">Environment:</span>
+                                <span>{deal.environment}</span>
+                              </div>
+                            )}
+                            {deal.mediaType && (
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">Media:</span>
+                                <span>{deal.mediaType}</span>
+                              </div>
+                            )}
+                            {deal.flightDate && (
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">Flight:</span>
+                                <span>{deal.flightDate}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Target Audience */}
+                          {deal.targeting && (
+                            <div className="mt-3 pt-3 border-t border-gray-100">
+                              <div className="text-xs">
+                                <span className="font-medium text-gray-700">Targeting:</span>
+                                <p className="text-gray-600 leading-relaxed">{deal.targeting}</p>
+                              </div>
                             </div>
                           )}
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </section>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <Target className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p className="text-sm">No recommended deals found for this audience segment.</p>
+                    <button
+                      onClick={() => {
+                        const dealPrompt = `Find relevant deals for the ${report.segment} audience segment in ${report.category}`;
+                        router.push(`/?prompt=${encodeURIComponent(dealPrompt)}`);
+                      }}
+                      className="mt-3 text-brand-orange hover:text-brand-coral text-sm font-medium transition-colors"
+                    >
+                      Search for more deals →
+                    </button>
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Export and Action Buttons */}
             <div className="flex justify-center gap-4">
@@ -1313,14 +1555,11 @@ ${report.strategicInsights.targetPersona}
 KEY METRICS:
 • Income: ${formatCurrency(report.keyMetrics.medianHHI)} (${formatPercentage(report.keyMetrics.medianHHIvsCommerce)} vs online shoppers)
 • Age: ${report.keyMetrics.topAgeBracket}
-• Education: ${report.keyMetrics.educationLevel.toFixed(1)}% Bachelor's+ (${formatPercentage(report.keyMetrics.educationVsCommerce)} vs online shoppers)
+• Education: ${(report.keyMetrics.educationLevel ?? 0).toFixed(1)}% Bachelor's+ (${formatPercentage(report.keyMetrics.educationVsCommerce)} vs online shoppers)
 • Top Market: ${report.geographicHotspots[0]?.city}, ${report.geographicHotspots[0]?.state}
 
 CREATIVE HOOKS:
 ${report.strategicInsights.messagingRecommendations.slice(0, 3).map((m: any, i: number) => `${i + 1}. ${typeof m === 'string' ? m.replace(/\*\*/g, '') : String(m)}`).join('\n')}
-
-MEDIA TARGETING:
-${report.strategicInsights.channelRecommendations.slice(0, 3).map((c: any, i: number) => `${i + 1}. ${typeof c === 'string' ? c.replace(/\*\*/g, '') : String(c)}`).join('\n')}
 
 Generated: ${new Date().toLocaleString()}
                   `.trim();

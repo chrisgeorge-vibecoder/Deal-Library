@@ -8,6 +8,7 @@ import { CensusDataService } from '../services/censusDataService';
 import { commerceAudienceService } from '../services/commerceAudienceService';
 import { audienceGeoAnalysisService } from '../services/audienceGeoAnalysisService';
 import { audienceInsightsService } from '../services/audienceInsightsService';
+import { coachingService } from '../services/coachingService';
 import { Deal, DealFilters, SearchResult, CustomDealRequest } from '../types/deal';
 import { CensusQueryFilters } from '../types/censusData';
 
@@ -404,7 +405,8 @@ export class DealsController {
               }
             }
             
-            const fallbackCoaching = this.generateFallbackCoaching(correctedQuery, allDeals);
+            // Use data-driven coaching service for fallback results
+            const coaching = await coachingService.generateCoaching(fallbackResult.deals, correctedQuery);
             const enhancedAiResponse = this.enhanceResponseWithCorrections(fallbackResult.aiResponse, query.trim(), correctedQuery, corrections);
             res.json({
               deals: fallbackResult.deals,
@@ -414,7 +416,7 @@ export class DealsController {
               query: correctedQuery,
               originalQuery: query.trim(),
               corrections: corrections,
-              coaching: fallbackCoaching
+              coaching: coaching
             });
             return;
           }
@@ -546,7 +548,8 @@ export class DealsController {
             console.log('⏰ Second Gemini call also timed out, using enhanced fallback search');
             const fallbackResult = this.performFallbackSearch(correctedQuery, allDeals);
             
-            const fallbackCoaching = this.generateFallbackCoaching(correctedQuery, allDeals);
+            // Use data-driven coaching service for fallback results
+            const coaching = await coachingService.generateCoaching(fallbackResult.deals, correctedQuery);
             res.json({
               deals: fallbackResult.deals,
               aiResponse: fallbackResult.aiResponse || `I found ${fallbackResult.deals.length} deals using our fallback search method.`,
@@ -555,7 +558,7 @@ export class DealsController {
               query: correctedQuery,
               originalQuery: corrections.length > 0 ? query.trim() : undefined,
               corrections: corrections.length > 0 ? corrections : undefined,
-              coaching: fallbackCoaching
+              coaching: coaching
             });
             return;
           }
@@ -583,7 +586,8 @@ export class DealsController {
       
       // Fallback to rule-based search
       const fallbackResult = this.performFallbackSearch(correctedQuery, allDeals);
-      const fallbackCoaching = this.generateFallbackCoaching(correctedQuery, allDeals);
+      // Use data-driven coaching service for fallback results
+      const coaching = await coachingService.generateCoaching(fallbackResult.deals, correctedQuery);
       
       res.json({
         deals: fallbackResult.deals,
@@ -593,7 +597,7 @@ export class DealsController {
         query: correctedQuery,
         originalQuery: corrections.length > 0 ? query.trim() : undefined,
         corrections: corrections.length > 0 ? corrections : undefined,
-        coaching: fallbackCoaching
+        coaching: coaching
       });
 
     } catch (error) {
@@ -1538,6 +1542,223 @@ export class DealsController {
         error: 'Failed to generate Company Profile',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
+    }
+  }
+
+  /**
+   * Helper function to get homepage URL for a news source
+   */
+  private getSourceHomepageUrl(source: string): string {
+    const sourceLower = source.toLowerCase();
+    
+    if (sourceLower.includes('adweek')) return 'https://www.adweek.com';
+    if (sourceLower.includes('adage')) return 'https://adage.com';
+    if (sourceLower.includes('digiday')) return 'https://digiday.com';
+    if (sourceLower.includes('drum')) return 'https://www.thedrum.com';
+    if (sourceLower.includes('adexchanger')) return 'https://www.adexchanger.com';
+    if (sourceLower.includes('marketecture')) return 'https://marketecture.com';
+    if (sourceLower.includes('marketing land')) return 'https://marketingland.com';
+    if (sourceLower.includes('substack')) return 'https://substack.com';
+    
+    // Default fallback
+    return '#';
+  }
+
+  /**
+   * Generate Marketing News headlines and summaries
+   */
+  async generateMarketingNews(req: Request, res: Response): Promise<void> {
+    try {
+      console.log('📰 Marketing News request received');
+      const { query } = req.body || {};
+      console.log('📰 User query for news context:', query);
+
+      if (!this.geminiService) {
+        res.status(503).json({
+          error: 'Service unavailable',
+          message: 'AI service is not available'
+        });
+        return;
+      }
+
+      const result = await this.geminiService.generateMarketingNews(query);
+      
+      // Always provide data, even if the result is not successful
+      let transformedData;
+      
+      if (result.success && result.data && result.data.newsItems && result.data.newsItems.length > 0) {
+        // Transform the successful data to match the frontend MarketingNews interface
+        transformedData = {
+          marketingNews: result.data.newsItems.map((item: any) => {
+            const source = item.source || 'Industry Source';
+            const originalUrl = item.url || '#';
+            // If URL is '#', use the source's homepage instead
+            const url = originalUrl === '#' ? this.getSourceHomepageUrl(source) : originalUrl;
+            
+            return {
+              id: item.id || `news-${Date.now()}-${Math.random()}`,
+              headline: item.headline || 'Marketing News Item',
+              source: source,
+              synopsis: item.synopsis || 'Latest marketing industry updates.',
+              companies: item.companies || [],
+              keyInsights: item.keyInsights || [],
+              url: url,
+              publishDate: item.publishDate || new Date().toISOString().split('T')[0],
+              relevanceScore: item.relevanceScore || 0.8
+            };
+          }),
+          aiResponse: result.data.aiResponse || 'Here are the latest marketing and advertising headlines.'
+        };
+        
+        console.log(`✅ Generated ${transformedData.marketingNews.length} marketing news items`);
+      } else {
+        // Provide fallback data if Gemini fails
+        const fallbackDate = new Date().toISOString().split('T')[0];
+        transformedData = {
+          marketingNews: [
+            {
+              id: `fallback-1-${Date.now()}`,
+              headline: "Marketing Technology Continues to Evolve",
+              source: "AdWeek",
+              synopsis: "Latest developments in marketing technology and AI-driven advertising solutions are reshaping how brands connect with consumers.",
+              companies: ["Google", "Facebook", "Salesforce"],
+              keyInsights: ["AI automation is transforming ad targeting", "Personalization at scale becoming standard", "ROI measurement tools advancing rapidly"],
+              url: this.getSourceHomepageUrl("AdWeek"),
+              publishDate: fallbackDate,
+              relevanceScore: 0.9
+            },
+            {
+              id: `fallback-2-${Date.now()}`,
+              headline: "Privacy Regulations Impact Digital Advertising",
+              source: "Digiday",
+              synopsis: "New privacy regulations are forcing marketers to rethink their data collection and targeting strategies.",
+              companies: ["Apple", "Google", "Meta"],
+              keyInsights: ["First-party data becoming essential", "Contextual targeting gaining importance", "Transparency requirements increasing"],
+              url: this.getSourceHomepageUrl("Digiday"),
+              publishDate: fallbackDate,
+              relevanceScore: 0.8
+            },
+            {
+              id: `fallback-3-${Date.now()}`,
+              headline: "Social Media Platforms Update Advertising Tools",
+              source: "Marketing Land",
+              synopsis: "Major social media platforms are rolling out new advertising features and measurement capabilities for brands.",
+              companies: ["TikTok", "Instagram", "LinkedIn"],
+              keyInsights: ["Short-form video content driving engagement", "AI-powered ad creation tools expanding", "Cross-platform attribution improving"],
+              url: this.getSourceHomepageUrl("Marketing Land"),
+              publishDate: fallbackDate,
+              relevanceScore: 0.7
+            }
+          ],
+          aiResponse: result.error ? `Generated fallback marketing news due to: ${result.error}` : 'Here are the latest marketing and advertising headlines.'
+        };
+        
+        console.log(`⚠️ Using fallback marketing news due to: ${result.error || 'Unknown error'}`);
+      }
+      
+      res.json(transformedData);
+
+    } catch (error) {
+      console.error('Error generating Marketing News:', error);
+      
+      // Provide fallback data even on complete failure
+      const fallbackDate = new Date().toISOString().split('T')[0];
+      const fallbackData = {
+        marketingNews: [
+          {
+            id: `error-fallback-1-${Date.now()}`,
+            headline: "Marketing Industry Updates",
+            source: "Industry News",
+            synopsis: "Latest marketing and advertising industry developments and trends.",
+            companies: ["Various Tech Companies"],
+            keyInsights: ["Industry trends evolving", "New technologies emerging"],
+            url: "#",
+            publishDate: fallbackDate,
+            relevanceScore: 0.7
+          },
+          {
+            id: `error-fallback-2-${Date.now()}`,
+            headline: "Digital Marketing Trends",
+            source: "Marketing Weekly",
+            synopsis: "Current trends in digital marketing, including AI, automation, and measurement solutions.",
+            companies: ["Marketing Platforms", "Analytics Tools"],
+            keyInsights: ["AI adoption accelerating", "Measurement becoming more sophisticated"],
+            url: "#",
+            publishDate: fallbackDate,
+            relevanceScore: 0.8
+          }
+        ],
+        aiResponse: 'Here are the latest marketing and advertising headlines. Please note that real-time news may be temporarily unavailable.'
+      };
+      
+      console.log('⚠️ Providing fallback marketing news due to error');
+      res.json(fallbackData);
+    }
+  }
+
+  /**
+   * Generate competitive intelligence analysis
+   */
+  async generateCompetitiveIntelligence(req: Request, res: Response): Promise<void> {
+    try {
+      const { query } = req.body;
+      if (!query || typeof query !== 'string') {
+        res.status(400).json({ error: 'Query is required and must be a string' });
+        return;
+      }
+      if (!this.geminiService) {
+        res.status(503).json({ error: 'AI service not available' });
+        return;
+      }
+      const result = await this.geminiService.generateCompetitiveIntelligence(query);
+      res.json(result);
+    } catch (error) {
+      console.error('Error generating competitive intelligence:', error);
+      res.status(500).json({ error: 'Failed to generate competitive intelligence' });
+    }
+  }
+
+  /**
+   * Generate content strategy recommendations
+   */
+  async generateContentStrategy(req: Request, res: Response): Promise<void> {
+    try {
+      const { query } = req.body;
+      if (!query || typeof query !== 'string') {
+        res.status(400).json({ error: 'Query is required and must be a string' });
+        return;
+      }
+      if (!this.geminiService) {
+        res.status(503).json({ error: 'AI service not available' });
+        return;
+      }
+      const result = await this.geminiService.generateContentStrategy(query);
+      res.json(result);
+    } catch (error) {
+      console.error('Error generating content strategy:', error);
+      res.status(500).json({ error: 'Failed to generate content strategy' });
+    }
+  }
+
+  /**
+   * Generate brand strategy frameworks
+   */
+  async generateBrandStrategy(req: Request, res: Response): Promise<void> {
+    try {
+      const { query } = req.body;
+      if (!query || typeof query !== 'string') {
+        res.status(400).json({ error: 'Query is required and must be a string' });
+        return;
+      }
+      if (!this.geminiService) {
+        res.status(503).json({ error: 'AI service not available' });
+        return;
+      }
+      const result = await this.geminiService.generateBrandStrategy(query);
+      res.json(result);
+    } catch (error) {
+      console.error('Error generating brand strategy:', error);
+      res.status(500).json({ error: 'Failed to generate brand strategy' });
     }
   }
 

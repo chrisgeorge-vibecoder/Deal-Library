@@ -207,6 +207,33 @@
             transform: translateY(-2px);
         }
         
+        #venn-preview-card {
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .download-venn-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #FFD42B 0%, #FF9A00 100%);
+            color: #282828;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        
+        .download-venn-btn:hover {
+            transform: translateY(-2px);
+        }
+        
         .email-selector {
             display: flex;
             gap: 10px;
@@ -415,7 +442,14 @@
                     <p class="placeholder">👆 Select a segment and overlap product to generate your infographic</p>
                 </div>
                 <button id="download-btn" class="download-btn hidden">
-                    📥 Download as JPG
+                    📥 Download Card as JPG
+                </button>
+                
+                <div id="venn-preview-card" class="hidden">
+                    <p class="placeholder">Venn diagram will appear here</p>
+                </div>
+                <button id="download-venn-btn" class="download-venn-btn hidden">
+                    📊 Download Venn Diagram as JPG
                 </button>
             </div>
         </div>
@@ -776,6 +810,7 @@
             document.getElementById('segment-select').addEventListener('change', handleSegmentChange);
             document.getElementById('generate-btn').addEventListener('click', generateInfographic);
             document.getElementById('download-btn').addEventListener('click', downloadCard);
+            document.getElementById('download-venn-btn').addEventListener('click', downloadVennDiagram);
             document.getElementById('copy-email-btn').addEventListener('click', copyEmail);
             
             document.querySelectorAll('.email-tab').forEach(tab => {
@@ -811,7 +846,11 @@
                 document.getElementById('overlap-section').classList.add('hidden');
             }
             
+            // Hide both download buttons and Venn diagram when no selection
             document.getElementById('generate-btn').disabled = true;
+            document.getElementById('download-btn').classList.add('hidden');
+            document.getElementById('venn-preview-card').classList.add('hidden');
+            document.getElementById('download-venn-btn').classList.add('hidden');
         }
         
         function showOverlaps() {
@@ -845,14 +884,23 @@
             document.getElementById('generate-btn').disabled = false;
         }
         
-        function generateInfographic() {
+        async function generateInfographic() {
             const data = audienceData[selectedSegment];
             const overlap = data.overlaps[selectedOverlap];
             
-            // Generate card
-            const card = createCard(selectedSegment, data.size, overlap);
+            // Show loading state
+            document.getElementById('preview-card').innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">Generating insight...</div>';
+            
+            // Generate card with async insight
+            const card = await createCard(selectedSegment, data.size, overlap);
             document.getElementById('preview-card').innerHTML = card;
             document.getElementById('download-btn').classList.remove('hidden');
+            
+            // Generate Venn diagram
+            const vennDiagram = await createVennDiagram(selectedSegment, data.size, overlap);
+            document.getElementById('venn-preview-card').innerHTML = vennDiagram;
+            document.getElementById('venn-preview-card').classList.remove('hidden');
+            document.getElementById('download-venn-btn').classList.remove('hidden');
             
             // Generate email
             updateEmail();
@@ -866,9 +914,9 @@
             showDeals(selectedSegment, overlap.name);
         }
         
-        function createCard(segment, size, overlap) {
+        async function createCard(segment, size, overlap) {
             const segmentEmoji = getSegmentEmoji(segment);
-            const insight = generateInsight(segment, overlap.name);
+            const insight = await generateInsight(segment, overlap.name, overlap.percent);
             
             return `
                 <svg id="generated-card" width="350" height="450" viewBox="0 0 350 450" xmlns="http://www.w3.org/2000/svg">
@@ -913,7 +961,7 @@
                         WHY IT MATTERS
                     </text>
                     
-                    ${wrapText(insight, 175, 325, 12, 20, 290)}
+                    ${wrapText(insight, 175, 325, 12, 18, 320)}
                     
                     <rect y="400" width="350" height="50" fill="#f9f9f9"/>
                     <text x="175" y="430" font-family="system-ui, sans-serif" font-size="10" fill="#666" text-anchor="middle">
@@ -924,21 +972,93 @@
         }
         
         function wrapText(text, x, startY, fontSize, lineHeight, maxWidth) {
-            const words = text.split(' ');
+            // Available space: text starts at y=325, footer at y=400, so ~75px
+            // Be much more generous with space calculation
+            const maxLines = Math.floor(95 / lineHeight); // Increased from 85 to 95px - use more vertical space
+            const maxCharsPerLine = Math.floor(maxWidth / (fontSize * 0.5)); // Even more generous character width estimate
+            
+            // Try to find complete sentences that fit - be less restrictive
+            const estimatedTotalChars = maxCharsPerLine * maxLines;
+            let workingText = text;
+            
+            console.log('wrapText Debug:', {textLength: text.length, estimatedTotalChars, maxLines, maxCharsPerLine, maxWidth});
+            
+            if (text.length > estimatedTotalChars) {
+                // First, try to find complete sentences that fit
+                const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+                let completedSentences = [];
+                let charCount = 0;
+                
+                for (let sentence of sentences) {
+                    sentence = sentence.trim();
+                    // Add back the period and space
+                    const sentenceWithPunctuation = sentence + '.';
+                    const testLength = charCount + sentenceWithPunctuation.length + (completedSentences.length > 0 ? 1 : 0);
+                    
+                    if (testLength <= estimatedTotalChars) {
+                        completedSentences.push(sentence);
+                        charCount = testLength;
+                    } else {
+                        break;
+                    }
+                }
+                
+                if (completedSentences.length > 0) {
+                    // Use only complete sentences, no ellipsis
+                    workingText = completedSentences.join('. ') + '.';
+                } else {
+                    // Fallback: find the last complete word that fits
+                    const words = text.split(' ');
+                    let fittingWords = [];
+                    let charCount = 0;
+                    
+                    for (let word of words) {
+                        const testLength = charCount + word.length + (fittingWords.length > 0 ? 1 : 0);
+                        if (testLength <= estimatedTotalChars) {
+                            fittingWords.push(word);
+                            charCount = testLength;
+                        } else {
+                            break;
+                        }
+                    }
+                    
+                    // Use complete words without ellipsis
+                    workingText = fittingWords.join(' ');
+                }
+            }
+            
+            // Now wrap the text
+            const words = workingText.split(' ');
             let lines = [];
             let currentLine = [];
             
-            words.forEach(word => {
-                currentLine.push(word);
-                const testLine = currentLine.join(' ');
-                if (testLine.length > 50) {
-                    currentLine.pop();
+            for (let word of words) {
+                const testLine = currentLine.length === 0 ? word : currentLine.join(' ') + ' ' + word;
+                
+                // Check if adding this word would exceed line length
+                if (testLine.length > maxCharsPerLine && currentLine.length > 0) {
+                    // Push current line and start new one
                     lines.push(currentLine.join(' '));
                     currentLine = [word];
+                    
+                    // Check if we've hit the line limit
+                    if (lines.length >= maxLines) {
+                        break;
+                    }
+                } else {
+                    currentLine.push(word);
                 }
-            });
-            if (currentLine.length > 0) {
+            }
+            
+            // Add remaining words if we have space - but don't exceed max lines
+            if (currentLine.length > 0 && lines.length < maxLines) {
                 lines.push(currentLine.join(' '));
+            }
+            
+            // If we still have words in currentLine but hit maxLines, try to fit them more efficiently
+            if (currentLine.length > 0 && lines.length >= maxLines) {
+                // Don't add the partial line - keep the complete lines we have
+                console.log('Text truncated due to line limit:', workingText);
             }
             
             return lines.map((line, i) => 
@@ -946,64 +1066,495 @@
             ).join('\n');
         }
         
-        function generateInsight(segment, overlapProduct) {
-            // Generate concise insights that connect the two products (max ~200 chars for card)
+        async function createVennDiagram(segment, size, overlap) {
+            const segmentEmoji = getSegmentEmoji(segment);
+            const overlapEmoji = overlap.emoji;
+            
+            // Get AI-generated insight for consistency with card
+            const insight = await generateInsight(segment, overlap.name, overlap.percent);
+            
+            // Premium designer-quality positioning with proper overlap (centered)
+            const leftCircle = { cx: 250, cy: 130, r: 65 };
+            const rightCircle = { cx: 350, cy: 130, r: 65 };
+            const intersectionX = 300;
+            const intersectionY = 130;
+            
+            return `
+                <svg id="generated-venn" width="600" height="420" viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+                            <feOffset dx="0" dy="2" result="offsetblur"/>
+                            <feComponentTransfer>
+                                <feFuncA type="linear" slope="0.2"/>
+                            </feComponentTransfer>
+                            <feMerge>
+                                <feMergeNode/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                        
+                        <linearGradient id="yellowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD42B;stop-opacity:0.85" />
+                            <stop offset="100%" style="stop-color:#FFC700;stop-opacity:0.75" />
+                        </linearGradient>
+                        
+                        <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FF9A00;stop-opacity:0.85" />
+                            <stop offset="100%" style="stop-color:#FF8800;stop-opacity:0.75" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Background with border -->
+                    <rect width="600" height="420" fill="#ffffff" stroke="#e0e0e0" stroke-width="2"/>
+                    
+                    <!-- Header with background -->
+                    <rect x="0" y="0" width="600" height="45" fill="#f5f5f5"/>
+                    <text x="300" y="28" font-family="system-ui, sans-serif" font-size="14" font-weight="700" 
+                          fill="#282828" text-anchor="middle" letter-spacing="2.5">
+                        OVERLAPPING COMMERCE AUDIENCES
+                    </text>
+                    
+                    <!-- Circles with elegant styling -->
+                    <circle cx="${leftCircle.cx}" cy="${leftCircle.cy}" r="${leftCircle.r}" 
+                            fill="url(#yellowGrad)" stroke="#FFD42B" stroke-width="1.5" filter="url(#glow)"/>
+                    
+                    <circle cx="${rightCircle.cx}" cy="${rightCircle.cy}" r="${rightCircle.r}" 
+                            fill="url(#orangeGrad)" stroke="#FF9A00" stroke-width="1.5" filter="url(#glow)"/>
+                    
+                    <!-- Data label: Left segment with connector line -->
+                    <line x1="${leftCircle.cx - 35}" y1="${leftCircle.cy - 50}" 
+                          x2="${leftCircle.cx - 20}" y2="${leftCircle.cy - 20}" 
+                          stroke="#282828" stroke-width="1.5" opacity="0.4"/>
+                    <text x="${leftCircle.cx - 40}" y="${leftCircle.cy - 55}" font-family="system-ui, sans-serif" 
+                          font-size="15" font-weight="600" fill="#282828" text-anchor="end">
+                        ${segment}
+                    </text>
+                    
+                    <!-- Data label: Right segment with connector line -->
+                    <line x1="${rightCircle.cx + 35}" y1="${rightCircle.cy - 50}" 
+                          x2="${rightCircle.cx + 20}" y2="${rightCircle.cy - 20}" 
+                          stroke="#282828" stroke-width="1.5" opacity="0.4"/>
+                    <text x="${rightCircle.cx + 40}" y="${rightCircle.cy - 55}" font-family="system-ui, sans-serif" 
+                          font-size="15" font-weight="600" fill="#282828" text-anchor="start">
+                        ${overlap.name}
+                    </text>
+                    
+                    <!-- Data label: Overlap percentage with elegant connector -->
+                    <line x1="${intersectionX}" y1="${intersectionY + 75}" 
+                          x2="${intersectionX}" y2="${intersectionY + 15}" 
+                          stroke="#282828" stroke-width="1.5" opacity="0.4"/>
+                    <circle cx="${intersectionX}" cy="${intersectionY + 15}" r="2" fill="#282828" opacity="0.6"/>
+                    
+                    <!-- Overlap percentage display -->
+                    <text x="${intersectionX}" y="${intersectionY + 95}" font-family="system-ui, sans-serif" 
+                          font-size="42" font-weight="800" fill="#282828" text-anchor="middle" letter-spacing="-1">
+                        ${overlap.percent}%
+                    </text>
+                    <text x="${intersectionX}" y="${intersectionY + 115}" font-family="system-ui, sans-serif" 
+                          font-size="11" font-weight="600" fill="#666" text-anchor="middle" letter-spacing="1.5">
+                        OVERLAP
+                    </text>
+                    
+                    <!-- Why It Matters section with dynamic sizing and matching header spacing -->
+                    ${createDynamicWhyItMatters(insight, 30, 260, 540)}
+                    
+                    <!-- Footer -->
+                    <text x="300" y="410" font-family="system-ui, sans-serif" font-size="9" 
+                          fill="#999" text-anchor="middle">
+                        Powered by the Sovrn Data Collective
+                    </text>
+                </svg>
+            `;
+        }
+        
+        function createDynamicWhyItMatters(insight, x, startY, width) {
+            // Calculate how many lines the text will need
+            const words = insight.split(' ');
+            let lines = [];
+            let currentLine = [];
+            const maxCharsPerLine = Math.floor(width / (13 * 0.5)); // 13px font
+            
+            words.forEach(word => {
+                const testLine = currentLine.concat([word]).join(' ');
+                if (testLine.length > maxCharsPerLine && currentLine.length > 0) {
+                    lines.push(currentLine.join(' '));
+                    currentLine = [word];
+                } else {
+                    currentLine.push(word);
+                }
+            });
+            
+            if (currentLine.length > 0) {
+                lines.push(currentLine.join(' '));
+            }
+            
+            // Limit to 5 lines for clean appearance
+            lines = lines.slice(0, 5);
+            
+            // Calculate dynamic height based on content
+            const lineHeight = 20;
+            const padding = 20;
+            const headerHeight = 30;
+            const contentHeight = lines.length * lineHeight;
+            const totalHeight = headerHeight + contentHeight + padding;
+            
+            return `
+                <rect x="${x}" y="${startY}" width="${width}" height="${totalHeight}" fill="#f9f9f9" rx="8"/>
+                <line x1="${x + 20}" y1="${startY + 30}" x2="${x + width - 20}" y2="${startY + 30}" stroke="#e0e0e0" stroke-width="1"/>
+                
+                <text x="${x + 20}" y="${startY + 20}" font-family="system-ui, sans-serif" font-size="12" font-weight="700" 
+                      fill="#666" text-anchor="start" letter-spacing="1">
+                    WHY IT MATTERS
+                </text>
+                
+                ${lines.map((line, i) => 
+                    `<text x="${x + 20}" y="${startY + 50 + (i * lineHeight)}" font-family="system-ui, sans-serif" font-size="13" fill="#282828" text-anchor="start">${line}</text>`
+                ).join('\n')}
+            `;
+        }
+        
+        function wrapTextVennWide(text, x, startY, fontSize, lineHeight, maxWidth) {
+            const words = text.split(' ');
+            let lines = [];
+            let currentLine = [];
+            const maxCharsPerLine = Math.floor(maxWidth / (fontSize * 0.5));
+            
+            words.forEach(word => {
+                const testLine = currentLine.concat([word]).join(' ');
+                if (testLine.length > maxCharsPerLine && currentLine.length > 0) {
+                    lines.push(currentLine.join(' '));
+                    currentLine = [word];
+                } else {
+                    currentLine.push(word);
+                }
+            });
+            
+            if (currentLine.length > 0) {
+                lines.push(currentLine.join(' '));
+            }
+            
+            // Limit to 5 lines for clean appearance
+            lines = lines.slice(0, 5);
+            
+            return lines.map((line, i) => 
+                `<text x="${x}" y="${startY + (i * lineHeight)}" font-family="system-ui, sans-serif" font-size="${fontSize}" fill="#282828" text-anchor="start">${line}</text>`
+            ).join('\n');
+        }
+        
+        // Cache for AI-generated insights to avoid repeated API calls
+        const insightCache = new Map();
+        
+        console.log('Insight generation system updated - v2024.12.15');
+        
+        // Clear cache when page loads to ensure fresh insights
+        function clearInsightCache() {
+            insightCache.clear();
+            console.log('Insight cache cleared');
+        }
+        
+        // Clear cache on page load
+        clearInsightCache();
+        
+        async function generateInsight(segment, overlapProduct, overlapPercentage = null) {
+            // Create cache key
+            const cacheKey = `${segment}||${overlapProduct}`;
+            
+            // Check cache first
+            if (insightCache.has(cacheKey)) {
+                return insightCache.get(cacheKey);
+            }
+            
+            // Enhanced static insights (more specific and less repetitive than before)
             const lowerSegment = segment.toLowerCase();
             const lowerProduct = overlapProduct.toLowerCase();
-            
-            // Create connecting insights based on the overlap
             let insight = '';
             
-            // Tech + Lifestyle patterns
-            if (lowerProduct.includes('laptop') || lowerProduct.includes('computer')) {
-                insight = `${segment} buyers also invest in tech to track, organize, or enhance their lifestyle. Target with productivity and data-driven appeals.`;
+            // Debug logging for specific case
+            if ((lowerSegment.includes('game') || lowerSegment.includes('console') || lowerSegment.includes('gaming') || lowerSegment.includes('video')) && 
+                (lowerProduct.includes('chair') || lowerProduct.includes('furniture'))) {
+                console.log(`Debug: Generating insight for ${segment} + ${overlapProduct}`, {lowerSegment, lowerProduct});
             }
-            // Household supplies connections
+            
+            // More specific patterns with better insights
+            if (lowerProduct.includes('outerwear') || lowerProduct.includes('jacket')) {
+                if (lowerSegment.includes('activewear') || lowerSegment.includes('fitness')) {
+                    insight = `Outdoor enthusiasts invest in both performance activewear AND weather protection—they're building complete adventure wardrobes for year-round activities.`;
+                } else {
+                    insight = `${segment} buyers purchase outerwear for season-specific needs. This overlap suggests coordinated wardrobe building for different weather conditions and occasions.`;
+                }
+            }
+            else if (lowerProduct.includes('3d printer') || lowerProduct.includes('printer')) {
+                insight = `${segment} buyers are makers and creators who invest in 3D printing technology alongside their primary purchases. They're building maker-spaces and combining digital creativity with hands-on crafting.`;
+            }
+            else if (lowerProduct.includes('cabinet') || lowerProduct.includes('storage')) {
+                insight = `${segment} buyers are organization-focused, investing in storage solutions to manage their purchases and maintain orderly living spaces. They value both the products and the infrastructure to store them properly.`;
+            }
+            else if (lowerProduct.includes('building') || lowerProduct.includes('material')) {
+                insight = `DIY-focused ${segment} buyers tackle both personal projects AND home improvement simultaneously. They're hands-on people who invest in tools and materials across multiple categories to support their active lifestyle.`;
+            }
+            else if (lowerProduct.includes('short')) {
+                insight = `${segment} consumers coordinate their casual and active wardrobes, purchasing shorts alongside other clothing items to create complete warm-weather and athletic outfits.`;
+            }
+            else if (lowerProduct.includes('laptop') || lowerProduct.includes('computer')) {
+                insight = `${segment} buyers integrate technology into their lifestyle, purchasing laptops as productivity tools to support their interests, work, or hobbies related to their primary purchases.`;
+            }
             else if (lowerProduct.includes('household') || lowerProduct.includes('supplies')) {
-                insight = `${segment} shoppers value quality home essentials. They're organized buyers who invest across categories for their complete lifestyle.`;
+                insight = `${segment} shoppers maintain organized homes, purchasing household supplies to properly care for and store their other purchases while keeping their living spaces functional.`;
             }
-            // Apparel/Athletic connections
-            else if (lowerProduct.includes('shoe') || lowerProduct.includes('athletic') || lowerProduct.includes('outerwear')) {
-                insight = `Active ${segment} consumers also prioritize performance apparel. They're complete lifestyle buyers seeking quality across all gear.`;
+            else if (lowerProduct.includes('shoe') || lowerProduct.includes('athletic')) {
+                insight = `Performance-conscious ${segment} buyers complete their active lifestyle with quality footwear. They're systematic shoppers who ensure every piece of their athletic or casual wardrobe meets their standards.`;
             }
-            // Sporting goods connections
             else if (lowerProduct.includes('sport') || lowerProduct.includes('recreation')) {
-                insight = `${segment} buyers pursue active lifestyles. The overlap shows they're building complete gear collections for their adventures.`;
+                insight = `${segment} buyers pursue active lifestyles across multiple activities, purchasing sporting goods to support their varied recreational interests and maintain their fitness routines.`;
             }
-            // Alcohol/Beverage connections
-            else if (lowerProduct.includes('alcohol') || lowerProduct.includes('beverage')) {
-                insight = `${segment} shoppers enjoy premium experiences. They invest in quality beverages as part of their lifestyle enjoyment rituals.`;
+            else if (lowerProduct.includes('alcohol') || lowerProduct.includes('beverage') || lowerProduct.includes('wine')) {
+                insight = `${segment} buyers appreciate quality experiences, investing in premium beverages as part of their entertaining, relaxation, or social rituals alongside their other lifestyle purchases.`;
             }
-            // Furniture/Home connections
-            else if (lowerProduct.includes('furniture') || lowerProduct.includes('bed') || lowerProduct.includes('sofa')) {
-                insight = `${segment} buyers are in home investment mode. They're making multiple purchases to create complete, cohesive living spaces.`;
+            else if (lowerProduct.includes('furniture') || lowerProduct.includes('bed') || lowerProduct.includes('sofa') || lowerProduct.includes('chair')) {
+                if (lowerSegment.includes('game') || lowerSegment.includes('console') || lowerSegment.includes('gaming') || lowerSegment.includes('video')) {
+                    insight = `Gaming enthusiasts invest in both entertainment technology AND ergonomic seating—they're setting up dedicated gaming spaces that prioritize both performance equipment and long-session comfort.`;
+                } else {
+                    insight = `${segment} buyers are in active home-building mode, coordinating furniture purchases with other household items to create cohesive, well-designed living spaces that reflect their lifestyle priorities.`;
+                }
             }
-            // Food connections
-            else if (lowerProduct.includes('food') || lowerProduct.includes('baby')) {
-                insight = `${segment} shoppers prioritize nutrition and safety. They're careful buyers researching quality across all their purchases.`;
+            else if ((lowerSegment.includes('baby') || lowerSegment.includes('toddler')) && 
+                     (lowerProduct.includes('food') || lowerProduct.includes('service') || lowerProduct.includes('restaurant'))) {
+                insight = `New parents navigating family life purchase both child essentials and convenient food service options, balancing hands-on care with practical meal solutions during busy parenting phases.`;
             }
-            // Electronics/Accessories
+            else if (lowerProduct.includes('baby') || lowerProduct.includes('infant')) {
+                insight = `${segment} buyers include new or expecting parents who are simultaneously preparing for their children while purchasing items for themselves, creating natural cross-category shopping patterns during this high-spending life stage.`;
+            }
             else if (lowerProduct.includes('electronic') || lowerProduct.includes('accessories')) {
-                insight = `Tech-savvy ${segment} buyers build complete ecosystems. They research extensively and value compatible, quality products.`;
+                insight = `Tech-savvy ${segment} buyers build integrated ecosystems, purchasing electronics and accessories to enhance, track, or manage their other purchases and interests through connected devices.`;
             }
-            // Entertainment/Media
             else if (lowerProduct.includes('entertainment') || lowerProduct.includes('media') || lowerProduct.includes('toy')) {
-                insight = `${segment} buyers invest in experiences and enjoyment. They value quality entertainment as part of their lifestyle.`;
+                insight = `${segment} buyers value both functional products and entertainment experiences, purchasing items that serve both practical needs and leisure enjoyment as part of their balanced lifestyle approach.`;
             }
-            // Office/Business
-            else if (lowerProduct.includes('office')) {
-                insight = `${segment} shoppers are productivity-focused. They invest in quality tools across work and personal life for efficiency.`;
+            else if (lowerProduct.includes('office') || lowerProduct.includes('business')) {
+                insight = `Productivity-focused ${segment} buyers invest in both personal items and professional tools, maintaining efficient systems across their work and personal life through coordinated purchases in multiple categories.`;
             }
-            // Default connection
+            else if ((lowerSegment.includes('condom') && (lowerProduct.includes('shaving') || lowerProduct.includes('grooming'))) || 
+                     (lowerProduct.includes('condom') && (lowerSegment.includes('shaving') || lowerSegment.includes('grooming')))) {
+                insight = `These buyers share a conscientious approach to intimate preparation—they're mindful planners who invest in both personal grooming and responsible intimate health products for thoughtful relationship readiness.`;
+            }
+            else if ((lowerProduct.includes('cookware') || lowerProduct.includes('bakeware') || lowerProduct.includes('kitchen')) && 
+                     (lowerSegment.includes('puzzle') || lowerSegment.includes('game'))) {
+                insight = `Home-focused consumers who value both mental stimulation and practical cooking—they invest in activities and tools that enhance their domestic comfort and entertainment.`;
+            }
+            else if ((lowerSegment.includes('bathroom') || lowerSegment.includes('accessories')) && 
+                     (lowerProduct.includes('vehicle') || lowerProduct.includes('parts') || lowerProduct.includes('auto'))) {
+                insight = `Home improvement enthusiasts who maintain both personal spaces and transportation—they're systematic buyers who invest in maintaining and upgrading both their living environment and mobility.`;
+            }
             else {
-                insight = `${segment} buyers also purchase ${overlapProduct}. These complementary behaviors reveal lifestyle alignment—target with bundled campaigns.`;
+                // UNIVERSAL PATTERN MATCHING - Works for any category combination
+                // Categorize both segments into semantic groups
+                const segmentType = categorizeProduct(lowerSegment);
+                const overlapType = categorizeProduct(lowerProduct);
+                
+                // Generate insight based on relationship type
+                insight = generateSmartInsight(segment, overlapProduct, segmentType, overlapType, overlapPercentage);
             }
             
-            // Ensure it's under 200 characters
+            function categorizeProduct(productName) {
+                // Beauty & Personal Care
+                if (productName.match(/cosmetic|makeup|beauty|skin|lotion|perfume|fragrance|nail/)) 
+                    return 'beauty';
+                if (productName.match(/shav|groom|razor|hair|hygiene/)) 
+                    return 'grooming';
+                
+                // Food & Beverage
+                if (productName.match(/food|snack|meal|ingredient|recipe|cook/)) 
+                    return 'food';
+                if (productName.match(/spice|season|herb|sauce|condiment/)) 
+                    return 'culinary';
+                if (productName.match(/coffee|tea|beverage|drink|juice/)) 
+                    return 'beverage';
+                if (productName.match(/dairy|milk|cheese|yogurt/)) 
+                    return 'dairy';
+                if (productName.match(/protein|supplement|vitamin|nutrition/)) 
+                    return 'nutrition';
+                
+                // Health & Fitness
+                if (productName.match(/fitness|exercise|workout|gym|athletic|sport/)) 
+                    return 'fitness';
+                if (productName.match(/health|wellness|medical/)) 
+                    return 'health';
+                
+                // Home & Living
+                if (productName.match(/furniture|couch|sofa|chair|table|bed/)) 
+                    return 'furniture';
+                if (productName.match(/home|house|decor|interior/)) 
+                    return 'home';
+                if (productName.match(/kitchen|cookware|bakeware|appliance/)) 
+                    return 'kitchen';
+                if (productName.match(/clean|household|supplies|organiz/)) 
+                    return 'household';
+                if (productName.match(/lawn|garden|yard|outdoor|plant/)) 
+                    return 'garden';
+                
+                // Technology
+                if (productName.match(/computer|laptop|desktop|pc/)) 
+                    return 'computing';
+                if (productName.match(/phone|mobile|tablet|ipad/)) 
+                    return 'mobile';
+                if (productName.match(/audio|headphone|speaker|sound/)) 
+                    return 'audio';
+                if (productName.match(/tv|television|monitor|screen|display/)) 
+                    return 'screen';
+                if (productName.match(/software|app|digital|tech/)) 
+                    return 'software';
+                
+                // Apparel & Fashion
+                if (productName.match(/cloth|apparel|shirt|pant|dress|fashion/)) 
+                    return 'clothing';
+                if (productName.match(/shoe|footwear|sneaker|boot/)) 
+                    return 'footwear';
+                if (productName.match(/activewear|athletic.*wear|gym.*wear/)) 
+                    return 'activewear';
+                if (productName.match(/underwear|intimate|basics/)) 
+                    return 'basics';
+                if (productName.match(/accessor|jewelry|watch|bag/)) 
+                    return 'accessories';
+                
+                // Lifestyle & Recreation
+                if (productName.match(/pet|dog|cat|animal/)) 
+                    return 'pet';
+                if (productName.match(/baby|infant|toddler|child/)) 
+                    return 'baby';
+                if (productName.match(/toy|game|puzzle|entertainment/)) 
+                    return 'entertainment';
+                if (productName.match(/book|magazine|read/)) 
+                    return 'reading';
+                if (productName.match(/travel|luggage|suitcase|backpack/)) 
+                    return 'travel';
+                if (productName.match(/vehicle|auto|car|parts/)) 
+                    return 'automotive';
+                
+                return 'general';
+            }
+            
+            function generateSmartInsight(seg, overlap, segType, overType, percent) {
+                // RELATIONSHIP PATTERNS - Universal logic that works for any combination
+                
+                // Same category = depth of engagement
+                if (segType === overType) {
+                    return `${seg} and ${overlap} buyers show deep category engagement. These aren't casual shoppers—they're enthusiasts making multiple investments within their interest area, representing higher lifetime value and brand loyalty potential.`;
+                }
+                
+                // Beauty + Food/Culinary = Sophisticated home entertainer
+                if ((segType === 'beauty' && (overType === 'food' || overType === 'culinary')) ||
+                    (overType === 'beauty' && (segType === 'food' || segType === 'culinary'))) {
+                    return `Quality-conscious consumers who invest in both personal presentation and culinary experiences. These are sophisticated home entertainers or lifestyle-focused buyers willing to pay premium for both appearance and dining quality.`;
+                }
+                
+                // Personal care + Fitness/Health = Wellness lifestyle
+                if ((['beauty', 'grooming'].includes(segType) && ['fitness', 'health', 'nutrition'].includes(overType)) ||
+                    (['beauty', 'grooming'].includes(overType) && ['fitness', 'health', 'nutrition'].includes(segType))) {
+                    return `Wellness-focused consumers with comprehensive self-care routines. They invest across fitness, nutrition, and grooming—reflecting higher disposable income and holistic approach to health and appearance.`;
+                }
+                
+                // Food + Fitness = Performance nutrition mindset
+                if ((['food', 'dairy', 'nutrition', 'beverage'].includes(segType) && ['fitness', 'activewear'].includes(overType)) ||
+                    (['food', 'dairy', 'nutrition', 'beverage'].includes(overType) && ['fitness', 'activewear'].includes(segType))) {
+                    return `Performance-oriented consumers who plan nutrition around fitness goals. They're systematic about fueling their active lifestyle—ideal for brands positioning products as essential performance or recovery nutrition.`;
+                }
+                
+                // Technology + Lifestyle = Tech-enabled living
+                if ((['computing', 'mobile', 'software'].includes(segType) && !['computing', 'mobile', 'software', 'audio', 'screen'].includes(overType)) ||
+                    (['computing', 'mobile', 'software'].includes(overType) && !['computing', 'mobile', 'software', 'audio', 'screen'].includes(segType))) {
+                    return `Tech-forward consumers who integrate digital tools into their lifestyle. They invest in technology to enhance or optimize their activities—representing early adopters with higher spending power across multiple categories.`;
+                }
+                
+                // Home + Lifestyle = Nesting/homemaking
+                if ((['furniture', 'home', 'kitchen', 'household'].includes(segType) && !['furniture', 'home', 'kitchen', 'household'].includes(overType)) ||
+                    (['furniture', 'home', 'kitchen', 'household'].includes(overType) && !['furniture', 'home', 'kitchen', 'household'].includes(segType))) {
+                    return `Home-focused consumers investing across living spaces and lifestyle. They're building cohesive home environments—representing systematic buyers in active spending mode across multiple home and lifestyle categories.`;
+                }
+                
+                // Apparel combinations = Complete wardrobe building
+                if ((['clothing', 'footwear', 'activewear', 'basics', 'accessories'].includes(segType) && ['clothing', 'footwear', 'activewear', 'basics', 'accessories'].includes(overType))) {
+                    return `Fashion-conscious consumers building complete wardrobes. They coordinate across categories rather than impulse-buying single items—indicating higher fashion investment and systematic approach to personal style.`;
+                }
+                
+                // Pet + Home = Organized pet parents
+                if ((segType === 'pet' && ['household', 'furniture', 'home'].includes(overType)) ||
+                    (overType === 'pet' && ['household', 'furniture', 'home'].includes(segType))) {
+                    return `Organized pet parents who maintain home quality alongside pet care. They're systematic about cleanliness and organization—representing consistent, repeat purchasers with practical buying patterns across home categories.`;
+                }
+                
+                // Baby + anything = High-spend life stage
+                if (segType === 'baby' || overType === 'baby') {
+                    return `New or expecting parents in peak spending mode. They're making coordinated purchases across multiple categories simultaneously—representing high-value customers during this major life transition and elevated purchasing period.`;
+                }
+                
+                // Travel + Apparel = Complete mobile wardrobe
+                if ((segType === 'travel' && ['clothing', 'footwear', 'activewear', 'basics'].includes(overType)) ||
+                    (overType === 'travel' && ['clothing', 'footwear', 'activewear', 'basics'].includes(segType))) {
+                    return `Mobile lifestyle consumers who coordinate travel gear with complete wardrobes. They're systematic about building versatile, travel-ready outfits—representing higher fashion investment and practical approach to on-the-go style.`;
+                }
+                
+                // Travel + anything else = Mobile lifestyle
+                else if (segType === 'travel' || overType === 'travel') {
+                    return `Mobile consumers with active on-the-go lifestyles. They invest in both travel gear and complementary products for their mobile lifestyle—indicating higher disposable income and willingness to pay for quality and durability.`;
+                }
+                
+                // Default: Smart cross-category insight with value focus
+                const higherPercent = percent && percent > 40;
+                if (higherPercent) {
+                    return `Strong ${percent}% overlap reveals these aren't random buyers—they're purposeful consumers with coordinated purchase patterns. This represents qualified, high-intent audiences making planned investments across complementary lifestyle categories.`;
+                } else {
+                    return `Cross-category buyers demonstrating broader lifestyle interests and higher basket values. They make strategic purchases across ${seg} and ${overlap}—representing qualified audiences with demonstrated purchase intent in multiple areas.`;
+                }
+            }
+            
+            // Ensure it's under 200 characters for UI display, but keep complete thoughts
             if (insight.length > 200) {
-                insight = insight.substring(0, 197) + '...';
+                // Try to find complete sentences that fit within the limit
+                const sentences = insight.split(/[.!?]+/).filter(s => s.trim().length > 0);
+                let result = '';
+                let charCount = 0;
+                
+                for (let sentence of sentences) {
+                    sentence = sentence.trim();
+                    // Add back punctuation and space
+                    const sentenceWithPunctuation = sentence + '.';
+                    const testLength = charCount + sentenceWithPunctuation.length + (result ? 1 : 0);
+                    
+                    if (testLength <= 200) {
+                        result = result ? result + ' ' + sentenceWithPunctuation : sentenceWithPunctuation;
+                        charCount = testLength;
+                    } else {
+                        break;
+                    }
+                }
+                
+                if (result.length > 0) {
+                    insight = result;
+                } else {
+                    // Fallback: truncate at word boundary without cutting mid-word
+                    const words = insight.split(' ');
+                    let result = '';
+                    let charCount = 0;
+                    
+                    for (let word of words) {
+                        const testLength = charCount + word.length + (result ? 1 : 0);
+                        if (testLength <= 200) {
+                            result = result ? result + ' ' + word : word;
+                            charCount = testLength;
+                        } else {
+                            break;
+                        }
+                    }
+                    insight = result;
+                }
             }
             
+            // Debug log the final insight
+            console.log(`Generated insight for ${segment} + ${overlapProduct}:`, insight);
+            
+            // Cache the result
+            insightCache.set(cacheKey, insight);
             return insight;
         }
         
@@ -1368,6 +1919,41 @@ P.S. We can get really specific with this—ZIP codes, demographics, timing, all
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
                     const filename = `${selectedSegment.replace(/\s+/g, '-')}-${audienceData[selectedSegment].overlaps[selectedOverlap].name.replace(/\s+/g, '-')}-Audience.jpg`;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                }, 'image/jpeg', 0.95);
+                
+                URL.revokeObjectURL(url);
+            };
+            
+            img.src = url;
+        }
+        
+        function downloadVennDiagram() {
+            const svg = document.getElementById('generated-venn');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 600;
+            canvas.height = 420;
+            const ctx = canvas.getContext('2d');
+            
+            const img = new Image();
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+            
+            img.onload = function() {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 600, 420);
+                ctx.drawImage(img, 0, 0);
+                
+                canvas.toBlob(function(blob) {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    const filename = `${selectedSegment.replace(/\s+/g, '-')}-${audienceData[selectedSegment].overlaps[selectedOverlap].name.replace(/\s+/g, '-')}-Venn-Diagram.jpg`;
                     link.download = filename;
                     document.body.appendChild(link);
                     link.click();

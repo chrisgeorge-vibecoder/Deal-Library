@@ -1,12 +1,7 @@
 import { Plus, Sparkles, Users, ShoppingCart, BookOpen } from 'lucide-react';
 import SavedCards from './SavedCards';
 import Link from 'next/link';
-
-interface SavedCard {
-  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'research';
-  data: any;
-  savedAt: string;
-}
+import { SavedCard } from '@/types/deal';
 
 interface SidebarProps {
   isOpen: boolean;

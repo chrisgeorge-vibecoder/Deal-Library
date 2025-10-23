@@ -21,14 +21,6 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
   onUnsaveCard,
   isSaved
 }) => {
-  // Debug: Log the props to see what's being received
-  console.log('AudienceInsightsDetailModal props:', {
-    onSaveCard: !!onSaveCard,
-    onUnsaveCard: !!onUnsaveCard,
-    isSaved: !!isSaved,
-    insights: insights?.audienceName
-  });
-
   if (!isOpen || !insights) return null;
 
   return (

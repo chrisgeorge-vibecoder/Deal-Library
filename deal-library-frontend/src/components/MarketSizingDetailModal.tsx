@@ -13,19 +13,13 @@ interface MarketSizingDetailModalProps {
 }
 
 export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, onSaveCard, onUnsaveCard, isSaved }: MarketSizingDetailModalProps) {
-  console.log('📊 MarketSizingDetailModal render:', { isOpen, hasSizing: !!sizing, sizingName: sizing?.marketName });
-  
   if (!isOpen) {
-    console.log('📊 Modal not open, returning null');
     return null;
   }
   
   if (!sizing) {
-    console.log('⚠️ Modal is open but no sizing data provided!');
     return null;
   }
-  
-  console.log('✅ Rendering Market Sizing modal for:', sizing.marketName);
 
   return (
     <div 

@@ -817,11 +817,21 @@ export default function AudienceInsightsPage() {
                     <h3 className="text-sm font-semibold text-gray-700 mb-2">💡 Creative Hooks:</h3>
                     <div className="flex flex-wrap gap-2">
                       {report.strategicInsights.messagingRecommendations.slice(0, 3).map((msg: any, index: number) => {
-                        const cleanMsg = typeof msg === 'string' ? msg.replace(/\*\*/g, '').split(':')[0].substring(0, 80) : String(msg).substring(0, 80);
+                        // Handle both object format (new) and string format (legacy)
+                        let cleanMsg = '';
+                        if (typeof msg === 'object' && msg !== null) {
+                          // New format: extract valueProposition and clean markdown
+                          cleanMsg = (msg.valueProposition || '').replace(/\*\*/g, '').substring(0, 80);
+                        } else if (typeof msg === 'string') {
+                          // Legacy format: clean markdown and truncate
+                          cleanMsg = msg.replace(/\*\*/g, '').split(':')[0].substring(0, 80);
+                        }
+                        
                         return (
                           <span
                             key={index}
                             className="px-3 py-1.5 bg-white border border-purple-300 text-purple-800 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors"
+                            title={typeof msg === 'object' && msg.emotionalBenefit ? msg.emotionalBenefit : cleanMsg}
                           >
                             {cleanMsg}
                           </span>
@@ -1330,12 +1340,14 @@ export default function AudienceInsightsPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {report.behavioralOverlap.map((overlap, index) => (
-                  <div key={index} className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-6 border border-orange-200 hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between mb-3">
+                  <div key={index} className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-6 border border-orange-200 hover:shadow-md transition-shadow flex flex-col">
+                    <div className="flex items-center justify-between mb-3 flex-shrink-0">
                       <h4 className="font-semibold text-gray-900 text-lg">{overlap.segment}</h4>
-                      <span className="text-brand-orange font-bold text-xl">{Math.round(overlap.overlapPercentage)}%</span>
+                      <span className="text-brand-orange font-bold text-xl ml-2">{Math.round(overlap.overlapPercentage)}%</span>
                     </div>
-                    <p className="text-sm text-gray-700 leading-relaxed">{overlap.insight}</p>
+                    <div className="flex-1 overflow-hidden">
+                      <p className="text-sm text-gray-700 leading-relaxed break-words hyphens-auto">{overlap.insight}</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1379,7 +1391,7 @@ export default function AudienceInsightsPage() {
                         {msgObj.valueProposition && (
                           <div className="mb-3">
                             <h4 className="font-semibold text-purple-900 text-base mb-1">Value Proposition</h4>
-                            <p className="text-gray-800 leading-relaxed">{msgObj.valueProposition}</p>
+                            <p className="text-gray-800 leading-relaxed">{renderMarkdown(msgObj.valueProposition)}</p>
                           </div>
                         )}
 
@@ -1387,7 +1399,7 @@ export default function AudienceInsightsPage() {
                         {msgObj.dataBacking && (
                           <div className="mb-3">
                             <h4 className="font-semibold text-blue-900 text-sm mb-1">📊 Data Insights</h4>
-                            <p className="text-gray-700 text-sm leading-relaxed">{msgObj.dataBacking}</p>
+                            <p className="text-gray-700 text-sm leading-relaxed">{renderMarkdown(msgObj.dataBacking)}</p>
                           </div>
                         )}
 
@@ -1395,7 +1407,7 @@ export default function AudienceInsightsPage() {
                         {msgObj.emotionalBenefit && (
                           <div className="mb-2">
                             <h4 className="font-semibold text-green-900 text-sm mb-1">💡 Emotional Benefits</h4>
-                            <p className="text-gray-700 text-sm leading-relaxed">{msgObj.emotionalBenefit}</p>
+                            <p className="text-gray-700 text-sm leading-relaxed">{renderMarkdown(msgObj.emotionalBenefit)}</p>
                           </div>
                         )}
 
@@ -1559,7 +1571,14 @@ KEY METRICS:
 • Top Market: ${report.geographicHotspots[0]?.city}, ${report.geographicHotspots[0]?.state}
 
 CREATIVE HOOKS:
-${report.strategicInsights.messagingRecommendations.slice(0, 3).map((m: any, i: number) => `${i + 1}. ${typeof m === 'string' ? m.replace(/\*\*/g, '') : String(m)}`).join('\n')}
+${report.strategicInsights.messagingRecommendations.slice(0, 3).map((m: any, i: number) => {
+  if (typeof m === 'string') {
+    return `${i + 1}. ${m.replace(/\*\*/g, '')}`;
+  } else if (typeof m === 'object' && m !== null) {
+    return `${i + 1}. ${(m.valueProposition || '').replace(/\*\*/g, '')}`;
+  }
+  return `${i + 1}. (No data)`;
+}).join('\n')}
 
 Generated: ${new Date().toLocaleString()}
                   `.trim();

@@ -1034,13 +1034,27 @@ class AudienceInsightsService {
   }
 
   /**
-   * Generate overlap insight - use static insights for speed
-   * (Gemini batch generation would be too slow for 5-6 overlaps)
+   * Generate overlap insight - use AI for high-overlap cases to avoid repetitive generic insights
    */
   private async generateOverlapInsight(targetSegment: string, overlapSegment: string, percentage: number): Promise<string> {
-    // Use fast static insights for better performance
-    // (Calling Gemini 6 times adds 5-10 seconds to the query)
-    return this.generateStaticOverlapInsight(targetSegment, overlapSegment, percentage);
+    // First try static insights for speed
+    const staticInsight = this.generateStaticOverlapInsight(targetSegment, overlapSegment, percentage);
+    
+    // If this is a high-overlap case that would use the generic template, use AI instead
+    if (percentage > 50 && staticInsight.includes('share similar lifestyles and shopping behaviors')) {
+      console.log(`🤖 Using AI to generate cross-purchase insight for ${targetSegment} ↔ ${overlapSegment} (${percentage.toFixed(1)}%)`);
+      
+      try {
+        const aiInsight = await this.generateAICrossPurchaseInsight(targetSegment, overlapSegment, percentage);
+        if (aiInsight && aiInsight.trim().length > 50) {
+          return aiInsight;
+        }
+      } catch (error) {
+        console.warn(`⚠️ AI insight generation failed for ${targetSegment} ↔ ${overlapSegment}, using static fallback:`, error);
+      }
+    }
+    
+    return staticInsight;
   }
 
   /**
@@ -1330,6 +1344,98 @@ class AudienceInsightsService {
       return `Moderate ${percentage.toFixed(0)}% overlap suggests complementary interests between these segments. ${overlap} buyers may be receptive to ${target} products when positioned as lifestyle enhancements or practical additions to their existing purchases.`;
     } else {
       return `This ${percentage.toFixed(0)}% overlap reveals a shared interest area that can be leveraged for targeted campaigns, particularly through content marketing that highlights the lifestyle connections between ${overlap} and ${target} products.`;
+    }
+  }
+
+  /**
+   * Generate AI-powered cross-purchase insights using Gemini
+   */
+  private async generateAICrossPurchaseInsight(targetSegment: string, overlapSegment: string, percentage: number): Promise<string> {
+    const gemini = this.getGeminiService();
+    if (!gemini) {
+      throw new Error('Gemini service not available');
+    }
+
+    const prompt = `You are analyzing cross-purchase patterns from real commerce transaction data. Your task is to generate a DEEP, PSYCHOLOGICAL insight about the mindset and motivations driving this consumer overlap.
+
+TARGET AUDIENCE: "${targetSegment}"
+OVERLAP AUDIENCE: "${overlapSegment}" 
+OVERLAP PERCENTAGE: ${percentage.toFixed(1)}%
+
+TASK: Generate a SINGLE insight (1-2 sentences max) that reveals the CONSUMER MINDSET and underlying motivations, not just the obvious categories.
+
+STRICTLY FORBIDDEN - DO NOT USE ANY OF THESE GENERIC PHRASES:
+   - "share similar lifestyles and shopping behaviors"
+   - "prime cross-selling opportunities" 
+   - "bundled promotions and targeted messaging"
+   - "broader interest or need"
+   - "show cross-category purchase behavior"
+   - "comprehensive shoppers"
+   - "related categories"
+   - "demographic similarities"
+   - "market segment overlap"
+
+REQUIREMENTS:
+1. Dig into the PSYCHOLOGICAL PROFILE of these consumers
+2. Identify the SPECIFIC MINDSET, values, or motivations that drive both purchases
+3. Think about the CONTEXT, timing, or decision-making process
+4. Avoid category-level descriptions - focus on the HUMAN BEHAVIOR
+5. Consider life circumstances, personal goals, or situational needs
+
+EXAMPLES OF DEEP INSIGHTS:
+- "Condoms and shaving & grooming buyers are both preparing for intimate encounters - they're conscientious about personal presentation and responsible preparation for physical relationships."
+- "3D printer and activewear buyers share a maker mentality: they're hands-on innovators who prefer creating solutions over buying ready-made products, applying this DIY approach to both technology and fitness."
+- "Building materials and activewear buyers embody a 'fixer' mindset - they're practical people who take control of their environment through both home improvement projects and personal fitness maintenance."
+
+Now analyze "${targetSegment}" and "${overlapSegment}" with ${percentage.toFixed(1)}% overlap. Think about the MINDSET and MOTIVATIONS of someone who buys both. Generate ONE deep psychological insight:`;
+
+    try {
+      const result = await gemini['model'].generateContent(prompt);
+      const responseText = result.response.text();
+      
+      // Clean up the response and ensure it's a reasonable length
+      let insight = responseText.trim();
+      
+      // Remove any quotes if the entire response is wrapped in them
+      if (insight.startsWith('"') && insight.endsWith('"')) {
+        insight = insight.slice(1, -1);
+      }
+      
+      // Ensure it's not too long for the UI (max ~200 characters), but keep complete thoughts
+      if (insight.length > 200) {
+        // Try to find complete sentences that fit within the limit
+        const sentences = insight.split(/[.!?]+/).filter((s: string) => s.trim().length > 0);
+        let result = '';
+        let charCount = 0;
+        
+        for (let sentence of sentences) {
+          sentence = sentence.trim();
+          // Add back punctuation and space
+          const sentenceWithPunctuation = sentence + '.';
+          const testLength = charCount + sentenceWithPunctuation.length + (result ? 1 : 0);
+          
+          if (testLength <= 200) {
+            result = result ? result + ' ' + sentenceWithPunctuation : sentenceWithPunctuation;
+            charCount = testLength;
+          } else {
+            break;
+          }
+        }
+        
+        if (result.length > 0) {
+          insight = result;
+        } else {
+          // Fallback: truncate at word boundary
+          const words = insight.substring(0, 200).split(' ');
+          words.pop(); // Remove last word that might be cut off
+          insight = words.join(' ');
+        }
+      }
+      
+      return insight;
+    } catch (error) {
+      console.error(`Error generating AI cross-purchase insight:`, error);
+      throw error;
     }
   }
 

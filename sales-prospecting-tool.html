@@ -188,6 +188,33 @@
             transform: translateY(-2px);
         }
         
+        #venn-preview-card {
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .download-venn-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #FFD42B 0%, #FF9A00 100%);
+            color: #282828;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        
+        .download-venn-btn:hover {
+            transform: translateY(-2px);
+        }
+        
         .email-template {
             background: #f9f9f9;
             padding: 20px;
@@ -296,7 +323,14 @@
                     <p class="placeholder">👆 Select a segment and overlap product to generate your infographic</p>
                 </div>
                 <button id="download-btn" class="download-btn hidden">
-                    📥 Download as JPG
+                    📥 Download Card as JPG
+                </button>
+                
+                <div id="venn-preview-card" class="hidden">
+                    <p class="placeholder">Venn diagram will appear here</p>
+                </div>
+                <button id="download-venn-btn" class="download-venn-btn hidden">
+                    📊 Download Venn Diagram as JPG
                 </button>
             </div>
         </div>
@@ -453,6 +487,7 @@
             document.getElementById('segment-select').addEventListener('change', handleSegmentChange);
             document.getElementById('generate-btn').addEventListener('click', generateInfographic);
             document.getElementById('download-btn').addEventListener('click', downloadCard);
+            document.getElementById('download-venn-btn').addEventListener('click', downloadVennDiagram);
             document.getElementById('copy-email-btn').addEventListener('click', copyEmail);
         }
         
@@ -466,7 +501,11 @@
                 document.getElementById('overlap-section').classList.add('hidden');
             }
             
+            // Hide both download buttons and Venn diagram when no selection
             document.getElementById('generate-btn').disabled = true;
+            document.getElementById('download-btn').classList.add('hidden');
+            document.getElementById('venn-preview-card').classList.add('hidden');
+            document.getElementById('download-venn-btn').classList.add('hidden');
         }
         
         function showOverlaps() {
@@ -508,6 +547,12 @@
             const card = createCard(selectedSegment, data.size, overlap, data.insight);
             document.getElementById('preview-card').innerHTML = card;
             document.getElementById('download-btn').classList.remove('hidden');
+            
+            // Generate Venn diagram
+            const vennDiagram = createVennDiagram(selectedSegment, data.size, overlap, data.insight);
+            document.getElementById('venn-preview-card').innerHTML = vennDiagram;
+            document.getElementById('venn-preview-card').classList.remove('hidden');
+            document.getElementById('download-venn-btn').classList.remove('hidden');
             
             // Generate email
             const email = createEmail(selectedSegment, data.size, overlap);
@@ -594,6 +639,179 @@
             
             return lines.map((line, i) => 
                 `<text x="${x}" y="${startY + (i * lineHeight)}" font-family="system-ui, sans-serif" font-size="${fontSize}" fill="#282828" text-anchor="middle">${line}</text>`
+            ).join('\n');
+        }
+        
+        function createVennDiagram(segment, size, overlap, insight) {
+            const segmentEmoji = getSegmentEmoji(segment);
+            const overlapEmoji = overlap.emoji;
+            
+            // Premium designer-quality positioning with proper overlap (centered)
+            const leftCircle = { cx: 250, cy: 130, r: 65 };
+            const rightCircle = { cx: 350, cy: 130, r: 65 };
+            const intersectionX = 300;
+            const intersectionY = 130;
+            
+            return `
+                <svg id="generated-venn" width="600" height="420" viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+                            <feOffset dx="0" dy="2" result="offsetblur"/>
+                            <feComponentTransfer>
+                                <feFuncA type="linear" slope="0.2"/>
+                            </feComponentTransfer>
+                            <feMerge>
+                                <feMergeNode/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                        
+                        <linearGradient id="yellowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD42B;stop-opacity:0.85" />
+                            <stop offset="100%" style="stop-color:#FFC700;stop-opacity:0.75" />
+                        </linearGradient>
+                        
+                        <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FF9A00;stop-opacity:0.85" />
+                            <stop offset="100%" style="stop-color:#FF8800;stop-opacity:0.75" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Background with border -->
+                    <rect width="600" height="420" fill="#ffffff" stroke="#e0e0e0" stroke-width="2"/>
+                    
+                    <!-- Header with background -->
+                    <rect x="0" y="0" width="600" height="45" fill="#f5f5f5"/>
+                    <text x="300" y="28" font-family="system-ui, sans-serif" font-size="14" font-weight="700" 
+                          fill="#282828" text-anchor="middle" letter-spacing="2.5">
+                        OVERLAPPING COMMERCE AUDIENCES
+                    </text>
+                    
+                    <!-- Circles with elegant styling -->
+                    <circle cx="${leftCircle.cx}" cy="${leftCircle.cy}" r="${leftCircle.r}" 
+                            fill="url(#yellowGrad)" stroke="#FFD42B" stroke-width="1.5" filter="url(#glow)"/>
+                    
+                    <circle cx="${rightCircle.cx}" cy="${rightCircle.cy}" r="${rightCircle.r}" 
+                            fill="url(#orangeGrad)" stroke="#FF9A00" stroke-width="1.5" filter="url(#glow)"/>
+                    
+                    <!-- Data label: Left segment with connector line -->
+                    <line x1="${leftCircle.cx - 35}" y1="${leftCircle.cy - 50}" 
+                          x2="${leftCircle.cx - 20}" y2="${leftCircle.cy - 20}" 
+                          stroke="#282828" stroke-width="1.5" opacity="0.4"/>
+                    <text x="${leftCircle.cx - 40}" y="${leftCircle.cy - 55}" font-family="system-ui, sans-serif" 
+                          font-size="15" font-weight="600" fill="#282828" text-anchor="end">
+                        ${segment}
+                    </text>
+                    
+                    <!-- Data label: Right segment with connector line -->
+                    <line x1="${rightCircle.cx + 35}" y1="${rightCircle.cy - 50}" 
+                          x2="${rightCircle.cx + 20}" y2="${rightCircle.cy - 20}" 
+                          stroke="#282828" stroke-width="1.5" opacity="0.4"/>
+                    <text x="${rightCircle.cx + 40}" y="${rightCircle.cy - 55}" font-family="system-ui, sans-serif" 
+                          font-size="15" font-weight="600" fill="#282828" text-anchor="start">
+                        ${overlap.name}
+                    </text>
+                    
+                    <!-- Data label: Overlap percentage with elegant connector -->
+                    <line x1="${intersectionX}" y1="${intersectionY + 75}" 
+                          x2="${intersectionX}" y2="${intersectionY + 15}" 
+                          stroke="#282828" stroke-width="1.5" opacity="0.4"/>
+                    <circle cx="${intersectionX}" cy="${intersectionY + 15}" r="2" fill="#282828" opacity="0.6"/>
+                    
+                    <!-- Overlap percentage display -->
+                    <text x="${intersectionX}" y="${intersectionY + 95}" font-family="system-ui, sans-serif" 
+                          font-size="42" font-weight="800" fill="#282828" text-anchor="middle" letter-spacing="-1">
+                        ${overlap.percent}%
+                    </text>
+                    <text x="${intersectionX}" y="${intersectionY + 115}" font-family="system-ui, sans-serif" 
+                          font-size="11" font-weight="600" fill="#666" text-anchor="middle" letter-spacing="1.5">
+                        OVERLAP
+                    </text>
+                    
+                    <!-- Why It Matters section with dynamic sizing and matching header spacing -->
+                    ${createDynamicWhyItMatters(insight, 30, 260, 540)}
+                    
+                    <!-- Footer -->
+                    <text x="300" y="410" font-family="system-ui, sans-serif" font-size="9" 
+                          fill="#999" text-anchor="middle">
+                        Powered by the Sovrn Data Collective
+                    </text>
+                </svg>
+            `;
+        }
+        
+        function createDynamicWhyItMatters(insight, x, startY, width) {
+            // Calculate how many lines the text will need
+            const words = insight.split(' ');
+            let lines = [];
+            let currentLine = [];
+            const maxCharsPerLine = Math.floor(width / (13 * 0.5)); // 13px font
+            
+            words.forEach(word => {
+                const testLine = currentLine.concat([word]).join(' ');
+                if (testLine.length > maxCharsPerLine && currentLine.length > 0) {
+                    lines.push(currentLine.join(' '));
+                    currentLine = [word];
+                } else {
+                    currentLine.push(word);
+                }
+            });
+            
+            if (currentLine.length > 0) {
+                lines.push(currentLine.join(' '));
+            }
+            
+            // Limit to 5 lines for clean appearance
+            lines = lines.slice(0, 5);
+            
+            // Calculate dynamic height based on content
+            const lineHeight = 20;
+            const padding = 20;
+            const headerHeight = 30;
+            const contentHeight = lines.length * lineHeight;
+            const totalHeight = headerHeight + contentHeight + padding;
+            
+            return `
+                <rect x="${x}" y="${startY}" width="${width}" height="${totalHeight}" fill="#f9f9f9" rx="8"/>
+                <line x1="${x + 20}" y1="${startY + 30}" x2="${x + width - 20}" y2="${startY + 30}" stroke="#e0e0e0" stroke-width="1"/>
+                
+                <text x="${x + 20}" y="${startY + 20}" font-family="system-ui, sans-serif" font-size="12" font-weight="700" 
+                      fill="#666" text-anchor="start" letter-spacing="1">
+                    WHY IT MATTERS
+                </text>
+                
+                ${lines.map((line, i) => 
+                    `<text x="${x + 20}" y="${startY + 50 + (i * lineHeight)}" font-family="system-ui, sans-serif" font-size="13" fill="#282828" text-anchor="start">${line}</text>`
+                ).join('\n')}
+            `;
+        }
+        
+        function wrapTextVennWide(text, x, startY, fontSize, lineHeight, maxWidth) {
+            const words = text.split(' ');
+            let lines = [];
+            let currentLine = [];
+            const maxCharsPerLine = Math.floor(maxWidth / (fontSize * 0.5));
+            
+            words.forEach(word => {
+                const testLine = currentLine.concat([word]).join(' ');
+                if (testLine.length > maxCharsPerLine && currentLine.length > 0) {
+                    lines.push(currentLine.join(' '));
+                    currentLine = [word];
+                } else {
+                    currentLine.push(word);
+                }
+            });
+            
+            if (currentLine.length > 0) {
+                lines.push(currentLine.join(' '));
+            }
+            
+            // Limit to 5 lines for clean appearance
+            lines = lines.slice(0, 5);
+            
+            return lines.map((line, i) => 
+                `<text x="${x}" y="${startY + (i * lineHeight)}" font-family="system-ui, sans-serif" font-size="${fontSize}" fill="#282828" text-anchor="start">${line}</text>`
             ).join('\n');
         }
         
@@ -688,6 +906,41 @@ P.S. This data includes ZIP-level targeting, demographic overlays, and cross-pur
             img.src = url;
         }
         
+        function downloadVennDiagram() {
+            const svg = document.getElementById('generated-venn');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 600;
+            canvas.height = 420;
+            const ctx = canvas.getContext('2d');
+            
+            const img = new Image();
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+            
+            img.onload = function() {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 600, 420);
+                ctx.drawImage(img, 0, 0);
+                
+                canvas.toBlob(function(blob) {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    const filename = `${selectedSegment.replace(/\s+/g, '-')}-${audienceData[selectedSegment].overlaps[selectedOverlap].name.replace(/\s+/g, '-')}-Venn-Diagram.jpg`;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                }, 'image/jpeg', 0.95);
+                
+                URL.revokeObjectURL(url);
+            };
+            
+            img.src = url;
+        }
+        
         function copyEmail() {
             const email = document.getElementById('email-template').textContent;
             navigator.clipboard.writeText(email).then(() => {
@@ -702,6 +955,9 @@ P.S. This data includes ZIP-level targeting, demographic overlays, and cross-pur
     </script>
 </body>
 </html>
+
+
+
 
 
 

@@ -151,6 +151,10 @@ app.post('/api/geographic-insights', (req, res) => dealsController.generateGeogr
 app.post('/api/unified-search', (req, res) => dealsController.unifiedSearch(req, res));
 app.post('/api/marketing-swot', (req, res) => dealsController.generateMarketingSWOT(req, res));
 app.post('/api/company-profile', (req, res) => dealsController.generateCompanyProfile(req, res));
+app.post('/api/marketing-news', (req, res) => dealsController.generateMarketingNews(req, res));
+app.post('/api/competitive-intelligence', (req, res) => dealsController.generateCompetitiveIntelligence(req, res));
+app.post('/api/content-strategy', (req, res) => dealsController.generateContentStrategy(req, res));
+app.post('/api/brand-strategy', (req, res) => dealsController.generateBrandStrategy(req, res));
 
 // Persona endpoints
 app.get('/api/personas', async (req, res) => {
@@ -268,6 +272,31 @@ if (researchLibraryController) {
   app.post('/api/research/:id/process-text', (req, res) => researchLibraryController!.processText(req, res));
   
   console.log('✅ Research Library routes registered');
+} else {
+  // Fallback routes when research library is not available
+  app.get('/api/research', (req, res) => {
+    res.status(503).json({
+      error: 'Research Library Service Unavailable',
+      message: 'The research library service is not configured. Please ensure Supabase is properly configured and USE_SUPABASE=true is set in environment variables.',
+      studies: []
+    });
+  });
+  
+  app.get('/api/research/categories', (req, res) => {
+    res.status(503).json({
+      error: 'Research Library Service Unavailable',
+      categories: []
+    });
+  });
+  
+  app.get('/api/research/sources', (req, res) => {
+    res.status(503).json({
+      error: 'Research Library Service Unavailable',
+      sources: []
+    });
+  });
+  
+  console.log('⚠️  Research Library fallback routes registered (service unavailable)');
 }
 
 

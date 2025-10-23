@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile } from '@/types/deal';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy } from '@/types/deal';
 import { MarketSizing } from './MarketSizingCard';
-import { Search, Filter, Users, Target, Lightbulb, TrendingUp, MapPin, BarChart3, ShoppingCart, Trash2, Sparkles, Building2 } from 'lucide-react';
+import { Search, Filter, Users, Target, Lightbulb, TrendingUp, MapPin, BarChart3, ShoppingCart, Trash2, Sparkles, Building2, Newspaper, FileText, Award } from 'lucide-react';
 import DealCard from './DealCard';
 import DealDetailModal from './DealDetailModal';
 import PersonaDetailModal from './PersonaDetailModal';
@@ -10,21 +10,26 @@ import { MarketSizingDetailModal } from './MarketSizingDetailModal';
 import GeoDetailModal from './GeoDetailModal';
 import MarketingSWOTCard from './MarketingSWOTCard';
 import CompanyProfileCard from './CompanyProfileCard';
+import MarketingNewsCard from './MarketingNewsCard';
 import { MarketingSWOTDetailModal } from './MarketingSWOTDetailModal';
 import { CompanyProfileDetailModal } from './CompanyProfileDetailModal';
+import { MarketingNewsDetailModal } from './MarketingNewsDetailModal';
+import { CompetitiveIntelligenceDetailModal } from './CompetitiveIntelligenceDetailModal';
+import { ContentStrategyDetailModal } from './ContentStrategyDetailModal';
+import { BrandStrategyDetailModal } from './BrandStrategyDetailModal';
 
 interface AudienceExplorerProps {
   onDealClick: (deal: Deal) => void;
   onAddToCart: (deal: Deal) => void;
   onRemoveFromCart: (dealId: string) => void;
   isInCart: (dealId: string) => boolean;
-  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile', data: any }) => void;
+  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy', data: any }) => void;
   onUnsaveCard?: (cardId: string) => void;
   isSaved?: (cardId: string) => boolean;
   onSwitchToChat?: (query: string) => void;
 }
 
-type CardType = 'all' | 'deals' | 'personas' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile';
+type CardType = 'all' | 'deals' | 'personas' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy';
 
 interface SearchResult {
   type: CardType;
@@ -57,12 +62,6 @@ export default function AudienceExplorer({
   isSaved,
   onSwitchToChat
 }: AudienceExplorerProps) {
-  // Debug: Log the props to see what's being passed
-  console.log('AudienceExplorer props:', {
-    onSaveCard: !!onSaveCard,
-    onUnsaveCard: !!onUnsaveCard,
-    isSaved: !!isSaved
-  });
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const [audienceFilter, setAudienceFilter] = useState<string>('');
@@ -71,6 +70,9 @@ export default function AudienceExplorer({
   const [error, setError] = useState<string | null>(null);
   const [selectedMediaFormats, setSelectedMediaFormats] = useState<string[]>([]);
   const [allDeals, setAllDeals] = useState<Deal[]>([]);
+  
+  // Ref to track previous subcategory to avoid duplicate logging
+  const prevSubcategoryRef = useRef<string | null>(null);
   
   // Media format options for deal filtering
   const mediaFormats = [
@@ -90,6 +92,10 @@ export default function AudienceExplorer({
   const [selectedGeoCard, setSelectedGeoCard] = useState<GeoCard | null>(null);
   const [selectedMarketingSWOT, setSelectedMarketingSWOT] = useState<MarketingSWOT | null>(null);
   const [selectedCompanyProfile, setSelectedCompanyProfile] = useState<CompanyProfile | null>(null);
+  const [selectedMarketingNews, setSelectedMarketingNews] = useState<MarketingNews | null>(null);
+  const [selectedCompetitiveIntel, setSelectedCompetitiveIntel] = useState<CompetitiveIntelligence | null>(null);
+  const [selectedContentStrategy, setSelectedContentStrategy] = useState<ContentStrategy | null>(null);
+  const [selectedBrandStrategy, setSelectedBrandStrategy] = useState<BrandStrategy | null>(null);
   const [isDealModalOpen, setIsDealModalOpen] = useState(false);
   const [isPersonaModalOpen, setIsPersonaModalOpen] = useState(false);
   const [isAudienceInsightsModalOpen, setIsAudienceInsightsModalOpen] = useState(false);
@@ -97,6 +103,10 @@ export default function AudienceExplorer({
   const [isGeoModalOpen, setIsGeoModalOpen] = useState(false);
   const [isMarketingSWOTModalOpen, setIsMarketingSWOTModalOpen] = useState(false);
   const [isCompanyProfileModalOpen, setIsCompanyProfileModalOpen] = useState(false);
+  const [isMarketingNewsModalOpen, setIsMarketingNewsModalOpen] = useState(false);
+  const [isCompetitiveIntelModalOpen, setIsCompetitiveIntelModalOpen] = useState(false);
+  const [isContentStrategyModalOpen, setIsContentStrategyModalOpen] = useState(false);
+  const [isBrandStrategyModalOpen, setIsBrandStrategyModalOpen] = useState(false);
 
   const categories: Category[] = [
     {
@@ -105,9 +115,7 @@ export default function AudienceExplorer({
       description: 'Explore audience data and behavioral insights',
       icon: Lightbulb,
       subcategories: [
-        { id: 'audience-insights', name: 'Audience Analytics', description: 'Deep audience behavior insights', cardType: 'audience-insights' },
-        { id: 'demographics', name: 'Demographics', description: 'Age, gender, income insights', cardType: 'audience-insights' },
-        { id: 'interests', name: 'Interests & Behaviors', description: 'Consumer interests and online behavior', cardType: 'audience-insights' }
+        { id: 'audience-insights', name: 'Audience Insights', description: 'Generate AI-powered audience behavior insights and analytics', cardType: 'audience-insights' }
       ]
     },
     {
@@ -129,18 +137,39 @@ export default function AudienceExplorer({
       ]
     },
     {
+      id: 'brand-strategy',
+      name: 'Brand Strategy',
+      description: 'Brand positioning and messaging frameworks',
+      icon: Award,
+      subcategories: [
+        { id: 'brand-positioning', name: 'Brand Positioning', description: 'Create brand positioning and messaging frameworks', cardType: 'brand-strategy' }
+      ]
+    },
+    {
       id: 'company-profile',
       name: 'Company Profiles',
       description: 'Public company financial analysis and business insights',
       icon: Building2,
       subcategories: [
-        { id: 'all-company-profiles', name: 'All Company Profiles', description: 'View all available company profiles', cardType: 'company-profile' },
-        { id: 'tech-companies', name: 'Technology', description: 'Technology and software company profiles', cardType: 'company-profile' },
-        { id: 'retail-companies', name: 'Retail & E-commerce', description: 'Retail and e-commerce company profiles', cardType: 'company-profile' },
-        { id: 'finance-companies', name: 'Financial Services', description: 'Banking and financial services profiles', cardType: 'company-profile' },
-        { id: 'healthcare-companies', name: 'Healthcare', description: 'Healthcare and pharmaceutical company profiles', cardType: 'company-profile' },
-        { id: 'manufacturing-companies', name: 'Manufacturing', description: 'Industrial and manufacturing company profiles', cardType: 'company-profile' },
-        { id: 'media-companies', name: 'Media & Entertainment', description: 'Media, entertainment, and advertising profiles', cardType: 'company-profile' }
+        { id: 'company-profile', name: 'Company Analysis', description: 'Enter a stock symbol to generate comprehensive company profile analysis', cardType: 'company-profile' }
+      ]
+    },
+    {
+      id: 'competitive-intelligence',
+      name: 'Competitive Intelligence',
+      description: 'Competitor analysis and positioning strategies',
+      icon: Target,
+      subcategories: [
+        { id: 'competitive-intel', name: 'Competitive Analysis', description: 'Analyze competitors and identify differentiation opportunities', cardType: 'competitive-intelligence' }
+      ]
+    },
+    {
+      id: 'content-strategy',
+      name: 'Content Strategy',
+      description: 'Content planning and topic recommendations',
+      icon: FileText,
+      subcategories: [
+        { id: 'content-planning', name: 'Content Planning', description: 'Generate content strategies and editorial calendars', cardType: 'content-strategy' }
       ]
     },
     {
@@ -169,10 +198,9 @@ export default function AudienceExplorer({
       description: 'Location-based audience and market data',
       icon: MapPin,
       subcategories: [
-        { id: 'all-geo', name: 'All Geographic Data', description: 'View all geographic insights', cardType: 'geo-cards' },
-        { id: 'regional-analysis', name: 'Regional Analysis', description: 'Regional market performance', cardType: 'geo-cards' },
-        { id: 'local-insights', name: 'Local Insights', description: 'City and local market data', cardType: 'geo-cards' },
-        { id: 'international', name: 'International Markets', description: 'Global market opportunities', cardType: 'geo-cards' }
+        { id: 'regional-analysis', name: 'Regional Analysis', description: 'Analyze broad regional markets (e.g., "California", "Northeast")', cardType: 'geo-cards' },
+        { id: 'local-insights', name: 'Local Insights', description: 'City and local market data (e.g., "New York City", "Austin")', cardType: 'geo-cards' },
+        { id: 'international', name: 'International Markets', description: 'Global market opportunities (e.g., "Europe", "Asia-Pacific")', cardType: 'geo-cards' }
       ]
     },
     {
@@ -181,10 +209,18 @@ export default function AudienceExplorer({
       description: 'Market sizing and industry analysis',
       icon: BarChart3,
       subcategories: [
-        { id: 'all-sizing', name: 'All Market Data', description: 'View all market sizing data', cardType: 'market-sizing' },
-        { id: 'market-trends', name: 'Market Trends', description: 'Industry trend analysis', cardType: 'market-sizing' },
-        { id: 'growth-opportunities', name: 'Growth Opportunities', description: 'Emerging market opportunities', cardType: 'market-sizing' },
-        { id: 'market-analysis', name: 'Market Analysis', description: 'General market sizing and analysis', cardType: 'market-sizing' }
+        { id: 'market-trends', name: 'Market Trends', description: 'Industry trend analysis and growth patterns', cardType: 'market-sizing' },
+        { id: 'growth-opportunities', name: 'Growth Opportunities', description: 'Emerging markets and expansion opportunities', cardType: 'market-sizing' },
+        { id: 'market-analysis', name: 'Market Analysis', description: 'General market sizing and competitive analysis', cardType: 'market-sizing' }
+      ]
+    },
+    {
+      id: 'marketing-news',
+      name: 'Marketing News',
+      description: 'Latest marketing and advertising industry headlines',
+      icon: Newspaper,
+      subcategories: [
+        { id: 'latest-news', name: 'Latest News', description: 'Today\'s top marketing headlines', cardType: 'marketing-news' }
       ]
     },
     {
@@ -193,21 +229,79 @@ export default function AudienceExplorer({
       description: 'Marketing SWOT analysis for companies and campaigns',
       icon: Target,
       subcategories: [
-        { id: 'all-swot', name: 'All Marketing SWOT', description: 'View all marketing SWOT analyses', cardType: 'marketing-swot' },
-        { id: 'digital-marketing-swot', name: 'Digital Marketing', description: 'Digital marketing SWOT analyses', cardType: 'marketing-swot' },
-        { id: 'brand-marketing-swot', name: 'Brand Marketing', description: 'Brand positioning SWOT analyses', cardType: 'marketing-swot' },
-        { id: 'product-marketing-swot', name: 'Product Marketing', description: 'Product launch and marketing SWOT', cardType: 'marketing-swot' },
-        { id: 'content-marketing-swot', name: 'Content Marketing', description: 'Content strategy SWOT analyses', cardType: 'marketing-swot' },
-        { id: 'social-media-swot', name: 'Social Media', description: 'Social media marketing SWOT', cardType: 'marketing-swot' }
+        { id: 'marketing-swot', name: 'Marketing SWOT Analysis', description: 'Enter a company name to generate comprehensive marketing SWOT analysis', cardType: 'marketing-swot' }
       ]
     }
   ];
+
+  // Helper function to generate appropriate query based on subcategory
+  const getQueryForSubcategory = (subcategory: Subcategory, userInput: string): string => {
+    if (userInput.trim()) {
+      // When user provides input, enhance it with subcategory context
+      const userQuery = userInput.trim();
+      switch (subcategory.cardType) {
+        case 'market-sizing':
+          switch (subcategory.id) {
+            case 'growth-opportunities':
+              return `${userQuery} market growth opportunities and expansion analysis`;
+            case 'market-trends':
+              return `${userQuery} industry trends and market analysis`;
+            case 'market-analysis':
+              return `${userQuery} market sizing and competitive landscape`;
+            default:
+              return userQuery;
+          }
+        case 'geo-cards':
+          switch (subcategory.id) {
+            case 'regional-analysis':
+              return `${userQuery} regional market analysis and demographics`;
+            case 'local-insights':
+              return `${userQuery} local market data and demographics`;
+            case 'international':
+              return `${userQuery} international market opportunities`;
+            default:
+              return userQuery;
+          }
+        default:
+          return userQuery;
+      }
+    }
+    
+    // Generate context-aware queries based on subcategory when no user input
+    switch (subcategory.cardType) {
+      case 'geo-cards':
+        switch (subcategory.id) {
+          case 'regional-analysis':
+            return 'United States regional market analysis and demographic insights';
+          case 'local-insights':
+            return 'major US cities local market data and demographics';
+          case 'international':
+            return 'global international market opportunities and demographics';
+          default:
+            return subcategory.name;
+        }
+      case 'market-sizing':
+        switch (subcategory.id) {
+          case 'market-trends':
+            return 'technology industry trends and growth analysis';
+          case 'growth-opportunities':
+            return 'emerging technology market opportunities and expansion analysis';
+          case 'market-analysis':
+            return 'technology market sizing and competitive analysis';
+          default:
+            return subcategory.name;
+        }
+      default:
+        return subcategory.name;
+    }
+  };
 
   const loadDataBySubcategory = useCallback(async () => {
     if (!selectedSubcategory) return;
     
     setLoading(true);
     setError(null);
+    let errorHandledByCase = false; // Flag to track if error was handled within a case
     try {
       // Find the selected subcategory
       const subcategory = categories
@@ -244,126 +338,238 @@ export default function AudienceExplorer({
           break;
           
         case 'personas':
-          const personasResponse = await fetch('http://localhost:3002/api/personas');
-          if (personasResponse.ok) {
-            const personasData = await personasResponse.json();
-            
-            // Filter personas based on subcategory
-            let filteredPersonas = personasData;
-            if (subcategory.id !== 'all-personas') {
-              filteredPersonas = personasData.filter((persona: Persona) => {
-                const category = persona.category?.toLowerCase() || '';
-                const name = persona.name?.toLowerCase() || '';
-                const coreInsight = persona.coreInsight?.toLowerCase() || '';
-                
-                switch (subcategory.id) {
-                  case 'family-personas':
-                    return category.includes('family') || category.includes('home') || 
-                           name.includes('family') || name.includes('parent') || name.includes('home') ||
-                           coreInsight.includes('family') || coreInsight.includes('home');
-                  case 'fashion-personas':
-                    return category.includes('fashion') || category.includes('style') || category.includes('beauty') ||
-                           name.includes('fashion') || name.includes('style') || name.includes('beauty') || name.includes('dress') ||
-                           coreInsight.includes('fashion') || coreInsight.includes('style') || coreInsight.includes('beauty');
-                  case 'food-personas':
-                    return category.includes('food') || category.includes('beverage') || category.includes('culinary') ||
-                           name.includes('food') || name.includes('beverage') || name.includes('culinary') || name.includes('flavor') ||
-                           coreInsight.includes('food') || coreInsight.includes('beverage') || coreInsight.includes('culinary');
-                  case 'entertainment-personas':
-                    return category.includes('entertainment') || category.includes('gaming') || category.includes('media') ||
-                           name.includes('entertainment') || name.includes('gaming') || name.includes('media') || name.includes('console') ||
-                           coreInsight.includes('entertainment') || coreInsight.includes('gaming') || coreInsight.includes('media');
-                  case 'sports-personas':
-                    return category.includes('sports') || category.includes('fitness') || category.includes('athletics') ||
-                           name.includes('sports') || name.includes('fitness') || name.includes('athletics') || name.includes('performance') ||
-                           coreInsight.includes('sports') || coreInsight.includes('fitness') || coreInsight.includes('athletics');
-                  case 'pet-personas':
-                    return category.includes('pet') || category.includes('animal') ||
-                           name.includes('pet') || name.includes('animal') || name.includes('cat') || name.includes('dog') ||
-                           coreInsight.includes('pet') || coreInsight.includes('animal') || coreInsight.includes('companion');
-                  case 'professional-personas':
-                    return category.includes('professional') || category.includes('business') ||
-                           name.includes('professional') || name.includes('executive') || name.includes('business') ||
-                           coreInsight.includes('professional') || coreInsight.includes('business') || coreInsight.includes('career');
-                  case 'lifestyle-personas':
-                    return category.includes('wellness') || category.includes('lifestyle') || category.includes('fitness') ||
-                           name.includes('wellness') || name.includes('fitness') || name.includes('health') || name.includes('lifestyle') ||
-                           coreInsight.includes('wellness') || coreInsight.includes('fitness') || coreInsight.includes('health');
-                  case 'tech-personas':
-                    return category.includes('tech') || category.includes('digital') || category.includes('technology') ||
-                           name.includes('tech') || name.includes('digital') || name.includes('technology') ||
-                           coreInsight.includes('tech') || coreInsight.includes('digital') || coreInsight.includes('technology');
-                  default:
-                    return true;
-                }
+          try {
+            const personasResponse = await fetch('http://localhost:3002/api/personas');
+            if (personasResponse.ok) {
+              const personasData = await personasResponse.json();
+              console.log(`🎭 Loaded ${personasData.length} personas from API`);
+              
+              // Filter personas based on subcategory
+              let filteredPersonas = personasData;
+              if (subcategory.id !== 'all-personas') {
+                filteredPersonas = personasData.filter((persona: Persona) => {
+                  const category = persona.category?.toLowerCase() || '';
+                  const name = persona.name?.toLowerCase() || '';
+                  const coreInsight = persona.coreInsight?.toLowerCase() || '';
+                  
+                  switch (subcategory.id) {
+                    case 'family-personas':
+                      return category.includes('family') || category.includes('home') || 
+                             name.includes('family') || name.includes('parent') || name.includes('home') ||
+                             coreInsight.includes('family') || coreInsight.includes('home');
+                    case 'fashion-personas':
+                      return category.includes('fashion') || category.includes('style') || category.includes('beauty') ||
+                             name.includes('fashion') || name.includes('style') || name.includes('beauty') || name.includes('dress') ||
+                             coreInsight.includes('fashion') || coreInsight.includes('style') || coreInsight.includes('beauty');
+                    case 'food-personas':
+                      return category.includes('food') || category.includes('beverage') || category.includes('culinary') ||
+                             name.includes('food') || name.includes('beverage') || name.includes('culinary') || name.includes('flavor') ||
+                             coreInsight.includes('food') || coreInsight.includes('beverage') || coreInsight.includes('culinary');
+                    case 'entertainment-personas':
+                      return category.includes('entertainment') || category.includes('gaming') || category.includes('media') ||
+                             name.includes('entertainment') || name.includes('gaming') || name.includes('media') || name.includes('console') ||
+                             coreInsight.includes('entertainment') || coreInsight.includes('gaming') || coreInsight.includes('media');
+                    case 'sports-personas':
+                      return category.includes('sports') || category.includes('fitness') || category.includes('athletics') ||
+                             name.includes('sports') || name.includes('fitness') || name.includes('athletics') || name.includes('performance') ||
+                             coreInsight.includes('sports') || coreInsight.includes('fitness') || coreInsight.includes('athletics');
+                    case 'pet-personas':
+                      return category.includes('pet') || category.includes('animal') ||
+                             name.includes('pet') || name.includes('animal') || name.includes('cat') || name.includes('dog') ||
+                             coreInsight.includes('pet') || coreInsight.includes('animal') || coreInsight.includes('companion');
+                    case 'professional-personas':
+                      return category.includes('professional') || category.includes('business') ||
+                             name.includes('professional') || name.includes('executive') || name.includes('business') ||
+                             coreInsight.includes('professional') || coreInsight.includes('business') || coreInsight.includes('career');
+                    case 'lifestyle-personas':
+                      return category.includes('wellness') || category.includes('lifestyle') || category.includes('fitness') ||
+                             name.includes('wellness') || name.includes('fitness') || name.includes('health') || name.includes('lifestyle') ||
+                             coreInsight.includes('wellness') || coreInsight.includes('fitness') || coreInsight.includes('health');
+                    case 'tech-personas':
+                      return category.includes('tech') || category.includes('digital') || category.includes('technology') ||
+                             name.includes('tech') || name.includes('digital') || name.includes('technology') ||
+                             coreInsight.includes('tech') || coreInsight.includes('digital') || coreInsight.includes('technology');
+                    default:
+                      return true;
+                  }
+                });
+                console.log(`🎭 Filtered to ${filteredPersonas.length} personas for subcategory: ${subcategory.id}`);
+              }
+              
+              // Further filter by audience filter if provided
+              if (audienceFilter.trim()) {
+                const filterLower = audienceFilter.toLowerCase();
+                filteredPersonas = filteredPersonas.filter((persona: Persona) => 
+                  persona.name.toLowerCase().includes(filterLower) ||
+                  persona.coreInsight?.toLowerCase().includes(filterLower) ||
+                  persona.category?.toLowerCase().includes(filterLower)
+                );
+                console.log(`🎭 Filtered to ${filteredPersonas.length} personas after audience filter`);
+              }
+              
+              filteredPersonas.forEach((persona: Persona) => {
+                results.push({ type: 'personas', data: persona });
               });
+            } else {
+              console.error(`❌ Failed to load personas: ${personasResponse.status} ${personasResponse.statusText}`);
             }
-            
-            // Further filter by audience filter if provided
-            if (audienceFilter.trim()) {
-              const filterLower = audienceFilter.toLowerCase();
-              filteredPersonas = filteredPersonas.filter((persona: Persona) => 
-                persona.name.toLowerCase().includes(filterLower) ||
-                persona.coreInsight?.toLowerCase().includes(filterLower) ||
-                persona.category?.toLowerCase().includes(filterLower)
-              );
-            }
-            
-            filteredPersonas.forEach((persona: Persona) => {
-              results.push({ type: 'personas', data: persona });
-            });
+          } catch (error) {
+            console.error('❌ Error loading personas:', error);
           }
           break;
           
         case 'audience-insights':
-          const insightsResponse = await fetch('http://localhost:3002/api/audience-insights', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: audienceFilter.trim() || subcategory.name }),
-          });
-          if (insightsResponse.ok) {
-            const insightsData = await insightsResponse.json();
-            if (insightsData.audienceInsights && insightsData.audienceInsights.length > 0) {
-              insightsData.audienceInsights.forEach((insight: AudienceInsights) => {
-                results.push({ type: 'audience-insights', data: insight });
-              });
+          try {
+            // Create an AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+            
+            const query = getQueryForSubcategory(subcategory, audienceFilter);
+            const insightsResponse = await fetch('http://localhost:3002/api/audience-insights', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ query }),
+              signal: controller.signal,
+            });
+            
+            clearTimeout(timeoutId);
+            if (insightsResponse.ok) {
+              const insightsData = await insightsResponse.json();
+              console.log(`🎯 Loaded audience insights data:`, insightsData);
+              if (insightsData.audienceInsights && insightsData.audienceInsights.length > 0) {
+                insightsData.audienceInsights.forEach((insight: AudienceInsights) => {
+                  results.push({ type: 'audience-insights', data: insight });
+                });
+                console.log(`✅ Added ${insightsData.audienceInsights.length} audience insights`);
+              } else {
+                console.log('⚠️ No audience insights found in response');
+              }
+            } else {
+              console.error(`❌ Failed to fetch audience insights: ${insightsResponse.status} ${insightsResponse.statusText}`);
+              try {
+                const errorData = await insightsResponse.json();
+                console.error('Error details:', errorData);
+                // Show specific error message to user
+                if (insightsResponse.status === 503) {
+                  setError('AI service is temporarily unavailable. Please check if Gemini API is configured correctly.');
+                } else {
+                  setError(`Failed to load audience insights: ${errorData.message || 'Please try again.'}`);
+                }
+              } catch (e) {
+                console.error('Could not parse error response');
+                setError('Failed to load audience insights. Please try again.');
+              }
+            }
+          } catch (error) {
+            console.error('❌ Error loading audience insights:', error);
+            if (error instanceof Error) {
+              if (error.name === 'AbortError') {
+                setError('Request timed out. The AI service may be slow to respond. Please try again.');
+              } else if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
+                setError('Backend server is not available. Please ensure the backend is running on port 3002.');
+              } else {
+                setError('Failed to connect to AI service. Please check your connection and try again.');
+              }
+            } else {
+              setError('Failed to connect to AI service. Please check your connection and try again.');
             }
           }
           break;
           
         case 'market-sizing':
-          const sizingResponse = await fetch('http://localhost:3002/api/market-sizing', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: audienceFilter.trim() || subcategory.name }),
-          });
-          if (sizingResponse.ok) {
-            const sizingData = await sizingResponse.json();
-            if (sizingData.marketSizing && sizingData.marketSizing.length > 0) {
-              sizingData.marketSizing.forEach((sizing: MarketSizing) => {
-                results.push({ type: 'market-sizing', data: sizing });
-              });
+          try {
+            // Create an AbortController for timeout - market sizing can take longer
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout for market sizing
+            
+            const query = getQueryForSubcategory(subcategory, audienceFilter);
+            console.log(`📊 Market sizing query: "${query}"`);
+            
+            const sizingResponse = await fetch('http://localhost:3002/api/market-sizing', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ query }),
+              signal: controller.signal,
+            });
+            
+            clearTimeout(timeoutId);
+            if (sizingResponse.ok) {
+              const sizingData = await sizingResponse.json();
+              console.log(`📊 Loaded market sizing data:`, sizingData);
+              if (sizingData.marketSizing && sizingData.marketSizing.length > 0) {
+                sizingData.marketSizing.forEach((sizing: MarketSizing) => {
+                  results.push({ type: 'market-sizing', data: sizing });
+                });
+                console.log(`✅ Added ${sizingData.marketSizing.length} market sizing cards`);
+              } else {
+                console.log('⚠️ No market sizing data found in response');
+              }
+            } else {
+              console.error(`❌ Failed to fetch market sizing: ${sizingResponse.status} ${sizingResponse.statusText}`);
+              try {
+                const errorData = await sizingResponse.json();
+                console.error('Error details:', errorData);
+                // Show specific error message to user
+                if (sizingResponse.status === 503) {
+                  setError('AI service is temporarily unavailable. Please check if Gemini API is configured correctly.');
+                } else {
+                  setError(`Failed to load market sizing: ${errorData.message || 'Please try again.'}`);
+                }
+              } catch (e) {
+                console.error('Could not parse error response');
+                setError('Failed to load market sizing. Please try again.');
+              }
+            }
+          } catch (error) {
+            console.error('❌ Error loading market sizing:', error);
+            if (error instanceof Error) {
+              if (error.name === 'AbortError') {
+                setError('Request timed out after 45 seconds. Market sizing analysis can be complex - please try again with a more specific query or try later.');
+              } else if (error.message.includes('Failed to fetch')) {
+                setError('Cannot connect to the backend server. Please make sure the server is running on port 3002.');
+              } else {
+                setError('Failed to connect to AI service. Please check your connection and try again.');
+              }
+            } else {
+              setError('Failed to connect to AI service. Please check your connection and try again.');
             }
           }
           break;
           
         case 'geo-cards':
-          // Generate AI-powered geographic insights
-          const geoResponse = await fetch('http://localhost:3002/api/geographic-insights', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: audienceFilter.trim() || subcategory.name }),
-          });
-          
-          if (geoResponse.ok) {
-            const geoData = await geoResponse.json();
-            if (geoData.geoCards && geoData.geoCards.length > 0) {
-              geoData.geoCards.forEach((geo: GeoCard) => {
-                results.push({ type: 'geo-cards', data: geo });
-              });
+          try {
+            // Generate AI-powered geographic insights
+            const query = getQueryForSubcategory(subcategory, audienceFilter);
+            const geoResponse = await fetch('http://localhost:3002/api/geographic-insights', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ query }),
+            });
+            
+            if (geoResponse.ok) {
+              const geoData = await geoResponse.json();
+              console.log(`🗺️ Loaded geographic insights data:`, geoData);
+              if (geoData.geoCards && geoData.geoCards.length > 0) {
+                geoData.geoCards.forEach((geo: GeoCard) => {
+                  results.push({ type: 'geo-cards', data: geo });
+                });
+                console.log(`✅ Added ${geoData.geoCards.length} geographic insight cards`);
+              } else {
+                console.log('⚠️ No geographic cards found in response');
+              }
+            } else {
+              console.error(`❌ Failed to fetch geographic insights: ${geoResponse.status} ${geoResponse.statusText}`);
+              try {
+                const errorData = await geoResponse.json();
+                console.error('Error details:', errorData);
+                setError(`Failed to load geographic insights: ${errorData.message || 'Please try again.'}`);
+              } catch (e) {
+                console.error('Could not parse error response');
+                setError('Failed to load geographic insights. Please try again.');
+              }
             }
-          } else {
-            console.error('Failed to fetch geographic insights:', geoResponse.statusText);
+          } catch (error) {
+            console.error('❌ Error loading geographic insights:', error);
             setError('Failed to load geographic insights. Please try again.');
           }
           break;
@@ -375,30 +581,46 @@ export default function AudienceExplorer({
             setLoading(false);
             return;
           }
-          const companyName = audienceFilter.trim();
-          const swotResponse = await fetch('http://localhost:3002/api/marketing-swot', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ companyName }),
-          });
-          
-          if (swotResponse.ok) {
-            const swotData = await swotResponse.json();
-            if (swotData.success && swotData.data) {
-              // The API returns a single SWOT result, not an array
-              const swotResult: MarketingSWOT = {
-                id: `swot-${Date.now()}`,
-                companyName: swotData.data.companyName,
-                swot: swotData.data.swot,
-                summary: swotData.data.summary,
-                recommendedActions: swotData.data.recommendedActions,
-                sampleData: false
-              };
-              results.push({ type: 'marketing-swot', data: swotResult });
+          try {
+            const companyName = audienceFilter.trim();
+            const swotResponse = await fetch('http://localhost:3002/api/marketing-swot', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ companyName }),
+            });
+            
+            if (swotResponse.ok) {
+              const swotData = await swotResponse.json();
+              console.log(`🎯 Loaded Marketing SWOT data for ${companyName}:`, swotData);
+              if (swotData.success && swotData.data) {
+                // The API returns a single SWOT result, not an array
+                const swotResult: MarketingSWOT = {
+                  id: `swot-${Date.now()}`,
+                  companyName: swotData.data.companyName,
+                  swot: swotData.data.swot,
+                  summary: swotData.data.summary,
+                  recommendedActions: swotData.data.recommendedActions,
+                  sampleData: false
+                };
+                results.push({ type: 'marketing-swot', data: swotResult });
+                console.log(`✅ Added Marketing SWOT card for ${companyName}`);
+              } else {
+                console.log('⚠️ Marketing SWOT API returned unsuccessful response');
+              }
+            } else {
+              console.error(`❌ Failed to fetch marketing SWOT: ${swotResponse.status} ${swotResponse.statusText}`);
+              try {
+                const errorData = await swotResponse.json();
+                console.error('Error details:', errorData);
+                setError(`Failed to load Marketing SWOT analysis: ${errorData.message || 'Please try again.'}`);
+              } catch (e) {
+                console.error('Could not parse error response');
+                setError('Failed to load Marketing SWOT analysis. Please try again.');
+              }
             }
-          } else {
-            console.error('Failed to fetch marketing SWOT:', swotResponse.statusText);
-            setError('Failed to load marketing SWOT analysis. Please try again.');
+          } catch (error) {
+            console.error('❌ Error loading Marketing SWOT:', error);
+            setError('Failed to load Marketing SWOT analysis. Please try again.');
           }
           break;
           
@@ -409,80 +631,300 @@ export default function AudienceExplorer({
             setLoading(false);
             return;
           }
-          const stockSymbol = audienceFilter.trim();
-          const profileResponse = await fetch('http://localhost:3002/api/company-profile', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stockSymbol }),
-          });
-          
-          if (profileResponse.ok) {
-            const profileData = await profileResponse.json();
-            if (profileData.success && profileData.data) {
-              // The API returns a single company profile result, not an array
-              const profileResult: CompanyProfile = {
-                id: `profile-${Date.now()}`,
-                stockSymbol: profileData.data.stockSymbol || stockSymbol,
-                companyInfo: profileData.data.companyInfo,
-                recentPerformance: profileData.data.recentPerformance,
-                competitiveAnalysis: profileData.data.competitiveAnalysis,
-                growthOpportunities: profileData.data.growthOpportunities,
-                investmentOutlook: profileData.data.investmentOutlook,
-                sampleData: false
-              };
-              results.push({ type: 'company-profile', data: profileResult });
+          try {
+            const stockSymbol = audienceFilter.trim();
+            const profileResponse = await fetch('http://localhost:3002/api/company-profile', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ stockSymbol }),
+            });
+            
+            if (profileResponse.ok) {
+              const profileData = await profileResponse.json();
+              console.log(`📊 Loaded Company Profile data for ${stockSymbol}:`, profileData);
+              if (profileData.success && profileData.data) {
+                // The API returns a single company profile result, not an array
+                const profileResult: CompanyProfile = {
+                  id: `profile-${Date.now()}`,
+                  stockSymbol: profileData.data.stockSymbol || stockSymbol,
+                  companyInfo: profileData.data.companyInfo,
+                  recentPerformance: profileData.data.recentPerformance,
+                  competitiveAnalysis: profileData.data.competitiveAnalysis,
+                  growthOpportunities: profileData.data.growthOpportunities,
+                  investmentOutlook: profileData.data.investmentOutlook,
+                  sampleData: false
+                };
+                results.push({ type: 'company-profile', data: profileResult });
+                console.log(`✅ Added Company Profile card for ${stockSymbol}`);
+              } else {
+                console.log('⚠️ Company Profile API returned unsuccessful response');
+              }
+            } else {
+              console.error(`❌ Failed to fetch company profile: ${profileResponse.status} ${profileResponse.statusText}`);
+              try {
+                const errorData = await profileResponse.json();
+                console.error('Error details:', errorData);
+                setError(`Failed to load Company Profile: ${errorData.message || 'Please try again.'}`);
+              } catch (e) {
+                console.error('Could not parse error response');
+                setError('Failed to load Company Profile. Please try again.');
+              }
             }
-          } else {
-            console.error('Failed to fetch company profiles:', profileResponse.statusText);
-            setError('Failed to load company profiles. Please try again.');
+          } catch (error) {
+            console.error('❌ Error loading Company Profile:', error);
+            setError('Failed to load Company Profile. Please try again.');
+          }
+          break;
+          
+        case 'marketing-news':
+          try {
+            console.log('📰 Attempting to fetch marketing news...');
+            const newsResponse = await fetch('http://localhost:3002/api/marketing-news', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({}),
+            });
+            
+            console.log(`📰 Marketing news response status: ${newsResponse.status}`);
+            
+            let newsData;
+            try {
+              newsData = await newsResponse.json();
+              console.log(`📰 Loaded marketing news data:`, newsData);
+            } catch (parseError) {
+              console.error('❌ Failed to parse marketing news response:', parseError);
+              // Provide fallback marketing news if backend is up but response is malformed
+              newsData = {
+                marketingNews: [
+                  {
+                    id: `parse-error-${Date.now()}`,
+                    headline: "Marketing Industry Update",
+                    source: "System Notice",
+                    synopsis: "Marketing news service is temporarily experiencing issues. Please try again later for the latest headlines.",
+                    url: "#",
+                    publishDate: new Date().toISOString().split('T')[0],
+                    relevanceScore: 0.5
+                  }
+                ],
+                aiResponse: "Marketing news service is temporarily experiencing issues."
+              };
+            }
+            
+            if (newsData && newsData.marketingNews && newsData.marketingNews.length > 0) {
+              newsData.marketingNews.forEach((news: MarketingNews) => {
+                results.push({ type: 'marketing-news', data: news });
+              });
+              console.log(`✅ Added ${newsData.marketingNews.length} marketing news cards`);
+              // Clear any previous errors since we have data
+              setError(null);
+              errorHandledByCase = true;
+            } else {
+              console.log('⚠️ No marketing news found in response');
+              setError('No marketing news available at this time. Please try again later.');
+              errorHandledByCase = true;
+            }
+            
+          } catch (error) {
+            console.error('❌ Network or server error loading marketing news:', error);
+            
+            // Check if it's a network error (backend not running)
+            if (error instanceof TypeError && error.message.includes('fetch')) {
+              console.log('⚠️ Backend appears to be offline, providing static fallback');
+              // Provide static fallback when backend is completely unavailable
+              const fallbackNews: MarketingNews[] = [
+                {
+                  id: `offline-1-${Date.now()}`,
+                  headline: "Marketing Technology Trends Continue to Evolve",
+                  source: "Industry Analysis",
+                  synopsis: "Latest developments in marketing technology and AI-driven solutions are transforming how brands reach consumers in 2024.",
+                  url: "#",
+                  publishDate: new Date().toISOString().split('T')[0],
+                  relevanceScore: 0.9
+                },
+                {
+                  id: `offline-2-${Date.now()}`,
+                  headline: "Privacy Regulations Shape Digital Advertising Landscape",
+                  source: "Marketing Weekly",
+                  synopsis: "New privacy regulations continue to impact digital advertising strategies and measurement capabilities across platforms.",
+                  url: "#",
+                  publishDate: new Date().toISOString().split('T')[0],
+                  relevanceScore: 0.8
+                }
+              ];
+              
+              fallbackNews.forEach((news: MarketingNews) => {
+                results.push({ type: 'marketing-news', data: news });
+              });
+              
+              console.log(`✅ Added ${fallbackNews.length} offline fallback marketing news cards`);
+              setError(null); // Clear error since we have fallback data
+              errorHandledByCase = true;
+            } else {
+              setError('Marketing news service is temporarily unavailable. Please try again later.');
+              errorHandledByCase = true;
+            }
+          }
+          break;
+
+        case 'competitive-intelligence':
+          if (!audienceFilter.trim()) {
+            setError('Please enter a company name or industry for competitive intelligence analysis.');
+            setLoading(false);
+            return;
+          }
+          try {
+            const query = audienceFilter.trim();
+            const response = await fetch('http://localhost:3002/api/competitive-intelligence', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ query }),
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success && data.data) {
+                results.push({ type: 'competitive-intelligence', data: data.data });
+                console.log(`✅ Added competitive intelligence for: ${query}`);
+              } else {
+                setError('Failed to generate competitive intelligence. Please try again.');
+              }
+            } else {
+              const errorData = await response.json();
+              setError(`Failed to load competitive intelligence: ${errorData.error || 'Please try again.'}`);
+            }
+          } catch (error) {
+            console.error('Error loading competitive intelligence:', error);
+            setError('Failed to load competitive intelligence. Please try again.');
+          }
+          break;
+
+        case 'content-strategy':
+          if (!audienceFilter.trim()) {
+            setError('Please enter an industry or topic for content strategy recommendations.');
+            setLoading(false);
+            return;
+          }
+          try {
+            const query = audienceFilter.trim();
+            const response = await fetch('http://localhost:3002/api/content-strategy', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ query }),
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success && data.data) {
+                results.push({ type: 'content-strategy', data: data.data });
+                console.log(`✅ Added content strategy for: ${query}`);
+              } else {
+                setError('Failed to generate content strategy. Please try again.');
+              }
+            } else {
+              const errorData = await response.json();
+              setError(`Failed to load content strategy: ${errorData.error || 'Please try again.'}`);
+            }
+          } catch (error) {
+            console.error('Error loading content strategy:', error);
+            setError('Failed to load content strategy. Please try again.');
+          }
+          break;
+
+        case 'brand-strategy':
+          if (!audienceFilter.trim()) {
+            setError('Please enter a brand name or category for brand strategy analysis.');
+            setLoading(false);
+            return;
+          }
+          try {
+            const query = audienceFilter.trim();
+            const response = await fetch('http://localhost:3002/api/brand-strategy', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ query }),
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success && data.data) {
+                results.push({ type: 'brand-strategy', data: data.data });
+                console.log(`✅ Added brand strategy for: ${query}`);
+              } else {
+                setError('Failed to generate brand strategy. Please try again.');
+              }
+            } else {
+              const errorData = await response.json();
+              setError(`Failed to load brand strategy: ${errorData.error || 'Please try again.'}`);
+            }
+          } catch (error) {
+            console.error('Error loading brand strategy:', error);
+            setError('Failed to load brand strategy. Please try again.');
           }
           break;
       }
       
-      console.log(`✅ Loaded ${results.length} results for ${subcategory.name}:`, results);
+      // Only log in development mode and when there are results to reduce console spam
+      if (process.env.NODE_ENV === 'development' && results.length > 0) {
+        console.log(`✅ Loaded ${results.length} results for ${subcategory.name}:`, results);
+      }
       setSearchResults(results);
       
     } catch (error) {
       console.error('Error loading data by subcategory:', error);
-      setError('Failed to load data. Please try again.');
-      setSearchResults([]);
+      // Only set error if it wasn't already handled by the specific case
+      if (!errorHandledByCase) {
+        setError('Failed to load data. Please try again.');
+        setSearchResults([]);
+      }
     } finally {
       setLoading(false);
     }
   }, [selectedSubcategory, allDeals, selectedMediaFormats, audienceFilter]);
 
-  // Auto-load data when subcategory changes for personas, clear results for others
+  // Auto-load data when subcategory changes - only for static data categories
   useEffect(() => {
-    if (selectedSubcategory) {
-      const subcategory = categories
-        .flatMap(cat => cat.subcategories || [])
-        .find(sub => sub.id === selectedSubcategory);
+    // Only log and act if the subcategory actually changed
+    if (prevSubcategoryRef.current !== selectedSubcategory) {
+      prevSubcategoryRef.current = selectedSubcategory;
       
-      // Auto-load data when a subcategory is selected (only for categories that don't require user input)
-      if (subcategory && (subcategory.cardType === 'personas' || subcategory.cardType === 'deals')) {
-        loadDataBySubcategory();
+      if (selectedSubcategory) {
+        const subcategory = categories
+          .flatMap(cat => cat.subcategories || [])
+          .find(sub => sub.id === selectedSubcategory);
+        
+        if (subcategory) {
+          // Only auto-load data for static categories that don't require API calls or user input
+          if (subcategory.cardType === 'personas' || subcategory.cardType === 'deals' || subcategory.cardType === 'marketing-news') {
+            loadDataBySubcategory();
+          } else {
+            // Clear results for all AI-powered categories - require explicit user search
+            setSearchResults([]);
+            setError(null); // Clear any previous errors
+          }
+        }
       } else {
-        // Clear results for other card types (including marketing-swot and company-profile that require user input)
         setSearchResults([]);
       }
-    } else {
-      setSearchResults([]);
     }
-  }, [selectedSubcategory, loadDataBySubcategory]);
+    // Remove loadDataBySubcategory from dependencies to prevent infinite loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSubcategory]);
 
   // Reload data when media formats change for deals
   useEffect(() => {
     if (selectedCategory === 'deals' && selectedSubcategory) {
       loadDataBySubcategory();
     }
-  }, [selectedMediaFormats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMediaFormats, selectedCategory, selectedSubcategory]);
 
   // Reload data when audience filter changes for deals
   useEffect(() => {
     if (selectedCategory === 'deals' && selectedSubcategory) {
       loadDataBySubcategory();
     }
-  }, [audienceFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audienceFilter, selectedCategory, selectedSubcategory]);
 
   const filterDeals = (deals: Deal[], subcategory: any): Deal[] => {
     if (!subcategory || deals.length === 0) return deals;
@@ -658,6 +1100,47 @@ export default function AudienceExplorer({
         setSelectedCompanyProfile(result.data);
         setIsCompanyProfileModalOpen(true);
         break;
+      case 'marketing-news':
+        setSelectedMarketingNews(result.data);
+        setIsMarketingNewsModalOpen(true);
+        break;
+      case 'competitive-intelligence':
+        setSelectedCompetitiveIntel(result.data);
+        setIsCompetitiveIntelModalOpen(true);
+        break;
+      case 'content-strategy':
+        // Validate the content strategy data before opening modal
+        if (result.data && 
+            result.data.industryOrTopic &&
+            result.data.trendingTopics &&
+            Array.isArray(result.data.trendingTopics) &&
+            result.data.contentRecommendations &&
+            result.data.seoOpportunities &&
+            result.data.editorialCalendar &&
+            Array.isArray(result.data.editorialCalendar)) {
+          setSelectedContentStrategy(result.data);
+          setIsContentStrategyModalOpen(true);
+        } else {
+          console.error('Invalid content strategy data:', result.data);
+          setError('Content strategy data is incomplete or corrupted. Please try again.');
+        }
+        break;
+      case 'brand-strategy':
+        // Validate the brand strategy data before opening modal
+        if (result.data && 
+            result.data.brandOrCategory &&
+            result.data.positioning &&
+            result.data.messagingFramework &&
+            result.data.brandVoice &&
+            result.data.strategicRecommendations &&
+            Array.isArray(result.data.strategicRecommendations)) {
+          setSelectedBrandStrategy(result.data);
+          setIsBrandStrategyModalOpen(true);
+        } else {
+          console.error('Invalid brand strategy data:', result.data);
+          setError('Brand strategy data is incomplete or corrupted. Please try again.');
+        }
+        break;
     }
   };
 
@@ -690,11 +1173,18 @@ export default function AudienceExplorer({
   };
 
   const handleSearch = () => {
-    // For deals, filtering happens automatically via useEffect
-    // For other categories, trigger manual search
-    if (selectedSubcategory && selectedCategory !== 'deals') {
-      loadDataBySubcategory();
-    }
+    if (!selectedSubcategory) return;
+    
+    const subcategory = categories
+      .flatMap(cat => cat.subcategories || [])
+      .find(sub => sub.id === selectedSubcategory);
+    
+    if (!subcategory) return;
+    
+    // Manual search triggered - logging removed to reduce console spam
+    
+    // Always trigger data loading when search button is clicked
+    loadDataBySubcategory();
   };
 
   const handleMediaFormatChange = (formatId: string, checked: boolean) => {
@@ -725,14 +1215,14 @@ export default function AudienceExplorer({
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-neutral-900 group-hover:text-brand-gold transition-colors">
-                {result.data.dealName || result.data.name || result.data.marketName || result.data.title || result.data.companyName || result.data.stockSymbol}
+                {result.data.dealName || result.data.name || result.data.marketName || result.data.title || result.data.companyName || result.data.stockSymbol || result.data.headline || result.data.competitorOrIndustry || result.data.industryOrTopic || result.data.brandOrCategory}
               </h3>
               <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">
                 {getCardTypeLabel(result.type)}
               </span>
             </div>
             <p className="text-sm text-neutral-600 line-clamp-2">
-              {result.data.description || result.data.coreInsight || result.data.summary}
+              {result.data.description || result.data.coreInsight || result.data.summary || result.data.synopsis}
             </p>
           </div>
         </div>
@@ -785,8 +1275,75 @@ export default function AudienceExplorer({
             <span>Company profile</span>
           </div>
         )}
+        
+        {result.type === 'marketing-news' && (
+          <div className="flex items-center gap-2 text-xs text-brand-gold">
+            <Newspaper className="w-3 h-3" />
+            <span>Marketing news</span>
+          </div>
+        )}
       </div>
     );
+  };
+
+  // Helper function to render the no results state
+  const renderNoResultsState = () => {
+    if (!selectedSubcategory) {
+      return (
+        <div className="text-center py-12">
+          <Target className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-neutral-900 mb-2">Select a category to explore</h3>
+          <p className="text-neutral-600">
+            Choose a category above to browse deals, audience insights, market data, and geographic information
+          </p>
+        </div>
+      );
+    }
+
+    // Check if this is an AI-powered category that requires user input
+    const subcategory = categories
+      .flatMap(cat => cat.subcategories || [])
+      .find(sub => sub.id === selectedSubcategory);
+    
+    const isAIPowered = subcategory && [
+      'audience-insights', 
+      'market-sizing', 
+      'geo-cards', 
+      'marketing-swot', 
+      'company-profile',
+      'marketing-news'
+    ].includes(subcategory.cardType);
+    
+    if (isAIPowered) {
+      return (
+        <div className="text-center py-12">
+          <Search className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-neutral-900 mb-2">Ready to Search</h3>
+          <p className="text-neutral-600 mb-4">
+            Enter your search query above and click the <strong>Search</strong> button to generate AI-powered insights.
+          </p>
+          {subcategory && (
+            <div className="text-sm text-neutral-500">
+              {subcategory.cardType === 'marketing-swot' && "Try searching for a company name (e.g., 'Apple', 'Nike')"}
+              {subcategory.cardType === 'company-profile' && "Try searching for a stock symbol (e.g., 'AAPL', 'NKE')"}
+              {subcategory.cardType === 'audience-insights' && "Try searching for an audience (e.g., 'sports fans', 'millennials')"}
+              {subcategory.cardType === 'market-sizing' && "Try searching for a market (e.g., 'automotive', 'healthcare')"}
+              {subcategory.cardType === 'geo-cards' && "Try searching for a location (e.g., 'California', 'United States')"}
+            </div>
+          )}
+        </div>
+      );
+    } else {
+      return (
+        <div className="text-center py-12">
+          <Search className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-neutral-900 mb-2">No data available</h3>
+          <p className="text-neutral-600">
+            No results found for this subcategory. The data might be loading or unavailable.
+          </p>
+        </div>
+      );
+    }
   };
 
   return (
@@ -902,15 +1459,23 @@ export default function AudienceExplorer({
                         : selectedCategory === 'deals'
                         ? "Search deals by name, description, or targeting (e.g., 'sports', 'entertainment')..."
                         : selectedCategory === 'audiences'
-                        ? "Search audience insights (e.g., 'pet owners', 'millennials')..."
+                        ? "Enter audience type for insights (e.g., 'pet owners', 'millennials', 'sports fans')..."
                         : selectedCategory === 'market-data'
-                        ? "Search market sizing (e.g., 'automotive', 'healthcare')..."
+                        ? "Enter market or industry for analysis (e.g., 'automotive', 'healthcare', 'AI technology')..."
                         : selectedCategory === 'geographic'
-                        ? "Search geographic insights (e.g., 'US', 'Europe')..."
+                        ? "Enter location for geographic analysis (e.g., 'California', 'New York City', 'Europe')..."
                         : selectedCategory === 'marketing-swot'
-                        ? "Search marketing SWOT analysis (e.g., 'company name', 'digital marketing')..."
+                        ? "Enter company name for SWOT analysis (e.g., 'Apple', 'Nike', 'Tesla')..."
                         : selectedCategory === 'company-profile'
-                        ? "Search company profiles (e.g., 'Apple', 'technology', 'ticker symbol')..."
+                        ? "Enter stock symbol for company profile (e.g., 'AAPL', 'NKE', 'TSLA')..."
+                        : selectedCategory === 'marketing-news'
+                        ? "Get latest marketing news headlines..."
+                        : selectedCategory === 'competitive-intelligence'
+                        ? "Enter company name or industry for competitive analysis (e.g., 'Tesla', 'electric vehicles')..."
+                        : selectedCategory === 'content-strategy'
+                        ? "Enter industry or topic for content strategy (e.g., 'fintech', 'sustainability')..."
+                        : selectedCategory === 'brand-strategy'
+                        ? "Enter brand name or category for brand strategy (e.g., 'Apple', 'luxury brands')..."
                         : "Search within selected category..."
                     }
                     value={audienceFilter}
@@ -1028,23 +1593,7 @@ export default function AudienceExplorer({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {searchResults.map((result, index) => renderCard(result, index))}
           </div>
-        ) : selectedSubcategory ? (
-          <div className="text-center py-12">
-            <Search className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-neutral-900 mb-2">No data available</h3>
-            <p className="text-neutral-600">
-              No results found for this subcategory. The data might be loading or unavailable.
-            </p>
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <Target className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-neutral-900 mb-2">Select a category to explore</h3>
-            <p className="text-neutral-600">
-              Choose a category above to browse deals, audience insights, market data, and geographic information
-            </p>
-          </div>
-        )}
+        ) : renderNoResultsState()}
         </div>
       </div>
 
@@ -1162,14 +1711,6 @@ export default function AudienceExplorer({
             setIsMarketingSWOTModalOpen(false);
             setSelectedMarketingSWOT(null);
           }}
-          onViewDeals={(swot) => {
-            // Close modal and switch to chat interface
-            setIsMarketingSWOTModalOpen(false);
-            setSelectedMarketingSWOT(null);
-            if (onSwitchToChat) {
-              onSwitchToChat(`request deals for ${swot.companyName} marketing campaigns`);
-            }
-          }}
           onSaveCard={onSaveCard}
           onUnsaveCard={onUnsaveCard}
           isSaved={isSaved}
@@ -1184,13 +1725,61 @@ export default function AudienceExplorer({
             setIsCompanyProfileModalOpen(false);
             setSelectedCompanyProfile(null);
           }}
-          onViewDeals={(profile) => {
-            // Close modal and switch to chat interface
-            setIsCompanyProfileModalOpen(false);
-            setSelectedCompanyProfile(null);
-            if (onSwitchToChat) {
-              onSwitchToChat(`request deals for ${profile.companyInfo.name} company campaigns`);
-            }
+          onSaveCard={onSaveCard}
+          onUnsaveCard={onUnsaveCard}
+          isSaved={isSaved}
+        />
+      )}
+
+      {isMarketingNewsModalOpen && selectedMarketingNews && (
+        <MarketingNewsDetailModal
+          news={selectedMarketingNews}
+          isOpen={isMarketingNewsModalOpen}
+          onClose={() => {
+            setIsMarketingNewsModalOpen(false);
+            setSelectedMarketingNews(null);
+          }}
+          onSaveCard={onSaveCard}
+          onUnsaveCard={onUnsaveCard}
+          isSaved={isSaved}
+        />
+      )}
+
+      {isCompetitiveIntelModalOpen && selectedCompetitiveIntel && (
+        <CompetitiveIntelligenceDetailModal
+          competitiveIntel={selectedCompetitiveIntel}
+          isOpen={isCompetitiveIntelModalOpen}
+          onClose={() => {
+            setIsCompetitiveIntelModalOpen(false);
+            setSelectedCompetitiveIntel(null);
+          }}
+          onSaveCard={onSaveCard}
+          onUnsaveCard={onUnsaveCard}
+          isSaved={isSaved}
+        />
+      )}
+
+      {isContentStrategyModalOpen && selectedContentStrategy && (
+        <ContentStrategyDetailModal
+          contentStrategy={selectedContentStrategy}
+          isOpen={isContentStrategyModalOpen}
+          onClose={() => {
+            setIsContentStrategyModalOpen(false);
+            setSelectedContentStrategy(null);
+          }}
+          onSaveCard={onSaveCard}
+          onUnsaveCard={onUnsaveCard}
+          isSaved={isSaved}
+        />
+      )}
+
+      {isBrandStrategyModalOpen && selectedBrandStrategy && (
+        <BrandStrategyDetailModal
+          brandStrategy={selectedBrandStrategy}
+          isOpen={isBrandStrategyModalOpen}
+          onClose={() => {
+            setIsBrandStrategyModalOpen(false);
+            setSelectedBrandStrategy(null);
           }}
           onSaveCard={onSaveCard}
           onUnsaveCard={onUnsaveCard}

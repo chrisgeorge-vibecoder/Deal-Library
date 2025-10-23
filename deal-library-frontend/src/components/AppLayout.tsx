@@ -49,16 +49,15 @@ import GeoDetailModal from './GeoDetailModal';
 import DealDetailModal from './DealDetailModal';
 import { MarketingSWOTDetailModal } from './MarketingSWOTDetailModal';
 import { CompanyProfileDetailModal } from './CompanyProfileDetailModal';
+import { MarketingNewsDetailModal } from './MarketingNewsDetailModal';
+import { CompetitiveIntelligenceDetailModal } from './CompetitiveIntelligenceDetailModal';
+import { ContentStrategyDetailModal } from './ContentStrategyDetailModal';
+import { BrandStrategyDetailModal } from './BrandStrategyDetailModal';
+import { StrategyBriefDetailModal } from './StrategyBriefDetailModal';
 import CustomDealForm from './CustomDealForm';
-import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile } from '@/types/deal';
+import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy } from '@/types/deal';
 import { MarketSizing } from '@/components/MarketSizingCard';
-
-// Saved cards interface
-interface SavedCard {
-  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'research' | 'marketing-swot' | 'company-profile';
-  data: Deal | Persona | AudienceInsights | MarketSizing | GeoCard | MarketingSWOT | CompanyProfile | any;
-  savedAt: string;
-}
+import { SavedCard } from '@/types/deal';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -85,6 +84,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [isMarketingSWOTModalOpen, setIsMarketingSWOTModalOpen] = useState(false);
   const [selectedCompanyProfile, setSelectedCompanyProfile] = useState<CompanyProfile | null>(null);
   const [isCompanyProfileModalOpen, setIsCompanyProfileModalOpen] = useState(false);
+  const [selectedMarketingNews, setSelectedMarketingNews] = useState<MarketingNews | null>(null);
+  const [isMarketingNewsModalOpen, setIsMarketingNewsModalOpen] = useState(false);
+  const [selectedCompetitiveIntel, setSelectedCompetitiveIntel] = useState<CompetitiveIntelligence | null>(null);
+  const [isCompetitiveIntelModalOpen, setIsCompetitiveIntelModalOpen] = useState(false);
+  const [selectedContentStrategy, setSelectedContentStrategy] = useState<ContentStrategy | null>(null);
+  const [isContentStrategyModalOpen, setIsContentStrategyModalOpen] = useState(false);
+  const [selectedBrandStrategy, setSelectedBrandStrategy] = useState<BrandStrategy | null>(null);
+  const [isBrandStrategyModalOpen, setIsBrandStrategyModalOpen] = useState(false);
+  const [selectedStrategyBrief, setSelectedStrategyBrief] = useState<any>(null);
+  const [isStrategyBriefModalOpen, setIsStrategyBriefModalOpen] = useState(false);
   
   // Cart and Custom Deal Form states
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -145,6 +154,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
         return `marketing-swot-${(card.data as MarketingSWOT).companyName}`;
       case 'company-profile':
         return `company-profile-${(card.data as CompanyProfile).stockSymbol}`;
+      case 'marketing-news':
+        return `marketing-news-${(card.data as MarketingNews).id}`;
+      case 'competitive-intelligence':
+        return `competitive-intelligence-${(card.data as any).competitorOrIndustry}`;
+      case 'content-strategy':
+        return `content-strategy-${(card.data as any).industryOrTopic}`;
+      case 'brand-strategy':
+        return `brand-strategy-${(card.data as any).brandOrCategory}`;
+      case 'strategy-brief':
+        // Use a hash of the strategy rationale as ID since strategy briefs don't have unique identifiers
+        return `strategy-brief-${card.data?.strategyRationale ? btoa(card.data.strategyRationale).substring(0, 10) : Date.now()}`;
       case 'research':
         return `research-${(card.data as any).id}`;
       default:
@@ -184,6 +204,53 @@ export default function AppLayout({ children }: AppLayoutProps) {
       case 'company-profile':
         setSelectedCompanyProfile(card.data as CompanyProfile);
         setIsCompanyProfileModalOpen(true);
+        break;
+      case 'marketing-news':
+        setSelectedMarketingNews(card.data as MarketingNews);
+        setIsMarketingNewsModalOpen(true);
+        break;
+      case 'competitive-intelligence':
+        setSelectedCompetitiveIntel(card.data as CompetitiveIntelligence);
+        setIsCompetitiveIntelModalOpen(true);
+        break;
+      case 'content-strategy':
+        // Validate the content strategy data before opening modal
+        const contentStrategyData = card.data as ContentStrategy;
+        if (contentStrategyData && 
+            contentStrategyData.industryOrTopic &&
+            contentStrategyData.trendingTopics &&
+            Array.isArray(contentStrategyData.trendingTopics) &&
+            contentStrategyData.contentRecommendations &&
+            contentStrategyData.seoOpportunities &&
+            contentStrategyData.editorialCalendar &&
+            Array.isArray(contentStrategyData.editorialCalendar)) {
+          setSelectedContentStrategy(contentStrategyData);
+          setIsContentStrategyModalOpen(true);
+        } else {
+          console.error('Invalid content strategy data in saved card:', contentStrategyData);
+          // Don't show error for saved cards, just skip opening the modal
+        }
+        break;
+      case 'brand-strategy':
+        // Validate the brand strategy data before opening modal
+        const brandStrategyData = card.data as BrandStrategy;
+        if (brandStrategyData && 
+            brandStrategyData.brandOrCategory &&
+            brandStrategyData.positioning &&
+            brandStrategyData.messagingFramework &&
+            brandStrategyData.brandVoice &&
+            brandStrategyData.strategicRecommendations &&
+            Array.isArray(brandStrategyData.strategicRecommendations)) {
+          setSelectedBrandStrategy(brandStrategyData);
+          setIsBrandStrategyModalOpen(true);
+        } else {
+          console.error('Invalid brand strategy data in saved card:', brandStrategyData);
+          // Don't show error for saved cards, just skip opening the modal
+        }
+        break;
+      case 'strategy-brief':
+        setSelectedStrategyBrief(card.data);
+        setIsStrategyBriefModalOpen(true);
         break;
       case 'research':
         // Navigate to research library page and open the specific study modal
@@ -291,6 +358,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
       setIsCompanyProfileModalOpen(true);
     };
 
+    const handleOpenMarketingNewsModal = (event: any) => {
+      console.log('📰 AppLayout: Opening Marketing News modal', event.detail.news);
+      setSelectedMarketingNews(event.detail.news);
+      setIsMarketingNewsModalOpen(true);
+    };
+
     const handleOpenCart = () => {
       setIsCartOpen(true);
     };
@@ -336,6 +409,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     window.addEventListener('openDealModal', handleOpenDealModal);
     window.addEventListener('openMarketingSWOTModal', handleOpenMarketingSWOTModal);
     window.addEventListener('openCompanyProfileModal', handleOpenCompanyProfileModal);
+    window.addEventListener('openMarketingNewsModal', handleOpenMarketingNewsModal);
     window.addEventListener('openCart', handleOpenCart);
     window.addEventListener('openCustomDealForm', handleOpenCustomDealForm);
     window.addEventListener('saveCard', handleSaveCardEvent);
@@ -348,6 +422,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       window.removeEventListener('openDealModal', handleOpenDealModal);
       window.removeEventListener('openMarketingSWOTModal', handleOpenMarketingSWOTModal);
       window.removeEventListener('openCompanyProfileModal', handleOpenCompanyProfileModal);
+      window.removeEventListener('openMarketingNewsModal', handleOpenMarketingNewsModal);
       window.removeEventListener('openCart', handleOpenCart);
       window.removeEventListener('openCustomDealForm', handleOpenCustomDealForm);
       window.removeEventListener('saveCard', handleSaveCardEvent);
@@ -676,6 +751,66 @@ export default function AppLayout({ children }: AppLayoutProps) {
         onClose={() => {
           setIsCompanyProfileModalOpen(false);
           setSelectedCompanyProfile(null);
+        }}
+        onSaveCard={handleSaveCard}
+        onUnsaveCard={handleUnsaveCard}
+        isSaved={isCardSaved}
+      />
+
+      <MarketingNewsDetailModal
+        news={selectedMarketingNews}
+        isOpen={isMarketingNewsModalOpen}
+        onClose={() => {
+          setIsMarketingNewsModalOpen(false);
+          setSelectedMarketingNews(null);
+        }}
+        onSaveCard={handleSaveCard}
+        onUnsaveCard={handleUnsaveCard}
+        isSaved={isCardSaved}
+      />
+
+      <CompetitiveIntelligenceDetailModal
+        competitiveIntel={selectedCompetitiveIntel}
+        isOpen={isCompetitiveIntelModalOpen}
+        onClose={() => {
+          setIsCompetitiveIntelModalOpen(false);
+          setSelectedCompetitiveIntel(null);
+        }}
+        onSaveCard={handleSaveCard}
+        onUnsaveCard={handleUnsaveCard}
+        isSaved={isCardSaved}
+      />
+
+      <ContentStrategyDetailModal
+        contentStrategy={selectedContentStrategy}
+        isOpen={isContentStrategyModalOpen}
+        onClose={() => {
+          setIsContentStrategyModalOpen(false);
+          setSelectedContentStrategy(null);
+        }}
+        onSaveCard={handleSaveCard}
+        onUnsaveCard={handleUnsaveCard}
+        isSaved={isCardSaved}
+      />
+
+      <BrandStrategyDetailModal
+        brandStrategy={selectedBrandStrategy}
+        isOpen={isBrandStrategyModalOpen}
+        onClose={() => {
+          setIsBrandStrategyModalOpen(false);
+          setSelectedBrandStrategy(null);
+        }}
+        onSaveCard={handleSaveCard}
+        onUnsaveCard={handleUnsaveCard}
+        isSaved={isCardSaved}
+      />
+
+      <StrategyBriefDetailModal
+        coaching={selectedStrategyBrief}
+        isOpen={isStrategyBriefModalOpen}
+        onClose={() => {
+          setIsStrategyBriefModalOpen(false);
+          setSelectedStrategyBrief(null);
         }}
         onSaveCard={handleSaveCard}
         onUnsaveCard={handleUnsaveCard}

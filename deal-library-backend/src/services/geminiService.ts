@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Deal } from '../types/deal';
 import { RAGService } from './ragService';
+import { coachingService } from './coachingService';
 
 export interface CoachingInsights {
   strategyRationale?: string;
@@ -684,7 +685,7 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
       console.log(`🤖 Gemini response: ${text.substring(0, 200)}...`);
       
       // Parse Gemini's response
-      const analysis = this.parseGeminiResponse(text, deals, query);
+      const analysis = await this.parseGeminiResponse(text, deals, query);
       
       // Add citations to response if available
       if (ragContext && ragContext.citations.length > 0) {
@@ -1659,12 +1660,12 @@ Respond with valid JSON only.`;
   /**
    * Parse Gemini's response and extract relevant deals
    */
-  private parseGeminiResponse(response: string, allDeals: Deal[], query?: string): {
+  private async parseGeminiResponse(response: string, allDeals: Deal[], query?: string): Promise<{
     deals: Deal[];
     aiResponse: string;
     confidence: number;
     coaching?: CoachingInsights;
-  } {
+  }> {
     try {
       // Normalize response: strip code fences/backticks and trim
       let cleaned = response.trim()
@@ -1787,15 +1788,20 @@ Respond with valid JSON only.`;
       
       let coachingData = parsed.coaching;
       
-      // Fallback: Generate basic coaching if missing
+      // Fallback: Generate data-driven coaching if missing
       if (mappedDeals.length > 0 && !coachingData) {
         console.log('⚠️ WARNING: Deals found but no coaching data in Gemini response!');
         console.log('📝 Full parsed response:', JSON.stringify(parsed, null, 2));
         
-        // Generate contextual fallback coaching data based on query
-        coachingData = this.generateContextualCoaching(query || "", mappedDeals);
-        
-        console.log('🔧 Generated fallback coaching data');
+        try {
+          // Use data-driven coaching service for comprehensive insights
+          coachingData = await coachingService.generateCoaching(mappedDeals, query || "");
+          console.log('🔧 Generated data-driven coaching fallback');
+        } catch (error) {
+          console.warn('⚠️ Failed to generate data-driven coaching, using contextual fallback:', error);
+          // Generate contextual fallback coaching data based on query
+          coachingData = this.generateContextualCoaching(query || "", mappedDeals);
+        }
       }
 
       return {
@@ -2684,6 +2690,410 @@ Return ONLY valid JSON in this exact format:
             recommendation: "Data unavailable"
           }
         }
+      };
+    }
+  }
+
+  /**
+   * Generate Marketing News headlines and summaries
+   */
+  async generateMarketingNews(userQuery?: string): Promise<any> {
+    console.log(`📰 Generating Marketing News${userQuery ? ` for query: "${userQuery}"` : ''}`);
+    
+    // Customize the prompt based on user query
+    let focusInstruction = '';
+    let additionalSources = '';
+    
+    if (userQuery) {
+      const queryLower = userQuery.toLowerCase();
+      
+      if (queryLower.includes('commerce') || queryLower.includes('retail')) {
+        focusInstruction = `\nSPECIAL FOCUS: The user is specifically interested in COMMERCE MEDIA and RETAIL MEDIA news. Prioritize headlines about:\n- Retail media networks and platforms\n- E-commerce advertising and marketing\n- Commerce media spend and trends\n- Retail advertising innovations\n- Direct-to-consumer marketing strategies\n- Social commerce developments\n- Omnichannel retail marketing\n`;
+        additionalSources = '\n- Retail TouchPoints\n- Modern Retail\n- Retail Dive\n- Internet Retailer\n';
+      }
+      
+      if (queryLower.includes('social') || queryLower.includes('influencer')) {
+        focusInstruction += `\nADDITIONAL FOCUS: Include social media marketing and influencer commerce developments.\n`;
+      }
+      
+      if (queryLower.includes('privacy') || queryLower.includes('data')) {
+        focusInstruction += `\nADDITIONAL FOCUS: Include privacy and data regulation impacts on commerce.\n`;
+      }
+    }
+    
+    const prompt = `You are a marketing industry news analyst creating realistic marketing and advertising news headlines based on current industry trends.
+
+TASK: Generate 5 realistic marketing and advertising news headlines that would be typical for today. ${userQuery ? `The user specifically asked about: "${userQuery}" - tailor the news to be highly relevant to this topic.` : 'Focus on current industry trends, major announcements, and significant marketing developments.'} These are AI-generated headlines for demonstration purposes, not real published articles.${focusInstruction}
+
+INDUSTRY FOCUS AREAS:
+- Marketing technology and AI
+- Digital advertising platforms
+- Consumer privacy regulations
+- Social media marketing trends
+- E-commerce and retail marketing
+- Brand partnerships and campaigns
+- Advertising measurement and attribution
+- Commerce media and retail media networks
+- Direct-to-consumer marketing strategies
+
+SOURCES TO SIMULATE:
+- AdWeek
+- Marketecture 
+- AdExchanger
+- AdAge.com
+- Digiday.com
+- The Drum
+- Marketing Land${additionalSources}
+
+For each news item, provide realistic:
+- Compelling headline that sounds like current industry news
+- Source publication name
+- Brief synopsis (1-2 sentences) explaining the key points and industry impact
+- Companies mentioned: Extract ONLY the core company/brand names (e.g., "Google", "Meta", "Apple"). Do NOT include product names (like "Google Ads"), services, or generic terms (like "advertisers", "marketers", "platforms", "retail brands", "publishers", "agencies", "D2C brands"). Only include actual company names.
+- Key insights: Provide 2-3 strategic marketing insights that a marketer would find valuable from this news
+- IMPORTANT: Use only "#" as the URL since these are simulated articles, not real published articles
+- Recent publication date within the last week
+
+CRITICAL URL RULE: Always use "#" as the URL value for all news items since these are AI-generated headlines, not links to real articles.
+
+CRITICAL COMPANY EXTRACTION RULE: For the companies field, ONLY include actual company/brand names (e.g., "Google", "Meta", "Apple", "Microsoft"). Do NOT include:
+- Product names (Google Ads, YouTube, Instagram, etc.)
+- Services (Performance Max, AdSense, etc.) 
+- Generic terms (advertisers, marketers, brands, platforms, etc.)
+- Industry terms (agencies, publishers, retail brands, publishers, agencies, etc.)
+- Category terms (retail brands, publishers, agencies, advertisers, marketers, D2C brands, etc.)
+Only extract the core company entity names like individual company names.
+
+Return ONLY valid JSON in this exact format:
+{
+  "newsItems": [
+    {
+      "id": "news-1",
+      "headline": "Exact headline from source",
+      "source": "Publication name",
+      "synopsis": "Brief 1-2 sentence summary of key points and industry impact",
+      "companies": ["Google", "Meta", "Apple"],
+      "keyInsights": ["Strategic insight 1", "Key takeaway 2", "Industry trend 3"],
+      "url": "#",
+      "publishDate": "YYYY-MM-DD",
+      "relevanceScore": 0.95
+    },
+    {
+      "id": "news-2", 
+      "headline": "Another headline",
+      "source": "Source name",
+      "synopsis": "Brief summary",
+      "companies": ["Microsoft", "Salesforce"],
+      "keyInsights": ["Insight 1", "Insight 2"],
+      "url": "#",
+      "publishDate": "YYYY-MM-DD",
+      "relevanceScore": 0.90
+    },
+    {
+      "id": "news-3",
+      "headline": "Third headline",
+      "source": "Source name", 
+      "synopsis": "Brief summary",
+      "companies": ["TikTok", "Snapchat"],
+      "keyInsights": ["Key takeaway 1", "Strategic insight 2", "Trend 3"],
+      "url": "#",
+      "publishDate": "YYYY-MM-DD",
+      "relevanceScore": 0.85
+    },
+    {
+      "id": "news-4",
+      "headline": "Fourth headline",
+      "source": "Source name",
+      "synopsis": "Brief summary",
+      "companies": ["Amazon", "Shopify"],
+      "keyInsights": ["Important insight", "Actionable takeaway"],
+      "url": "#",
+      "publishDate": "YYYY-MM-DD",
+      "relevanceScore": 0.80
+    },
+    {
+      "id": "news-5",
+      "headline": "Fifth headline",
+      "source": "Source name",
+      "synopsis": "Brief summary",
+      "companies": ["LinkedIn", "Twitter"],
+      "keyInsights": ["Industry trend", "Strategic point", "Key development"],
+      "url": "#", 
+      "publishDate": "YYYY-MM-DD",
+      "relevanceScore": 0.75
+    }
+  ],
+  "aiResponse": "Here are the latest marketing and advertising headlines from today, covering major industry developments and breaking news."
+}`;
+
+    try {
+      const response = await this.model.generateContent(prompt);
+      const responseText = response.response.text();
+      
+      console.log('📰 Raw Gemini response:', responseText.substring(0, 500));
+      
+      // Clean the response text to extract JSON
+      let cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      
+      // Try to extract JSON if wrapped in other text
+      const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        cleanedResponse = jsonMatch[0];
+      }
+      
+      let result;
+      try {
+        result = JSON.parse(cleanedResponse);
+      } catch (jsonError) {
+        console.error('❌ JSON parsing failed:', jsonError);
+        console.log('Cleaned response that failed to parse:', cleanedResponse);
+        throw new Error(`Invalid JSON response from Gemini: ${jsonError instanceof Error ? jsonError.message : 'Unknown JSON error'}`);
+      }
+      
+      // Validate the result structure
+      if (!result.newsItems || !Array.isArray(result.newsItems) || result.newsItems.length === 0) {
+        console.warn('⚠️ Gemini returned invalid newsItems structure:', result);
+        throw new Error('Invalid response structure from Gemini - missing or empty newsItems');
+      }
+      
+      console.log(`✅ Generated ${result.newsItems.length} marketing news items`);
+      
+      return {
+        success: true,
+        data: result
+      };
+      
+    } catch (error) {
+      console.error('❌ Error generating Marketing News:', error);
+      
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        data: {
+          newsItems: [
+            {
+              id: "fallback-1",
+              headline: "Marketing News Temporarily Unavailable",
+              source: "Service Notice",
+              synopsis: "Marketing news headlines are temporarily unavailable. Please try again later.",
+              url: "#",
+              publishDate: new Date().toISOString().split('T')[0],
+              relevanceScore: 0.5
+            }
+          ],
+          aiResponse: "Marketing news headlines are temporarily unavailable. Please try again later."
+        }
+      };
+    }
+  }
+
+  /**
+   * Generate competitive intelligence analysis
+   */
+  async generateCompetitiveIntelligence(query: string): Promise<any> {
+    console.log(`🎯 Generating competitive intelligence for: "${query}"`);
+    
+    const prompt = `You are a senior competitive intelligence analyst at a top consulting firm. Generate comprehensive competitive analysis based on the query: "${query}".
+
+TASK: Analyze the competitive landscape and provide strategic insights. For company queries, focus on their main competitors and market positioning. For industry queries, provide a broader competitive landscape analysis.
+
+IMPORTANT: Use plain text only - do not use markdown formatting (**, *, #, etc.) in any of the text fields.
+
+Return ONLY valid JSON in this exact format:
+{
+  "success": true,
+  "data": {
+    "id": "competitive-intel-${Date.now()}",
+    "competitorOrIndustry": "${query}",
+    "competitiveAnalysis": {
+      "mainCompetitors": [
+        {
+          "name": "Competitor Name",
+          "positioning": "Brief positioning description",
+          "keyStrengths": ["Strength 1", "Strength 2", "Strength 3"]
+        }
+      ],
+      "marketPositioning": "Overall market positioning summary",
+      "differentiationOpportunities": ["Opportunity 1", "Opportunity 2", "Opportunity 3"]
+    },
+    "messagingAnalysis": {
+      "commonThemes": ["Theme 1", "Theme 2", "Theme 3"],
+      "messagingGaps": ["Gap 1", "Gap 2"],
+      "toneAndVoice": "Description of typical messaging tone in this category"
+    },
+    "strategicRecommendations": {
+      "positioning": ["Positioning recommendation 1", "Positioning recommendation 2"],
+      "messaging": ["Messaging strategy 1", "Messaging strategy 2"],
+      "channels": ["Channel recommendation 1", "Channel recommendation 2"]
+    },
+    "sources": [
+      {"title": "Industry Report", "url": "https://example.com", "note": "Market analysis data"},
+      {"title": "Competitive Study", "url": "https://example.com", "note": "Strategic insights"}
+    ]
+  }
+}`;
+
+    try {
+      const response = await this.model.generateContent(prompt);
+      const responseText = response.response.text();
+      
+      const cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+      const jsonText = jsonMatch ? jsonMatch[0] : cleanedResponse;
+      
+      const result = JSON.parse(jsonText);
+      
+      console.log(`✅ Generated competitive intelligence for: ${query}`);
+      return result;
+      
+    } catch (error) {
+      console.error('❌ Error generating competitive intelligence:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
+   * Generate content strategy recommendations
+   */
+  async generateContentStrategy(query: string): Promise<any> {
+    console.log(`📝 Generating content strategy for: "${query}"`);
+    
+    const prompt = `You are a content strategy expert and digital marketing consultant. Generate comprehensive content strategy recommendations based on the query: "${query}".
+
+TASK: Create actionable content strategy including trending topics, content formats, SEO opportunities, and editorial calendar suggestions.
+
+Return ONLY valid JSON in this exact format:
+{
+  "success": true,
+  "data": {
+    "id": "content-strategy-${Date.now()}",
+    "industryOrTopic": "${query}",
+    "trendingTopics": [
+      {
+        "topic": "Topic Name",
+        "relevance": "High/Medium/Low",
+        "trend": "Growing/Stable/Declining"
+      }
+    ],
+    "contentRecommendations": {
+      "formats": [
+        {
+          "format": "Format Name",
+          "rationale": "Why this format works",
+          "priority": "High/Medium/Low"
+        }
+      ],
+      "platforms": ["Platform 1", "Platform 2", "Platform 3"],
+      "frequency": "Recommended publishing frequency"
+    },
+    "seoOpportunities": {
+      "keywords": ["keyword1", "keyword2", "keyword3"],
+      "contentGaps": ["Gap 1", "Gap 2", "Gap 3"],
+      "competitorAnalysis": "Brief analysis of competitor content"
+    },
+    "editorialCalendar": [
+      {
+        "timeframe": "Q1/Q2/Q3/Q4 or Monthly",
+        "themes": ["Theme 1", "Theme 2"],
+        "contentIdeas": ["Idea 1", "Idea 2", "Idea 3"]
+      }
+    ],
+    "sources": [
+      {"title": "Content Marketing Report", "url": "https://example.com", "note": "Industry trends"},
+      {"title": "SEO Research", "url": "https://example.com", "note": "Keyword opportunities"}
+    ]
+  }
+}`;
+
+    try {
+      const response = await this.model.generateContent(prompt);
+      const responseText = response.response.text();
+      
+      const cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+      const jsonText = jsonMatch ? jsonMatch[0] : cleanedResponse;
+      
+      const result = JSON.parse(jsonText);
+      
+      console.log(`✅ Generated content strategy for: ${query}`);
+      return result;
+      
+    } catch (error) {
+      console.error('❌ Error generating content strategy:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
+   * Generate brand strategy frameworks
+   */
+  async generateBrandStrategy(query: string): Promise<any> {
+    console.log(`🏆 Generating brand strategy for: "${query}"`);
+    
+    const prompt = `You are a brand strategy consultant with expertise in positioning, messaging, and brand development. Generate comprehensive brand strategy framework based on the query: "${query}".
+
+TASK: Create actionable brand strategy including positioning, messaging framework, brand voice guidelines, and strategic recommendations.
+
+Return ONLY valid JSON in this exact format:
+{
+  "success": true,
+  "data": {
+    "id": "brand-strategy-${Date.now()}",
+    "brandOrCategory": "${query}",
+    "positioning": {
+      "currentPerception": "How the brand/category is currently perceived",
+      "targetPosition": "Desired brand position in market",
+      "differentiators": ["Differentiator 1", "Differentiator 2", "Differentiator 3"]
+    },
+    "messagingFramework": {
+      "coreMessage": "Primary brand message",
+      "supportingMessages": ["Supporting message 1", "Supporting message 2"],
+      "proofPoints": ["Proof point 1", "Proof point 2", "Proof point 3"]
+    },
+    "brandVoice": {
+      "toneAttributes": ["Attribute 1", "Attribute 2", "Attribute 3"],
+      "voiceGuidelines": "Guidelines for brand voice and tone",
+      "dosDonts": {
+        "dos": ["Do this", "Do that"],
+        "donts": ["Don't do this", "Don't do that"]
+      }
+    },
+    "strategicRecommendations": [
+      "Strategic recommendation 1",
+      "Strategic recommendation 2",
+      "Strategic recommendation 3"
+    ],
+    "sources": [
+      {"title": "Brand Study", "url": "https://example.com", "note": "Brand research insights"},
+      {"title": "Market Analysis", "url": "https://example.com", "note": "Positioning data"}
+    ]
+  }
+}`;
+
+    try {
+      const response = await this.model.generateContent(prompt);
+      const responseText = response.response.text();
+      
+      const cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+      const jsonText = jsonMatch ? jsonMatch[0] : cleanedResponse;
+      
+      const result = JSON.parse(jsonText);
+      
+      console.log(`✅ Generated brand strategy for: ${query}`);
+      return result;
+      
+    } catch (error) {
+      console.error('❌ Error generating brand strategy:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }

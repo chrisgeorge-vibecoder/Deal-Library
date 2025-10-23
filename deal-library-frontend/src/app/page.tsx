@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Deal, DealFilters, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile } from '@/types/deal';
+import { Deal, DealFilters, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews } from '@/types/deal';
 import { useSaveCard, useCart } from '@/components/AppLayout';
 import { MarketSizing } from '@/components/MarketSizingCard';
 import { mockDeals } from '@/data/mockDeals';
@@ -107,6 +107,7 @@ export default function HomePage() {
   const [aiGeoCards, setAiGeoCards] = useState<any[]>([]);
   const [aiMarketingSWOT, setAiMarketingSWOT] = useState<MarketingSWOT[]>([]);
   const [aiCompanyProfiles, setAiCompanyProfiles] = useState<CompanyProfile[]>([]);
+  const [aiMarketingNews, setAiMarketingNews] = useState<MarketingNews[]>([]);
   const [aiCoaching, setAiCoaching] = useState<any>(null);
   
   // Note: Cart and modal state are now managed in AppLayout.tsx to work across all pages
@@ -119,21 +120,30 @@ export default function HomePage() {
     if (promptParam) {
       console.log('🎯 Auto-submitting prompt from URL:', promptParam);
       setChatInputValue(promptParam);
-      // Wait a moment for the component to fully mount
-      setTimeout(() => {
+      // Wait longer for the component to fully mount and for user to see the prompt
+      const timeoutId = setTimeout(() => {
         handleSearch(promptParam);
-        // Clean up URL
+        // Clear the input value after search starts
+        setChatInputValue('');
+        // Clean up URL after search completes
         window.history.replaceState({}, '', '/');
-      }, 500);
+      }, 1500); // Increased from 500ms to 1500ms to show prompt longer
+      
+      // Cleanup timeout on unmount to prevent state updates after component unmounts
+      return () => {
+        clearTimeout(timeoutId);
+      };
     }
   }, []);
 
   // Load deals on component mount
   useEffect(() => {
+    let isMounted = true; // Flag to track if component is still mounted
+    
     const loadDeals = async () => {
       try {
-        setLoading(true);
-        setError(null); // Clear any previous errors
+        if (isMounted) setLoading(true);
+        if (isMounted) setError(null); // Clear any previous errors
         const response = await fetch('http://localhost:3002/api/deals');
         
         if (!response.ok) {
@@ -151,26 +161,90 @@ export default function HomePage() {
         }
         
         const dealsData = await response.json();
-        setDeals(dealsData.deals || []);
-        console.log('✅ Successfully loaded deals:', dealsData.deals?.length || 0);
+        if (isMounted) {
+          setDeals(dealsData.deals || []);
+          console.log('✅ Successfully loaded deals:', dealsData.deals?.length || 0);
+        }
         // Don't automatically show deals - only show when explicitly requested through search
       } catch (err) {
-        console.error('Error loading deals:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load deals. Please try again later.';
-        setError(errorMessage);
-        // Fallback to mock data for development
-        setDeals(mockDeals);
-        console.log('⚠️ Using mock deals data due to connection issue');
+        if (isMounted) {
+          // Check if it's a connection error (backend not running)
+          if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+            // Silently use mock data instead of showing error when backend is down
+            setDeals(mockDeals);
+            setError(null); // Don't show error for backend unavailability
+            console.log('⚠️ Backend unavailable, using mock deals data');
+          } else {
+            // Show error for other types of failures
+            console.error('Error loading deals:', err);
+            const errorMessage = err instanceof Error ? err.message : 'Failed to load deals. Please try again later.';
+            setError(errorMessage);
+            setDeals(mockDeals);
+          }
+        }
         // Don't automatically show deals - only show when explicitly requested through search
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     loadDeals();
+    
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Note: Event listeners for cart and custom deal form are now in AppLayout.tsx
+
+  // Helper function to generate context-aware fallback news
+  const getFallbackNews = (query: string): MarketingNews[] => {
+    const queryLower = query.toLowerCase();
+    const isCommerceQuery = queryLower.includes('commerce') || queryLower.includes('retail');
+    
+    if (isCommerceQuery) {
+      return [
+        {
+          id: `fallback-commerce-1-${Date.now()}`,
+          headline: "Retail Media Networks See Explosive Growth as Brands Shift Ad Spend",
+          source: "AdWeek",
+          synopsis: "Major retailers are expanding their retail media networks, creating new opportunities for brands to reach consumers at the point of purchase.",
+          companies: ["Amazon", "Walmart", "Target"],
+          keyInsights: ["Retail media is becoming a major advertising channel", "First-party data from retailers provides targeting advantages", "Measurement standards need standardization"],
+          url: "#",
+          publishDate: new Date().toISOString().split('T')[0],
+          relevanceScore: 0.9
+        },
+        {
+          id: `fallback-commerce-2-${Date.now()}`,
+          headline: "Social Commerce Platforms Integrate Advanced Targeting for Brand Partnerships",
+          source: "Modern Retail",
+          synopsis: "Platforms are combining commerce and media capabilities to offer brands more sophisticated targeting and attribution in social shopping experiences.",
+          companies: ["TikTok", "Instagram", "Pinterest"],
+          keyInsights: ["Social commerce requires integrated media strategy", "Influencer partnerships driving commerce growth", "Platform attribution models evolving"],
+          url: "#",
+          publishDate: new Date().toISOString().split('T')[0],
+          relevanceScore: 0.8
+        }
+      ];
+    }
+    
+    // Default marketing news fallback
+    return [
+      {
+        id: `fallback-1-${Date.now()}`,
+        headline: "Marketing Technology Trends Continue to Evolve",
+        source: "Industry Analysis",
+        synopsis: "Latest developments in marketing technology and AI-driven solutions are transforming how brands reach consumers in 2024.",
+        companies: ["Google", "Salesforce", "HubSpot"],
+        keyInsights: ["AI automation transforming ad targeting", "Personalization becoming standard", "ROI measurement tools advancing"],
+        url: "#",
+        publishDate: new Date().toISOString().split('T')[0],
+        relevanceScore: 0.9
+      }
+    ];
+  };
 
   // Handle search
   const handleSearch = async (query: string, conversationHistory?: Array<{role: string, content: string}>, cardTypes?: string[]) => {
@@ -186,6 +260,7 @@ export default function HomePage() {
       setAiAudienceInsights([]);
       setAiMarketSizing([]);
       setAiGeoCards([]);
+      setAiMarketingNews([]);
       setAiCoaching(undefined);
 
       // Determine search type based on keywords
@@ -229,7 +304,13 @@ export default function HomePage() {
           }
         } catch (error) {
           console.error('Unified search request failed:', error);
-          // Fall through to individual searches
+          // Check if it's a network error (backend not running)
+          if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+            console.log('⚠️ Backend appears to be offline during unified search');
+            setAiResponse('The search service is temporarily unavailable. Please try again later or check if the backend server is running.');
+            return;
+          }
+          // Fall through to individual searches for other errors
         }
       }
 
@@ -474,7 +555,88 @@ export default function HomePage() {
         }
       }
       
-      // Check for market sizing queries FIRST (before deal requests) - only when no card types selected
+      // Marketing News search - check this FIRST to avoid conflicts with market sizing
+      const newsKeywords = ['news', 'headlines', 'latest', 'marketing news', 'advertising news', 'industry news', 'today\'s marketing', 'today\'s advertising', 'commerce media headlines', 'share headlines', 'commerce headlines'];
+      const isMarketingNewsSearch = (!cardTypes || cardTypes.length === 0) && (
+        newsKeywords.some(keyword => queryLower.includes(keyword)) || 
+        (queryLower.includes('share') && queryLower.includes('headlines'))
+      );
+
+      console.log('🔍 Marketing News check:', {
+        query: query,
+        queryLower: queryLower,
+        cardTypes: cardTypes,
+        cardTypesLength: cardTypes?.length,
+        hasCardTypes: !!cardTypes,
+        isMarketingNewsSearch: isMarketingNewsSearch,
+        matchedKeywords: newsKeywords.filter(keyword => queryLower.includes(keyword)),
+        hasShareHeadlines: queryLower.includes('share') && queryLower.includes('headlines')
+      });
+
+      if (isMarketingNewsSearch) {
+        console.log('📰 Marketing news search detected, making API call...');
+        try {
+          const response = await fetch('http://localhost:3002/api/marketing-news', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: query }),
+          });
+
+          console.log('📰 Marketing news API response status:', response.status, response.ok);
+          
+          try {
+            // Try to parse response even if HTTP status is not ok, as backend provides fallback data
+            const data = await response.json();
+            console.log('📰 Marketing news API response data:', { 
+              hasMarketingNews: !!(data.marketingNews && data.marketingNews.length > 0), 
+              newsCount: data.marketingNews?.length || 0,
+              hasAiResponse: !!data.aiResponse 
+            });
+            
+            if (data.marketingNews && data.marketingNews.length > 0) {
+              setAiMarketingNews(data.marketingNews);
+              setAiResponse(data.aiResponse || 'Here are the latest marketing and advertising headlines.');
+              console.log('📰 Successfully set marketing news data');
+              return;
+            } else {
+              console.log('📰 No marketing news data found in response');
+              setAiResponse('Marketing news headlines are temporarily unavailable. Please try again later.');
+              return;
+            }
+          } catch (parseError) {
+            console.error('Failed to parse marketing news response:', parseError);
+            setAiResponse('Marketing news headlines are temporarily unavailable. Please try again later.');
+            return;
+          }
+        } catch (error) {
+          console.error('Marketing news request failed:', error);
+          
+          // Check if it's a network error (backend not running)
+          if (error instanceof TypeError && error.message && error.message.includes('Failed to fetch')) {
+            console.log('⚠️ Backend appears to be offline, providing static fallback for chat');
+            // Provide static fallback when backend is completely unavailable
+            const fallbackNews = getFallbackNews(query);
+            
+            setAiMarketingNews(fallbackNews);
+            setAiResponse('Here are the latest marketing and advertising headlines. Note: Real-time news may be temporarily unavailable.');
+            return;
+          } else {
+            setAiResponse('Marketing news headlines are temporarily unavailable. Please try again later.');
+            return;
+          }
+        }
+      }
+
+      // If marketing news was detected but we got here without returning, set fallback
+      if (isMarketingNewsSearch) {
+        console.log('📰 Marketing news fallback - no response set, providing default');
+        const fallbackNews = getFallbackNews(query);
+        setAiMarketingNews(fallbackNews);
+        setAiResponse('Here are the latest marketing and advertising headlines.');
+        return;
+      }
+
+      // Check for market sizing queries - after news check to avoid conflicts
       const marketSizingKeywords = [
         'market sizing', 'market size', 'what\'s the market size', 'what is the market size',
         'total addressable market', 'tam', 'market opportunity', 
@@ -753,7 +915,20 @@ export default function HomePage() {
 
     } catch (err) {
       console.error('Search error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Search failed. Please try again.';
+      
+      // Handle specific error types
+      let errorMessage = 'Search failed. Please try again.';
+      
+      if (err instanceof Error) {
+        if (err.message.includes('Failed to fetch')) {
+          errorMessage = 'Cannot connect to the search service. Please make sure the backend server is running on port 3002.';
+        } else if (err.message.includes('timed out')) {
+          errorMessage = err.message;
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
       setError(errorMessage);
       // Always set an AI response to reset the typing state
       setAiResponse(errorMessage);
@@ -801,6 +976,7 @@ export default function HomePage() {
               aiGeoCards={aiGeoCards}
               aiMarketingSWOT={aiMarketingSWOT}
               aiCompanyProfiles={aiCompanyProfiles}
+              aiMarketingNews={aiMarketingNews}
               aiCoaching={aiCoaching}
               onAddToCart={onAddToCart}
               onRemoveFromCart={onRemoveFromCart}

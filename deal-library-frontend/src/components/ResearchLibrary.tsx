@@ -110,7 +110,21 @@ export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3002', 
       const response = await fetch(`${apiBaseUrl}/api/research?${params.toString()}`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch research studies');
+        // For 503 status, try to get the detailed error message from backend
+        if (response.status === 503) {
+          try {
+            const errorData = await response.json();
+            throw new Error(errorData.message || errorData.error || 'Research service is unavailable');
+          } catch (parseError) {
+            throw new Error('Research service is temporarily unavailable. Please ensure the backend server is running with Supabase configured.');
+          }
+        }
+        
+        // Check if it's a server error (502, 500, etc.) or network issue
+        if (response.status >= 500) {
+          throw new Error('Research service is temporarily unavailable. Please ensure the backend server is running with Supabase configured.');
+        }
+        throw new Error(`Failed to fetch research studies: ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -118,7 +132,16 @@ export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3002', 
       setError(null);
     } catch (err: any) {
       console.error('Error fetching studies:', err);
-      setError(err.message);
+      
+      // Provide more specific error messages based on error type
+      let errorMessage = err.message;
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        errorMessage = 'Cannot connect to the research service. Please ensure the backend server is running on port 3002.';
+      } else if (err.message.includes('Failed to fetch research studies')) {
+        errorMessage = 'Research service is temporarily unavailable. The research library may not be configured.';
+      }
+      
+      setError(errorMessage);
       setStudies([]);
     } finally {
       setLoading(false);
@@ -128,22 +151,32 @@ export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3002', 
   const fetchCategories = async () => {
     try {
       const response = await fetch(`${apiBaseUrl}/api/research/categories`);
+      if (!response.ok) {
+        console.warn('Research categories endpoint not available');
+        return;
+      }
       const data = await response.json();
       console.log('📋 Categories fetched:', data.categories);
       setCategories(data.categories || []);
     } catch (err) {
       console.error('Error fetching categories:', err);
+      // Don't show error for categories/sources since they're not critical
     }
   };
 
   const fetchSources = async () => {
     try {
       const response = await fetch(`${apiBaseUrl}/api/research/sources`);
+      if (!response.ok) {
+        console.warn('Research sources endpoint not available');
+        return;
+      }
       const data = await response.json();
       console.log('📋 Sources fetched:', data.sources);
       setSources(data.sources || []);
     } catch (err) {
       console.error('Error fetching sources:', err);
+      // Don't show error for categories/sources since they're not critical
     }
   };
 

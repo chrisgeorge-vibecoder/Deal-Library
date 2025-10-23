@@ -20,23 +20,13 @@ export default function PersonaDetailModal({
   onUnsaveCard,
   isSaved
 }: PersonaDetailModalProps) {
-  // Debug: Log the props to see what's being received
-  console.log('PersonaDetailModal props:', {
-    onSaveCard: !!onSaveCard,
-    onUnsaveCard: !!onUnsaveCard,
-    isSaved: !!isSaved,
-    persona: persona?.name
-  });
-  
   if (!isOpen || !persona) return null;
 
   return (
     <div 
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
       onClick={(e) => {
-        console.log('Modal backdrop clicked', e.target, e.currentTarget);
         if (e.target === e.currentTarget) {
-          console.log('Closing modal via backdrop click');
           onClose();
         }
       }}

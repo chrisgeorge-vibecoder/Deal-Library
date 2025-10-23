@@ -1,12 +1,6 @@
 import React from 'react';
-import { BookmarkCheck, X, ShoppingCart, Users, BarChart3, MapPin, Lightbulb, TrendingUp, BookOpen, Target, Building2 } from 'lucide-react';
-import { Deal, Persona, AudienceInsights, MarketSizing, GeoCard, MarketingSWOT, CompanyProfile } from '@/types/deal';
-
-interface SavedCard {
-  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'research' | 'marketing-swot' | 'company-profile';
-  data: any;
-  savedAt: string;
-}
+import { BookmarkCheck, X, ShoppingCart, Users, BarChart3, MapPin, Lightbulb, TrendingUp, BookOpen, Target, Building2, Newspaper, FileText, Award } from 'lucide-react';
+import { Deal, Persona, AudienceInsights, MarketSizing, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy, SavedCard } from '@/types/deal';
 
 interface SavedCardsProps {
   savedCards: SavedCard[];
@@ -33,6 +27,16 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return <Target className="w-4 h-4 text-red-600" />;
       case 'company-profile':
         return <Building2 className="w-4 h-4 text-emerald-600" />;
+      case 'marketing-news':
+        return <Newspaper className="w-4 h-4 text-pink-600" />;
+      case 'competitive-intelligence':
+        return <Target className="w-4 h-4 text-amber-600" />;
+      case 'content-strategy':
+        return <FileText className="w-4 h-4 text-cyan-600" />;
+      case 'brand-strategy':
+        return <Award className="w-4 h-4 text-violet-600" />;
+      case 'strategy-brief':
+        return <Target className="w-4 h-4 text-blue-600" />;
       default:
         return <BookmarkCheck className="w-4 h-4 text-gray-600" />;
     }
@@ -56,6 +60,18 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return `Marketing SWOT: ${(card.data as MarketingSWOT).companyName}`;
       case 'company-profile':
         return `${(card.data as CompanyProfile).companyInfo.name} (${(card.data as CompanyProfile).stockSymbol})`;
+      case 'marketing-news':
+        return (card.data as MarketingNews).headline;
+      case 'competitive-intelligence':
+        return `Competitive Intelligence: ${(card.data as CompetitiveIntelligence).competitorOrIndustry}`;
+      case 'content-strategy':
+        return `Content Strategy: ${(card.data as ContentStrategy).industryOrTopic}`;
+      case 'brand-strategy':
+        return `Brand Strategy: ${(card.data as BrandStrategy).brandOrCategory}`;
+      case 'strategy-brief':
+        return card.data?.strategyRationale ? 
+          `Strategy Brief: ${card.data.strategyRationale.length > 50 ? card.data.strategyRationale.substring(0, 50) + '...' : card.data.strategyRationale}` :
+          'Strategy Brief';
       default:
         return 'Unknown Card';
     }
@@ -83,6 +99,15 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
       case 'company-profile':
         const profile = card.data as CompanyProfile;
         return `Company Profile • ${profile.companyInfo.sector || 'Public Company'}`;
+      case 'marketing-news':
+        const news = card.data as MarketingNews;
+        return `Marketing News • ${news.source}`;
+      case 'competitive-intelligence':
+        return 'Competitive Analysis';
+      case 'content-strategy':
+        return 'Content Planning';
+      case 'brand-strategy':
+        return 'Brand Positioning';
       default:
         return '';
     }
@@ -106,6 +131,14 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return `marketing-swot-${(card.data as MarketingSWOT).companyName}`;
       case 'company-profile':
         return `company-profile-${(card.data as CompanyProfile).stockSymbol}`;
+      case 'marketing-news':
+        return `marketing-news-${(card.data as MarketingNews).id}`;
+      case 'competitive-intelligence':
+        return `competitive-intelligence-${(card.data as CompetitiveIntelligence).competitorOrIndustry}`;
+      case 'content-strategy':
+        return `content-strategy-${(card.data as ContentStrategy).industryOrTopic}`;
+      case 'brand-strategy':
+        return `brand-strategy-${(card.data as BrandStrategy).brandOrCategory}`;
       default:
         return '';
     }

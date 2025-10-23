@@ -201,3 +201,89 @@ export interface CompanyProfile {
   };
   sampleData?: boolean;
 }
+
+export interface MarketingNews {
+  id: string;
+  headline: string;
+  source: string;
+  synopsis: string;
+  url: string;
+  publishDate: string;
+  relevanceScore: number;
+  companies?: string[];
+  keyInsights?: string[];
+}
+
+export interface CompetitiveIntelligence {
+  id: string;
+  competitorOrIndustry: string;
+  competitiveAnalysis: {
+    mainCompetitors: Array<{ name: string; positioning: string; keyStrengths: string[] }>;
+    marketPositioning: string;
+    differentiationOpportunities: string[];
+  };
+  messagingAnalysis: {
+    commonThemes: string[];
+    messagingGaps: string[];
+    toneAndVoice: string;
+  };
+  strategicRecommendations: {
+    positioning: string[];
+    messaging: string[];
+    channels: string[];
+  };
+  sources?: Array<{ title: string; url: string; note?: string }>;
+  sampleData?: boolean;
+}
+
+export interface ContentStrategy {
+  id: string;
+  industryOrTopic: string;
+  trendingTopics: Array<{ topic: string; relevance: string; trend: string }>;
+  contentRecommendations: {
+    formats: Array<{ format: string; rationale: string; priority: string }>;
+    platforms: string[];
+    frequency: string;
+  };
+  seoOpportunities: {
+    keywords: string[];
+    contentGaps: string[];
+    competitorAnalysis: string;
+  };
+  editorialCalendar: Array<{
+    timeframe: string;
+    themes: string[];
+    contentIdeas: string[];
+  }>;
+  sources?: Array<{ title: string; url: string; note?: string }>;
+  sampleData?: boolean;
+}
+
+export interface BrandStrategy {
+  id: string;
+  brandOrCategory: string;
+  positioning: {
+    currentPerception: string;
+    targetPosition: string;
+    differentiators: string[];
+  };
+  messagingFramework: {
+    coreMessage: string;
+    supportingMessages: string[];
+    proofPoints: string[];
+  };
+  brandVoice: {
+    toneAttributes: string[];
+    voiceGuidelines: string;
+    dosDonts: { dos: string[]; donts: string[] };
+  };
+  strategicRecommendations: string[];
+  sources?: Array<{ title: string; url: string; note?: string }>;
+  sampleData?: boolean;
+}
+
+export interface SavedCard {
+  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'research' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy' | 'strategy-brief';
+  data: Deal | Persona | AudienceInsights | MarketSizing | GeoCard | MarketingSWOT | CompanyProfile | MarketingNews | CompetitiveIntelligence | ContentStrategy | BrandStrategy | any;
+  savedAt: string;
+}

@@ -2,8 +2,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy } from '@/types/deal';
 import { MarketSizing } from './MarketSizingCard';
 import { Search, Filter, Users, Target, Lightbulb, TrendingUp, MapPin, BarChart3, ShoppingCart, Trash2, Sparkles, Building2, Newspaper, FileText, Award } from 'lucide-react';
-import DealCard from './DealCard';
-import DealDetailModal from './DealDetailModal';
 import PersonaDetailModal from './PersonaDetailModal';
 import { AudienceInsightsDetailModal } from './AudienceInsightsDetailModal';
 import { MarketSizingDetailModal } from './MarketSizingDetailModal';
@@ -19,17 +17,13 @@ import { ContentStrategyDetailModal } from './ContentStrategyDetailModal';
 import { BrandStrategyDetailModal } from './BrandStrategyDetailModal';
 
 interface AudienceExplorerProps {
-  onDealClick: (deal: Deal) => void;
-  onAddToCart: (deal: Deal) => void;
-  onRemoveFromCart: (dealId: string) => void;
-  isInCart: (dealId: string) => boolean;
-  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy', data: any }) => void;
+  onSaveCard?: (card: { type: 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy', data: any }) => void;
   onUnsaveCard?: (cardId: string) => void;
   isSaved?: (cardId: string) => boolean;
   onSwitchToChat?: (query: string) => void;
 }
 
-type CardType = 'all' | 'deals' | 'personas' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy';
+type CardType = 'all' | 'personas' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy';
 
 interface SearchResult {
   type: CardType;
@@ -53,10 +47,6 @@ interface Subcategory {
 }
 
 export default function AudienceExplorer({ 
-  onDealClick, 
-  onAddToCart, 
-  onRemoveFromCart, 
-  isInCart,
   onSaveCard,
   onUnsaveCard,
   isSaved,
@@ -85,7 +75,6 @@ export default function AudienceExplorer({
     { id: 'native', name: 'Native', description: 'Native content' }
   ];
   
-  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
   const [selectedAudienceInsights, setSelectedAudienceInsights] = useState<AudienceInsights | null>(null);
   const [selectedMarketSizing, setSelectedMarketSizing] = useState<MarketSizing | null>(null);
@@ -96,7 +85,6 @@ export default function AudienceExplorer({
   const [selectedCompetitiveIntel, setSelectedCompetitiveIntel] = useState<CompetitiveIntelligence | null>(null);
   const [selectedContentStrategy, setSelectedContentStrategy] = useState<ContentStrategy | null>(null);
   const [selectedBrandStrategy, setSelectedBrandStrategy] = useState<BrandStrategy | null>(null);
-  const [isDealModalOpen, setIsDealModalOpen] = useState(false);
   const [isPersonaModalOpen, setIsPersonaModalOpen] = useState(false);
   const [isAudienceInsightsModalOpen, setIsAudienceInsightsModalOpen] = useState(false);
   const [isMarketSizingModalOpen, setIsMarketSizingModalOpen] = useState(false);
@@ -173,26 +161,6 @@ export default function AudienceExplorer({
       ]
     },
     {
-      id: 'deals',
-      name: 'Deal Opportunities',
-      description: 'Browse available advertising deals and partnerships',
-      icon: ShoppingCart,
-      subcategories: [
-        { id: 'all-deals', name: 'All Deals', description: 'View all available deals', cardType: 'deals' },
-        { id: 'family-deals', name: 'Family & Parenting', description: 'Family-focused advertising opportunities', cardType: 'deals' },
-        { id: 'fashion-deals', name: 'Fashion & Beauty', description: 'Style and beauty advertising deals', cardType: 'deals' },
-        { id: 'food-deals', name: 'Food & Beverage', description: 'Culinary and beverage advertising opportunities', cardType: 'deals' },
-        { id: 'entertainment-deals', name: 'Entertainment & Gaming', description: 'Entertainment and gaming advertising deals', cardType: 'deals' },
-        { id: 'sports-deals', name: 'Sports & Fitness', description: 'Athletic and fitness advertising opportunities', cardType: 'deals' },
-        { id: 'pet-deals', name: 'Pet Care', description: 'Pet and animal care advertising deals', cardType: 'deals' },
-        { id: 'professional-deals', name: 'Business & Finance', description: 'Professional and financial advertising opportunities', cardType: 'deals' },
-        { id: 'lifestyle-deals', name: 'Lifestyle & Wellness', description: 'Health, fitness, and lifestyle advertising deals', cardType: 'deals' },
-        { id: 'tech-deals', name: 'Technology & Digital', description: 'Tech and digital advertising opportunities', cardType: 'deals' },
-        { id: 'automotive-deals', name: 'Automotive', description: 'Auto and transportation advertising deals', cardType: 'deals' },
-        { id: 'home-deals', name: 'Home & Garden', description: 'Home improvement and garden advertising opportunities', cardType: 'deals' }
-      ]
-    },
-    {
       id: 'geographic',
       name: 'Geo Insights',
       description: 'Location-based audience and market data',
@@ -227,7 +195,7 @@ export default function AudienceExplorer({
       id: 'marketing-swot',
       name: 'Marketing SWOT',
       description: 'Marketing SWOT analysis for companies and campaigns',
-      icon: Target,
+      icon: TrendingUp,
       subcategories: [
         { id: 'marketing-swot', name: 'Marketing SWOT Analysis', description: 'Enter a company name to generate comprehensive marketing SWOT analysis', cardType: 'marketing-swot' }
       ]
@@ -318,7 +286,7 @@ export default function AudienceExplorer({
           // Load all deals if not already loaded
           let dealsToFilter = allDeals;
           if (allDeals.length === 0) {
-            const dealsResponse = await fetch('http://localhost:3002/api/deals');
+            const dealsResponse = await fetch('http://localhost:3001/api/deals');
             if (dealsResponse.ok) {
               const dealsData = await dealsResponse.json();
               if (dealsData.deals && dealsData.deals.length > 0) {
@@ -339,7 +307,7 @@ export default function AudienceExplorer({
           
         case 'personas':
           try {
-            const personasResponse = await fetch('http://localhost:3002/api/personas');
+            const personasResponse = await fetch('http://localhost:3001/api/personas');
             if (personasResponse.ok) {
               const personasData = await personasResponse.json();
               console.log(`🎭 Loaded ${personasData.length} personas from API`);
@@ -425,7 +393,7 @@ export default function AudienceExplorer({
             const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
             
             const query = getQueryForSubcategory(subcategory, audienceFilter);
-            const insightsResponse = await fetch('http://localhost:3002/api/audience-insights', {
+            const insightsResponse = await fetch('http://localhost:3001/api/audience-insights', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -485,7 +453,7 @@ export default function AudienceExplorer({
             const query = getQueryForSubcategory(subcategory, audienceFilter);
             console.log(`📊 Market sizing query: "${query}"`);
             
-            const sizingResponse = await fetch('http://localhost:3002/api/market-sizing', {
+            const sizingResponse = await fetch('http://localhost:3001/api/market-sizing', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -540,7 +508,7 @@ export default function AudienceExplorer({
           try {
             // Generate AI-powered geographic insights
             const query = getQueryForSubcategory(subcategory, audienceFilter);
-            const geoResponse = await fetch('http://localhost:3002/api/geographic-insights', {
+            const geoResponse = await fetch('http://localhost:3001/api/geographic-insights', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -583,7 +551,7 @@ export default function AudienceExplorer({
           }
           try {
             const companyName = audienceFilter.trim();
-            const swotResponse = await fetch('http://localhost:3002/api/marketing-swot', {
+            const swotResponse = await fetch('http://localhost:3001/api/marketing-swot', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ companyName }),
@@ -633,7 +601,7 @@ export default function AudienceExplorer({
           }
           try {
             const stockSymbol = audienceFilter.trim();
-            const profileResponse = await fetch('http://localhost:3002/api/company-profile', {
+            const profileResponse = await fetch('http://localhost:3001/api/company-profile', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ stockSymbol }),
@@ -679,7 +647,7 @@ export default function AudienceExplorer({
         case 'marketing-news':
           try {
             console.log('📰 Attempting to fetch marketing news...');
-            const newsResponse = await fetch('http://localhost:3002/api/marketing-news', {
+            const newsResponse = await fetch('http://localhost:3001/api/marketing-news', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({}),
@@ -774,7 +742,7 @@ export default function AudienceExplorer({
           }
           try {
             const query = audienceFilter.trim();
-            const response = await fetch('http://localhost:3002/api/competitive-intelligence', {
+            const response = await fetch('http://localhost:3001/api/competitive-intelligence', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -806,7 +774,7 @@ export default function AudienceExplorer({
           }
           try {
             const query = audienceFilter.trim();
-            const response = await fetch('http://localhost:3002/api/content-strategy', {
+            const response = await fetch('http://localhost:3001/api/content-strategy', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -838,7 +806,7 @@ export default function AudienceExplorer({
           }
           try {
             const query = audienceFilter.trim();
-            const response = await fetch('http://localhost:3002/api/brand-strategy', {
+            const response = await fetch('http://localhost:3001/api/brand-strategy', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -1071,11 +1039,6 @@ export default function AudienceExplorer({
 
   const handleCardClick = (result: SearchResult) => {
     switch (result.type) {
-      case 'deals':
-        setSelectedDeal(result.data);
-        setIsDealModalOpen(true);
-        onDealClick(result.data);
-        break;
       case 'personas':
         setSelectedPersona(result.data);
         setIsPersonaModalOpen(true);
@@ -1264,7 +1227,7 @@ export default function AudienceExplorer({
         
         {result.type === 'marketing-swot' && (
           <div className="flex items-center gap-2 text-xs text-brand-gold">
-            <Target className="w-3 h-3" />
+            <TrendingUp className="w-3 h-3" />
             <span>Marketing SWOT analysis</span>
           </div>
         )}
@@ -1355,7 +1318,7 @@ export default function AudienceExplorer({
             <div>
               <h1 className="text-3xl font-bold text-neutral-900 flex items-center gap-3">
                 <Sparkles className="w-8 h-8 text-brand-orange" />
-                Intelligence Cards
+                Strategy Cards
               </h1>
               <p className="text-neutral-600 mt-2">
                 Discover insights across all card types
@@ -1598,22 +1561,6 @@ export default function AudienceExplorer({
       </div>
 
       {/* Modals */}
-      {isDealModalOpen && selectedDeal && (
-        <DealDetailModal
-          deal={selectedDeal}
-          isOpen={isDealModalOpen}
-          onClose={() => {
-            setIsDealModalOpen(false);
-            setSelectedDeal(null);
-          }}
-          onAddToCart={onAddToCart}
-          onRemoveFromCart={onRemoveFromCart}
-          isInCart={isInCart}
-          onSaveCard={onSaveCard}
-          onUnsaveCard={onUnsaveCard}
-          isSaved={isSaved}
-        />
-      )}
 
       {isPersonaModalOpen && selectedPersona && (
         <PersonaDetailModal

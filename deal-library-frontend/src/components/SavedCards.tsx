@@ -35,8 +35,6 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return <FileText className="w-4 h-4 text-cyan-600" />;
       case 'brand-strategy':
         return <Award className="w-4 h-4 text-violet-600" />;
-      case 'strategy-brief':
-        return <Target className="w-4 h-4 text-blue-600" />;
       default:
         return <BookmarkCheck className="w-4 h-4 text-gray-600" />;
     }
@@ -68,10 +66,6 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return `Content Strategy: ${(card.data as ContentStrategy).industryOrTopic}`;
       case 'brand-strategy':
         return `Brand Strategy: ${(card.data as BrandStrategy).brandOrCategory}`;
-      case 'strategy-brief':
-        return card.data?.strategyRationale ? 
-          `Strategy Brief: ${card.data.strategyRationale.length > 50 ? card.data.strategyRationale.substring(0, 50) + '...' : card.data.strategyRationale}` :
-          'Strategy Brief';
       default:
         return 'Unknown Card';
     }

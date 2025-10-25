@@ -221,7 +221,7 @@ export default function DealDetailModal({
                 className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
-                Remove from Cart
+                Remove from Selections
               </button>
             ) : (
               <button
@@ -233,7 +233,7 @@ export default function DealDetailModal({
                 }`}
               >
                 <ShoppingCart className="w-4 h-4" />
-                Add to Cart
+                Add to Selections
               </button>
             )}
             <button

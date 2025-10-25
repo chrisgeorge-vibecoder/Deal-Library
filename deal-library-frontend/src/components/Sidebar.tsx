@@ -69,23 +69,16 @@ export default function Sidebar({
         </button>
       </div>
 
-      {/* Navigation */}
+      {/* Plan Section */}
       <div className="p-4 border-b border-neutral-200">
-        <h3 className="text-sm font-medium text-neutral-700 mb-3">Resources</h3>
+        <h3 className="text-sm font-medium text-neutral-700 mb-3">Plan</h3>
         <div className="space-y-2">
           <Link
             href="/audience-insights"
             className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
           >
             <Sparkles className="w-4 h-4" />
-            Commerce Audience Insights
-          </Link>
-          <Link
-            href="/intelligence-cards"
-            className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
-          >
-            <Users className="w-4 h-4" />
-            Intelligence Cards
+            Audience Insights
           </Link>
           <Link
             href="/research"
@@ -93,6 +86,27 @@ export default function Sidebar({
           >
             <BookOpen className="w-4 h-4" />
             Research Library
+          </Link>
+          <Link
+            href="/strategy-cards"
+            className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
+          >
+            <Users className="w-4 h-4" />
+            Strategy Cards
+          </Link>
+        </div>
+      </div>
+
+      {/* Activate Section */}
+      <div className="p-4 border-b border-neutral-200">
+        <h3 className="text-sm font-medium text-neutral-700 mb-3">Activate</h3>
+        <div className="space-y-2">
+          <Link
+            href="/deals"
+            className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            Deal Library
           </Link>
         </div>
       </div>

@@ -1325,7 +1325,7 @@ export class DealsController {
               // Create persona card from report
               const dynamicPersona = {
                 id: matchingSegment.name,
-                name: report.personaName,
+                personaName: report.personaName,
                 emoji: report.personaEmoji,
                 category: report.category,
                 description: report.strategicInsights.targetPersona,
@@ -1341,7 +1341,7 @@ export class DealsController {
               };
               
               results.personas = [dynamicPersona];
-              console.log(`✅ Generated dynamic persona: ${dynamicPersona.name}`);
+              console.log(`✅ Generated dynamic persona: ${dynamicPersona.personaName}`);
             } catch (error) {
               console.error('Error generating dynamic persona:', error);
               // Fall through to static personas
@@ -1353,9 +1353,9 @@ export class DealsController {
             const personas = await this.personaService.getAllPersonas();
             if (personas && personas.length > 0) {
               const filteredPersonas = personas.filter((persona: any) => 
-                persona.name.toLowerCase().includes(query.toLowerCase()) ||
-                persona.coreInsight.toLowerCase().includes(query.toLowerCase()) ||
-                persona.category.toLowerCase().includes(query.toLowerCase())
+                (persona.personaName && persona.personaName.toLowerCase().includes(query.toLowerCase())) ||
+                (persona.coreInsight && persona.coreInsight.toLowerCase().includes(query.toLowerCase())) ||
+                (persona.category && persona.category.toLowerCase().includes(query.toLowerCase()))
               );
               results.personas = filteredPersonas.slice(0, 10);
             }

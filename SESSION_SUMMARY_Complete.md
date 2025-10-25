@@ -317,7 +317,7 @@ Add lifestyle section to Audience Insights page:
 ### **Phase 2: Persona Integration**
 Make personas searchable and browsable:
 1. Search "Audio persona" in main chat
-2. Browse all personas in Intelligence Cards
+2. Browse all personas in Strategy Cards
 3. Category filtering
 
 **Estimated effort:** 2-3 hours  

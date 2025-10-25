@@ -47,7 +47,7 @@ export default function PersonaExplorer({
     const fetchPersonas = async () => {
       try {
         console.log('Fetching personas from backend...');
-        const response = await fetch('http://localhost:3002/api/personas');
+        const response = await fetch('http://localhost:3001/api/personas');
         console.log('Response status:', response.status);
         if (response.ok) {
           const personaData = await response.json();
@@ -109,7 +109,7 @@ export default function PersonaExplorer({
   const fetchDealsForPersona = async (personaId: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3002/api/deals/persona/${personaId}`);
+      const response = await fetch(`http://localhost:3001/api/deals/persona/${personaId}`);
       if (response.ok) {
         const dealData = await response.json();
         setDeals(dealData);
@@ -221,9 +221,9 @@ export default function PersonaExplorer({
             </div>
           ) : filteredDeals.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredDeals.map((deal) => (
+              {filteredDeals.map((deal, index) => (
                 <DealCard
-                  key={deal.id}
+                  key={`${deal.id}-${index}`}
                   deal={deal}
                   onClick={() => handleDealClick(deal)}
                   onAddToCart={() => onAddToCart(deal)}

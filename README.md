@@ -15,9 +15,9 @@ An AI-powered marketing intelligence platform that helps media professionals dis
 - **AI-Powered Search** - Natural language search for advertising deals
 - **Smart Filtering** - Filter by media type, environment, targeting, and more
 - **Relevance Scoring** - Advanced algorithms match deals to your query
-- **Cart & Saved Cards** - Save deals and intelligence cards for later
+- **Cart & Saved Cards** - Save deals and strategy cards for later
 
-### **Intelligence Cards**
+### **Strategy Cards**
 - **Audience Personas** - Curated personas with strategic insights
 - **Market Sizing** - TAM/SAM analysis for key markets
 - **Audience Insights** - Demographic and behavioral breakdowns
@@ -119,7 +119,7 @@ Deal Library/
 │   │   ├── app/                    # Pages (Next.js App Router)
 │   │   │   ├── page.tsx            # Main chat interface
 │   │   │   ├── audience-insights/  # Commerce Audience Insights tool
-│   │   │   └── intelligence-cards/ # Intelligence Cards browser
+│   │   │   └── strategy-cards/ # Strategy Cards browser
 │   │   ├── components/             # React components
 │   │   ├── types/                  # TypeScript interfaces
 │   │   └── lib/                    # Utilities

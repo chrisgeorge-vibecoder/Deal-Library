@@ -50,9 +50,9 @@ export default function DealGrid({ deals, onDealClick, loading = false, onAddToC
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {deals.map((deal) => (
+      {deals.map((deal, index) => (
         <DealCard
-          key={deal.id}
+          key={`${deal.id}-${index}`}
           deal={deal}
           onClick={() => onDealClick?.(deal)}
           onAddToCart={() => onAddToCart(deal)}

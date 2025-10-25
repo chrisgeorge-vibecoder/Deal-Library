@@ -53,7 +53,6 @@ import { MarketingNewsDetailModal } from './MarketingNewsDetailModal';
 import { CompetitiveIntelligenceDetailModal } from './CompetitiveIntelligenceDetailModal';
 import { ContentStrategyDetailModal } from './ContentStrategyDetailModal';
 import { BrandStrategyDetailModal } from './BrandStrategyDetailModal';
-import { StrategyBriefDetailModal } from './StrategyBriefDetailModal';
 import CustomDealForm from './CustomDealForm';
 import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy } from '@/types/deal';
 import { MarketSizing } from '@/components/MarketSizingCard';
@@ -92,8 +91,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [isContentStrategyModalOpen, setIsContentStrategyModalOpen] = useState(false);
   const [selectedBrandStrategy, setSelectedBrandStrategy] = useState<BrandStrategy | null>(null);
   const [isBrandStrategyModalOpen, setIsBrandStrategyModalOpen] = useState(false);
-  const [selectedStrategyBrief, setSelectedStrategyBrief] = useState<any>(null);
-  const [isStrategyBriefModalOpen, setIsStrategyBriefModalOpen] = useState(false);
   
   // Cart and Custom Deal Form states
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -162,9 +159,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
         return `content-strategy-${(card.data as any).industryOrTopic}`;
       case 'brand-strategy':
         return `brand-strategy-${(card.data as any).brandOrCategory}`;
-      case 'strategy-brief':
-        // Use a hash of the strategy rationale as ID since strategy briefs don't have unique identifiers
-        return `strategy-brief-${card.data?.strategyRationale ? btoa(card.data.strategyRationale).substring(0, 10) : Date.now()}`;
       case 'research':
         return `research-${(card.data as any).id}`;
       default:
@@ -248,10 +242,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
           // Don't show error for saved cards, just skip opening the modal
         }
         break;
-      case 'strategy-brief':
-        setSelectedStrategyBrief(card.data);
-        setIsStrategyBriefModalOpen(true);
-        break;
       case 'research':
         // Navigate to research library page and open the specific study modal
         router.push(`/research?openStudy=${card.data.id}`);
@@ -283,7 +273,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   const isInCart = (dealId: string) => {
     const inCart = cart.some(deal => deal.id === dealId);
-    console.log('🛒 AppLayout: Checking if in cart:', dealId, '→', inCart);
+    // Removed excessive logging - only log in development mode for debugging
+    if (process.env.NODE_ENV === 'development' && Math.random() < 0.01) {
+      console.log('🛒 AppLayout: Sample cart check:', dealId, '→', inCart);
+    }
     return inCart;
   };
 
@@ -430,7 +423,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }, []);
 
   // Determine if we should show the header based on the current page
-  const showHeader = pathname === '/' || pathname === '/intelligence-cards' || pathname === '/audience-insights' || pathname === '/research';
+  const showHeader = pathname === '/' || pathname === '/strategy-cards' || pathname === '/audience-insights' || pathname === '/research' || pathname === '/deals';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -477,37 +470,42 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   </div>
                 </div>
                 
-                {/* Right-aligned section: Action buttons */}
+                {/* Right-aligned section: Activate buttons */}
                 <div className="flex items-center space-x-3">
-                  <button 
-                    onClick={() => {
-                      // This will be handled by the main page component
-                      const event = new CustomEvent('openCustomDealForm');
-                      window.dispatchEvent(event);
-                    }}
-                    className="btn-secondary px-6 py-3"
-                  >
-                    Request Custom Deal
-                  </button>
-                  <button 
-                    onClick={() => {
-                      const event = new CustomEvent('openCart');
-                      window.dispatchEvent(event);
-                    }}
-                    className="btn-primary relative px-6 py-3"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 mr-2">
-                      <circle cx="8" cy="21" r="1"></circle>
-                      <circle cx="19" cy="21" r="1"></circle>
-                      <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
-                    </svg>
-                    Cart
-                    {cart.length > 0 && (
-                      <span className="ml-2 px-2 py-0.5 bg-white text-brand-orange rounded-full text-xs font-semibold">
-                        {cart.length}
-                      </span>
-                    )}
-                  </button>
+                  {/* Only show Request Custom Deal button on non-deals pages */}
+                  {pathname !== '/deals' && (
+                    <>
+                      <button 
+                        onClick={() => {
+                          // This will be handled by the main page component
+                          const event = new CustomEvent('openCustomDealForm');
+                          window.dispatchEvent(event);
+                        }}
+                        className="btn-secondary px-6 py-3"
+                      >
+                        Request Custom Deal
+                      </button>
+                      <button 
+                        onClick={() => {
+                          const event = new CustomEvent('openCart');
+                          window.dispatchEvent(event);
+                        }}
+                        className="btn-primary relative px-6 py-3"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 mr-2">
+                          <circle cx="8" cy="21" r="1"></circle>
+                          <circle cx="19" cy="21" r="1"></circle>
+                          <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+                        </svg>
+                        My Selections
+                        {cart.length > 0 && (
+                          <span className="ml-2 px-2 py-0.5 bg-white text-brand-orange rounded-full text-xs font-semibold">
+                            {cart.length}
+                          </span>
+                        )}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -646,7 +644,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center p-6 border-b border-neutral-200">
-              <h2 className="text-xl font-bold text-neutral-900">Selected Deals</h2>
+              <h2 className="text-xl font-bold text-neutral-900">My Selections</h2>
               <div className="flex items-center space-x-3">
                 <button
                   onClick={handleClearCart}
@@ -674,13 +672,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     <circle cx="19" cy="21" r="1"></circle>
                     <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
                   </svg>
-                  <h3 className="text-lg font-medium text-neutral-500 mb-2">Your cart is empty</h3>
-                  <p className="text-neutral-400">Add deals to your cart to get started</p>
+                  <h3 className="text-lg font-medium text-neutral-500 mb-2">Your selections are empty</h3>
+                  <p className="text-neutral-400">Add deals to your selections to get started</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {cart.map((deal) => (
-                    <div key={deal.id} className="card p-4 flex items-center justify-between">
+                  {cart.map((deal, index) => (
+                    <div key={`${deal.id}-${index}`} className="card p-4 flex items-center justify-between">
                       <div className="flex-1">
                         <h3 className="font-semibold text-neutral-900 mb-1">{deal.dealName}</h3>
                         <p className="text-sm text-neutral-600 mb-2">{deal.description}</p>
@@ -721,7 +719,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                           onClick={handleExportCart}
                           className="btn-primary"
                         >
-                          Export Selected Deals
+                          Export My Selections
                         </button>
                       </div>
                     </div>
@@ -805,17 +803,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
         isSaved={isCardSaved}
       />
 
-      <StrategyBriefDetailModal
-        coaching={selectedStrategyBrief}
-        isOpen={isStrategyBriefModalOpen}
-        onClose={() => {
-          setIsStrategyBriefModalOpen(false);
-          setSelectedStrategyBrief(null);
-        }}
-        onSaveCard={handleSaveCard}
-        onUnsaveCard={handleUnsaveCard}
-        isSaved={isCardSaved}
-      />
 
       {/* Custom Deal Form Modal */}
       {isCustomDealFormOpen && (

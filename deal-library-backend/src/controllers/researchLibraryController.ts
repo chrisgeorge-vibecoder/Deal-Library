@@ -290,7 +290,13 @@ export class ResearchLibraryController {
    */
   async uploadPDF(req: MulterRequest, res: Response): Promise<void> {
     try {
+      console.log('📤 uploadPDF called');
+      console.log('Request headers:', req.headers);
+      console.log('Request body keys:', Object.keys(req.body || {}));
+      console.log('File present:', !!req.file);
+      
       if (!req.file) {
+        console.log('❌ No file in request');
         res.status(400).json({ error: 'No file uploaded' });
         return;
       }
@@ -303,9 +309,9 @@ export class ResearchLibraryController {
         return;
       }
 
-      // Validate file size (10MB limit)
-      if (file.size > 10 * 1024 * 1024) {
-        res.status(400).json({ error: 'File size must be less than 10MB' });
+      // Validate file size (30MB limit)
+      if (file.size > 30 * 1024 * 1024) {
+        res.status(400).json({ error: 'File size must be less than 30MB' });
         return;
       }
 
@@ -327,21 +333,47 @@ export class ResearchLibraryController {
         storageClient = this.supabase;
       }
       
+      console.log('📤 Storage client type:', typeof storageClient);
+      console.log('📤 Storage client has storage:', !!storageClient?.storage);
+      
       // Upload to Supabase Storage
       console.log('📤 Attempting upload to research-pdfs bucket...');
-      const { data, error } = await storageClient.storage
+      console.log('📤 File size:', file.size, 'bytes');
+      console.log('📤 Buffer length:', file.buffer.length);
+      
+      const uploadStartTime = Date.now();
+      
+      // Add timeout for large file uploads (5 minutes)
+      const uploadPromise = storageClient.storage
         .from('research-pdfs')
         .upload(fileName, file.buffer, {
           contentType: file.mimetype,
           upsert: false
         });
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Upload timeout after 5 minutes')), 5 * 60 * 1000);
+      });
+      
+      const { data, error } = await Promise.race([uploadPromise, timeoutPromise]) as any;
+      
+      const uploadDuration = Date.now() - uploadStartTime;
+      console.log(`📤 Upload completed in ${uploadDuration}ms`);
 
       if (error) {
         console.error('❌ Error uploading to Supabase Storage:', error);
+        console.error('Error type:', typeof error);
+        console.error('Error keys:', Object.keys(error || {}));
         console.error('Error details:', JSON.stringify(error, null, 2));
+        console.error('Error message:', error?.message);
+        console.error('Error status:', error?.status);
+        console.error('Error statusCode:', error?.statusCode);
+        
+        const errorMessage = error?.message || error?.error || JSON.stringify(error);
         res.status(500).json({ 
           error: 'Failed to upload file to storage', 
-          details: error.message || error 
+          details: errorMessage,
+          supabaseError: error
         });
         return;
       }
@@ -363,7 +395,8 @@ export class ResearchLibraryController {
       });
     } catch (error: any) {
       console.error('❌ Error in uploadPDF:', error);
-      res.status(500).json({ error: error.message });
+      const errorMessage = error?.message || error?.error || 'Unknown error occurred during upload';
+      res.status(500).json({ error: errorMessage });
     }
   }
 

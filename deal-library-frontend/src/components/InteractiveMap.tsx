@@ -13,6 +13,17 @@ export default function InteractiveMap({ geo }: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const [mapError, setMapError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('🗺️ InteractiveMap component mounted with geo:', geo);
+    console.log('🗺️ Geo data:', {
+      audienceName: geo?.audienceName,
+      topMarkets: geo?.topMarkets?.length || 0,
+      totalAddressable: geo?.totalAddressable
+    });
+  }, [geo]);
 
   // Define coordinates for major US regions based on the geo data
   const getCoordinatesForRegion = (region: string) => {
@@ -157,19 +168,32 @@ export default function InteractiveMap({ geo }: InteractiveMapProps) {
     return [39.8283, -98.5795];
   };
 
-  // Create markers from geo data
-  const markers = geo.topMarkets.map((market, index) => {
-    const position = getCoordinatesForRegion(market.region);
-    return {
-      position,
-      region: market.region,
-      percentage: market.percentage,
-      rank: index + 1
-    };
-  });
-
   useEffect(() => {
-    if (typeof window === 'undefined' || !mapRef.current) return;
+    // Create markers from geo data inside useEffect
+    console.log('🗺️ topMarkets structure:', geo.topMarkets);
+    console.log('🗺️ First market item:', geo.topMarkets[0]);
+    
+    const markers = geo.topMarkets.map((market, index) => {
+      console.log(`🗺️ Processing market ${index}:`, market);
+      
+      // Handle different possible field names
+      const region = market.region || market.city || market.name || market.location || 'Unknown';
+      const percentage = market.percentage || market.percentage || market.density || 'N/A';
+      
+      const position = getCoordinatesForRegion(region);
+      console.log(`🗺️ Coordinates for ${region}:`, position);
+      
+      return {
+        position,
+        region,
+        percentage,
+        rank: index + 1
+      };
+    });
+    if (typeof window === 'undefined' || !mapRef.current) {
+      setIsLoading(false);
+      return;
+    }
 
     // Load Leaflet CSS dynamically to avoid bundling issues
     const loadLeafletCSS = () => {
@@ -190,6 +214,7 @@ export default function InteractiveMap({ geo }: InteractiveMapProps) {
     const initMap = async () => {
       try {
         console.log('🗺️ Initializing map...');
+        setIsLoading(true);
         const L = await import('leaflet');
         console.log('🗺️ Leaflet imported successfully');
         
@@ -218,7 +243,9 @@ export default function InteractiveMap({ geo }: InteractiveMapProps) {
           return;
         }
         
+        // Clear the container completely and reset it
         mapRef.current.innerHTML = '';
+        mapRef.current.className = 'w-full h-full';
 
         // Small delay to ensure DOM is ready
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -294,17 +321,31 @@ export default function InteractiveMap({ geo }: InteractiveMapProps) {
             console.warn('Error fitting bounds:', e);
           }
         }
+        
+        console.log('🗺️ Map initialized successfully');
+        setIsLoading(false);
       } catch (error) {
         console.error('🗺️ Error initializing map:', error);
         console.error('🗺️ Map ref:', mapRef.current);
         setMapError(true);
+        setIsLoading(false);
       }
     };
 
     initMap();
 
+    // Set a timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        console.warn('🗺️ Map loading timeout, falling back to simple map');
+        setMapError(true);
+        setIsLoading(false);
+      }
+    }, 10000); // 10 second timeout
+
     // Cleanup function
     return () => {
+      clearTimeout(timeout);
       if (mapInstanceRef.current) {
         try {
           mapInstanceRef.current.remove();
@@ -318,10 +359,33 @@ export default function InteractiveMap({ geo }: InteractiveMapProps) {
         mapRef.current.innerHTML = '';
       }
     };
-  }, [geo.audienceName, geo.topMarkets]);
+  }, [geo]);
+
+  // Check if geo data is valid
+  if (!geo || !geo.topMarkets || geo.topMarkets.length === 0) {
+    console.warn('🗺️ Invalid geo data, showing fallback');
+    return <SimpleMapFallback geo={geo || { audienceName: 'Unknown', topMarkets: [], totalAddressable: '0', insights: [] }} />;
+  }
+
+  // Check if markers were created successfully
+  if (markers.length === 0 || markers.every(m => !m.position || m.position.length !== 2)) {
+    console.warn('🗺️ No valid markers created, showing fallback');
+    return <SimpleMapFallback geo={geo} />;
+  }
 
   if (mapError) {
     return <SimpleMapFallback geo={geo} />;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <div className="text-gray-600 text-sm">Loading map...</div>
+        </div>
+      </div>
+    );
   }
 
   return (

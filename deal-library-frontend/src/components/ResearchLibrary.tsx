@@ -30,7 +30,7 @@ interface ResearchLibraryProps {
   isSaved?: (cardId: string) => boolean;
 }
 
-export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3002', onSaveCard, onUnsaveCard, isSaved }: ResearchLibraryProps) {
+export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3001', onSaveCard, onUnsaveCard, isSaved }: ResearchLibraryProps) {
   const [studies, setStudies] = useState<ResearchStudy[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -136,7 +136,7 @@ export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3002', 
       // Provide more specific error messages based on error type
       let errorMessage = err.message;
       if (err instanceof TypeError && err.message.includes('fetch')) {
-        errorMessage = 'Cannot connect to the research service. Please ensure the backend server is running on port 3002.';
+        errorMessage = 'Cannot connect to the research service. Please ensure the backend server is running on port 3001.';
       } else if (err.message.includes('Failed to fetch research studies')) {
         errorMessage = 'Research service is temporarily unavailable. The research library may not be configured.';
       }
@@ -336,17 +336,53 @@ export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3002', 
     try {
       // Step 1: Upload the PDF file to Supabase Storage
       console.log('📤 Uploading PDF file...');
+      console.log('📤 File size:', selectedFile.size, 'bytes');
+      console.log('📤 File name:', selectedFile.name);
+      console.log('📤 File type:', selectedFile.type);
+      
       const fileFormData = new FormData();
       fileFormData.append('file', selectedFile);
 
+      // Add timeout for large file uploads (15 minutes)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15 * 60 * 1000); // 15 minutes
+      
+      console.log('📤 Starting upload request...');
+      const uploadStartTime = Date.now();
+      
       const uploadResponse = await fetch(`${apiBaseUrl}/api/research/upload`, {
         method: 'POST',
         body: fileFormData, // Don't set Content-Type header for FormData
+        signal: controller.signal
       });
+      
+      const uploadDuration = Date.now() - uploadStartTime;
+      console.log(`📤 Upload request completed in ${uploadDuration}ms`);
+      
+      clearTimeout(timeoutId);
+
+      console.log('Upload response status:', uploadResponse.status);
+      console.log('Upload response ok:', uploadResponse.ok);
+      console.log('Upload response headers:', Object.fromEntries(uploadResponse.headers.entries()));
 
       if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json();
-        throw new Error(errorData.error || 'Failed to upload PDF file');
+        let errorData;
+        try {
+          errorData = await uploadResponse.json();
+          console.error('Upload response error (JSON):', errorData);
+        } catch (jsonError) {
+          const textError = await uploadResponse.text();
+          console.error('Upload response error (text):', textError);
+          errorData = { error: textError };
+        }
+        
+        // Handle empty error objects
+        if (!errorData || Object.keys(errorData).length === 0) {
+          throw new Error(`Upload failed with status ${uploadResponse.status}`);
+        }
+        
+        const errorMessage = errorData.error || errorData.details || 'Failed to upload PDF file';
+        throw new Error(errorMessage);
       }
 
       const uploadData = await uploadResponse.json();
@@ -391,6 +427,9 @@ export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3002', 
         body: JSON.stringify(studyData),
       });
 
+      console.log('Study creation response status:', response.status);
+      console.log('Study creation response ok:', response.ok);
+
       if (response.ok) {
         const result = await response.json();
         console.log('✅ Study created:', result);
@@ -414,13 +453,51 @@ export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3002', 
         
         alert('Research study uploaded successfully! The PDF is now stored and ready for processing.');
       } else {
-        const errorData = await response.json();
-        console.error('❌ Study creation failed:', errorData);
-        throw new Error(errorData.error || 'Failed to create study record (HTTP ' + response.status + ')');
+        let errorData;
+        try {
+          errorData = await response.json();
+          console.error('❌ Study creation failed (JSON):', errorData);
+        } catch (jsonError) {
+          const textError = await response.text();
+          console.error('❌ Study creation failed (text):', textError);
+          errorData = { error: textError };
+        }
+        
+        // Handle empty error objects
+        if (!errorData || Object.keys(errorData).length === 0) {
+          throw new Error(`Study creation failed with status ${response.status}`);
+        }
+        
+        const errorMessage = errorData.error || errorData.details || `Failed to create study record (HTTP ${response.status})`;
+        throw new Error(errorMessage);
       }
     } catch (error: any) {
       console.error('Upload error:', error);
-      alert(`Upload failed: ${error.message}`);
+      console.error('Error type:', typeof error);
+      console.error('Error keys:', Object.keys(error || {}));
+      console.error('Error stringified:', JSON.stringify(error, null, 2));
+      
+      let errorMessage = 'Unknown error occurred';
+      
+      // Handle specific error types
+      if (error.name === 'AbortError') {
+        errorMessage = 'Upload timed out. The file may be too large or the connection is slow. Please try again.';
+      } else if (error.message && error.message.includes('Failed to fetch')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.error) {
+        errorMessage = error.error;
+      } else if (error?.details) {
+        errorMessage = error.details;
+      } else if (error && typeof error === 'object') {
+        errorMessage = JSON.stringify(error);
+      }
+      
+      console.error('Final error message:', errorMessage);
+      alert(`Upload failed: ${errorMessage}`);
     } finally {
       setUploading(false);
     }

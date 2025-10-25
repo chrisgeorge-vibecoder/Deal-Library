@@ -9,8 +9,8 @@ const nextConfig = {
       "style-src 'self' 'unsafe-inline' https:",
       "img-src 'self' data: https:",
       isDev
-        ? "connect-src 'self' http://localhost:3002 ws: http: https:"
-        : "connect-src 'self' https: http://localhost:3002",
+        ? "connect-src 'self' http://localhost:3001 ws: http: https:"
+        : "connect-src 'self' https: http://localhost:3001",
       "font-src 'self' data: https:",
       "frame-ancestors 'self'",
     ];

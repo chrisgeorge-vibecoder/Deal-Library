@@ -8,9 +8,7 @@ import { GeoCard as GeoCardComponent } from './GeoCard';
 import MarketingSWOTCard from './MarketingSWOTCard';
 import CompanyProfileCard from './CompanyProfileCard';
 import MarketingNewsCard from './MarketingNewsCard';
-import StrategyBriefCard from './StrategyBriefCard';
-import StrategyBriefDetailModal from './StrategyBriefDetailModal';
-import { Send, Bot, User, Filter, Sparkles, ShoppingCart, Trash2, Users, Target } from 'lucide-react';
+import { Send, Bot, User, Filter, Sparkles, ShoppingCart, Trash2, Users, Target, FileText, Award } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import CardTypeSelector from './CardTypeSelector';
@@ -28,8 +26,10 @@ interface ChatMessage {
   marketingSWOT?: MarketingSWOT[];
   companyProfiles?: CompanyProfile[];
   marketingNews?: MarketingNews[];
+  competitiveIntelligence?: any[];
+  contentStrategy?: any[];
+  brandStrategy?: any[];
   coaching?: any;
-  showStrategyBrief?: boolean;
 }
 
 interface ChatInterfaceProps {
@@ -50,11 +50,14 @@ interface ChatInterfaceProps {
   aiMarketingSWOT?: MarketingSWOT[];
   aiCompanyProfiles?: CompanyProfile[];
   aiMarketingNews?: MarketingNews[];
+  aiCompetitiveIntelligence?: any[];
+  aiContentStrategy?: any[];
+  aiBrandStrategy?: any[];
   aiCoaching?: any;
   onPersonaClick?: (persona: Persona) => void;
   inputValue?: string;
   onInputValueChange?: (value: string) => void;
-  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'strategy-brief', data: any }) => void;
+  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news', data: any }) => void;
   onUnsaveCard?: (cardId: string) => void;
   isSaved?: (cardId: string) => boolean;
   sidebarOpen?: boolean;
@@ -78,6 +81,9 @@ export default function ChatInterface({
   aiMarketingSWOT,
   aiCompanyProfiles,
   aiMarketingNews,
+  aiCompetitiveIntelligence,
+  aiContentStrategy,
+  aiBrandStrategy,
   aiCoaching,
   onPersonaClick,
   inputValue: externalInputValue,
@@ -108,8 +114,6 @@ export default function ChatInterface({
   const [isTyping, setIsTyping] = useState(false);
   const [selectedGeo, setSelectedGeo] = useState<GeoCard | null>(null);
   const [isGeoModalOpen, setIsGeoModalOpen] = useState(false);
-  const [selectedStrategyBrief, setSelectedStrategyBrief] = useState<any>(null);
-  const [isStrategyBriefModalOpen, setIsStrategyBriefModalOpen] = useState(false);
   
   const lastProcessedResponse = useRef<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -239,6 +243,12 @@ export default function ChatInterface({
         companyProfiles: aiCompanyProfiles && aiCompanyProfiles.length > 0 ? aiCompanyProfiles : undefined,
         // Include marketing news if available
         marketingNews: aiMarketingNews && aiMarketingNews.length > 0 ? aiMarketingNews : undefined,
+        // Include competitive intelligence if available
+        competitiveIntelligence: aiCompetitiveIntelligence && aiCompetitiveIntelligence.length > 0 ? aiCompetitiveIntelligence : undefined,
+        // Include content strategy if available
+        contentStrategy: aiContentStrategy && aiContentStrategy.length > 0 ? aiContentStrategy : undefined,
+        // Include brand strategy if available
+        brandStrategy: aiBrandStrategy && aiBrandStrategy.length > 0 ? aiBrandStrategy : undefined,
         // Include coaching insights if available - handle both null and undefined
         coaching: aiCoaching && typeof aiCoaching === 'object' && aiCoaching !== null ? aiCoaching : undefined,
       };
@@ -504,40 +514,16 @@ export default function ChatInterface({
                   </div>
                 )}
 
-                {/* Strategy Brief Card - only show if explicitly requested */}
-                {message.showStrategyBrief && message.coaching && typeof message.coaching === 'object' && message.coaching !== null && (
-                  <div className="mt-4">
-                    <StrategyBriefCard
-                      coaching={message.coaching}
-                      onExpand={() => {
-                        setSelectedStrategyBrief(message.coaching);
-                        setIsStrategyBriefModalOpen(true);
-                      }}
-                      onSave={() => {
-                        // Use the same ID generation as AppLayout for consistency
-                        const cardId = `strategy-brief-${message.coaching?.strategyRationale ? btoa(message.coaching.strategyRationale).substring(0, 10) : message.id}`;
-                        if (onSaveCard && onUnsaveCard && isSaved) {
-                          if (isSaved(cardId)) {
-                            onUnsaveCard(cardId);
-                          } else {
-                            onSaveCard({ type: 'strategy-brief', data: message.coaching });
-                          }
-                        }
-                      }}
-                      isSaved={isSaved ? isSaved(`strategy-brief-${message.coaching?.strategyRationale ? btoa(message.coaching.strategyRationale).substring(0, 10) : message.id}`) : false}
-                    />
-                  </div>
-                )}
                 
                 {message.deals && message.deals.length > 0 && (
                   <div className="mt-4">
                     <p className="text-xs font-medium text-neutral-600 mb-3">Relevant deals:</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {message.deals.map((deal) => {
+                      {message.deals.map((deal, index) => {
                         const isCommerceAudience = (deal.dealName || '').toLowerCase().includes('purchase intender');
                         return (
                         <div 
-                          key={deal.id}
+                          key={`${deal.id}-${index}`}
                           className={`card p-4 cursor-pointer hover:shadow-sovrn-lg transition-all duration-200 group ${
                             isCommerceAudience 
                               ? 'border-l-4 border-brand-gold bg-gradient-to-r from-brand-gold/5 to-transparent' 
@@ -567,7 +553,7 @@ export default function ChatInterface({
                             </span>
                           </div>
 
-                          {/* Add to Cart Button */}
+                          {/* Add to Selections Button */}
                           <div className="pt-3 border-t border-neutral-200">
                             {isInCart(deal.id) ? (
                               <button
@@ -578,7 +564,7 @@ export default function ChatInterface({
                                 className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-xs font-medium"
                               >
                                 <Trash2 className="w-3 h-3" />
-                                Remove from Cart
+                                Remove from Selections
                               </button>
                             ) : (
                               <button
@@ -593,7 +579,7 @@ export default function ChatInterface({
                                 }`}
                               >
                                 <ShoppingCart className="w-3 h-3" />
-                                Add to Cart
+                                Add to Selections
                               </button>
                             )}
                           </div>
@@ -602,25 +588,6 @@ export default function ChatInterface({
                       })}
                     </div>
                     
-                    {/* Strategy Brief Button - show only if deals exist and coaching is available but not yet shown */}
-                    {!message.showStrategyBrief && message.coaching && typeof message.coaching === 'object' && message.coaching !== null && (
-                      <div className="mt-4 pt-4 border-t border-neutral-200">
-                        <button
-                          onClick={() => {
-                            // Update the message to show strategy brief
-                            setMessages(prev => prev.map(msg => 
-                              msg.id === message.id 
-                                ? { ...msg, showStrategyBrief: true }
-                                : msg
-                            ));
-                          }}
-                          className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors text-sm font-medium"
-                        >
-                          <Target className="w-4 h-4" />
-                          Get Strategy Brief
-                        </button>
-                      </div>
-                    )}
                   </div>
                 )}
                 
@@ -823,7 +790,81 @@ export default function ChatInterface({
                   </div>
                 )}
 
-                {/* Coaching Insights are now handled by the StrategyBriefCard component above */}
+                {message.competitiveIntelligence && message.competitiveIntelligence.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-neutral-600 mb-3">Competitive intelligence:</p>
+                    <div className="grid grid-cols-1 gap-3">
+                      {message.competitiveIntelligence.map((intel) => (
+                        <div key={intel.id} className="bg-white border border-neutral-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={() => {
+                            console.log('Competitive Intelligence card clicked:', intel);
+                            const event = new CustomEvent('openCompetitiveIntelligenceModal', { detail: { competitiveIntel: intel } });
+                            window.dispatchEvent(event);
+                          }}
+                        >
+                          <div className="flex items-center gap-3 mb-2">
+                            <Target className="w-5 h-5 text-blue-600" />
+                            <h4 className="font-semibold text-neutral-900">{intel.competitorOrIndustry}</h4>
+                          </div>
+                          <p className="text-sm text-neutral-600 line-clamp-2">
+                            {intel.competitiveAnalysis?.marketPositioning || 'Competitive analysis available'}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {message.contentStrategy && message.contentStrategy.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-neutral-600 mb-3">Content strategy:</p>
+                    <div className="grid grid-cols-1 gap-3">
+                      {message.contentStrategy.map((strategy) => (
+                        <div key={strategy.id} className="bg-white border border-neutral-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={() => {
+                            console.log('Content Strategy card clicked:', strategy);
+                            const event = new CustomEvent('openContentStrategyModal', { detail: { contentStrategy: strategy } });
+                            window.dispatchEvent(event);
+                          }}
+                        >
+                          <div className="flex items-center gap-3 mb-2">
+                            <FileText className="w-5 h-5 text-cyan-600" />
+                            <h4 className="font-semibold text-neutral-900">{strategy.industryOrTopic}</h4>
+                          </div>
+                          <p className="text-sm text-neutral-600 line-clamp-2">
+                            {strategy.contentRecommendations?.join(', ') || 'Content strategy recommendations available'}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {message.brandStrategy && message.brandStrategy.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-neutral-600 mb-3">Brand strategy:</p>
+                    <div className="grid grid-cols-1 gap-3">
+                      {message.brandStrategy.map((strategy) => (
+                        <div key={strategy.id} className="bg-white border border-neutral-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={() => {
+                            console.log('Brand Strategy card clicked:', strategy);
+                            const event = new CustomEvent('openBrandStrategyModal', { detail: { brandStrategy: strategy } });
+                            window.dispatchEvent(event);
+                          }}
+                        >
+                          <div className="flex items-center gap-3 mb-2">
+                            <Award className="w-5 h-5 text-violet-600" />
+                            <h4 className="font-semibold text-neutral-900">{strategy.brandOrCategory}</h4>
+                          </div>
+                          <p className="text-sm text-neutral-600 line-clamp-2">
+                            {strategy.positioning || 'Brand positioning strategy available'}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
               </div>
               
               <div className={`text-xs text-neutral-500 mt-2 ${message.type === 'user' ? 'text-right' : 'text-left'}`}>
@@ -867,7 +908,7 @@ export default function ChatInterface({
       {/* Chat Input */}
       <div className={`border-t border-neutral-200 bg-white shadow-lg fixed bottom-0 right-0 z-50 transition-all duration-300 ${sidebarOpen ? 'left-80' : 'left-16'}`}>
         {/* Example Prompts */}
-        {messages.length === 1 && messages[0]?.type === 'assistant' && !loading && (
+        {messages.length === 1 && messages[0]?.type === 'assistant' && (
           <div className="px-4 pt-4 pb-2">
             <div className="bg-neutral-50 rounded-xl p-4 shadow-lg">
               <p className="text-sm font-medium text-neutral-700 mb-3">Try asking:</p>
@@ -886,7 +927,7 @@ export default function ChatInterface({
           </div>
         )}
         
-        <div className="p-4 pt-0">
+        <div className={`p-4 ${messages.length === 1 && messages[0]?.type === 'assistant' ? 'pt-0' : 'pt-4'}`}>
           <form onSubmit={handleSubmit} className="flex gap-4">
           <div className="flex-1 relative">
             <textarea
@@ -927,18 +968,6 @@ export default function ChatInterface({
 
       {/* All other modals handled by AppLayout */}
 
-      {/* Strategy Brief Detail Modal */}
-      <StrategyBriefDetailModal
-        coaching={selectedStrategyBrief}
-        isOpen={isStrategyBriefModalOpen}
-        onClose={() => {
-          setIsStrategyBriefModalOpen(false);
-          setSelectedStrategyBrief(null);
-        }}
-        onSaveCard={onSaveCard}
-        onUnsaveCard={onUnsaveCard}
-        isSaved={isSaved}
-      />
 
     </div>
   );

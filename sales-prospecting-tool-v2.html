@@ -1491,12 +1491,24 @@
                     return `Mobile consumers with active on-the-go lifestyles. They invest in both travel gear and complementary products for their mobile lifestyle—indicating higher disposable income and willingness to pay for quality and durability.`;
                 }
                 
+                // Pool & Spa + Food Service = Hosting/entertaining lifestyle
+                else if ((segType === 'pool' || segType === 'spa' || segType === 'hot tub' || segType === 'Pool & Spa') && 
+                         (overType === 'food' || overType === 'restaurant' || overType === 'delivery' || overType === 'catering' || overType === 'Food Service')) {
+                    return `Pool & Spa buyers are frequently hosting guests and entertaining, making them prime targets for food delivery services like Uber Eats or DoorDash who can conveniently deliver meals while they're relaxing by the pool instead of spending time in the kitchen.`;
+                }
+                
+                // Food Service + Pool & Spa = Entertaining lifestyle
+                else if ((segType === 'food' || segType === 'restaurant' || segType === 'delivery' || segType === 'catering' || segType === 'Food Service') && 
+                         (overType === 'pool' || overType === 'spa' || overType === 'hot tub' || overType === 'Pool & Spa')) {
+                    return `Food service buyers who also purchase Pool & Spa products are creating complete entertaining experiences, investing in both the infrastructure for hosting (pools, spas) and the convenience of food delivery to maximize their time with guests rather than cooking.`;
+                }
+                
                 // Default: Smart cross-category insight with value focus
                 const higherPercent = percent && percent > 40;
                 if (higherPercent) {
                     return `Strong ${percent}% overlap reveals these aren't random buyers—they're purposeful consumers with coordinated purchase patterns. This represents qualified, high-intent audiences making planned investments across complementary lifestyle categories.`;
                 } else {
-                    return `Cross-category buyers demonstrating broader lifestyle interests and higher basket values. They make strategic purchases across ${seg} and ${overlap}—representing qualified audiences with demonstrated purchase intent in multiple areas.`;
+                    return `Strategic consumers who coordinate purchases across ${seg} and ${overlap} categories, indicating sophisticated shopping behavior and higher lifetime value potential through their demonstrated cross-category purchase intent.`;
                 }
             }
             

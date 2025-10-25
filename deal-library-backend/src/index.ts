@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -104,20 +104,22 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '30mb' }));
+app.use(express.urlencoded({ extended: true, limit: '30mb' }));
 
 // Multer configuration for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 30 * 1024 * 1024, // 30MB limit
   },
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'application/pdf') {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF files are allowed'));
+      const error = new Error('Only PDF files are allowed') as any;
+      error.statusCode = 400;
+      cb(error);
     }
   },
 });
@@ -262,7 +264,25 @@ if (researchLibraryController) {
   app.post('/api/research/:id/download', (req, res) => researchLibraryController!.downloadStudy(req, res));
   
   // File upload endpoint (must come before /api/research to avoid conflicts)
-  app.post('/api/research/upload', upload.single('file'), (req, res) => researchLibraryController!.uploadPDF(req, res));
+  app.post('/api/research/upload', upload.single('file'), (req: any, res: any) => {
+    researchLibraryController!.uploadPDF(req, res);
+  }, (err: any, req: any, res: any, next: any) => {
+    // Handle multer errors specifically for this route
+    if (err) {
+      console.error('❌ Multer error in upload route:', err);
+      if (err.message === 'Only PDF files are allowed') {
+        return res.status(400).json({ error: 'Only PDF files are allowed.' });
+      }
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large. Maximum size is 30MB.' });
+      }
+      if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+        return res.status(400).json({ error: 'Unexpected file field.' });
+      }
+      return res.status(400).json({ error: err.message || 'File upload error' });
+    }
+    next();
+  });
   
   // Admin endpoints for research library
   app.post('/api/research', (req, res) => researchLibraryController!.createStudy(req, res));
@@ -419,18 +439,24 @@ const server = app.listen(PORT, async () => {
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
   
-  // Auto-load commerce audience data on startup (optional)
-  if (process.env.AUTO_LOAD_COMMERCE_DATA === 'true') {
-    console.log(`\n📦 Auto-loading commerce audience data...`);
-    try {
-      const { commerceAudienceService } = await import('./services/commerceAudienceService');
+  // Auto-load commerce audience data on startup (always enabled)
+  console.log(`\n📦 Auto-loading commerce audience data...`);
+  try {
+    const { commerceAudienceService } = await import('./services/commerceAudienceService');
+    
+    // Check if segments are already loaded
+    const existingSegments = commerceAudienceService.getAudienceSegments();
+    if (existingSegments.length === 0) {
+      console.log(`🔄 No segments found, loading commerce data...`);
       const result = await commerceAudienceService.loadCommerceData();
       if (result.success) {
-        console.log(`✅ Commerce data loaded: ${result.stats?.totalRecords.toLocaleString()} records, ${result.stats?.audienceSegments.length} segments\n`);
+        console.log(`✅ Commerce data loaded: ${result.stats?.totalRecords.toLocaleString()} records, ${result.stats?.audienceSegments.length} segments`);
       }
-    } catch (error) {
-      console.error(`⚠️  Failed to auto-load commerce data:`, error);
+    } else {
+      console.log(`✅ Commerce segments already loaded: ${existingSegments.length} segments`);
     }
+  } catch (error) {
+    console.error(`⚠️  Failed to auto-load commerce data:`, error);
   }
   console.log(`📋 API endpoints:`);
   console.log(`   GET    /api/deals`);
@@ -459,6 +485,32 @@ const server = app.listen(PORT, async () => {
   console.log(`   GET    /api/audience-geo-analysis/segments`);
   console.log(`   GET    /api/audience-geo-analysis/status`);
   console.log(`   POST   /api/audience-geo-analysis/export-pdf`);
+});
+
+// Global error handling middleware
+app.use((err: any, req: any, res: any, next: NextFunction) => {
+  console.error('❌ Global error handler:', err);
+  console.error('Error type:', typeof err);
+  console.error('Error message:', err?.message);
+  console.error('Error code:', err?.code);
+  
+  // Handle multer errors specifically
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({ error: 'File too large. Maximum size is 30MB.' });
+  }
+  if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+    return res.status(400).json({ error: 'Unexpected file field.' });
+  }
+  if (err.message === 'Only PDF files are allowed') {
+    return res.status(400).json({ error: 'Only PDF files are allowed.' });
+  }
+  
+  // Handle any other multer validation errors
+  if (err.message && err.message.includes('Only PDF files are allowed')) {
+    return res.status(400).json({ error: 'Only PDF files are allowed.' });
+  }
+  
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 // Handle server errors

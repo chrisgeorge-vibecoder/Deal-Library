@@ -38,17 +38,17 @@ Replace the "💾 Save Persona" button with a bookmark icon to match the save fu
 - White background
 - Gray bookmark outline
 - Hover: Orange tint
-- Tooltip: "Save to Intelligence Cards"
+- Tooltip: "Save to Strategy Cards"
 
 **Saved State:**
 - Orange background (`bg-brand-orange`)
 - White filled bookmark
-- Tooltip: "Saved to Intelligence Cards"
+- Tooltip: "Saved to Strategy Cards"
 - No hover effect (already saved)
 
 ### **3. Persistent State** ✅
 - Checks `localStorage` on page load
-- Shows saved state if persona already in Intelligence Cards
+- Shows saved state if persona already in Strategy Cards
 - Updates state immediately when clicked
 - Survives page refresh
 
@@ -110,14 +110,14 @@ useEffect(() => {
 2. **User clicks bookmark**
    - Bookmark fills with orange
    - Background turns orange
-   - Card saved to Intelligence Cards
+   - Card saved to Strategy Cards
    - Tooltip changes to "Saved"
 
 3. **User navigates away and returns**
    - Bookmark remains filled (state persists)
    - User knows it's already saved
 
-4. **User goes to Intelligence Cards**
+4. **User goes to Strategy Cards**
    - Persona card appears in saved list
    - Can be viewed/removed from there
 
@@ -160,7 +160,7 @@ Now all save functionality uses the same bookmark pattern:
 4. Verify it fills with orange
 5. Refresh page
 6. Verify bookmark is still filled
-7. Go to Intelligence Cards
+7. Go to Strategy Cards
 8. Verify persona appears in saved cards
 
 ---

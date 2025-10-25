@@ -12,7 +12,7 @@
   - Examples: "The Practical Audio Family Builder", "The Affluent Golf Enthusiast"
 - 📊 **Quick stats** (income, age, education, top market)
 - 💡 **Creative hooks** (first 3 messaging recommendations, cleaned up)
-- 💾 **Save button** (to Intelligence Cards)
+- 💾 **Save button** (to Strategy Cards)
 - 📄 **Export button** (download persona)
 
 **Visual Design:**
@@ -154,7 +154,7 @@ Quick Stats:
 
 ### ⏳ **Next Steps (Phase 2):**
 1. Make personas searchable in main chat
-2. Add personas to Intelligence Cards tool
+2. Add personas to Strategy Cards tool
 3. Implement "Save Persona" button functionality
 4. Implement "Export Persona" button
 5. Add persona caching for performance
@@ -281,7 +281,7 @@ Frontend Displays
 
 **Phase 1 Status:** ✅ COMPLETE  
 **Backend Restarted:** Ready for testing  
-**Next:** Phase 2 (persona search in chat + Intelligence Cards)
+**Next:** Phase 2 (persona search in chat + Strategy Cards)
 
 ---
 

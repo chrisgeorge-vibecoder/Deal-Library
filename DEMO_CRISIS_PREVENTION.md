@@ -58,7 +58,7 @@ This starts everything with maximum stability and auto-recovery.
 - [ ] Verify both services are running: `./demo-stability.sh health`
 - [ ] Test key functionality:
   - [ ] Chat interface loads
-  - [ ] Intelligence Cards load data
+  - [ ] Strategy Cards load data
   - [ ] Geo Insights page works
   - [ ] API endpoints respond
 
@@ -177,7 +177,7 @@ curl http://localhost:3002/health | jq '.persistence'
 
 A successful demo should show:
 - ✅ Frontend loads instantly
-- ✅ Intelligence Cards show real data
+- ✅ Strategy Cards show real data
 - ✅ Chat interface responds with context
 - ✅ Geo Insights works with real data
 - ✅ No compilation errors

@@ -75,6 +75,8 @@ interface AudienceInsightsReport {
     segment: string;
     overlapPercentage: number;
     insight: string;
+    overIndex?: number;
+    topMarkets?: Array<{city: string; state: string; overIndex: number}>;
   }>;
   strategicInsights: {
     targetPersona: string;
@@ -365,7 +367,7 @@ export default function AudienceInsightsPage() {
         
         // Try the primary endpoint first
         try {
-          const response = await fetch('http://localhost:3002/api/audience-geo-analysis/segments');
+          const response = await fetch('http://localhost:3001/api/audience-geo-analysis/segments');
           
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -378,7 +380,7 @@ export default function AudienceInsightsPage() {
           
           // Try fallback endpoint
           try {
-            const fallbackResponse = await fetch('http://localhost:3002/api/commerce-audiences/segments');
+            const fallbackResponse = await fetch('http://localhost:3001/api/commerce-audiences/segments');
             if (fallbackResponse.ok) {
               data = await fallbackResponse.json();
               console.log('📡 Backend response (fallback endpoint):', data);
@@ -589,7 +591,7 @@ export default function AudienceInsightsPage() {
     try {
       console.log('🔍 [DEBUG] Generating report for:', { selectedCategory, selectedSegment });
       
-      const response = await fetch('http://localhost:3002/api/audience-insights/generate', {
+      const response = await fetch('http://localhost:3001/api/audience-insights/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -651,7 +653,7 @@ export default function AudienceInsightsPage() {
             <div>
               <h1 className="text-3xl font-bold text-neutral-900 flex items-center gap-3">
                 <Sparkles className="w-8 h-8 text-brand-orange" />
-                Commerce Audience Insights
+                Audience Insights
               </h1>
               <p className="text-neutral-600 mt-2">
                 World-class audience intelligence powered by Sovrn Commerce Data + US Census + Gemini AI
@@ -778,7 +780,7 @@ export default function AudienceInsightsPage() {
                     segment: report.segment,
                     category: report.category,
                     emoji: report.personaEmoji,
-                    description: report.strategicInsights.targetPersona,
+                    description: report.strategicInsights.targetPersona.replace(/\*\*/g, ''),
                     data: report
                   };
                   window.dispatchEvent(new CustomEvent('saveCard', { detail: personaCard }));
@@ -789,7 +791,7 @@ export default function AudienceInsightsPage() {
                     ? 'bg-brand-orange border-brand-orange' 
                     : 'bg-white border-gray-300 hover:bg-white/80'
                 }`}
-                title={isPersonaSaved ? "Saved to Intelligence Cards" : "Save to Intelligence Cards"}
+                title={isPersonaSaved ? "Saved to Strategy Cards" : "Save to Strategy Cards"}
               >
                 <Bookmark className={`w-5 h-5 ${isPersonaSaved ? 'text-white fill-white' : 'text-gray-600 hover:text-brand-orange'}`} />
               </button>
@@ -808,7 +810,7 @@ export default function AudienceInsightsPage() {
                   </div>
                   
                   <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                    {report.strategicInsights.targetPersona}
+                    {renderMarkdown(report.strategicInsights.targetPersona)}
                   </p>
                   
                   
@@ -1065,7 +1067,10 @@ export default function AudienceInsightsPage() {
                       }
                       
                       return sortedHotspots.slice(0, 10).map((hotspot, index) => {
-                        console.log(`📋 [DEBUG] Table row ${index + 1}:`, hotspot);
+                        // Reduced logging - only log first few rows
+                        if (index < 3) {
+                          console.log(`📋 [DEBUG] Table row ${index + 1}:`, hotspot);
+                        }
                         return (
                           <tr key={hotspot.zipCode} className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="py-3 px-2 font-medium">{index + 1}</td>
@@ -1343,10 +1348,38 @@ export default function AudienceInsightsPage() {
                   <div key={index} className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-6 border border-orange-200 hover:shadow-md transition-shadow flex flex-col">
                     <div className="flex items-center justify-between mb-3 flex-shrink-0">
                       <h4 className="font-semibold text-gray-900 text-lg">{overlap.segment}</h4>
-                      <span className="text-brand-orange font-bold text-xl ml-2">{Math.round(overlap.overlapPercentage)}%</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-brand-orange font-bold text-xl">{Math.round(overlap.overlapPercentage)}%</span>
+                      </div>
                     </div>
                     <div className="flex-1 overflow-hidden">
-                      <p className="text-sm text-gray-700 leading-relaxed break-words hyphens-auto">{overlap.insight}</p>
+                      <p className="text-sm text-gray-700 leading-relaxed break-words hyphens-auto mb-3">{overlap.insight}</p>
+                      {overlap.topMarkets && overlap.topMarkets.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-orange-200">
+                          <p className="text-xs text-gray-600 font-medium mb-2">Top Markets:</p>
+                          <div className="space-y-1">
+                            {overlap.topMarkets.map((market, index) => (
+                              <div key={index} className="flex items-center justify-between text-xs">
+                                <div className="flex flex-col">
+                                  <span className="text-gray-700 font-medium">
+                                    {market.city}, {market.state}
+                                  </span>
+                                  {market.descriptor && (
+                                    <span className="text-gray-500 text-xs italic">
+                                      {market.descriptor}
+                                    </span>
+                                  )}
+                                </div>
+                                {market.overIndex && market.overIndex > 1 && (
+                                  <span className="text-green-600 font-semibold">
+                                    {market.overIndex.toFixed(1)}x
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1562,7 +1595,7 @@ Category: ${report.category}
 Segment: ${report.segment}
 
 WHO THEY ARE:
-${report.strategicInsights.targetPersona}
+${report.strategicInsights.targetPersona.replace(/\*\*/g, '')}
 
 KEY METRICS:
 • Income: ${formatCurrency(report.keyMetrics.medianHHI)} (${formatPercentage(report.keyMetrics.medianHHIvsCommerce)} vs online shoppers)

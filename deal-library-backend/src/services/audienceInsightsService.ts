@@ -56,6 +56,8 @@ interface AudienceInsightsReport {
     segment: string;
     overlapPercentage: number;
     insight: string;
+    overIndex?: number;
+    topMarkets?: Array<{city: string; state: string; overIndex: number; descriptor?: string}>;
   }>;
   strategicInsights: {
     targetPersona: string;
@@ -68,6 +70,8 @@ class AudienceInsightsService {
   private censusDataService: CensusDataService;
   private geminiService: GeminiService | null = null;
   private overlapsCache: Map<string, any[]> | null = null;
+  private overIndexCache: Map<string, any> = new Map(); // Cache for over-indexing calculations
+  private aiResponseCache: Map<string, any> = new Map(); // Cache for AI responses
   private overlapsFilePath: string;
   private reportCache: Map<string, { report: AudienceInsightsReport; timestamp: number }> = new Map(); // Cache for generated reports
   private reportCacheTimeout: number = 1000 * 60 * 60; // 1 hour cache
@@ -83,6 +87,8 @@ class AudienceInsightsService {
     this.loadOverlapsCache();
     
     // Don't initialize Gemini in constructor - it will be lazy-loaded when first needed
+    
+    console.log('🚀 AudienceInsightsService: Constructor called - updated code is running!');
     
     if (this.useSupabase) {
       console.log('💾 AudienceInsightsService: Supabase caching enabled');
@@ -254,9 +260,16 @@ class AudienceInsightsService {
     console.log(`🔗 Identified ${overlaps.length} overlapping segments (${Date.now() - stepStart}ms)`);
     
     // Step 3.5: Calculate commerce baseline comparisons
-    const medianHHIvsCommerce = ((demographics.medianHHI / commerceBaseline.medianHHI) - 1) * 100;
-    const educationVsCommerce = ((demographics.educationBachelors / commerceBaseline.educationBachelorsPlus) - 1) * 100;
-    console.log(`📊 vs Commerce: Income ${medianHHIvsCommerce > 0 ? '+' : ''}${medianHHIvsCommerce.toFixed(1)}%, Education ${educationVsCommerce > 0 ? '+' : ''}${educationVsCommerce.toFixed(1)}%`);
+    console.log(`🔍 DEBUG: commerceBaseline values:`, {
+      medianHHI: commerceBaseline?.medianHHI,
+      educationBachelorsPlus: commerceBaseline?.educationBachelorsPlus,
+      demographicsMedianHHI: demographics.medianHHI,
+      demographicsEducation: demographics.educationBachelors
+    });
+    
+    const medianHHIvsCommerce = commerceBaseline?.medianHHI ? ((demographics.medianHHI / commerceBaseline.medianHHI) - 1) * 100 : null;
+    const educationVsCommerce = commerceBaseline?.educationBachelorsPlus ? ((demographics.educationBachelors / commerceBaseline.educationBachelorsPlus) - 1) * 100 : null;
+    console.log(`📊 vs Commerce: Income ${medianHHIvsCommerce !== null ? (medianHHIvsCommerce > 0 ? '+' : '') + medianHHIvsCommerce.toFixed(1) + '%' : 'N/A'}, Education ${educationVsCommerce !== null ? (educationVsCommerce > 0 ? '+' : '') + educationVsCommerce.toFixed(1) + '%' : 'N/A'}`);
 
     // Step 4: Generate strategic insights with Gemini
     stepStart = Date.now();
@@ -297,11 +310,11 @@ class AudienceInsightsService {
       keyMetrics: {
         medianHHI: demographics.medianHHI,
         medianHHIvsNational: demographics.medianHHIvsNational,
-        medianHHIvsCommerce,  // NEW
+        medianHHIvsCommerce: medianHHIvsCommerce ?? 0,  // NEW - default to 0 if null
         topAgeBracket: demographics.topAgeBracket,
         educationLevel: demographics.educationBachelors,
         educationVsNational: demographics.educationVsNational,
-        educationVsCommerce,  // NEW
+        educationVsCommerce: educationVsCommerce ?? 0,  // NEW - default to 0 if null
       },
       geographicHotspots: topZipCodes.map((zip, index) => ({
         zipCode: zip.zipCode,
@@ -942,10 +955,12 @@ class AudienceInsightsService {
   /**
    * Calculate behavioral overlaps with other segments
    */
-  private async calculateBehavioralOverlaps(targetSegment: string, limit: number = 6): Promise<Array<{
+  private async calculateBehavioralOverlaps(targetSegment: string, limit: number = 7): Promise<Array<{
     segment: string;
     overlapPercentage: number;
     insight: string;
+    overIndex?: number;
+    topMarkets?: Array<{city: string; state: string; overIndex: number; descriptor?: string}>;
   }>> {
     console.log(`🔗 Calculating behavioral overlaps for: "${targetSegment}"`);
 
@@ -958,13 +973,39 @@ class AudienceInsightsService {
         .sort((a, b) => b.overlapPercentage - a.overlapPercentage)
         .slice(0, limit);
       
-      // Generate insights for each overlap
+      // Track all market scores across overlaps for differentiation analysis
+      const allMarketScores = new Map<string, Map<string, number>>(); // marketName -> segmentName -> score
+
+      // Generate insights for each overlap with over-indexing analysis
       const topOverlaps = await Promise.all(
-        sortedOverlaps.map(async overlap => ({
-          segment: overlap.segment,
-          overlapPercentage: overlap.overlapPercentage,
-          insight: await this.generateOverlapInsight(targetSegment, overlap.segment, overlap.overlapPercentage),
-        }))
+        sortedOverlaps.map(async overlap => {
+          console.log(`🔍 Processing overlap: ${targetSegment} + ${overlap.segment}`);
+          const insight = await this.generateOverlapInsight(targetSegment, overlap.segment, overlap.overlapPercentage);
+          const overIndexData = await this.calculateOverIndexing(targetSegment, overlap.segment);
+          
+          console.log(`🎯 Over-index data for ${targetSegment} + ${overlap.segment}:`, {
+            overIndex: overIndexData.overIndex,
+            topMarkets: overIndexData.topMarkets?.map(m => `${m.city}, ${m.state} (${m.overIndex.toFixed(1)}x)`) || []
+          });
+          
+          // Track market scores for differentiation analysis
+          if (overIndexData.topMarkets) {
+            overIndexData.topMarkets.forEach(market => {
+              const marketKey = `${market.city}, ${market.state}`;
+              if (!allMarketScores.has(marketKey)) {
+                allMarketScores.set(marketKey, new Map());
+              }
+              allMarketScores.get(marketKey)!.set(overlap.segment, market.overIndex);
+            });
+          }
+          
+          return {
+            segment: overlap.segment,
+            overlapPercentage: overlap.overlapPercentage,
+            insight,
+            ...overIndexData
+          };
+        })
       );
       
       console.log(`   ⚡ Using pre-calculated overlaps (instant lookup!)`);
@@ -973,7 +1014,56 @@ class AudienceInsightsService {
         console.log(`      ${i + 1}. ${overlap.segment}: ${overlap.overlapPercentage.toFixed(1)}% overlap`);
       });
       
-      return topOverlaps;
+      // NUCLEAR GEOGRAPHIC DIVERSITY: Force completely different markets with strict rotation
+      const usedMarkets = new Set<string>();
+      const recalculatedOverlaps = topOverlaps.map((overlap, index) => {
+        if (!overlap.topMarkets) return overlap;
+        
+        // Get ALL available markets (not just top 3)
+        const allAvailableMarkets = overlap.topMarkets;
+        
+        // For each segment, find markets that haven't been used yet
+        const unusedMarkets = allAvailableMarkets.filter(market => {
+          const marketKey = `${market.city}, ${market.state}`;
+          return !usedMarkets.has(marketKey);
+        });
+        
+        // If we have enough unused markets, use them. Otherwise, use the best available.
+        let selectedMarkets;
+        if (unusedMarkets.length >= 3) {
+          selectedMarkets = unusedMarkets.slice(0, 3);
+        } else {
+          // Mix unused markets with some lower-ranked markets for diversity
+          const remainingNeeded = 3 - unusedMarkets.length;
+          const lowerRankedMarkets = allAvailableMarkets
+            .filter(market => {
+              const marketKey = `${market.city}, ${market.state}`;
+              return !usedMarkets.has(marketKey) && !unusedMarkets.some(um => `${um.city}, ${um.state}` === marketKey);
+            })
+            .slice(0, remainingNeeded);
+          
+          selectedMarkets = [...unusedMarkets, ...lowerRankedMarkets];
+        }
+        
+        // Mark these markets as used for future segments
+        selectedMarkets.forEach(market => {
+          const marketKey = `${market.city}, ${market.state}`;
+          usedMarkets.add(marketKey);
+        });
+        
+        console.log(`🎯 NUCLEAR DIVERSITY for ${overlap.segment}:`, selectedMarkets.map(m => `${m.city}, ${m.state} (${m.overIndex.toFixed(1)}x)`));
+        
+        return {
+          ...overlap,
+          topMarkets: selectedMarkets.map(m => ({
+            city: m.city,
+            state: m.state,
+            overIndex: m.overIndex
+          }))
+        };
+      });
+      
+      return recalculatedOverlaps;
     }
 
     // **FALLBACK: Calculate on-the-fly if cache not available**
@@ -1040,8 +1130,32 @@ class AudienceInsightsService {
     // First try static insights for speed
     const staticInsight = this.generateStaticOverlapInsight(targetSegment, overlapSegment, percentage);
     
-    // If this is a high-overlap case that would use the generic template, use AI instead
-    if (percentage > 50 && staticInsight.includes('share similar lifestyles and shopping behaviors')) {
+    // Use AI for meaningful overlaps (lowered threshold to 10%) or when static insights are generic
+    const shouldUseAI = percentage > 10 && (
+      staticInsight.includes('share similar lifestyles and shopping behaviors') ||
+      staticInsight.includes('This') && staticInsight.includes('overlap reveals a shared interest area') ||
+      staticInsight.includes('comprehensive shoppers') ||
+      staticInsight.includes('broader interest or need') ||
+      staticInsight.includes('demographic similarities') ||
+      staticInsight.includes('Strong') && staticInsight.includes('overlap reveals these aren\'t random buyers') ||
+      staticInsight.includes('purposeful consumers with coordinated purchase patterns') ||
+      staticInsight.includes('qualified, high-intent audiences') ||
+      staticInsight.includes('Strong') && staticInsight.includes('overlap reveals') ||
+      staticInsight.includes('purposeful consumers') ||
+      staticInsight.includes('qualified, high-intent') ||
+      staticInsight.includes('Strong') && staticInsight.includes('overlap reveals these aren\'t random buyers') ||
+      staticInsight.includes('purposeful consumers with coordinated purchase patterns') ||
+      staticInsight.includes('qualified, high-intent audiences making planned investments')
+    );
+    
+    // Debug logging
+    console.log(`🔍 AI Decision for ${targetSegment} ↔ ${overlapSegment} (${percentage.toFixed(1)}%):`, {
+      shouldUseAI,
+      percentage,
+      staticInsight: staticInsight.substring(0, 100) + '...'
+    });
+    
+    if (shouldUseAI) {
       console.log(`🤖 Using AI to generate cross-purchase insight for ${targetSegment} ↔ ${overlapSegment} (${percentage.toFixed(1)}%)`);
       
       try {
@@ -1058,61 +1172,483 @@ class AudienceInsightsService {
   }
 
   /**
+   * Calculate over-indexing analysis for overlap segments with improved geographic diversity
+   */
+  private async calculateOverIndexing(targetSegment: string, overlapSegment: string): Promise<{
+    overIndex?: number;
+    topMarkets?: Array<{city: string; state: string; overIndex: number; descriptor?: string}>;
+  }> {
+    try {
+      // OPTIMIZATION: Skip cache for now to test new algorithm
+      const cacheKey = `${targetSegment}|${overlapSegment}`;
+      // if (this.overIndexCache && this.overIndexCache.has(cacheKey)) {
+      //   console.log(`💨 Using cached over-indexing for ${targetSegment} + ${overlapSegment}`);
+      //   return this.overIndexCache.get(cacheKey)!;
+      // }
+      
+      console.log(`🔍 calculateOverIndexing: ${targetSegment} + ${overlapSegment}`);
+      
+      // Get ZIP data for both segments - get more data for better diversity
+      const targetZips = commerceAudienceService.searchZipCodesByAudience(targetSegment, 200);
+      const overlapZips = commerceAudienceService.searchZipCodesByAudience(overlapSegment, 200);
+      
+      console.log(`📊 Found ${targetZips.length} target ZIPs and ${overlapZips.length} overlap ZIPs`);
+      
+      if (!targetZips || !overlapZips || targetZips.length === 0 || overlapZips.length === 0) {
+        console.log(`⚠️ No ZIP data found for ${targetSegment} or ${overlapSegment}`);
+        return {};
+      }
+
+      // Create maps for efficient lookup
+      const targetZipsMap = new Map(targetZips.map((z: any) => [z.zipCode, z]));
+      const overlapZipsMap = new Map(overlapZips.map((z: any) => [z.zipCode, z]));
+
+      // Find common ZIPs
+      const targetZipSet = new Set(targetZips.map((z: any) => z.zipCode));
+      const overlapZipSet = new Set(overlapZips.map((z: any) => z.zipCode));
+      const commonZips = [...targetZipSet].filter(zip => overlapZipSet.has(zip));
+      
+      if (commonZips.length === 0) {
+        return {};
+      }
+
+      // Calculate weighted overlap for each common ZIP
+      const zipOverlapScores = commonZips.map(zipCode => {
+        const targetData = targetZipsMap.get(zipCode);
+        const overlapData = overlapZipsMap.get(zipCode);
+        
+        if (!targetData || !overlapData) return null;
+        
+        // Weight by the product of both weights (strong in both = higher score)
+        const overlapScore = Math.sqrt(targetData.weight * overlapData.weight);
+        
+        return { zipCode, overlapScore, targetWeight: targetData.weight, overlapWeight: overlapData.weight };
+      }).filter(Boolean);
+
+      if (zipOverlapScores.length === 0) {
+        return {};
+      }
+
+      // Get census data for common ZIPs to get city/state information
+      const censusDataArray = await this.censusDataService.getZipCodeData(commonZips);
+      const censusDataMap = new Map(censusDataArray.map(data => [data.zipCode, data]));
+
+      // Aggregate to city level with weighted scores
+      const cityScores = new Map();
+      zipOverlapScores.forEach(zip => {
+        if (!zip) return;
+        const census = censusDataMap.get(zip.zipCode);
+        if (!census) return;
+        
+        const cityKey = `${census.geography.city}, ${census.geography.state}`;
+        const existing = cityScores.get(cityKey) || { score: 0, count: 0, totalWeight: 0 };
+        cityScores.set(cityKey, {
+          score: existing.score + zip.overlapScore,
+          count: existing.count + 1,
+          totalWeight: existing.totalWeight + (zip.targetWeight || 0) + (zip.overlapWeight || 0)
+        });
+      });
+
+      // Enhanced geographic diversity algorithm
+      const validZipScores = zipOverlapScores.filter((zip): zip is NonNullable<typeof zip> => zip !== null);
+      let topMarkets = this.selectDiverseMarkets(validZipScores, censusDataMap, targetSegment, overlapSegment);
+
+      // Fallback: If we don't have enough cities with census data, use ZIP-based approach
+      if (topMarkets.length < 2 || (topMarkets.length === 1 && topMarkets[0]?.city === 'Chicago')) {
+        console.log(`⚠️ Limited census data (${topMarkets.length} cities), using ZIP-based fallback`);
+        const zipBasedMarkets = zipOverlapScores
+          .filter(Boolean)
+          .sort((a, b) => {
+            if (!a || !b) return 0;
+            return (b.overlapScore || 0) - (a.overlapScore || 0);
+          })
+          .slice(0, 3)
+          .map((zip) => {
+            if (!zip) return { city: 'Unknown', state: 'Various', overIndex: 0 };
+            return {
+              city: `ZIP ${zip.zipCode}`,
+              state: 'Various',
+              overIndex: zip.overlapScore || 0
+            };
+          });
+        
+        if (zipBasedMarkets.length > 0) {
+          topMarkets = zipBasedMarkets;
+          console.log(`✅ Using ZIP-based markets:`, zipBasedMarkets.map(m => `${m.city} (${m.overIndex.toFixed(2)})`));
+        }
+      }
+
+      // Calculate overall over-indexing for the segment pair
+      const totalOverlapScore = zipOverlapScores.reduce((sum, zip) => {
+        if (!zip) return sum;
+        return sum + (zip.overlapScore || 0);
+      }, 0);
+      
+      // Improved over-indexing calculation to prevent 100x bug
+      const expectedOverlap = Math.sqrt(targetZips.length * overlapZips.length) * 0.1;
+      let overIndex = 1; // Default to 1x (no over-indexing)
+      
+      console.log('🚨 BEFORE CALCULATION:', { expectedOverlap, totalOverlapScore, overIndex });
+      
+      if (expectedOverlap > 0 && totalOverlapScore > 0) {
+        const rawOverIndex = totalOverlapScore / expectedOverlap;
+        overIndex = Math.max(1, Math.min(rawOverIndex, 10));
+        console.log('🚨 AFTER CALCULATION:', { rawOverIndex, cappedOverIndex: overIndex });
+      }
+
+      console.log(`🔍 Geographic overlap analysis for ${targetSegment} + ${overlapSegment}:`, {
+        commonZips: commonZips.length,
+        zipOverlapScores: zipOverlapScores.length,
+        cityScoresSize: cityScores.size,
+        topMarkets: topMarkets.map(m => `${m.city}, ${m.state} (${m.overIndex.toFixed(2)})`),
+        overallOverIndex: overIndex.toFixed(2)
+      });
+      
+      const returnValue = {
+        overIndex: overIndex > 1.5 ? overIndex : undefined, // Only show if significantly over-indexed
+        topMarkets: topMarkets.length > 0 ? topMarkets : undefined
+      };
+      
+      // OPTIMIZATION: Cache the result
+      this.overIndexCache.set(cacheKey, returnValue);
+      
+      return returnValue;
+    } catch (error) {
+      console.warn('Failed to calculate over-indexing:', error);
+      return {};
+    }
+  }
+
+  /**
+   * Select geographically diverse markets using overlap-type aware algorithm
+   */
+  private selectDiverseMarkets(
+    zipOverlapScores: Array<{
+      zipCode: string;
+      overlapScore: number;
+      targetWeight: number;
+      overlapWeight: number;
+    }>, 
+    censusDataMap: Map<string, any>,
+    targetSegment?: string,
+    overlapSegment?: string
+  ): Array<{city: string; state: string; overIndex: number; descriptor?: string}> {
+    
+    // Enrich ZIP scores with census data and calculate overlap-type aware diversity scores
+    const enrichedZips = zipOverlapScores.map(zip => {
+      const census = censusDataMap.get(zip.zipCode);
+      if (!census) return null;
+      
+      // Calculate overlap-type aware diversity score
+      const populationWeight = Math.log(Math.max(census.population, 1000)); // Log scale to reduce big city bias
+      
+      // Apply overlap-type specific weighting
+      let overlapTypeWeight = 1;
+      if (targetSegment && overlapSegment) {
+        const overlapType = `${targetSegment.toLowerCase()}+${overlapSegment.toLowerCase()}`;
+        
+        // Family-focused overlaps (Toys, Baby, etc.) favor family suburbs
+        if (overlapSegment.toLowerCase().includes('toy') || 
+            overlapSegment.toLowerCase().includes('baby') ||
+            overlapSegment.toLowerCase().includes('child')) {
+          // Favor suburban areas with families
+          const familyWeight = census.demographics?.householdSize > 2.5 ? 1.5 : 0.8;
+          overlapTypeWeight *= familyWeight;
+        }
+        
+        // Health/fitness overlaps favor health-conscious cities
+        if (overlapSegment.toLowerCase().includes('fitness') || 
+            overlapSegment.toLowerCase().includes('nutrition') ||
+            overlapSegment.toLowerCase().includes('health')) {
+          // Favor cities with higher education and income (health-conscious)
+          const healthWeight = census.economics?.householdIncome?.median > 80000 ? 1.3 : 0.9;
+          overlapTypeWeight *= healthWeight;
+        }
+        
+        // Home/garden overlaps favor homeowner markets
+        if (overlapSegment.toLowerCase().includes('home') || 
+            overlapSegment.toLowerCase().includes('garden') ||
+            overlapSegment.toLowerCase().includes('lawn')) {
+          // Favor areas with high homeownership
+          const homeWeight = census.geography?.housing?.ownerOccupiedRate > 0.6 ? 1.4 : 0.8;
+          overlapTypeWeight *= homeWeight;
+        }
+      }
+      
+      const diversityScore = zip.overlapScore * populationWeight * overlapTypeWeight;
+      
+      return {
+        zipCode: zip.zipCode,
+        overlapScore: zip.overlapScore,
+        diversityScore,
+        population: census.population,
+        city: census.geography.city,
+        state: census.geography.state
+      };
+    }).filter((zip): zip is NonNullable<typeof zip> => zip !== null);
+
+    if (enrichedZips.length === 0) return [];
+
+    const selectedMarkets: Array<{city: string; state: string; overIndex: number; descriptor?: string}> = [];
+
+    // NEW STRATEGY: Focus on OVER-INDEXING rather than raw popularity
+    // Calculate over-indexing for each city based on relative performance vs average
+    const overIndexedCities = enrichedZips.map(zip => {
+      // Calculate relative over-index: how much this city's overlap score 
+      // exceeds the average overlap score across all cities
+      const avgOverlapScore = enrichedZips.reduce((sum, z) => sum + z.overlapScore, 0) / enrichedZips.length;
+      const relativeOverIndex = avgOverlapScore > 0 ? zip.overlapScore / avgOverlapScore : 1;
+
+      // Apply population weighting to balance market size with behavior strength
+      const populationFactor = Math.log10(Math.max(zip.population, 1000)) / 5; // Normalize 10K-1M population to 0.8-1.2
+      const balancedOverIndex = relativeOverIndex * (0.7 + (populationFactor * 0.3));
+
+      // Cap at reasonable range (1-15x)
+      const overIndex = Math.max(1, Math.min(balancedOverIndex, 15));
+      
+      return {
+        ...zip,
+        overIndex: overIndex,
+        // Use over-index as primary sorting criteria
+        diversityScore: overIndex * Math.log(Math.max(zip.population, 1000)) // Weight by population size
+      };
+    }).sort((a, b) => b.overIndex - a.overIndex); // Sort by over-indexing, not raw scores
+
+    // Sort by balanced over-index score (already calculated above)
+    const sortedCities = overIndexedCities
+      .sort((a, b) => b.overIndex - a.overIndex);
+
+    // Return top 25 markets (ultra-aggressive diversity will happen in calling method)
+    const usedCities = new Set<string>();
+    for (const city of sortedCities) {
+      if (selectedMarkets.length >= 25) break;
+      
+      const cityKey = `${city.city}, ${city.state}`;
+      if (!usedCities.has(cityKey)) {
+        selectedMarkets.push({
+          city: city.city,
+          state: city.state,
+          overIndex: city.overIndex,
+          descriptor: this.generateMarketDescriptor(city.city, city.state, 'General', city.overIndex)
+        });
+        usedCities.add(cityKey);
+      }
+    }
+
+
+    console.log(`🎯 Selected diverse markets:`, selectedMarkets.map(m => `${m.city}, ${m.state} (${m.overIndex.toFixed(2)}x)`));
+    
+    return selectedMarkets;
+  }
+
+  /**
+   * Generate descriptive characteristics for a market
+   */
+  private generateMarketDescriptor(city: string, state: string, region: string, overIndex: number): string {
+    const descriptors: string[] = [];
+    
+    // Regional characteristics
+    switch (region) {
+      case 'West':
+        descriptors.push('tech-forward', 'outdoor lifestyle');
+        break;
+      case 'South':
+        descriptors.push('family-oriented', 'growing suburbs');
+        break;
+      case 'Midwest':
+        descriptors.push('affordable housing', 'family values');
+        break;
+      case 'Northeast':
+        descriptors.push('urban density', 'high education');
+        break;
+    }
+    
+    // City-specific characteristics
+    const cityLower = city.toLowerCase();
+    if (cityLower.includes('chicago')) {
+      descriptors.push('diverse neighborhoods', 'affordable luxury');
+    } else if (cityLower.includes('dallas')) {
+      descriptors.push('business hub', 'rapid growth');
+    } else if (cityLower.includes('atlanta')) {
+      descriptors.push('southern charm', 'corporate headquarters');
+    } else if (cityLower.includes('new york')) {
+      descriptors.push('cultural capital', 'high income');
+    } else if (cityLower.includes('washington')) {
+      descriptors.push('government center', 'educated workforce');
+    } else if (cityLower.includes('las vegas')) {
+      descriptors.push('entertainment hub', 'tourism economy');
+    } else if (cityLower.includes('brooklyn')) {
+      descriptors.push('creative community', 'urban renewal');
+    } else if (cityLower.includes('jersey city')) {
+      descriptors.push('commuter hub', 'diverse population');
+    }
+    
+    // Over-indexing characteristics
+    if (overIndex >= 15) {
+      descriptors.push('highly concentrated');
+    } else if (overIndex >= 10) {
+      descriptors.push('strong presence');
+    } else if (overIndex >= 5) {
+      descriptors.push('emerging market');
+    }
+    
+    // Combine descriptors
+    if (descriptors.length === 0) {
+      return 'diverse market';
+    }
+    
+    return descriptors.slice(0, 3).join(', ');
+  }
+
+  /**
+   * Get geographic context for overlap insights
+   */
+  private async getGeographicOverlapContext(targetSegment: string, overlapSegment: string): Promise<string> {
+    try {
+      // Get top ZIPs for both segments
+      const targetZips = commerceAudienceService.searchZipCodesByAudience(targetSegment, 50);
+      const overlapZips = commerceAudienceService.searchZipCodesByAudience(overlapSegment, 50);
+      
+      if (!targetZips || !overlapZips || targetZips.length === 0 || overlapZips.length === 0) {
+        return '';
+      }
+
+      // Find common ZIPs
+      const targetZipSet = new Set(targetZips.map((z: any) => z.zipCode));
+      const overlapZipSet = new Set(overlapZips.map((z: any) => z.zipCode));
+      const commonZips = [...targetZipSet].filter(zip => overlapZipSet.has(zip));
+      
+      if (commonZips.length === 0) {
+        return '';
+      }
+
+      // Get census data for common ZIPs to get city/state information
+      const censusDataArray = await this.censusDataService.getZipCodeData(commonZips);
+      const censusDataMap = new Map(censusDataArray.map(data => [data.zipCode, data]));
+
+      // Get geographic distribution of common ZIPs
+      const commonZipData = targetZips.filter((z: any) => commonZips.includes(z.zipCode));
+      const topCities = commonZipData
+        .slice(0, 3)
+        .map((z: any) => {
+          const censusData = censusDataMap.get(z.zipCode);
+          return censusData ? `${censusData.geography.city}, ${censusData.geography.state}` : null;
+        })
+        .filter(city => city !== null)
+        .join(', ');
+
+      return topCities ? `Strongest overlap in: ${topCities}` : '';
+    } catch (error) {
+      console.warn('Failed to get geographic context:', error);
+      return '';
+    }
+  }
+
+  /**
    * Generate static overlap insight with comprehensive product category logic
    */
   private generateStaticOverlapInsight(targetSegment: string, overlapSegment: string, percentage: number): string {
     const target = targetSegment.toLowerCase();
     const overlap = overlapSegment.toLowerCase();
     
-    // NEW APPROACH: Check for universal patterns first (works for ANY segment combination)
+    // IMPROVED APPROACH: More specific, actionable insights with better pattern matching
     
-    // Pattern: Home/Furniture + Any product → Home setup
+    // Cycling-specific patterns (high priority for cycling enthusiasts)
+    if (target.includes('cycling') || target.includes('bike') || target.includes('bicycle')) {
+      if (overlap.includes('sport') || overlap.includes('athletic') || overlap.includes('fitness') || overlap.includes('sporting goods')) {
+        return `Cycling enthusiasts are active athletes who invest in comprehensive sports equipment and fitness gear, creating natural cross-selling opportunities for performance apparel, training equipment, and recovery products.`;
+      }
+      if (overlap.includes('outdoor') || overlap.includes('recreation') || overlap.includes('camping')) {
+        return `Cycling enthusiasts are outdoor recreation enthusiasts who invest in camping gear, hiking equipment, and outdoor activities, creating opportunities for adventure travel and outdoor lifestyle products.`;
+      }
+      if (overlap.includes('furniture') || overlap.includes('outdoor') || overlap.includes('patio')) {
+        return `Cycling enthusiasts often have active outdoor lifestyles and invest in outdoor furniture and patio equipment for entertaining and relaxation after rides, creating opportunities for outdoor living and entertainment products.`;
+      }
+      if (overlap.includes('grooming') || overlap.includes('shaving') || overlap.includes('personal care')) {
+        return `Cycling enthusiasts maintain active lifestyles that require regular grooming and personal care, creating opportunities for performance-oriented grooming products and subscription services.`;
+      }
+      if (overlap.includes('alcohol') || overlap.includes('beverage') || overlap.includes('wine')) {
+        return `Cycling enthusiasts enjoy social gatherings and post-ride celebrations, purchasing alcoholic beverages for entertaining and relaxation, indicating a sophisticated lifestyle that values both fitness and social experiences.`;
+      }
+      if (overlap.includes('nutrition') || overlap.includes('supplement') || overlap.includes('protein')) {
+        return `Cycling enthusiasts are performance-focused athletes who invest in nutrition supplements, protein products, and specialized sports nutrition to optimize their training and recovery.`;
+      }
+    }
+    
+    // Pet-specific patterns (high priority for pet-related segments)
+    if (target.includes('dog') || target.includes('cat') || target.includes('pet')) {
+      if (overlap.includes('vehicle') || overlap.includes('car') || overlap.includes('auto')) {
+        return `Pet owners frequently purchase car accessories such as seat covers, barriers, and carriers for safely and comfortably transporting their pets.`;
+      }
+      if (overlap.includes('bed') || overlap.includes('furniture') || overlap.includes('home')) {
+        return `Pet owners are creating pet-friendly living spaces, purchasing furniture and home goods that accommodate their pets' needs while maintaining household aesthetics.`;
+      }
+      if (overlap.includes('medical') || overlap.includes('health') || overlap.includes('care')) {
+        return `Pet owners prioritize their pets' health and wellness, investing in medical supplies and health products to ensure their pets' long-term wellbeing.`;
+      }
+      if (overlap.includes('food') || overlap.includes('nutrition') || overlap.includes('diet')) {
+        return `Pet owners are health-conscious about their pets' nutrition, purchasing premium food and dietary supplements alongside their own health products.`;
+      }
+    }
+    
+    // Vehicle-specific patterns
+    if (target.includes('vehicle') || target.includes('car') || target.includes('auto')) {
+      if (overlap.includes('pet') || overlap.includes('dog') || overlap.includes('cat')) {
+        return `Car owners frequently purchase pet accessories for safe and comfortable pet transportation, including seat covers, barriers, and carriers.`;
+      }
+      if (overlap.includes('tool') || overlap.includes('repair') || overlap.includes('maintenance')) {
+        return `Vehicle owners are hands-on maintainers who invest in tools and repair supplies to keep their vehicles in optimal condition.`;
+      }
+      if (overlap.includes('electronic') || overlap.includes('gps') || overlap.includes('audio')) {
+        return `Vehicle owners upgrade their driving experience with technology, purchasing electronics and accessories that enhance safety, navigation, and entertainment.`;
+      }
+    }
+    
+    // Home/Furniture patterns
     if ((overlap.includes('chair') || overlap.includes('bed') || overlap.includes('furniture') || overlap.includes('shelf') || overlap.includes('table')) && 
         !target.includes('furniture')) {
       return `Consumers purchasing ${targetSegment} are often setting up or upgrading their homes, creating natural bundling opportunities with furniture and home goods as they invest in their living spaces during active home improvement or lifestyle transition phases.`;
     }
     
-    // Pattern: Any product + Cleaning supplies → Maintenance
-    if (overlap.includes('clean') || overlap.includes('soap') || overlap.includes('detergent')) {
-      return `${targetSegment} buyers are conscientious about maintaining their purchases and living spaces, investing in cleaning supplies to care for their products and homes, creating cross-selling opportunities for maintenance and care products.`;
+    // Technology patterns
+    if (overlap.includes('laptop') || overlap.includes('computer') || overlap.includes('software') || overlap.includes('network')) {
+      if (target.includes('pet') || target.includes('dog') || target.includes('cat')) {
+        return `Pet owners include remote workers and tech professionals who invest in laptops and computing equipment, creating opportunities for home office products, productivity software, and tech accessories.`;
+      }
+      return `${targetSegment} buyers include remote workers and tech professionals who invest in laptops and computing equipment, creating opportunities for home office products, productivity software, and tech accessories.`;
     }
     
-    // Pattern: Professional/Business products + Any consumer product → Work-life balance
-    if (overlap.includes('business') || overlap.includes('office') || overlap.includes('professional') || overlap.includes('commercial')) {
-      return `${targetSegment} buyers include professionals and business owners who balance work and personal life, purchasing business supplies and consumer products for both their professional operations and home use.`;
-    }
-    
-    // Pattern: Any product + Event/Entertainment → Lifestyle buyers
+    // Entertainment patterns
     if (overlap.includes('event') || overlap.includes('ticket') || overlap.includes('party') || overlap.includes('entertainment')) {
       return `${targetSegment} buyers are experience-oriented consumers who invest in both products and experiences, purchasing event tickets and entertainment alongside tangible goods, indicating disposable income and a balanced lifestyle that values both possessions and memories.`;
     }
     
-    // Pattern: Any product + Medical/Health → Health-conscious consumers
+    // Health/Medical patterns
     if (overlap.includes('medical') || overlap.includes('first aid') || overlap.includes('health care')) {
       return `${targetSegment} buyers are health-conscious and proactive, investing in medical supplies and health products alongside their purchases, reflecting a practical approach to wellness and preparedness for their families.`;
     }
     
-    // Pattern: Any product + Hotel/Hospitality → Travelers or business owners
-    if (overlap.includes('hotel') || overlap.includes('hospitality') || overlap.includes('lodging')) {
-      return `${targetSegment} buyers include frequent travelers or hospitality business owners who purchase both travel-related services and consumer products, creating opportunities for travel accessories, portable items, and business-to-consumer cross-promotions.`;
-    }
-    
-    // Pattern: Any product + Baby items → Parents
+    // Baby/Parenting patterns
     if ((overlap.includes('baby') || overlap.includes('infant') || overlap.includes('toddler') || overlap.includes('nursery')) && 
         !target.includes('baby') && !target.includes('toddler')) {
       return `${targetSegment} buyers include new or expecting parents who are simultaneously preparing for their children's arrival or growth, purchasing baby products alongside household and personal items during this high-spending life stage.`;
     }
     
-    // Pattern: Any product + Apparel → Fashion-conscious or practical dressers
+    // Apparel patterns
     if ((overlap.includes('clothing') || overlap.includes('dress') || overlap.includes('shoe') || overlap.includes('apparel')) && 
         !target.includes('clothing') && !target.includes('apparel')) {
       return `${targetSegment} buyers often refresh multiple aspects of their lifestyle simultaneously, purchasing clothing and apparel alongside other products as they update their wardrobes and living spaces in coordinated shopping sessions.`;
     }
     
-    // Pattern: Any product + Photography/Camera → Content creators or memory makers
+    // Photography patterns
     if ((overlap.includes('photograph') || overlap.includes('camera') || overlap.includes('lens')) && 
         !target.includes('camera') && !target.includes('photo')) {
       return `${targetSegment} buyers include photography enthusiasts and content creators who document their interests and lifestyle, creating cross-selling opportunities for camera accessories, storage solutions, and display products.`;
+    }
+    
+    // High-overlap fallback for segments with >60% overlap
+    if (percentage > 60) {
+      return `This ${percentage.toFixed(0)}% overlap indicates a highly engaged audience with strong cross-category purchase intent, representing qualified buyers who demonstrate sophisticated shopping behavior and higher lifetime value potential through their demonstrated cross-category purchase patterns.`;
     }
     
     // Pattern: Any product + Toys/Games → Parents or gift-givers
@@ -1165,6 +1701,18 @@ class AudienceInsightsService {
     if ((overlap.includes('alcohol') || overlap.includes('wine') || overlap.includes('beer') || overlap.includes('spirit')) && 
         !target.includes('alcohol') && !target.includes('beverage')) {
       return `${targetSegment} buyers enjoy social entertaining and relaxation rituals, purchasing alcoholic beverages to complement their lifestyle, indicating sophistication and willingness to invest in quality experiences beyond basic necessities.`;
+    }
+    
+    // Pattern: Pool & Spa + Food Service → Hosting/entertaining lifestyle
+    if ((target.includes('pool') || target.includes('spa') || target.includes('hot tub') || target.includes('Pool & Spa')) && 
+        (overlap.includes('food') || overlap.includes('restaurant') || overlap.includes('delivery') || overlap.includes('catering') || overlap.includes('Food Service'))) {
+      return `Pool & Spa buyers are frequently hosting guests and entertaining, making them prime targets for food delivery services like Uber Eats or DoorDash who can conveniently deliver meals while they're relaxing by the pool instead of spending time in the kitchen.`;
+    }
+    
+    // Pattern: Food Service + Pool & Spa → Entertaining lifestyle
+    if ((target.includes('food') || target.includes('restaurant') || target.includes('delivery') || target.includes('catering') || target.includes('Food Service')) && 
+        (overlap.includes('pool') || overlap.includes('spa') || overlap.includes('hot tub') || overlap.includes('Pool & Spa'))) {
+      return `Food service buyers who also purchase Pool & Spa products are creating complete entertaining experiences, investing in both the infrastructure for hosting (pools, spas) and the convenience of food delivery to maximize their time with guests rather than cooking.`;
     }
     
     // Audio & Electronics
@@ -1339,16 +1887,16 @@ class AudienceInsightsService {
     
     // General insights based on overlap percentage and segment similarity
     if (percentage > 50) {
-      return `Strong ${percentage.toFixed(0)}% overlap indicates these audiences share similar lifestyles and shopping behaviors. ${overlap} buyers frequently purchase ${target} products as part of a broader interest or need, creating prime cross-selling opportunities through bundled promotions and targeted messaging.`;
+      return `Strong ${percentage.toFixed(0)}% overlap reveals these aren't random buyers—they're purposeful consumers with coordinated purchase patterns. This represents qualified, high-intent audiences making planned investments across complementary lifestyle categories.`;
     } else if (percentage > 30) {
-      return `Moderate ${percentage.toFixed(0)}% overlap suggests complementary interests between these segments. ${overlap} buyers may be receptive to ${target} products when positioned as lifestyle enhancements or practical additions to their existing purchases.`;
+      return `Moderate ${percentage.toFixed(0)}% overlap indicates strategic consumers who coordinate purchases across ${overlap} and ${target} categories, suggesting sophisticated shopping behavior and higher lifetime value potential through their demonstrated cross-category purchase intent.`;
     } else {
       return `This ${percentage.toFixed(0)}% overlap reveals a shared interest area that can be leveraged for targeted campaigns, particularly through content marketing that highlights the lifestyle connections between ${overlap} and ${target} products.`;
     }
   }
 
   /**
-   * Generate AI-powered cross-purchase insights using Gemini
+   * Generate AI-powered cross-purchase insights using Gemini with enhanced context
    */
   private async generateAICrossPurchaseInsight(targetSegment: string, overlapSegment: string, percentage: number): Promise<string> {
     const gemini = this.getGeminiService();
@@ -1356,13 +1904,17 @@ class AudienceInsightsService {
       throw new Error('Gemini service not available');
     }
 
-    const prompt = `You are analyzing cross-purchase patterns from real commerce transaction data. Your task is to generate a DEEP, PSYCHOLOGICAL insight about the mindset and motivations driving this consumer overlap.
+    // Get geographic context for enhanced insights
+    const geographicContext = await this.getGeographicOverlapContext(targetSegment, overlapSegment);
+
+    const prompt = `You are analyzing cross-purchase patterns from real commerce transaction data. Your task is to generate a COMPELLING, ACTIONABLE insight that reveals the specific mindset and motivations driving this consumer overlap.
 
 TARGET AUDIENCE: "${targetSegment}"
 OVERLAP AUDIENCE: "${overlapSegment}" 
 OVERLAP PERCENTAGE: ${percentage.toFixed(1)}%
+${geographicContext ? `GEOGRAPHIC CONTEXT: ${geographicContext}` : ''}
 
-TASK: Generate a SINGLE insight (1-2 sentences max) that reveals the CONSUMER MINDSET and underlying motivations, not just the obvious categories.
+TASK: Generate a SINGLE insight (2-3 sentences max) that reveals the SPECIFIC CONSUMER MINDSET and underlying motivations, with actionable implications for marketing.
 
 STRICTLY FORBIDDEN - DO NOT USE ANY OF THESE GENERIC PHRASES:
    - "share similar lifestyles and shopping behaviors"
@@ -1374,20 +1926,28 @@ STRICTLY FORBIDDEN - DO NOT USE ANY OF THESE GENERIC PHRASES:
    - "related categories"
    - "demographic similarities"
    - "market segment overlap"
+   - "Cross-category buyers demonstrating broader lifestyle interests"
+   - "This X% overlap reveals a shared interest area"
 
 REQUIREMENTS:
-1. Dig into the PSYCHOLOGICAL PROFILE of these consumers
-2. Identify the SPECIFIC MINDSET, values, or motivations that drive both purchases
+1. Dig into the SPECIFIC PSYCHOLOGICAL PROFILE and motivations
+2. Identify the EXACT MINDSET, values, or life circumstances driving both purchases
 3. Think about the CONTEXT, timing, or decision-making process
-4. Avoid category-level descriptions - focus on the HUMAN BEHAVIOR
+4. Focus on ACTIONABLE HUMAN BEHAVIOR, not category descriptions
 5. Consider life circumstances, personal goals, or situational needs
+6. Make it COMPELLING and SPECIFIC - avoid generic statements
+7. Include SPECIFIC CROSS-SELLING STRATEGIES (not just "content marketing")
+8. Mention GEOGRAPHIC or DEMOGRAPHIC patterns if relevant
+9. Suggest TIMING or SEQUENCING of purchases
 
-EXAMPLES OF DEEP INSIGHTS:
+EXAMPLES OF DEEP, ACTIONABLE INSIGHTS:
+- "Pool & Spa buyers are frequently hosting guests and entertaining, making them prime targets for food delivery services like Uber Eats or DoorDash who can conveniently deliver meals while they're relaxing by the pool instead of spending time in the kitchen."
 - "Condoms and shaving & grooming buyers are both preparing for intimate encounters - they're conscientious about personal presentation and responsible preparation for physical relationships."
 - "3D printer and activewear buyers share a maker mentality: they're hands-on innovators who prefer creating solutions over buying ready-made products, applying this DIY approach to both technology and fitness."
 - "Building materials and activewear buyers embody a 'fixer' mindset - they're practical people who take control of their environment through both home improvement projects and personal fitness maintenance."
+- "Baby & Toddler buyers include new parents who are simultaneously preparing for their children while purchasing items for themselves, creating natural cross-category shopping patterns during this high-spending life stage."
 
-Now analyze "${targetSegment}" and "${overlapSegment}" with ${percentage.toFixed(1)}% overlap. Think about the MINDSET and MOTIVATIONS of someone who buys both. Generate ONE deep psychological insight:`;
+Now analyze "${targetSegment}" and "${overlapSegment}" with ${percentage.toFixed(1)}% overlap. Think about the SPECIFIC MINDSET and MOTIVATIONS of someone who buys both. Generate ONE compelling, actionable insight:`;
 
     try {
       const result = await gemini['model'].generateContent(prompt);
@@ -1453,6 +2013,13 @@ Now analyze "${targetSegment}" and "${overlapSegment}" with ${percentage.toFixed
     geoIntelligence: any,
     commerceBaseline: any
   ): Promise<{ name: string; emoji: string; description: string }> {
+    // OPTIMIZATION: Check cache first
+    const cacheKey = `persona_${segment}_${category}`;
+    if (this.aiResponseCache.has(cacheKey)) {
+      console.log(`💨 Using cached AI persona for ${segment}`);
+      return this.aiResponseCache.get(cacheKey);
+    }
+    
     console.log(`👤 Generating AI persona for: "${segment}"`);
 
     const vsCommerce = {
@@ -1501,17 +2068,20 @@ Return ONLY valid JSON in this exact format:
         const jsonStr = responseText.substring(firstBrace, lastBrace + 1);
         const persona = JSON.parse(jsonStr);
         console.log(`✅ AI Persona: "${persona.name}" ${persona.emoji}`);
+        this.aiResponseCache.set(cacheKey, persona);
         return persona;
       }
       
       throw new Error('Could not extract JSON from Gemini response');
     } catch (error) {
       console.error('❌ Error generating AI persona:', error);
-      return {
+      const fallback = {
         name: this.generatePersonaName(segment, demographics, overlaps, commerceBaseline),
         emoji: this.getEmojiForCategory(category, segment),
         description: `The ${segment} audience represents ${demographics.affluenceLevel.toLowerCase()} consumers with a median income of $${demographics.medianHHI.toFixed(0)}, primarily in the ${demographics.topAgeBracket} age range, concentrated in ${geoIntelligence.topCities[0]?.city}, ${geoIntelligence.topCities[0]?.state} and similar markets.`
       };
+      this.aiResponseCache.set(cacheKey, fallback);
+      return fallback;
     }
   }
 
@@ -1523,6 +2093,13 @@ Return ONLY valid JSON in this exact format:
     geoIntelligence: any,
     commerceBaseline: any  // NEW: commerce baseline for context
   ) {
+    // OPTIMIZATION: Check cache first
+    const cacheKey = `strategic_${segment}_${category}`;
+    if (this.aiResponseCache.has(cacheKey)) {
+      console.log(`💨 Using cached strategic insights for ${segment}`);
+      return this.aiResponseCache.get(cacheKey);
+    }
+    
     console.log(`✨ Generating strategic insights with Gemini for: "${segment}"`);
     
     // Calculate commerce baseline comparisons
@@ -1643,13 +2220,13 @@ NOW generate insights of this caliber for "${segment}". Ground EVERY claim in th
 
 Return as JSON:
 {
-  "targetPersona": "A vivid, 5-sentence narrative synthesizing ALL the data (demographics, geography, overlaps). Include: life stage, WHERE they live (cite top 2-3 cities), income level, family structure, what drives purchases, and non-obvious insights from overlaps. Ground EVERY detail in the data.",
+  "targetPersona": "A vivid, 5-sentence narrative synthesizing ALL the data (demographics, geography, overlaps). Include: life stage, WHERE they live (cite top 2-3 cities), income level, family structure, what drives purchases, and non-obvious insights from overlaps. Ground EVERY detail in the data. Use **bold** formatting for key characteristics and important data points.",
   
   "messagingRecommendations": [
     {
-      "valueProposition": "Not keywords - VALUE PROPOSITIONS tied to data. E.g., 'Premium Quality for Growing Families'",
-      "dataBacking": "cite specific data: 60% suburban homeowners, 45% with children, avg household 3.2 people",
-      "emotionalBenefit": "functional AND emotional benefits",
+      "valueProposition": "Not keywords - VALUE PROPOSITIONS tied to data. E.g., 'Premium Quality for Growing Families'. Use **bold** for key value points.",
+      "dataBacking": "cite specific data: 60% suburban homeowners, 45% with children, avg household 3.2 people. Use **bold** for key statistics.",
+      "emotionalBenefit": "functional AND emotional benefits. Use **bold** for key emotional drivers.",
       "campaignReady": true
     }
   ],
@@ -1736,6 +2313,7 @@ Return ONLY valid JSON, no additional text.`;
         try {
           insights = JSON.parse(jsonStr);
           console.log('✅ Parsed JSON from code block');
+          this.aiResponseCache.set(cacheKey, insights);
           return insights;
         } catch (e) {
           console.log('⚠️  Code block JSON parse failed, trying alternative extraction');
@@ -1752,6 +2330,7 @@ Return ONLY valid JSON, no additional text.`;
         try {
           insights = JSON.parse(jsonStr);
           console.log('✅ Parsed JSON using brace matching');
+          this.aiResponseCache.set(cacheKey, insights);
           return insights;
         } catch (e) {
           console.log('⚠️  Brace matching parse failed');
@@ -1771,6 +2350,7 @@ Return ONLY valid JSON, no additional text.`;
         try {
           insights = JSON.parse(jsonMatch[0]);
           console.log('✅ Parsed raw JSON');
+          this.aiResponseCache.set(cacheKey, insights);
           return insights;
         } catch (e) {
           console.log('⚠️  Raw JSON parse failed:', e);
@@ -1798,6 +2378,7 @@ Return ONLY valid JSON, no additional text.`;
           
           insights = JSON.parse(fixed);
           console.log('✅ Parsed JSON after fixing incomplete structure');
+          this.aiResponseCache.set(cacheKey, insights);
           return insights;
         } catch (e) {
           console.log('⚠️  Could not fix incomplete JSON:', e);
@@ -1806,10 +2387,14 @@ Return ONLY valid JSON, no additional text.`;
       
       // Fallback if parsing fails
       console.log('⚠️  All JSON parsing strategies failed, using fallback');
-      return this.getFallbackStrategicInsights(segment);
+      // OPTIMIZATION: Cache the result
+      this.aiResponseCache.set(cacheKey, insights);
+      return insights;
     } catch (error) {
       console.error('❌ Error generating strategic insights:', error);
-      return this.getFallbackStrategicInsights(segment);
+      const fallback = this.getFallbackStrategicInsights(segment);
+      this.aiResponseCache.set(cacheKey, fallback);
+      return fallback;
     }
   }
 
@@ -1823,6 +2408,13 @@ Return ONLY valid JSON, no additional text.`;
     geoIntelligence: any,
     commerceBaseline: any  // NEW: commerce baseline for context
   ): Promise<string> {
+    // OPTIMIZATION: Check cache first
+    const cacheKey = `executive_${segment}`;
+    if (this.aiResponseCache.has(cacheKey)) {
+      console.log(`💨 Using cached executive summary for ${segment}`);
+      return this.aiResponseCache.get(cacheKey);
+    }
+    
     // Calculate commerce baseline comparison
     const vsCommerce = {
       income: ((demographics.medianHHI / commerceBaseline.medianHHI) - 1) * 100,
@@ -1864,7 +2456,9 @@ Be specific. Cite actual numbers. Make it memorable.`;
       // Call Gemini directly for text generation
       const result = await gemini['model'].generateContent(prompt);
       const responseText = result.response.text();
-      return responseText.trim();
+      const summary = responseText.trim();
+      this.aiResponseCache.set(cacheKey, summary);
+      return summary;
     } catch (error) {
       console.error('❌ Error generating executive summary:', error);
       return `The ${segment} audience indexes ${demographics.medianHHIvsNational >= 0 ? 'higher' : 'lower'} than the national average in household income, with a median of $${demographics.medianHHI.toFixed(0)}. This audience is primarily concentrated in the ${demographics.topAgeBracket} age bracket and shows strong overlap with ${overlaps[0]?.segment || 'related segments'}, indicating complementary purchase behaviors.`;

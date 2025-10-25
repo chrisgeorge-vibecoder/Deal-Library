@@ -13,6 +13,7 @@ const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
   )
 });
 
+
 interface GeoDetailModalProps {
   geo: GeoCard | null;
   isOpen: boolean;
@@ -107,7 +108,9 @@ export default function GeoDetailModal({
             </h3>
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
               {/* Interactive Map */}
-              <InteractiveMap geo={geo} />
+              {geo && (
+                <InteractiveMap geo={geo} />
+              )}
               
               {/* Map Controls */}
               <div className="p-4 bg-gray-50 border-t border-gray-200">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 
 interface GeographicHotspot {
   zipCode: string;
@@ -21,12 +21,32 @@ export default function AudienceInsightsMap({ hotspots, segmentName }: AudienceI
   const mapInstanceRef = useRef<any>(null);
   const [mapError, setMapError] = useState(false);
 
-  console.log('🗺️ [DEBUG] AudienceInsightsMap received props:', {
-    hotspotsCount: hotspots?.length,
+  // Memoize hotspots to prevent unnecessary re-renders
+  const memoizedHotspots = useMemo(() => hotspots || [], [hotspots]);
+  
+  // Memoize props to prevent unnecessary re-renders
+  const memoizedProps = useMemo(() => ({
+    hotspotsCount: memoizedHotspots?.length || 0,
     segmentName,
-    firstHotspot: hotspots?.[0],
-    allHotspots: hotspots
-  });
+    hotspots: memoizedHotspots
+  }), [memoizedHotspots, segmentName]);
+
+  // Reduced logging - only log when props actually change
+  const prevPropsRef = useRef({ hotspotsCount: 0, segmentName: '', hotspotsHash: '' });
+  
+  // Create a simple hash of hotspots to detect changes
+  const hotspotsHash = JSON.stringify(memoizedProps.hotspots.map(h => `${h.zipCode}-${h.density}`));
+  
+  if (prevPropsRef.current.hotspotsCount !== memoizedProps.hotspotsCount || 
+      prevPropsRef.current.segmentName !== memoizedProps.segmentName ||
+      prevPropsRef.current.hotspotsHash !== hotspotsHash) {
+    console.log('🗺️ [DEBUG] AudienceInsightsMap props changed:', memoizedProps);
+    prevPropsRef.current = { 
+      hotspotsCount: memoizedProps.hotspotsCount, 
+      segmentName: memoizedProps.segmentName,
+      hotspotsHash: hotspotsHash
+    };
+  }
 
   // Simple geocoding based on city/state
   const getCityCoordinates = (city: string, state: string): [number, number] | null => {
@@ -155,40 +175,50 @@ export default function AudienceInsightsMap({ hotspots, segmentName }: AudienceI
     return null;
   };
 
-  // Create markers from hotspots
-  const markers = hotspots.map((hotspot, index) => {
-    console.log(`🗺️ [DEBUG] Processing hotspot ${index + 1}:`, hotspot);
-    const position = getCityCoordinates(hotspot.city, hotspot.state);
-    
-    if (!position) {
-      console.warn(`⚠️ [DEBUG] No coordinates found for: ${hotspot.city}, ${hotspot.state}`);
-      return null;
-    }
-    
-    console.log(`✅ [DEBUG] Coordinates for ${hotspot.city}, ${hotspot.state}:`, position);
-    
-    return {
-      position,
-      city: hotspot.city,
-      state: hotspot.state,
-      zipCode: hotspot.zipCode,
-      density: hotspot.density,
-      population: hotspot.population,
-      overIndex: hotspot.overIndex,
-      rank: index + 1
-    };
-  }).filter(Boolean) as Array<{
-    position: [number, number];
-    city: string;
-    state: string;
-    zipCode: string;
-    density: number;
-    population?: number;
-    overIndex?: number;
-    rank: number;
-  }>;
+  // Create markers from hotspots using memoized props - memoize this expensive operation
+  const markers = useMemo(() => {
+    return memoizedProps.hotspots.map((hotspot, index) => {
+      // Reduced logging - only log first few and errors
+      if (index < 3) {
+        console.log(`🗺️ [DEBUG] Processing hotspot ${index + 1}:`, hotspot);
+      }
+      const position = getCityCoordinates(hotspot.city, hotspot.state);
+      
+      if (!position) {
+        console.warn(`⚠️ [DEBUG] No coordinates found for: ${hotspot.city}, ${hotspot.state}`);
+        return null;
+      }
+      
+      if (index < 3) {
+        console.log(`✅ [DEBUG] Coordinates for ${hotspot.city}, ${hotspot.state}:`, position);
+      }
+      
+      return {
+        position,
+        city: hotspot.city,
+        state: hotspot.state,
+        zipCode: hotspot.zipCode,
+        density: hotspot.density,
+        population: hotspot.population,
+        overIndex: hotspot.overIndex,
+        rank: index + 1
+      };
+    }).filter(Boolean) as Array<{
+      position: [number, number];
+      city: string;
+      state: string;
+      zipCode: string;
+      density: number;
+      population?: number;
+      overIndex?: number;
+      rank: number;
+    }>;
+  }, [memoizedProps.hotspots]);
 
-  console.log('🗺️ [DEBUG] Total markers created:', markers.length);
+  // Reduced logging - only log when marker count changes significantly
+  if (markers.length > 0 && markers.length % 5 === 0) {
+    console.log('🗺️ [DEBUG] Total markers created:', markers.length);
+  }
 
   useEffect(() => {
     if (typeof window === 'undefined' || !mapRef.current) {

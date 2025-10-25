@@ -321,9 +321,9 @@ EXAMPLE FOR DEAL REQUEST:
 MANDATORY: Only return deals if the query is actually requesting deals. For general questions, return an empty topDeals array.`;
 
     try {
-      // Add timeout to prevent hanging (reduced to 15 seconds for better UX)
+      // Add timeout to prevent hanging (increased to 30 seconds for complex queries)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Gemini API timeout after 15 seconds')), 15000);
+        setTimeout(() => reject(new Error('Gemini API timeout after 30 seconds')), 30000);
       });
       
       const apiPromise = this.model.generateContent(prompt);
@@ -424,7 +424,7 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
       
       // Check if this is a timeout error
       if (error instanceof Error && error.message.includes('timeout')) {
-        console.error('⏰ Gemini API timed out after 15 seconds');
+        console.error('⏰ Gemini API timed out after 30 seconds');
         return {
           deals: [],
           aiResponse: "I'm having trouble processing your request right now. The AI service is taking longer than expected. Please try again with a more specific query.",
@@ -711,7 +711,7 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
       
       // Check if this is a timeout error
       if (error instanceof Error && error.message.includes('timeout')) {
-        console.error('⏰ Gemini API timed out after 15 seconds');
+        console.error('⏰ Gemini API timed out after 30 seconds');
         return {
           deals: [],
           aiResponse: "I'm having trouble processing your request right now. The AI service is taking longer than expected. Please try again with a more specific query.",

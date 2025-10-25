@@ -1,0 +1,38 @@
+{
+  "watch": ["src"],
+  "ext": "ts,js,json",
+  "ignore": [
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "node_modules/**",
+    "dist/**",
+    "logs/**",
+    "*.log",
+    "temp/**",
+    "uploads/**",
+    "**/logs/**",
+    "**/*.log",
+    "**/backend.log",
+    "**/frontend.log",
+    "**/demo.log",
+    "backend.log",
+    "backend_debug.log",
+    "**/backend.log",
+    "**/backend_debug.log",
+    "**/*.log",
+    "**/logs/**",
+    "**/temp/**",
+    "**/uploads/**",
+    "**/node_modules/**",
+    "**/dist/**"
+  ],
+  "delay": 5000,
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "legacyWatch": false,
+  "polling": false,
+  "verbose": false,
+  "restartable": "rs",
+  "signal": "SIGTERM"
+}

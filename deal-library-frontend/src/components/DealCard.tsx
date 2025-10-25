@@ -95,7 +95,7 @@ export default function DealCard({ deal, onClick, onAddToCart, onRemoveFromCart,
         </div>
       )}
 
-      {/* Add to Cart Button */}
+      {/* Add to Selections Button */}
       <div className="pt-4 border-t border-neutral-200">
         {isInCart ? (
           <button
@@ -106,7 +106,7 @@ export default function DealCard({ deal, onClick, onAddToCart, onRemoveFromCart,
             className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
           >
             <Trash2 className="w-4 h-4" />
-            Remove from Cart
+            Remove from Selections
           </button>
         ) : (
           <button
@@ -121,7 +121,7 @@ export default function DealCard({ deal, onClick, onAddToCart, onRemoveFromCart,
             }`}
           >
             <ShoppingCart className="w-4 h-4" />
-            Add to Cart
+            Add to Selections
           </button>
         )}
       </div>

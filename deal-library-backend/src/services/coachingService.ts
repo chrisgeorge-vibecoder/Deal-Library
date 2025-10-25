@@ -126,7 +126,10 @@ export class CoachingService {
   /**
    * Extract CPM value from bid guidance text
    */
-  private extractCpmFromBidGuidance(bidGuidance: string): number | undefined {
+  private extractCpmFromBidGuidance(bidGuidance: any): number | undefined {
+    if (!bidGuidance || typeof bidGuidance !== 'string') {
+      return undefined;
+    }
     const match = bidGuidance.match(/\$(\d+(?:\.\d{2})?)\s*CPM/i);
     return match && match[1] ? parseFloat(match[1]) : undefined;
   }

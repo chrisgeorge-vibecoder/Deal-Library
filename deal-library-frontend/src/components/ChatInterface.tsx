@@ -125,7 +125,7 @@ export default function ChatInterface({
       const welcomeMessage = {
         id: 'welcome',
         type: 'assistant' as const,
-        content: "Hi! I'm your Marketing Co-Pilot. Ask me anything about media or marketing and I can help you with strategy, audience insights, discovering deals, and more.",
+        content: "Hi! I'm your Launchpad assistant. Ask me anything about media or marketing and I can help you with strategy, audience insights, discovering deals, and more.",
         timestamp: new Date().toLocaleTimeString(),
       };
       setMessages([welcomeMessage]);
@@ -139,7 +139,7 @@ export default function ChatInterface({
         {
           id: 'welcome',
           type: 'assistant',
-          content: "Hi! I'm your Marketing Co-Pilot. Ask me anything about media or marketing and I can help you with strategy, audience insights, discovering deals, and more.",
+          content: "Hi! I'm your Launchpad assistant. Ask me anything about media or marketing and I can help you with strategy, audience insights, discovering deals, and more.",
           timestamp: new Date().toLocaleTimeString(),
         }
       ]);
@@ -492,7 +492,7 @@ export default function ChatInterface({
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-brand-gold to-brand-orange flex items-center justify-center flex-shrink-0">
                     <img 
                       src="/Black Sovrn Slash.svg" 
-                      alt="Sovrn Marketing Co-Pilot" 
+                      alt="Sovrn Launchpad" 
                       className="w-4 h-4"
                     />
                   </div>
@@ -885,7 +885,7 @@ export default function ChatInterface({
             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-brand-gold to-brand-orange flex items-center justify-center flex-shrink-0">
               <img 
                 src="/Black Sovrn Slash.svg" 
-                alt="Sovrn Marketing Co-Pilot" 
+                alt="Sovrn Launchpad" 
                 className="w-4 h-4"
               />
             </div>

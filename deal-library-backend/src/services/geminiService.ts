@@ -321,9 +321,9 @@ EXAMPLE FOR DEAL REQUEST:
 MANDATORY: Only return deals if the query is actually requesting deals. For general questions, return an empty topDeals array.`;
 
     try {
-      // Add timeout to prevent hanging (increased to 30 seconds for complex queries)
+      // Add timeout to prevent hanging (increased to 60 seconds for complex queries)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Gemini API timeout after 30 seconds')), 30000);
+        setTimeout(() => reject(new Error('Gemini API timeout after 60 seconds')), 60000);
       });
       
       const apiPromise = this.model.generateContent(prompt);
@@ -671,9 +671,9 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
       // Create a structured prompt for Gemini with conversation context and RAG
       const prompt = this.createAnalysisPrompt(query, deals, conversationHistory, ragContext);
       
-      // Add timeout to prevent hanging (30s for complex prompts with deal analysis and coaching)
+      // Add timeout to prevent hanging (60s for complex prompts with deal analysis and coaching)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Gemini API timeout after 30 seconds')), 30000);
+        setTimeout(() => reject(new Error('Gemini API timeout after 60 seconds')), 60000);
       });
       
       const apiPromise = this.model.generateContent(prompt);

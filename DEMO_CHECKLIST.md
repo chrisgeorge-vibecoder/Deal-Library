@@ -1,4 +1,4 @@
-# 🎬 Demo Checklist - Sovrn Marketing Co-Pilot
+# 🎬 Demo Checklist - Sovrn Launchpad
 
 ## Pre-Demo Setup (5 minutes before)
 

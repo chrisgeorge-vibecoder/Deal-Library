@@ -9,11 +9,15 @@ import dotenv from 'dotenv';
 
 import { DealsController } from './controllers/dealsController';
 import { ResearchLibraryController } from './controllers/researchLibraryController';
+import { MarketInsightsController } from './controllers/marketInsightsController';
+import { CampaignContentController } from './controllers/campaignContentController';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { corsMiddleware } from './middleware/cors';
 import { PersonaService } from './services/personaService';
 import { PersistenceService } from './services/persistenceService';
 import { SupabaseService } from './services/supabaseService';
+import { GeminiService } from './services/geminiService';
+import { cacheService } from './services/cacheService';
 
 // Load environment variables
 dotenv.config();
@@ -50,6 +54,18 @@ const PORT = process.env.PORT || 3002;
 const persistenceService = new PersistenceService();
 const dealsController = new DealsController();
 const personaService = new PersonaService();
+const marketInsightsController = new MarketInsightsController();
+
+// Initialize Campaign Content Controller (requires Gemini AI)
+let campaignContentController: CampaignContentController | null = null;
+try {
+  const supabase = process.env.USE_SUPABASE === 'true' ? SupabaseService.getClient() : null;
+  const geminiService = new GeminiService(supabase);
+  campaignContentController = new CampaignContentController(geminiService);
+  console.log('✅ Campaign Content Generator initialized');
+} catch (error) {
+  console.warn('⚠️  Campaign Content Generator disabled (Gemini AI not available)');
+}
 
 // Initialize Research Library Controller (requires Supabase)
 let researchLibraryController: ResearchLibraryController | null = null;
@@ -127,6 +143,8 @@ const upload = multer({
 // Health check endpoint
 app.get('/health', (req, res) => {
   const state = persistenceService.getState();
+  const cacheStats = cacheService.getStats();
+  
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
@@ -136,6 +154,11 @@ app.get('/health', (req, res) => {
       hasLastQuery: !!state.lastQuery,
       lastQueryTime: state.timestamp,
       sessionDataKeys: Object.keys(state.sessionData)
+    },
+    cache: {
+      size: cacheStats.size,
+      memoryUsage: `${Math.round(cacheStats.memoryUsage / 1024)}KB`,
+      oldestEntry: cacheStats.oldestEntry ? new Date(cacheStats.oldestEntry).toISOString() : null
     }
   });
 });
@@ -157,6 +180,14 @@ app.post('/api/marketing-news', (req, res) => dealsController.generateMarketingN
 app.post('/api/competitive-intelligence', (req, res) => dealsController.generateCompetitiveIntelligence(req, res));
 app.post('/api/content-strategy', (req, res) => dealsController.generateContentStrategy(req, res));
 app.post('/api/brand-strategy', (req, res) => dealsController.generateBrandStrategy(req, res));
+
+// Market Insights endpoints
+app.use('/api/market-insights', marketInsightsController.getRouter());
+
+// Campaign Content endpoints
+if (campaignContentController) {
+  app.use('/api/campaign-content', campaignContentController.getRouter());
+}
 
 // Persona endpoints
 app.get('/api/personas', async (req, res) => {
@@ -356,33 +387,69 @@ app.post('/api/admin/reload-commerce', async (req, res) => {
 
 app.post('/api/admin/clear-cache', async (req, res) => {
   try {
+    // Clear in-memory cache first
+    const cacheStats = cacheService.getStats();
+    cacheService.clear();
+    
+    let supabaseCacheCleared = false;
+    
     if (process.env.USE_SUPABASE === 'true') {
-      const supabase = SupabaseService.getClient();
-      
-      // Delete expired cache entries
-      const { error } = await supabase
-        .from('audience_reports_cache')
-        .delete()
-        .lt('expires_at', new Date().toISOString());
-      
-      if (error) {
-        throw new Error(error.message);
+      try {
+        const supabase = SupabaseService.getClient();
+        
+        // Delete expired cache entries from Supabase
+        const { error } = await supabase
+          .from('audience_reports_cache')
+          .delete()
+          .lt('expires_at', new Date().toISOString());
+        
+        if (error) {
+          throw new Error(error.message);
+        }
+        
+        supabaseCacheCleared = true;
+      } catch (supabaseError) {
+        console.warn('⚠️  Failed to clear Supabase cache:', supabaseError);
       }
-      
-      res.json({
-        success: true,
-        message: 'Expired cache entries cleared from Supabase'
-      });
-    } else {
-      res.json({
-        success: true,
-        message: 'In-memory cache (no persistent cache to clear)'
-      });
     }
+    
+    res.json({
+      success: true,
+      message: `Cache cleared successfully`,
+      details: {
+        inMemoryCleared: cacheStats.size,
+        supabaseCacheCleared
+      }
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Failed to clear cache'
+    });
+  }
+});
+
+// Cache status endpoint
+app.get('/api/admin/cache-status', (req, res) => {
+  try {
+    const stats = cacheService.getStats();
+    
+    res.json({
+      success: true,
+      cache: {
+        entries: stats.size,
+        keys: stats.keys,
+        memoryUsage: `${Math.round(stats.memoryUsage / 1024)}KB`,
+        memoryUsageBytes: stats.memoryUsage,
+        oldestEntry: stats.oldestEntry ? new Date(stats.oldestEntry).toISOString() : null,
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to get cache status'
     });
   }
 });
@@ -435,7 +502,7 @@ app.use(errorHandler);
 
 // Start server with error handling
 const server = app.listen(PORT, async () => {
-  console.log(`🚀 Sovrn Marketing Co-Pilot Backend running on port ${PORT}`);
+  console.log(`🚀 Sovrn Launchpad Backend running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
   

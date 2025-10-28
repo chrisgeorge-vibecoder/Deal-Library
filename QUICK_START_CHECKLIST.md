@@ -68,7 +68,7 @@ curl -X POST http://localhost:3002/api/research/1/process-text \
 
 ### Step 4: Test RAG (1 minute)
 
-Ask the Co-Pilot a related question:
+Ask the AI assistant a related question:
 ```bash
 curl -X POST http://localhost:3002/api/deals/search \
   -H "Content-Type: application/json" \
@@ -100,7 +100,7 @@ Should return 6 sample studies.
 ✅ Backend logs show "RAG enabled"  
 ✅ `/api/research` returns studies  
 ✅ `/api/research/1/process-text` works  
-✅ Co-Pilot responses include citations  
+✅ AI assistant responses include citations  
 ✅ Database has records in `research_embeddings` table  
 
 ---
@@ -197,7 +197,7 @@ For detailed setup and advanced features:
 
 ## ✨ You're Done!
 
-Your Co-Pilot now:
+Sovrn Launchpad now:
 - ✅ Provides research-backed answers
 - ✅ Cites specific studies
 - ✅ Combines research with general knowledge

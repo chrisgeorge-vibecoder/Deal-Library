@@ -1,4 +1,4 @@
-import { Plus, Sparkles, Users, ShoppingCart, BookOpen } from 'lucide-react';
+import { Plus, Sparkles, Users, ShoppingCart, BookOpen, TrendingUp } from 'lucide-react';
 import SavedCards from './SavedCards';
 import Link from 'next/link';
 import { SavedCard } from '@/types/deal';
@@ -79,6 +79,13 @@ export default function Sidebar({
           >
             <Sparkles className="w-4 h-4" />
             Audience Insights
+          </Link>
+          <Link
+            href="/market-insights"
+            className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
+          >
+            <TrendingUp className="w-4 h-4" />
+            U.S. Market Insights
           </Link>
           <Link
             href="/research"

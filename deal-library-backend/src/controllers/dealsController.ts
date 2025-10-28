@@ -11,6 +11,7 @@ import { audienceInsightsService } from '../services/audienceInsightsService';
 import { coachingService } from '../services/coachingService';
 import { Deal, DealFilters, SearchResult, CustomDealRequest } from '../types/deal';
 import { CensusQueryFilters } from '../types/censusData';
+import { cacheService } from '../services/cacheService';
 
 export class DealsController {
   private appsScriptService: AppsScriptService;
@@ -52,8 +53,21 @@ export class DealsController {
    * Get all deals (internal method for other controllers)
    */
   async getAllDeals(): Promise<Deal[]> {
+    // Check cache first for all deals (5 minute TTL)
+    const cacheKey = 'all-deals';
+    const cachedDeals = cacheService.get(cacheKey);
+    
+    if (cachedDeals) {
+      return cachedDeals;
+    }
+    
     try {
-      return await this.appsScriptService.getAllDeals();
+      const deals = await this.appsScriptService.getAllDeals();
+      
+      // Cache the results for 5 minutes
+      cacheService.set(cacheKey, deals, 5 * 60 * 1000);
+      
+      return deals;
     } catch (error) {
       console.error('Error fetching all deals:', error);
       return [];
@@ -84,17 +98,31 @@ export class DealsController {
 
       let allDeals: Deal[] = [];
       
-      try {
-        allDeals = await this.appsScriptService.getAllDeals();
-      } catch (error) {
-        console.error('❌ Apps Script service unavailable:', error instanceof Error ? error.message : 'Unknown error');
-        // Don't fallback to sample deals - require real Apps Script integration
-        res.status(503).json({
-          error: 'Deals service unavailable',
-          message: 'Real deals require Apps Script configuration. Please configure GOOGLE_APPS_SCRIPT_URL.',
-          details: error instanceof Error ? error.message : 'Unknown error'
-        });
-        return;
+      // Check cache first for all deals (5 minute TTL)
+      const cacheKey = 'all-deals';
+      const cachedDeals = cacheService.get(cacheKey);
+      
+      if (cachedDeals) {
+        console.log('✅ Using cached deals data');
+        allDeals = cachedDeals;
+      } else {
+        try {
+          console.log('📦 Fetching fresh deals data from Apps Script...');
+          allDeals = await this.appsScriptService.getAllDeals();
+          
+          // Cache the results for 5 minutes
+          cacheService.set(cacheKey, allDeals, 5 * 60 * 1000);
+          console.log(`✅ Cached ${allDeals.length} deals for 5 minutes`);
+        } catch (error) {
+          console.error('❌ Apps Script service unavailable:', error instanceof Error ? error.message : 'Unknown error');
+          // Don't fallback to sample deals - require real Apps Script integration
+          res.status(503).json({
+            error: 'Deals service unavailable',
+            message: 'Real deals require Apps Script configuration. Please configure GOOGLE_APPS_SCRIPT_URL.',
+            details: error instanceof Error ? error.message : 'Unknown error'
+          });
+          return;
+        }
       }
       
       const filteredDeals = this.filterDeals(allDeals, filters);
@@ -2238,7 +2266,17 @@ export class DealsController {
         return;
       }
 
-      console.log(`🎯 Generating Audience Insights Report for: ${segment}${category ? ` (${category})` : ''}`);
+      // Create cache key based on parameters (15 minute TTL for expensive reports)
+      const cacheKey = `audience-insights:${segment}:${category || 'all'}:${includeCommercialZips ? 'commercial' : 'residential'}`;
+      const cachedReport = cacheService.get(cacheKey);
+      
+      if (cachedReport) {
+        console.log(`✅ Using cached audience insights report for: ${segment}`);
+        res.json(cachedReport);
+        return;
+      }
+
+      console.log(`🎯 Generating fresh Audience Insights Report for: ${segment}${category ? ` (${category})` : ''}`);
       console.log(`   Include Commercial ZIPs: ${includeCommercialZips ? 'YES' : 'NO (default: residential only)'}`);
       
       const report = await audienceInsightsService.generateReport(segment, category, includeCommercialZips || false);
@@ -2254,11 +2292,17 @@ export class DealsController {
       }
       const recommendedDeals = await audienceInsightsService.getRecommendedDeals(segment, category, allDeals);
       
-      res.json({
+      const result = {
         success: true,
         report,
         recommendedDeals
-      });
+      };
+      
+      // Cache the complete result for 15 minutes (expensive to generate)
+      cacheService.set(cacheKey, result, 15 * 60 * 1000);
+      console.log(`✅ Cached audience insights report for: ${segment}`);
+      
+      res.json(result);
       
     } catch (error) {
       console.error('Error generating audience insights:', error);

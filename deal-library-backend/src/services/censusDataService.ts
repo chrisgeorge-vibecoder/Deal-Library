@@ -38,6 +38,7 @@ interface RawCensusRow {
   age_70s: string;
   age_over_80: string;
   income_household_median: string;
+  income_household_six_figure: string;
   education_bachelors: string;
   education_graduate: string;
   race_white: string;
@@ -59,7 +60,78 @@ interface RawCensusRow {
   family_dual_income: string;
   education_stem_degree: string;
   charitable_givers: string;
+  veteran: string;
+  rent_burden: string;
 }
+
+// U.S. Census Bureau Region Mapping
+export const STATE_TO_REGION: Record<string, string> = {
+  // Northeast
+  'Connecticut': 'Northeast',
+  'Maine': 'Northeast',
+  'Massachusetts': 'Northeast',
+  'New Hampshire': 'Northeast',
+  'Rhode Island': 'Northeast',
+  'Vermont': 'Northeast',
+  'New Jersey': 'Northeast',
+  'New York': 'Northeast',
+  'Pennsylvania': 'Northeast',
+  
+  // Midwest
+  'Illinois': 'Midwest',
+  'Indiana': 'Midwest',
+  'Michigan': 'Midwest',
+  'Ohio': 'Midwest',
+  'Wisconsin': 'Midwest',
+  'Iowa': 'Midwest',
+  'Kansas': 'Midwest',
+  'Minnesota': 'Midwest',
+  'Missouri': 'Midwest',
+  'Nebraska': 'Midwest',
+  'North Dakota': 'Midwest',
+  'South Dakota': 'Midwest',
+  
+  // South
+  'Delaware': 'South',
+  'Florida': 'South',
+  'Georgia': 'South',
+  'Maryland': 'South',
+  'North Carolina': 'South',
+  'South Carolina': 'South',
+  'Virginia': 'South',
+  'District of Columbia': 'South',
+  'West Virginia': 'South',
+  'Alabama': 'South',
+  'Kentucky': 'South',
+  'Mississippi': 'South',
+  'Tennessee': 'South',
+  'Arkansas': 'South',
+  'Louisiana': 'South',
+  'Oklahoma': 'South',
+  'Texas': 'South',
+  
+  // West
+  'Arizona': 'West',
+  'Colorado': 'West',
+  'Idaho': 'West',
+  'Montana': 'West',
+  'Nevada': 'West',
+  'New Mexico': 'West',
+  'Utah': 'West',
+  'Wyoming': 'West',
+  'Alaska': 'West',
+  'California': 'West',
+  'Hawaii': 'West',
+  'Oregon': 'West',
+  'Washington': 'West',
+  
+  // Territories
+  'Puerto Rico': 'South',
+  'Guam': 'West',
+  'U.S. Virgin Islands': 'South',
+  'American Samoa': 'West',
+  'Northern Mariana Islands': 'West'
+};
 
 export class CensusDataService {
   private static instance: CensusDataService | null = null;
@@ -120,28 +192,45 @@ export class CensusDataService {
     try {
       const supabase = SupabaseService.getClient();
       
-      // Fetch all census records (disable default 1000 limit)
-      const { data: censusRecords, error } = await supabase
-        .from('census_data')
-        .select('*')
-        .limit(50000); // Request up to 50K records
+      // Fetch census records with pagination for better performance
+      const pageSize = 1000;
+      let allRecords: any[] = [];
+      let offset = 0;
       
-      if (error) {
-        throw new Error(`Supabase query failed: ${error.message}`);
+      // Load data in chunks to avoid memory issues
+      while (true) {
+        const { data: censusRecords, error } = await supabase
+          .from('census_data')
+          .select('*')
+          .order('zip_code')
+          .range(offset, offset + pageSize - 1);
+      
+        if (error) {
+          throw new Error(`Supabase query failed: ${error.message}`);
+        }
+        
+        if (!censusRecords || censusRecords.length === 0) {
+          break; // No more records
+        }
+        
+        allRecords = [...allRecords, ...censusRecords];
+        offset += pageSize;
+        
+        console.log(`📈 Loaded ${allRecords.length} census records so far...`);
       }
       
-      if (!censusRecords || censusRecords.length === 0) {
+      if (allRecords.length === 0) {
         throw new Error('No census data found in Supabase');
       }
       
-      console.log(`📈 Processing ${censusRecords.length} census records from Supabase...`);
+      console.log(`📈 Processing ${allRecords.length} total census records from Supabase...`);
       
       const stateSet = new Set<string>();
       let totalPopulation = 0;
       let totalIncome = 0;
       let validRecords = 0;
       
-      for (const record of censusRecords) {
+      for (const record of allRecords) {
         result.recordsProcessed++;
         
         const censusEntry: CensusZipCodeData = {
@@ -157,6 +246,17 @@ export class CensusDataService {
               age25to44: (record.age_20s || 0) + (record.age_30s || 0) + (record.age_40s || 0),
               age45to64: (record.age_50s || 0) + (record.age_60s || 0),
               age65plus: (record.age_70s || 0) + (record.age_over_80 || 0)
+            },
+            ageCohorts: {
+              ageUnder10: record.age_under_10 || 0,
+              age10to19: record.age_10_to_19 || 0,
+              age20s: record.age_20s || 0,
+              age30s: record.age_30s || 0,
+              age40s: record.age_40s || 0,
+              age50s: record.age_50s || 0,
+              age60s: record.age_60s || 0,
+              age70s: record.age_70s || 0,
+              ageOver80: record.age_over_80 || 0
             },
             ethnicity: {
               white: record.race_white || 0,
@@ -185,7 +285,9 @@ export class CensusDataService {
               dualIncome: record.family_dual_income || 0,
               commuteTime: record.commute_time || 0,
               charitableGivers: record.charitable_givers || 0,
-              stemDegree: record.education_stem_degree || 0
+              stemDegree: record.education_stem_degree || 0,
+              veteran: record.veteran || 0,
+              rentBurden: record.rent_burden || 0
             }
           },
           economics: {
@@ -200,7 +302,8 @@ export class CensusDataService {
                 between100k150k: 0,
                 between150k200k: 0,
                 over200k: 0
-              }
+              },
+              sixFigurePercentage: record.income_household_six_figure || 0
             },
             povertyRate: record.poverty || 0,
             unemploymentRate: record.unemployment_rate || 0,
@@ -464,6 +567,17 @@ export class CensusDataService {
         age45to64: (age40s * 0.5) + age50s + (age60s * 0.5),  // 45-49 + 50s + 60-64
         age65plus: (age60s * 0.5) + age70s + ageOver80  // 65-69 + 70s + 80+
       },
+      ageCohorts: {
+        ageUnder10,
+        age10to19,
+        age20s,
+        age30s,
+        age40s,
+        age50s,
+        age60s,
+        age70s,
+        ageOver80
+      },
       ethnicity: {
         white: parseFloat(row.race_white) || 0,
         black: parseFloat(row.race_black) || 0,
@@ -491,13 +605,16 @@ export class CensusDataService {
         dualIncome: parseFloat(row.family_dual_income) || 0,
         commuteTime: parseFloat(row.commute_time) || 0,
         charitableGivers: parseFloat(row.charitable_givers) || 0,
-        stemDegree: parseFloat(row.education_stem_degree) || 0
+        stemDegree: parseFloat(row.education_stem_degree) || 0,
+        veteran: parseFloat(row.veteran) || 0,
+        rentBurden: parseFloat(row.rent_burden) || 0
       }
     };
   }
 
   private parseEconomics(row: RawCensusRow): CensusEconomics {
     const medianIncome = parseFloat(row.income_household_median) || 0;
+    const sixFigurePercentage = parseFloat(row.income_household_six_figure) || 0;
     
     return {
       householdIncome: {
@@ -511,7 +628,8 @@ export class CensusDataService {
           between100k150k: 0,
           between150k200k: 0,
           over200k: 0
-        }
+        },
+        sixFigurePercentage: sixFigurePercentage
       },
       povertyRate: parseFloat(row.poverty) || 0,
       unemploymentRate: parseFloat(row.unemployment_rate) || 0,
@@ -987,5 +1105,29 @@ export class CensusDataService {
       loaded: this.isLoaded,
       totalZipCodes: this.censusData.size
     };
+  }
+
+  /**
+   * Get Census Bureau region for a state
+   */
+  public getRegionForState(stateName: string): string {
+    return STATE_TO_REGION[stateName] || '';
+  }
+
+  /**
+   * Get all census data (for aggregation purposes)
+   */
+  public async getAllCensusData(): Promise<CensusZipCodeData[]> {
+    if (!this.isLoaded) {
+      await this.loadCensusData();
+    }
+    return Array.from(this.censusData.values());
+  }
+
+  /**
+   * Get census data map (for direct lookups)
+   */
+  public getCensusDataMap(): Map<string, CensusZipCodeData> {
+    return this.censusData;
   }
 }

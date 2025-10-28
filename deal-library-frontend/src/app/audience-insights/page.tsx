@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Target, TrendingUp, Users, MapPin, BarChart3, Download, Sparkles, Bookmark, ArrowRight } from 'lucide-react';
+import { Target, TrendingUp, Users, MapPin, BarChart3, Download, Sparkles, Bookmark, ArrowRight, BookmarkCheck } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import dynamic from 'next/dynamic';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useRouter } from 'next/navigation';
+import DealDetailModal from '@/components/DealDetailModal';
+import { Deal } from '@/types/deal';
 
 // Dynamically import map component - must be client-side only due to Leaflet
 const AudienceInsightsMap = dynamic(
@@ -99,6 +101,11 @@ export default function AudienceInsightsPage() {
   const [recommendedDeals, setRecommendedDeals] = useState<any[]>([]);  // NEW: Recommended deals
   const [geoTab, setGeoTab] = useState<'populous' | 'indexing'>('populous');  // NEW: Geographic hotspots tab
   const reportRef = useRef<HTMLDivElement>(null);  // Ref for PDF export
+  
+  // Deal Modal State
+  const [isDealModalOpen, setIsDealModalOpen] = useState(false);
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [savedDealIds, setSavedDealIds] = useState<Set<string>>(new Set());
 
   // Helper function to convert Markdown bold (**text**) to HTML <strong>text</strong>
   const renderMarkdown = (text: string) => {
@@ -162,6 +169,86 @@ export default function AudienceInsightsPage() {
       }
     }
   }, [report]);
+
+  // Load saved deal IDs from localStorage
+  useEffect(() => {
+    const savedCardsJson = localStorage.getItem('savedCards');
+    if (savedCardsJson) {
+      try {
+        const savedCards = JSON.parse(savedCardsJson);
+        const dealIds = savedCards
+          .filter((card: any) => card.type === 'deal')
+          .map((card: any) => `deal-${card.data.dealId || card.data.id}`);
+        setSavedDealIds(new Set(dealIds));
+      } catch (e) {
+        console.error('Error loading saved deal IDs:', e);
+      }
+    }
+  }, []);
+
+  // Deal Modal Handlers
+  const handleDealClick = (deal: Deal) => {
+    setSelectedDeal(deal);
+    setIsDealModalOpen(true);
+  };
+
+  const handleCloseDealModal = () => {
+    setIsDealModalOpen(false);
+    setSelectedDeal(null);
+  };
+
+  const handleSaveDeal = (card: { type: 'deal', data: Deal }) => {
+    window.dispatchEvent(new CustomEvent('saveCard', { detail: card }));
+    setSavedDealIds(prev => new Set(prev).add(`deal-${card.data.dealId || card.data.id}`));
+  };
+
+  const handleUnsaveDeal = (cardId: string) => {
+    // Remove from localStorage
+    const savedCardsJson = localStorage.getItem('savedCards');
+    if (savedCardsJson) {
+      try {
+        const savedCards = JSON.parse(savedCardsJson);
+        const filteredCards = savedCards.filter((card: any) => {
+          if (card.type === 'deal') {
+            const id = `deal-${card.data.dealId || card.data.id}`;
+            return id !== cardId;
+          }
+          return true;
+        });
+        localStorage.setItem('savedCards', JSON.stringify(filteredCards));
+        setSavedDealIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(cardId);
+          return newSet;
+        });
+      } catch (e) {
+        console.error('Error unsaving deal:', e);
+      }
+    }
+  };
+
+  const isDealSaved = (cardId: string) => {
+    return savedDealIds.has(cardId);
+  };
+
+  // Cart handlers (mock for now - real implementation would use AppLayout's cart state)
+  const handleAddToCart = (deal: Deal) => {
+    console.log('Adding to cart:', deal.dealName);
+    // Dispatch event to AppLayout to handle cart
+    window.dispatchEvent(new CustomEvent('addToCart', { detail: { deal } }));
+  };
+
+  const handleRemoveFromCart = (dealId: string) => {
+    console.log('Removing from cart:', dealId);
+    // Dispatch event to AppLayout to handle cart
+    window.dispatchEvent(new CustomEvent('removeFromCart', { detail: { dealId } }));
+  };
+
+  const isInCart = (dealId: string) => {
+    // This would need to check AppLayout's cart state
+    // For now, return false as a placeholder
+    return false;
+  };
 
   // Helper functions for formatting
   const formatCurrency = (amount: number | null | undefined) => {
@@ -367,7 +454,7 @@ export default function AudienceInsightsPage() {
         
         // Try the primary endpoint first
         try {
-          const response = await fetch('http://localhost:3001/api/audience-geo-analysis/segments');
+          const response = await fetch('http://localhost:3002/api/audience-geo-analysis/segments');
           
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -380,7 +467,7 @@ export default function AudienceInsightsPage() {
           
           // Try fallback endpoint
           try {
-            const fallbackResponse = await fetch('http://localhost:3001/api/commerce-audiences/segments');
+            const fallbackResponse = await fetch('http://localhost:3002/api/commerce-audiences/segments');
             if (fallbackResponse.ok) {
               data = await fallbackResponse.json();
               console.log('📡 Backend response (fallback endpoint):', data);
@@ -591,7 +678,7 @@ export default function AudienceInsightsPage() {
     try {
       console.log('🔍 [DEBUG] Generating report for:', { selectedCategory, selectedSegment });
       
-      const response = await fetch('http://localhost:3001/api/audience-insights/generate', {
+      const response = await fetch('http://localhost:3002/api/audience-insights/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -859,42 +946,36 @@ export default function AudienceInsightsPage() {
 
               {/* KPI Cards */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-                  <div className="text-sm text-blue-700 font-medium mb-1">Median Household Income</div>
-                  <div className="text-2xl font-bold text-blue-900">{formatCurrency(report.keyMetrics.medianHHI)}</div>
-                  <div className="flex flex-col gap-0.5 mt-2 text-xs">
-                    <div className={`${(report.keyMetrics.medianHHIvsCommerce ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'} font-semibold`}>
-                      {formatPercentage(report.keyMetrics.medianHHIvsCommerce)} vs Online Shoppers ⭐
-                    </div>
-                    <div className="text-gray-500 text-[10px]">
-                      ({formatPercentage(report.keyMetrics.medianHHIvsNational)} vs US National)
+                <div className="bg-white p-4 rounded-lg border border-gray-300">
+                  <div className="text-sm text-gray-700 font-medium mb-1">Median Household Income</div>
+                  <div className="text-2xl font-bold text-gray-900">{formatCurrency(report.keyMetrics.medianHHI)}</div>
+                  <div className="mt-2 text-xs">
+                    <div className={`${(report.keyMetrics.medianHHIvsNational ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'} font-semibold`}>
+                      {formatPercentage(report.keyMetrics.medianHHIvsNational)} vs US National ⭐
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
-                  <div className="text-sm text-purple-700 font-medium mb-1">Top Age Bracket</div>
-                  <div className="text-2xl font-bold text-purple-900">{report.keyMetrics.topAgeBracket}</div>
-                  <div className="text-sm text-purple-600 mt-1">Most concentrated</div>
+                <div className="bg-white p-4 rounded-lg border border-gray-300">
+                  <div className="text-sm text-gray-700 font-medium mb-1">Top Age Bracket</div>
+                  <div className="text-2xl font-bold text-gray-900">{report.keyMetrics.topAgeBracket}</div>
+                  <div className="text-sm text-gray-600 mt-1">Most concentrated</div>
                 </div>
 
-                <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
-                  <div className="text-sm text-green-700 font-medium mb-1">Education Level</div>
-                  <div className="text-2xl font-bold text-green-900">{(report.keyMetrics.educationLevel ?? 0).toFixed(1)}%</div>
-                  <div className="flex flex-col gap-0.5 mt-2 text-xs">
-                    <div className={`${(report.keyMetrics.educationVsCommerce ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'} font-semibold`}>
-                      {formatPercentage(report.keyMetrics.educationVsCommerce)} vs Online Shoppers ⭐
-                    </div>
-                    <div className="text-gray-500 text-[10px]">
-                      ({formatPercentage(report.keyMetrics.educationVsNational)} vs US National)
+                <div className="bg-white p-4 rounded-lg border border-gray-300">
+                  <div className="text-sm text-gray-700 font-medium mb-1">Education Level</div>
+                  <div className="text-2xl font-bold text-gray-900">{(report.keyMetrics.educationLevel ?? 0).toFixed(1)}%</div>
+                  <div className="mt-2 text-xs">
+                    <div className={`${(report.keyMetrics.educationVsNational ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'} font-semibold`}>
+                      {formatPercentage(report.keyMetrics.educationVsNational)} vs US National ⭐
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg border border-orange-200">
-                  <div className="text-sm text-orange-700 font-medium mb-1">Commerce Segment</div>
-                  <div className="text-lg font-bold text-orange-900">{report.segment}</div>
-                  <div className="text-sm text-orange-600 mt-1">{report.category}</div>
+                <div className="bg-white p-4 rounded-lg border border-gray-300">
+                  <div className="text-sm text-gray-700 font-medium mb-1">Commerce Segment</div>
+                  <div className="text-lg font-bold text-gray-900">{report.segment}</div>
+                  <div className="text-sm text-gray-600 mt-1">{report.category}</div>
                 </div>
               </div>
 
@@ -902,10 +983,10 @@ export default function AudienceInsightsPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Home Value */}
                 {report.demographics.medianHomeValue && (
-                  <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-lg border border-indigo-200">
-                    <div className="text-sm text-indigo-700 font-medium mb-1">Median Home Value</div>
-                    <div className="text-xl font-bold text-indigo-900">${Math.round(report.demographics.medianHomeValue).toLocaleString()}</div>
-                    <div className="text-xs text-indigo-600 mt-1">
+                  <div className="bg-white p-4 rounded-lg border border-gray-300">
+                    <div className="text-sm text-gray-700 font-medium mb-1">Median Home Value</div>
+                    <div className="text-xl font-bold text-gray-900">${Math.round(report.demographics.medianHomeValue).toLocaleString()}</div>
+                    <div className="text-xs text-gray-600 mt-1">
                       {report.demographics.homeOwnership?.toFixed(0) || 0}% homeowners
                     </div>
                   </div>
@@ -913,9 +994,9 @@ export default function AudienceInsightsPage() {
 
                 {/* Ethnicity */}
                 {report.demographics.ethnicity && (
-                  <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-lg border border-teal-200">
-                    <div className="text-sm text-teal-700 font-medium mb-1">Primary Ethnicity</div>
-                    <div className="text-lg font-bold text-teal-900">
+                  <div className="bg-white p-4 rounded-lg border border-gray-300">
+                    <div className="text-sm text-gray-700 font-medium mb-1">Primary Ethnicity</div>
+                    <div className="text-lg font-bold text-gray-900">
                       {(() => {
                         const ethnicity = report.demographics.ethnicity;
                         const ethnicityMap = {
@@ -930,7 +1011,7 @@ export default function AudienceInsightsPage() {
                         return primary ? primary[0] : 'Mixed';
                       })()}
                     </div>
-                    <div className="text-xs text-teal-600 mt-1">
+                    <div className="text-xs text-gray-600 mt-1">
                       {(() => {
                         const ethnicity = report.demographics.ethnicity;
                         const max = Math.max(ethnicity.white, ethnicity.hispanic, ethnicity.black, ethnicity.asian);
@@ -942,12 +1023,12 @@ export default function AudienceInsightsPage() {
 
                 {/* Urban/Rural Distribution */}
                 {report.demographics.urbanRuralDistribution && report.demographics.urbanRuralDistribution.length > 0 && (
-                  <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-4 rounded-lg border border-amber-200">
-                    <div className="text-sm text-amber-700 font-medium mb-1">Location Type</div>
-                    <div className="text-lg font-bold text-amber-900 capitalize">
+                  <div className="bg-white p-4 rounded-lg border border-gray-300">
+                    <div className="text-sm text-gray-700 font-medium mb-1">Location Type</div>
+                    <div className="text-lg font-bold text-gray-900 capitalize">
                       {report.demographics.urbanRuralDistribution[0]?.type || 'Mixed'}
                     </div>
-                    <div className="text-xs text-amber-600 mt-1">
+                    <div className="text-xs text-gray-600 mt-1">
                       {report.demographics.urbanRuralDistribution[0]?.percentage?.toFixed(0) || 0}% of population
                     </div>
                   </div>
@@ -955,19 +1036,19 @@ export default function AudienceInsightsPage() {
 
                 {/* Household Size */}
                 {report.demographics.avgHouseholdSize && (
-                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg border border-emerald-200">
-                    <div className="text-sm text-emerald-700 font-medium mb-1">Household Size</div>
-                    <div className="text-lg font-bold text-emerald-900">{report.demographics.avgHouseholdSize.toFixed(1)}</div>
+                  <div className="bg-white p-4 rounded-lg border border-gray-300">
+                    <div className="text-sm text-gray-700 font-medium mb-1">Household Size</div>
+                    <div className="text-lg font-bold text-gray-900">{report.demographics.avgHouseholdSize.toFixed(1)}</div>
                     <div className="text-xs text-emerald-600 mt-1">people per household</div>
                   </div>
                 )}
 
                 {/* Lifestyle - Marriage */}
                 {report.demographics.lifestyle && (
-                  <div className="bg-gradient-to-br from-violet-50 to-violet-100 p-4 rounded-lg border border-violet-200">
-                    <div className="text-sm text-violet-700 font-medium mb-1">Marriage Rate</div>
-                    <div className="text-lg font-bold text-violet-900">{report.demographics.lifestyle.married.toFixed(0)}%</div>
-                    <div className="text-xs text-violet-600 mt-1">
+                  <div className="bg-white p-4 rounded-lg border border-gray-300">
+                    <div className="text-sm text-gray-700 font-medium mb-1">Marriage Rate</div>
+                    <div className="text-lg font-bold text-gray-900">{report.demographics.lifestyle.married.toFixed(0)}%</div>
+                    <div className="text-xs text-gray-600 mt-1">
                       {report.demographics.lifestyle.dualIncome.toFixed(0)}% dual income
                     </div>
                   </div>
@@ -1228,12 +1309,12 @@ export default function AudienceInsightsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {/* Self-Employed */}
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                  <div className="bg-white rounded-xl p-4 border border-gray-300">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-gray-900 text-sm">Entrepreneurship</h3>
                       <span className="text-2xl">🚀</span>
                     </div>
-                    <div className="text-2xl font-bold text-blue-600 mb-1">
+                    <div className="text-2xl font-bold text-gray-900 mb-1">
                       {report.demographics.lifestyle.selfEmployed.toFixed(1)}%
                     </div>
                     <p className="text-xs text-gray-600 leading-relaxed">
@@ -1245,12 +1326,12 @@ export default function AudienceInsightsPage() {
                   </div>
 
                   {/* Marriage Status */}
-                  <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
+                  <div className="bg-white rounded-xl p-4 border border-gray-300">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-gray-900 text-sm">Marriage Rate</h3>
                       <span className="text-2xl">💍</span>
                     </div>
-                    <div className="text-2xl font-bold text-pink-600 mb-1">
+                    <div className="text-2xl font-bold text-gray-900 mb-1">
                       {report.demographics.lifestyle.married.toFixed(1)}%
                     </div>
                     <p className="text-xs text-gray-600 leading-relaxed">
@@ -1262,12 +1343,12 @@ export default function AudienceInsightsPage() {
                   </div>
 
                   {/* Dual Income */}
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+                  <div className="bg-white rounded-xl p-4 border border-gray-300">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-gray-900 text-sm">Dual Income</h3>
                       <span className="text-2xl">💰</span>
                     </div>
-                    <div className="text-2xl font-bold text-green-600 mb-1">
+                    <div className="text-2xl font-bold text-gray-900 mb-1">
                       {report.demographics.lifestyle.dualIncome.toFixed(1)}%
                     </div>
                     <p className="text-xs text-gray-600 leading-relaxed">
@@ -1279,12 +1360,12 @@ export default function AudienceInsightsPage() {
                   </div>
 
                   {/* Commute Time */}
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+                  <div className="bg-white rounded-xl p-4 border border-gray-300">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-gray-900 text-sm">Avg Commute</h3>
                       <span className="text-2xl">🚗</span>
                     </div>
-                    <div className="text-2xl font-bold text-purple-600 mb-1">
+                    <div className="text-2xl font-bold text-gray-900 mb-1">
                       {report.demographics.lifestyle.avgCommuteTime.toFixed(0)} min
                     </div>
                     <p className="text-xs text-gray-600 leading-relaxed">
@@ -1296,12 +1377,12 @@ export default function AudienceInsightsPage() {
                   </div>
 
                   {/* Charitable Giving */}
-                  <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
+                  <div className="bg-white rounded-xl p-4 border border-gray-300">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-gray-900 text-sm">Charitable Giving</h3>
                       <span className="text-2xl">❤️</span>
                     </div>
-                    <div className="text-2xl font-bold text-teal-600 mb-1">
+                    <div className="text-2xl font-bold text-gray-900 mb-1">
                       {report.demographics.lifestyle.charitableGivers.toFixed(1)}%
                     </div>
                     <p className="text-xs text-gray-600 leading-relaxed">
@@ -1313,12 +1394,12 @@ export default function AudienceInsightsPage() {
                   </div>
 
                   {/* STEM Education */}
-                  <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
+                  <div className="bg-white rounded-xl p-4 border border-gray-300">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-gray-900 text-sm">STEM Education</h3>
                       <span className="text-2xl">🔬</span>
                     </div>
-                    <div className="text-2xl font-bold text-indigo-600 mb-1">
+                    <div className="text-2xl font-bold text-gray-900 mb-1">
                       {report.demographics.lifestyle.stemDegree.toFixed(1)}%
                     </div>
                     <p className="text-xs text-gray-600 leading-relaxed">
@@ -1364,11 +1445,6 @@ export default function AudienceInsightsPage() {
                                   <span className="text-gray-700 font-medium">
                                     {market.city}, {market.state}
                                   </span>
-                                  {market.descriptor && (
-                                    <span className="text-gray-500 text-xs italic">
-                                      {market.descriptor}
-                                    </span>
-                                  )}
                                 </div>
                                 {market.overIndex && market.overIndex > 1 && (
                                   <span className="text-green-600 font-semibold">
@@ -1481,67 +1557,93 @@ export default function AudienceInsightsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {recommendedDeals.map((deal, index) => {
                       const isCommerceAudience = (deal.dealName || '').toLowerCase().includes('purchase intender');
+                      const dealCardId = `deal-${deal.dealId || deal.id}`;
+                      const isSaved = isDealSaved(dealCardId);
+                      
                       return (
                         <div
                           key={deal.id || index}
-                          className={`card p-4 cursor-pointer hover:shadow-lg transition-all duration-200 group border ${
+                          className={`card p-4 cursor-pointer hover:shadow-lg transition-all duration-200 group border relative ${
                             isCommerceAudience 
                               ? 'border-l-4 border-brand-gold bg-gradient-to-r from-brand-gold/5 to-transparent' 
                               : 'border-gray-200 hover:border-brand-orange'
                           }`}
-                          onClick={() => {
-                            // Navigate to main chat with this specific deal
-                            router.push(`/?deal=${encodeURIComponent(deal.dealId || deal.id)}`);
-                          }}
                         >
-                          {/* Deal Header */}
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-gray-900 group-hover:text-brand-orange transition-colors text-sm leading-tight mb-1">
-                                {deal.dealName}
-                              </h4>
-                              {isCommerceAudience && (
-                                <span className="text-sm text-brand-gold">🛍️ Commerce Audience</span>
+                          {/* Bookmark Icon - Top Right */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (isSaved) {
+                                handleUnsaveDeal(dealCardId);
+                              } else {
+                                handleSaveDeal({ type: 'deal', data: deal });
+                              }
+                            }}
+                            className={`absolute top-3 right-3 p-2 rounded-lg transition-colors border z-10 ${
+                              isSaved
+                                ? 'text-blue-600 bg-blue-50 hover:bg-blue-100 border-blue-200'
+                                : 'text-gray-400 hover:text-blue-600 hover:bg-blue-50 border-gray-200 bg-white'
+                            }`}
+                            title={isSaved ? 'Remove from saved' : 'Save card'}
+                          >
+                            {isSaved ? (
+                              <BookmarkCheck className="w-4 h-4" />
+                            ) : (
+                              <Bookmark className="w-4 h-4" />
+                            )}
+                          </button>
+
+                          {/* Deal Card Content - Clickable */}
+                          <div onClick={() => handleDealClick(deal)}>
+                            {/* Deal Header */}
+                            <div className="flex items-start justify-between mb-3 pr-10">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-gray-900 group-hover:text-brand-orange transition-colors text-sm leading-tight mb-1">
+                                  {deal.dealName}
+                                </h4>
+                                {isCommerceAudience && (
+                                  <span className="text-sm text-brand-gold">🛍️ Commerce Audience</span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Description */}
+                            <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-3">
+                              {deal.description}
+                            </p>
+
+                            {/* Deal Details */}
+                            <div className="space-y-2 text-xs text-gray-500">
+                              {deal.environment && (
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">Environment:</span>
+                                  <span>{deal.environment}</span>
+                                </div>
+                              )}
+                              {deal.mediaType && (
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">Media:</span>
+                                  <span>{deal.mediaType}</span>
+                                </div>
+                              )}
+                              {deal.flightDate && (
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">Flight:</span>
+                                  <span>{deal.flightDate}</span>
+                                </div>
                               )}
                             </div>
-                          </div>
 
-                          {/* Description */}
-                          <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-3">
-                            {deal.description}
-                          </p>
-
-                          {/* Deal Details */}
-                          <div className="space-y-2 text-xs text-gray-500">
-                            {deal.environment && (
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">Environment:</span>
-                                <span>{deal.environment}</span>
-                              </div>
-                            )}
-                            {deal.mediaType && (
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">Media:</span>
-                                <span>{deal.mediaType}</span>
-                              </div>
-                            )}
-                            {deal.flightDate && (
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">Flight:</span>
-                                <span>{deal.flightDate}</span>
+                            {/* Target Audience */}
+                            {deal.targeting && (
+                              <div className="mt-3 pt-3 border-t border-gray-100">
+                                <div className="text-xs">
+                                  <span className="font-medium text-gray-700">Targeting:</span>
+                                  <p className="text-gray-600 leading-relaxed">{deal.targeting}</p>
+                                </div>
                               </div>
                             )}
                           </div>
-
-                          {/* Target Audience */}
-                          {deal.targeting && (
-                            <div className="mt-3 pt-3 border-t border-gray-100">
-                              <div className="text-xs">
-                                <span className="font-medium text-gray-700">Targeting:</span>
-                                <p className="text-gray-600 leading-relaxed">{deal.targeting}</p>
-                              </div>
-                            </div>
-                          )}
                         </div>
                       );
                     })}
@@ -1598,9 +1700,9 @@ WHO THEY ARE:
 ${report.strategicInsights.targetPersona.replace(/\*\*/g, '')}
 
 KEY METRICS:
-• Income: ${formatCurrency(report.keyMetrics.medianHHI)} (${formatPercentage(report.keyMetrics.medianHHIvsCommerce)} vs online shoppers)
+• Income: ${formatCurrency(report.keyMetrics.medianHHI)} (${formatPercentage(report.keyMetrics.medianHHIvsNational)} vs US National)
 • Age: ${report.keyMetrics.topAgeBracket}
-• Education: ${(report.keyMetrics.educationLevel ?? 0).toFixed(1)}% Bachelor's+ (${formatPercentage(report.keyMetrics.educationVsCommerce)} vs online shoppers)
+• Education: ${(report.keyMetrics.educationLevel ?? 0).toFixed(1)}% Bachelor's+ (${formatPercentage(report.keyMetrics.educationVsNational)} vs US National)
 • Top Market: ${report.geographicHotspots[0]?.city}, ${report.geographicHotspots[0]?.state}
 
 CREATIVE HOOKS:
@@ -1649,6 +1751,21 @@ Generated: ${new Date().toLocaleString()}
           </div>
         )}
       </div>
+
+      {/* Deal Detail Modal */}
+      {selectedDeal && (
+        <DealDetailModal
+          deal={selectedDeal}
+          isOpen={isDealModalOpen}
+          onClose={handleCloseDealModal}
+          onAddToCart={handleAddToCart}
+          onRemoveFromCart={handleRemoveFromCart}
+          isInCart={isInCart}
+          onSaveCard={handleSaveDeal}
+          onUnsaveCard={handleUnsaveDeal}
+          isSaved={isDealSaved}
+        />
+      )}
     </div>
   );
 }

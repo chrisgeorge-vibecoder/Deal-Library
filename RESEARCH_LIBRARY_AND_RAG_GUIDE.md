@@ -2,10 +2,10 @@
 
 ## 🎯 Overview
 
-Your Marketing Co-Pilot now has two powerful new features:
+Sovrn Launchpad now has two powerful new features:
 
 1. **Research Library**: A downloadable PDF library of industry studies for marketers
-2. **RAG (Retrieval Augmented Generation)**: AI Co-Pilot enhanced with research-backed responses
+2. **RAG (Retrieval Augmented Generation)**: AI assistant enhanced with research-backed responses
 
 ## 📚 Feature 1: Research Library
 
@@ -76,10 +76,10 @@ INSERT INTO research_studies (
 );
 ```
 
-## 🤖 Feature 2: RAG-Enhanced Co-Pilot
+## 🤖 Feature 2: RAG-Enhanced AI Assistant
 
 ### What It Does
-The AI Co-Pilot now references your research library when answering questions, providing research-backed responses with citations.
+The AI assistant now references your research library when answering questions, providing research-backed responses with citations.
 
 ### How It Works
 
@@ -92,7 +92,7 @@ The AI Co-Pilot now references your research library when answering questions, p
 
 **User**: "What are best practices for programmatic advertising in 2024?"
 
-**Co-Pilot** (with RAG):
+**Launchpad AI** (with RAG):
 > According to the IAB Programmatic Study (2024), 85% of digital ad spend is now programmatic, with CTV growing at 35% YoY. Best practices include:
 > 
 > - **First-party data integration**: Research from IAB Programmatic Study (p.12) shows advertisers using first-party data see 34% higher ROAS
@@ -195,7 +195,7 @@ curl -X POST http://localhost:3002/api/research/1/process
 
 ### 5. Test RAG Integration
 
-Ask the Co-Pilot a question related to your research:
+Ask the AI assistant a question related to your research:
 
 ```bash
 curl -X POST http://localhost:3002/api/deals/search \
@@ -265,9 +265,9 @@ export default function ResearchPage() {
 </Link>
 ```
 
-### The Co-Pilot Automatically Uses RAG
+### The AI Assistant Automatically Uses RAG
 
-No changes needed! The existing Co-Pilot (`ChatInterface`) will automatically:
+No changes needed! The existing AI assistant (`ChatInterface`) will automatically:
 - Retrieve relevant research when answering questions
 - Include citations in responses
 - Track which studies are most useful
@@ -417,10 +417,10 @@ If you encounter issues:
 
 You now have:
 - ✅ A beautiful Research Library UI
-- ✅ RAG-enhanced Co-Pilot with citations
+- ✅ RAG-enhanced AI assistant with citations
 - ✅ Full backend API for managing studies
 - ✅ Vector search for semantic matching
 - ✅ Citation tracking and analytics
 
-Your Co-Pilot will now provide research-backed answers with proper citations, positioning your tool as a comprehensive, credible resource for marketers! 📚🤖
+Sovrn Launchpad will now provide research-backed answers with proper citations, positioning your tool as a comprehensive, credible resource for marketers! 📚🤖
 

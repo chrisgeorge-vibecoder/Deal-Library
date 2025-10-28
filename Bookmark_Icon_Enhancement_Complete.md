@@ -2,7 +2,7 @@
 
 ## Change Request
 
-Replace the "💾 Save Persona" button with a bookmark icon to match the save functionality used throughout the rest of the Co-Pilot.
+Replace the "💾 Save Persona" button with a bookmark icon to match the save functionality used throughout the rest of Sovrn Launchpad.
 
 ---
 

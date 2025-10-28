@@ -1,4 +1,4 @@
-# Sovrn Marketing Co-Pilot
+# Sovrn Launchpad
 
 An AI-powered marketing intelligence platform that helps media professionals discover deals, analyze audiences, and generate actionable insights using real commerce data and demographic intelligence.
 

@@ -3,7 +3,7 @@
 # Demo Startup Script - Ensures both frontend and backend are running reliably
 # Usage: ./start-demo.sh
 
-echo "🎬 Starting Sovrn Marketing Co-Pilot Demo"
+echo "🎬 Starting Sovrn Launchpad Demo"
 echo "📅 $(date)"
 echo "=========================================="
 

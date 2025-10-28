@@ -83,7 +83,7 @@ export default function DealBrowser({
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch('http://localhost:3001/api/deals');
+        const response = await fetch('http://localhost:3002/api/deals');
         
         if (!response.ok) {
           throw new Error(`Failed to load deals: ${response.statusText}`);
@@ -106,6 +106,10 @@ export default function DealBrowser({
             environment: 'Web',
             bidGuidance: '$2.50 - $5.00 CPM',
             targeting: 'Demographic, Behavioral',
+            flightDate: '2024-01-15 to 2024-12-31',
+            createdBy: 'System',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             sampleData: true
           },
           {
@@ -117,6 +121,10 @@ export default function DealBrowser({
             environment: 'CTV',
             bidGuidance: '$15.00 - $25.00 CPM',
             targeting: 'Interest-based, Lookalike',
+            flightDate: '2024-01-15 to 2024-12-31',
+            createdBy: 'System',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             sampleData: true
           }
         ];
@@ -272,7 +280,7 @@ export default function DealBrowser({
   };
 
   const getActiveFilters = () => {
-    const activeFilters = [];
+    const activeFilters: { type: string; id: string; name: string }[] = [];
     
     selectedCategories.forEach(categoryId => {
       if (categoryId !== 'all') {
@@ -625,7 +633,7 @@ export default function DealBrowser({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 max-w-4xl">
                 {filteredDeals.map((deal, index) => (
                   <div 
-                    key={`deal-${deal.id}-${index}-${deal.dealName?.replace(/\s+/g, '-').toLowerCase() || 'unknown'}-${deal.environment || 'unknown'}-${deal.mediaType || 'unknown'}-${deal.bidGuidance || 'unknown'}-${deal.publisher || 'unknown'}-${deal.dealType || 'unknown'}-${deal.startDate || 'unknown'}-${deal.endDate || 'unknown'}`}
+                    key={`deal-${deal.id}-${index}-${deal.dealName?.replace(/\s+/g, '-').toLowerCase() || 'unknown'}-${deal.environment || 'unknown'}-${deal.mediaType || 'unknown'}-${deal.bidGuidance || 'unknown'}`}
                     className="card p-4 cursor-pointer hover:shadow-sovrn-lg transition-all duration-200 group"
                     onClick={() => handleDealClick(deal)}
                   >

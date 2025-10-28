@@ -54,26 +54,43 @@ export class CommerceAudienceService {
       
       const supabase = SupabaseService.getClient();
       
-      // Fetch all commerce records (need to override default 1000 limit)
-      const { data: records, error } = await supabase
-        .from('commerce_audience_segments')
-        .select('sanitized_value, weight, audience_name, seed, dt')
-        .limit(5000000); // Request up to 5M records
+      // Fetch commerce records with pagination for better performance
+      const pageSize = 2000;
+      let allRecords: any[] = [];
+      let offset = 0;
       
-      if (error) {
-        throw new Error(`Supabase query failed: ${error.message}`);
+      // Load data in chunks to avoid memory issues
+      while (true) {
+        const { data: records, error } = await supabase
+          .from('commerce_audience_segments')
+          .select('sanitized_value, weight, audience_name, seed, dt')
+          .order('sanitized_value')
+          .range(offset, offset + pageSize - 1);
+      
+        if (error) {
+          throw new Error(`Supabase query failed: ${error.message}`);
+        }
+        
+        if (!records || records.length === 0) {
+          break; // No more records
+        }
+        
+        allRecords = [...allRecords, ...records];
+        offset += pageSize;
+        
+        console.log(`📈 Loaded ${allRecords.length} commerce records so far...`);
       }
       
-      if (!records || records.length === 0) {
+      if (allRecords.length === 0) {
         console.warn('⚠️  No commerce data found in Supabase, falling back to CSV');
         return this.loadFromCSV();
       }
       
-      console.log(`📈 Processing ${records.length} commerce records from Supabase...`);
+      console.log(`📈 Processing ${allRecords.length} total commerce records from Supabase...`);
       
       this.commerceData = [];
       
-      for (const record of records) {
+      for (const record of allRecords) {
         const sanitizedValue = record.sanitized_value;
         
         // Only process US data (NA_US_ prefix)

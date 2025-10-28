@@ -1,4 +1,4 @@
-# Sovrn Marketing Co-Pilot: Complete Audience Personas
+# Sovrn Launchpad: Complete Audience Personas
 
 **Total Personas:** 64  
 **Generated:** October 8, 2025

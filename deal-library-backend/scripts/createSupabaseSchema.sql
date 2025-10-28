@@ -1,4 +1,4 @@
--- Supabase Schema for Sovrn Marketing Co-Pilot
+-- Supabase Schema for Sovrn Launchpad
 -- Run this in Supabase SQL Editor to create all tables and indexes
 
 -- ============================================================================
@@ -44,6 +44,8 @@ CREATE TABLE IF NOT EXISTS census_data (
   poverty DECIMAL(6, 2),
   self_employed DECIMAL(6, 2),
   charitable_givers DECIMAL(6, 2),
+  veteran DECIMAL(6, 2),
+  rent_burden DECIMAL(6, 2),
   cbsa_name VARCHAR(200),
   cbsa_metro BOOLEAN,
   county_name VARCHAR(100),

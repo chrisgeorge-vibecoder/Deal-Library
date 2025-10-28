@@ -1,6 +1,6 @@
-# Sovrn Marketing Co-Pilot Backend API
+# Sovrn Launchpad Backend API
 
-A Node.js backend API for the Marketing Co-Pilot, providing Google Sheets integration and RESTful endpoints.
+A Node.js backend API for Sovrn Launchpad, providing Google Sheets integration and RESTful endpoints.
 
 ## 🚀 Features
 

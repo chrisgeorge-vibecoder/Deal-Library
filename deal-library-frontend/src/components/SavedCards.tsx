@@ -1,6 +1,6 @@
 import React from 'react';
-import { BookmarkCheck, X, ShoppingCart, Users, BarChart3, MapPin, Lightbulb, TrendingUp, BookOpen, Target, Building2, Newspaper, FileText, Award } from 'lucide-react';
-import { Deal, Persona, AudienceInsights, MarketSizing, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy, SavedCard } from '@/types/deal';
+import { BookmarkCheck, X, ShoppingCart, Users, BarChart3, MapPin, Lightbulb, TrendingUp, BookOpen, Target, Building2, Newspaper, FileText, Award, Sparkles } from 'lucide-react';
+import { Deal, Persona, AudienceInsights, MarketSizing, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy, SavedCard, CampaignBrief } from '@/types/deal';
 
 interface SavedCardsProps {
   savedCards: SavedCard[];
@@ -35,6 +35,10 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return <FileText className="w-4 h-4 text-cyan-600" />;
       case 'brand-strategy':
         return <Award className="w-4 h-4 text-violet-600" />;
+      case 'market-profile':
+        return <TrendingUp className="w-4 h-4 text-yellow-600" />;
+      case 'campaign-brief':
+        return <Sparkles className="w-4 h-4 text-brand-gold" />;
       default:
         return <BookmarkCheck className="w-4 h-4 text-gray-600" />;
     }
@@ -66,6 +70,10 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return `Content Strategy: ${(card.data as ContentStrategy).industryOrTopic}`;
       case 'brand-strategy':
         return `Brand Strategy: ${(card.data as BrandStrategy).brandOrCategory}`;
+      case 'market-profile':
+        return (card.data as any).name;
+      case 'campaign-brief':
+        return `Campaign Brief: ${(card.data as CampaignBrief).marketName}`;
       default:
         return 'Unknown Card';
     }
@@ -102,6 +110,14 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return 'Content Planning';
       case 'brand-strategy':
         return 'Brand Positioning';
+      case 'market-profile':
+        const marketProfile = card.data as any;
+        const geoLevelLabel = marketProfile.geoLevel.charAt(0).toUpperCase() + marketProfile.geoLevel.slice(1);
+        return `${geoLevelLabel} • Market Insights`;
+      case 'campaign-brief':
+        const brief = card.data as CampaignBrief;
+        const briefGeoLevelLabel = brief.marketGeoLevel.charAt(0).toUpperCase() + brief.marketGeoLevel.slice(1);
+        return `${briefGeoLevelLabel} • AI Generated`;
       default:
         return '';
     }
@@ -133,6 +149,10 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return `content-strategy-${(card.data as ContentStrategy).industryOrTopic}`;
       case 'brand-strategy':
         return `brand-strategy-${(card.data as BrandStrategy).brandOrCategory}`;
+      case 'market-profile':
+        return `market-profile-${(card.data as any).geoLevel}-${(card.data as any).name}`;
+      case 'campaign-brief':
+        return `campaign-brief-${(card.data as CampaignBrief).marketGeoLevel}-${(card.data as CampaignBrief).marketName}`;
       default:
         return '';
     }

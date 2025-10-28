@@ -23,7 +23,7 @@ interface AudienceExplorerProps {
   onSwitchToChat?: (query: string) => void;
 }
 
-type CardType = 'all' | 'personas' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy';
+type CardType = 'all' | 'deals' | 'personas' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy';
 
 interface SearchResult {
   type: CardType;
@@ -286,7 +286,7 @@ export default function AudienceExplorer({
           // Load all deals if not already loaded
           let dealsToFilter = allDeals;
           if (allDeals.length === 0) {
-            const dealsResponse = await fetch('http://localhost:3001/api/deals');
+            const dealsResponse = await fetch('http://localhost:3002/api/deals');
             if (dealsResponse.ok) {
               const dealsData = await dealsResponse.json();
               if (dealsData.deals && dealsData.deals.length > 0) {
@@ -307,7 +307,7 @@ export default function AudienceExplorer({
           
         case 'personas':
           try {
-            const personasResponse = await fetch('http://localhost:3001/api/personas');
+            const personasResponse = await fetch('http://localhost:3002/api/personas');
             if (personasResponse.ok) {
               const personasData = await personasResponse.json();
               console.log(`🎭 Loaded ${personasData.length} personas from API`);
@@ -393,7 +393,7 @@ export default function AudienceExplorer({
             const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
             
             const query = getQueryForSubcategory(subcategory, audienceFilter);
-            const insightsResponse = await fetch('http://localhost:3001/api/audience-insights', {
+            const insightsResponse = await fetch('http://localhost:3002/api/audience-insights', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -453,7 +453,7 @@ export default function AudienceExplorer({
             const query = getQueryForSubcategory(subcategory, audienceFilter);
             console.log(`📊 Market sizing query: "${query}"`);
             
-            const sizingResponse = await fetch('http://localhost:3001/api/market-sizing', {
+            const sizingResponse = await fetch('http://localhost:3002/api/market-sizing', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -508,7 +508,7 @@ export default function AudienceExplorer({
           try {
             // Generate AI-powered geographic insights
             const query = getQueryForSubcategory(subcategory, audienceFilter);
-            const geoResponse = await fetch('http://localhost:3001/api/geographic-insights', {
+            const geoResponse = await fetch('http://localhost:3002/api/geographic-insights', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -551,7 +551,7 @@ export default function AudienceExplorer({
           }
           try {
             const companyName = audienceFilter.trim();
-            const swotResponse = await fetch('http://localhost:3001/api/marketing-swot', {
+            const swotResponse = await fetch('http://localhost:3002/api/marketing-swot', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ companyName }),
@@ -601,7 +601,7 @@ export default function AudienceExplorer({
           }
           try {
             const stockSymbol = audienceFilter.trim();
-            const profileResponse = await fetch('http://localhost:3001/api/company-profile', {
+            const profileResponse = await fetch('http://localhost:3002/api/company-profile', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ stockSymbol }),
@@ -647,7 +647,7 @@ export default function AudienceExplorer({
         case 'marketing-news':
           try {
             console.log('📰 Attempting to fetch marketing news...');
-            const newsResponse = await fetch('http://localhost:3001/api/marketing-news', {
+            const newsResponse = await fetch('http://localhost:3002/api/marketing-news', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({}),
@@ -742,7 +742,7 @@ export default function AudienceExplorer({
           }
           try {
             const query = audienceFilter.trim();
-            const response = await fetch('http://localhost:3001/api/competitive-intelligence', {
+            const response = await fetch('http://localhost:3002/api/competitive-intelligence', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -774,7 +774,7 @@ export default function AudienceExplorer({
           }
           try {
             const query = audienceFilter.trim();
-            const response = await fetch('http://localhost:3001/api/content-strategy', {
+            const response = await fetch('http://localhost:3002/api/content-strategy', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -806,7 +806,7 @@ export default function AudienceExplorer({
           }
           try {
             const query = audienceFilter.trim();
-            const response = await fetch('http://localhost:3001/api/brand-strategy', {
+            const response = await fetch('http://localhost:3002/api/brand-strategy', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -1123,10 +1123,32 @@ export default function AudienceExplorer({
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
-    setSelectedSubcategory(null);
     setAudienceFilter('');
     setSearchResults([]);
     setError(null);
+    
+    // Categories that should skip subcategory selection and go straight to search
+    const skipSubcategorySelection = [
+      'audiences',
+      'brand-strategy',
+      'company-profile',
+      'competitive-intelligence',
+      'content-strategy',
+      'marketing-news',
+      'marketing-swot'
+    ];
+    
+    // If this category should skip subcategories, auto-select the first (and only) subcategory
+    if (skipSubcategorySelection.includes(categoryId)) {
+      const category = categories.find(cat => cat.id === categoryId);
+      if (category?.subcategories && category.subcategories.length > 0) {
+        setSelectedSubcategory(category.subcategories[0].id);
+      } else {
+        setSelectedSubcategory(null);
+      }
+    } else {
+      setSelectedSubcategory(null);
+    }
   };
 
   const handleSubcategorySelect = (subcategoryId: string) => {
@@ -1324,12 +1346,14 @@ export default function AudienceExplorer({
                 Discover insights across all card types
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-800 text-sm font-medium rounded-full">
-                <Search className="w-4 h-4" />
-                {searchResults.length} Results
+            {searchResults.length > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-800 text-sm font-medium rounded-full">
+                  <Search className="w-4 h-4" />
+                  {searchResults.length} Results
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -1378,14 +1402,34 @@ export default function AudienceExplorer({
             </div>
           </div>
 
-          {/* Subcategories */}
-          {selectedCategory && (
-            <div>
-              <h3 className="text-md font-semibold text-neutral-800 mb-3">Select a Subcategory</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {categories
-                  .find(cat => cat.id === selectedCategory)
-                  ?.subcategories?.map((subcategory) => {
+          {/* Subcategories - Only show for categories that have multiple subcategories */}
+          {selectedCategory && (() => {
+            // Categories that should skip subcategory selection
+            const skipSubcategorySelection = [
+              'audiences',
+              'brand-strategy',
+              'company-profile',
+              'competitive-intelligence',
+              'content-strategy',
+              'marketing-news',
+              'marketing-swot'
+            ];
+            
+            // Don't show subcategory section for these categories
+            if (skipSubcategorySelection.includes(selectedCategory)) {
+              return null;
+            }
+            
+            const selectedCat = categories.find(cat => cat.id === selectedCategory);
+            if (!selectedCat?.subcategories || selectedCat.subcategories.length === 0) {
+              return null;
+            }
+            
+            return (
+              <div>
+                <h3 className="text-md font-semibold text-neutral-800 mb-3">Select a Subcategory</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {selectedCat.subcategories.map((subcategory) => {
                     const isSelected = selectedSubcategory === subcategory.id;
                     
                     return (
@@ -1403,9 +1447,10 @@ export default function AudienceExplorer({
                       </button>
                     );
                   })}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Search Section */}
           {selectedSubcategory && (

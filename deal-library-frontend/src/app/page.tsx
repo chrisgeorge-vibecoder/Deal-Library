@@ -147,7 +147,7 @@ export default function HomePage() {
       try {
         if (isMounted) setLoading(true);
         if (isMounted) setError(null); // Clear any previous errors
-        const response = await fetch('http://localhost:3001/api/deals');
+        const response = await fetch('http://localhost:3002/api/deals');
         
         if (!response.ok) {
           // Try to get the actual error message from the backend
@@ -276,7 +276,7 @@ export default function HomePage() {
       if (cardTypes && cardTypes.length > 1) {
         console.log('🔍 Multiple card types selected, using unified search:', cardTypes);
         try {
-          const response = await fetch('http://localhost:3001/api/unified-search', {
+          const response = await fetch('http://localhost:3002/api/unified-search', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, cardTypes }), // Pass the selected card types
@@ -339,7 +339,7 @@ export default function HomePage() {
         
         if (selectedType === 'market-sizing') {
           try {
-            const response = await fetch('http://localhost:3001/api/market-sizing', {
+            const response = await fetch('http://localhost:3002/api/market-sizing', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query, conversationHistory: conversationHistory || [] }),
@@ -361,7 +361,7 @@ export default function HomePage() {
         if (selectedType === 'deals') {
           console.log('🔍 USING DEALS SEARCH PATH for:', query);
           try {
-            const response = await fetch('http://localhost:3001/api/deals/search', {
+            const response = await fetch('http://localhost:3002/api/deals/search', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ 
@@ -416,7 +416,7 @@ export default function HomePage() {
         
         if (selectedType === 'personas') {
           try {
-            const response = await fetch('http://localhost:3001/api/unified-search', {
+            const response = await fetch('http://localhost:3002/api/unified-search', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query, cardType: 'personas' }),
@@ -446,7 +446,7 @@ export default function HomePage() {
         
         if (selectedType === 'audience-insights') {
           try {
-            const response = await fetch('http://localhost:3001/api/audience-insights', {
+            const response = await fetch('http://localhost:3002/api/audience-insights', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query, conversationHistory: conversationHistory || [] }),
@@ -473,7 +473,7 @@ export default function HomePage() {
         
         if (selectedType === 'geographic') {
           try {
-            const response = await fetch('http://localhost:3001/api/geographic-insights', {
+            const response = await fetch('http://localhost:3002/api/geographic-insights', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ 
@@ -501,7 +501,7 @@ export default function HomePage() {
             // Extract company name from query or use the full query
             const companyName = query.replace(/swot|analysis|marketing/i, '').trim();
             
-            const response = await fetch('http://localhost:3001/api/marketing-swot', {
+            const response = await fetch('http://localhost:3002/api/marketing-swot', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ companyName: companyName || query }),
@@ -538,7 +538,7 @@ export default function HomePage() {
             // Extract stock symbol from query or use the full query
             const stockSymbol = query.replace(/company|profile|stock|ticker/i, '').trim().toUpperCase();
             
-            const response = await fetch('http://localhost:3001/api/company-profile', {
+            const response = await fetch('http://localhost:3002/api/company-profile', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ stockSymbol: stockSymbol || query }),
@@ -595,7 +595,7 @@ export default function HomePage() {
       if (isMarketingNewsSearch) {
         console.log('📰 Marketing news search detected, making API call...');
         try {
-          const response = await fetch('http://localhost:3001/api/marketing-news', {
+          const response = await fetch('http://localhost:3002/api/marketing-news', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: query }),
@@ -682,7 +682,7 @@ export default function HomePage() {
         const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
         
         try {
-          const response = await fetch('http://localhost:3001/api/market-sizing', {
+          const response = await fetch('http://localhost:3002/api/market-sizing', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, conversationHistory: conversationHistory || [] }),
@@ -721,7 +721,7 @@ export default function HomePage() {
 
       if (isExplicitDealRequest) {
         // Search for deals
-        const response = await fetch('http://localhost:3001/api/deals/search', {
+        const response = await fetch('http://localhost:3002/api/deals/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -765,7 +765,7 @@ export default function HomePage() {
       if (isPersonaSearch) {
         console.log('🎭 Persona search detected, using unified search...');
         try {
-          const response = await fetch('http://localhost:3001/api/unified-search', {
+          const response = await fetch('http://localhost:3002/api/unified-search', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, cardType: 'personas' }),
@@ -812,7 +812,7 @@ export default function HomePage() {
         const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
         
         try {
-          const response = await fetch('http://localhost:3001/api/audience-insights', {
+          const response = await fetch('http://localhost:3002/api/audience-insights', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, conversationHistory: conversationHistory || [] }),
@@ -841,7 +841,7 @@ export default function HomePage() {
 
       if (isGeoSearch) {
         try {
-          const response = await fetch('http://localhost:3001/api/geographic-insights', {
+          const response = await fetch('http://localhost:3002/api/geographic-insights', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
@@ -867,9 +867,10 @@ export default function HomePage() {
         }
       }
 
-      if (selectedType === 'competitive-intelligence') {
+      // Handle competitive intelligence separately 
+      if (cardTypes && cardTypes.length === 1 && cardTypes[0] === 'competitive-intelligence') {
         try {
-          const response = await fetch('http://localhost:3001/api/competitive-intelligence', {
+          const response = await fetch('http://localhost:3002/api/competitive-intelligence', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query }),
@@ -892,9 +893,10 @@ export default function HomePage() {
         }
       }
 
-      if (selectedType === 'content-strategy') {
+      // Handle content strategy separately
+      if (cardTypes && cardTypes.length === 1 && cardTypes[0] === 'content-strategy') {
         try {
-          const response = await fetch('http://localhost:3001/api/content-strategy', {
+          const response = await fetch('http://localhost:3002/api/content-strategy', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query }),
@@ -917,9 +919,10 @@ export default function HomePage() {
         }
       }
 
-      if (selectedType === 'brand-strategy') {
+      // Handle brand strategy separately 
+      if (cardTypes && cardTypes.length === 1 && cardTypes[0] === 'brand-strategy') {
         try {
-          const response = await fetch('http://localhost:3001/api/brand-strategy', {
+          const response = await fetch('http://localhost:3002/api/brand-strategy', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query }),
@@ -948,7 +951,7 @@ export default function HomePage() {
       const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
       
       try {
-        const response = await fetch('http://localhost:3001/api/deals/search', {
+        const response = await fetch('http://localhost:3002/api/deals/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 

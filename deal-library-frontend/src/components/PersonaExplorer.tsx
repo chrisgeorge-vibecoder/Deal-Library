@@ -47,7 +47,7 @@ export default function PersonaExplorer({
     const fetchPersonas = async () => {
       try {
         console.log('Fetching personas from backend...');
-        const response = await fetch('http://localhost:3001/api/personas');
+        const response = await fetch('http://localhost:3002/api/personas');
         console.log('Response status:', response.status);
         if (response.ok) {
           const personaData = await response.json();
@@ -109,7 +109,7 @@ export default function PersonaExplorer({
   const fetchDealsForPersona = async (personaId: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/deals/persona/${personaId}`);
+      const response = await fetch(`http://localhost:3002/api/deals/persona/${personaId}`);
       if (response.ok) {
         const dealData = await response.json();
         setDeals(dealData);

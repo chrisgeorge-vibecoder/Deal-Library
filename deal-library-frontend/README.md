@@ -1,4 +1,4 @@
-# Sovrn Marketing Co-Pilot - Frontend
+# Sovrn Launchpad - Frontend
 
 A modern, responsive web application for AI-enhanced marketing deal discovery and strategy, built with Next.js, React, and TypeScript.
 

@@ -30,7 +30,7 @@ interface ResearchLibraryProps {
   isSaved?: (cardId: string) => boolean;
 }
 
-export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3001', onSaveCard, onUnsaveCard, isSaved }: ResearchLibraryProps) {
+export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3002', onSaveCard, onUnsaveCard, isSaved }: ResearchLibraryProps) {
   const [studies, setStudies] = useState<ResearchStudy[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -136,7 +136,7 @@ export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3001', 
       // Provide more specific error messages based on error type
       let errorMessage = err.message;
       if (err instanceof TypeError && err.message.includes('fetch')) {
-        errorMessage = 'Cannot connect to the research service. Please ensure the backend server is running on port 3001.';
+        errorMessage = 'Cannot connect to the research service. Please ensure the backend server is running on port 3002.';
       } else if (err.message.includes('Failed to fetch research studies')) {
         errorMessage = 'Research service is temporarily unavailable. The research library may not be configured.';
       }

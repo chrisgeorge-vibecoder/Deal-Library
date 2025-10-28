@@ -1,5 +1,5 @@
 -- ============================================================================
--- Research Library & RAG Schema for Sovrn Marketing Co-Pilot
+-- Research Library & RAG Schema for Sovrn Launchpad
 -- Purpose: Store research PDFs and enable semantic search with pgvector
 -- ============================================================================
 
@@ -63,7 +63,7 @@ CREATE INDEX IF NOT EXISTS idx_embeddings_vector ON research_embeddings USING iv
 
 -- ============================================================================
 -- Table: research_citations
--- Purpose: Track which research studies are cited in Co-Pilot responses
+-- Purpose: Track which research studies are cited in AI assistant responses
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS research_citations (
   id BIGSERIAL PRIMARY KEY,
@@ -231,7 +231,7 @@ $$ language 'plpgsql';
 
 COMMENT ON TABLE research_studies IS 'Research PDFs library with metadata for browse/download';
 COMMENT ON TABLE research_embeddings IS 'Text chunks and vector embeddings for RAG semantic search';
-COMMENT ON TABLE research_citations IS 'Track which research studies are cited in Co-Pilot responses';
+COMMENT ON TABLE research_citations IS 'Track which research studies are cited in AI assistant responses';
 COMMENT ON TABLE rag_queries_cache IS 'Cache RAG retrieval results to optimize performance';
 
 COMMENT ON COLUMN research_embeddings.embedding IS 'Vector embedding (768-dim) for semantic search using text-embedding-004 or similar';

@@ -282,8 +282,100 @@ export interface BrandStrategy {
   sampleData?: boolean;
 }
 
+export interface CampaignBrief {
+  marketName: string;
+  marketGeoLevel: string;
+  marketPersonaSummary: string;
+  targetedHeadlines: string[];
+  valuePropositions: Array<{
+    theme: string;
+    rationale: string;
+    priority: number;
+  }>;
+  generatedAt: string;
+}
+
 export interface SavedCard {
-  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'research' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy';
-  data: Deal | Persona | AudienceInsights | MarketSizing | GeoCard | MarketingSWOT | CompanyProfile | MarketingNews | CompetitiveIntelligence | ContentStrategy | BrandStrategy | any;
+  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'research' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy' | 'market-profile' | 'campaign-brief';
+  data: Deal | Persona | AudienceInsights | MarketSizing | GeoCard | MarketingSWOT | CompanyProfile | MarketingNews | CompetitiveIntelligence | ContentStrategy | BrandStrategy | MarketProfile | CampaignBrief | any;
   savedAt: string;
+}
+
+// Market Insights Types
+export type GeographicLevel = 'region' | 'state' | 'cbsa' | 'county' | 'city' | 'zip';
+
+export interface MarketInsightsMetric {
+  id: string;
+  name: string;
+  category: 'Demographics' | 'Racial & Ethnic Diversity' | 'Socioeconomics' | 'Housing & Wealth' | 'Education & Social' | 'Work & Lifestyle';
+  column: string;
+  format: 'number' | 'percentage' | 'currency';
+  description: string;
+}
+
+export interface TopMarket {
+  rank: number;
+  name: string;
+  geoLevel: GeographicLevel;
+  value: number;
+  population: number;
+  formattedValue: string;
+  opportunityScore?: number;
+  tier?: string;
+  hiddenGem?: boolean;
+  saturationLevel?: 'Low' | 'Medium' | 'High';
+  consumerWealthIndex?: number;
+  communityCohesionScore?: number;
+  lifeStageSegment?: string;
+}
+
+export interface MarketAttribute {
+  name: string;
+  value: number;
+  formattedValue: string;
+  nationalAverage: number;
+  percentDifference: number;
+  category: string;
+  format: 'number' | 'percentage' | 'currency';
+}
+
+export interface StrategicInsight {
+  attribute: string;
+  value: number;
+  formattedValue: string;
+  comparison: string;
+  impact: 'positive' | 'negative' | 'neutral';
+}
+
+export interface SimilarMarket {
+  name: string;
+  similarityScore: number;
+  population: number;
+  keyAttributes: {
+    name: string;
+    value: number;
+    formattedValue: string;
+  }[];
+}
+
+export interface MarketProfile {
+  name: string;
+  geoLevel: GeographicLevel;
+  population: number;
+  geographicHierarchy: {
+    region?: string;
+    state?: string;
+    cbsa?: string;
+    county?: string;
+    city?: string;
+  };
+  attributes: MarketAttribute[];
+  strategicSnapshot: {
+    topStrengths: StrategicInsight[];
+    bottomConcerns: StrategicInsight[];
+    summary: string;
+    archetype?: string;
+    bestFor?: string[];
+  };
+  similarMarkets?: SimilarMarket[];
 }

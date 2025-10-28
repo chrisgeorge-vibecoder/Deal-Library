@@ -4,8 +4,8 @@ import 'leaflet/dist/leaflet.css';
 import AppLayout from '@/components/AppLayout';
 
 export const metadata: Metadata = {
-  title: 'Sovrn Marketing Co-Pilot',
-  description: 'Marketing Co-Pilot Platform',
+  title: 'Sovrn Launchpad',
+  description: 'Your marketing intelligence platform for audience insights, deal discovery, and campaign planning',
 };
 
 export default function RootLayout({

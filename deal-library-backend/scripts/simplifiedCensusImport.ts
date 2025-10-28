@@ -85,11 +85,13 @@ async function main() {
           commute_time: safeNum(parts[83]),
           home_value: safeNum(parts[55]),
           rent_median: safeNum(parts[56]),
+          rent_burden: safeNum(parts[57]),
           home_ownership: safeNum(parts[54]),
           unemployment_rate: safeNum(parts[67]),
           poverty: safeNum(parts[81]),
           self_employed: safeNum(parts[68]),
           charitable_givers: safeNum(parts[86]),
+          veteran: safeNum(parts[85]),
           cbsa_name: parts[87] || null,
           cbsa_metro: safeBool(parts[88])
         };

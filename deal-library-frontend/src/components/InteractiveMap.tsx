@@ -176,9 +176,9 @@ export default function InteractiveMap({ geo }: InteractiveMapProps) {
     const markers = geo.topMarkets.map((market, index) => {
       console.log(`🗺️ Processing market ${index}:`, market);
       
-      // Handle different possible field names
-      const region = market.region || market.city || market.name || market.location || 'Unknown';
-      const percentage = market.percentage || market.percentage || market.density || 'N/A';
+      // Handle the actual field names from GeoCard type
+      const region = market.region || 'Unknown';
+      const percentage = market.percentage || 'N/A';
       
       const position = getCoordinatesForRegion(region);
       console.log(`🗺️ Coordinates for ${region}:`, position);
@@ -365,12 +365,6 @@ export default function InteractiveMap({ geo }: InteractiveMapProps) {
   if (!geo || !geo.topMarkets || geo.topMarkets.length === 0) {
     console.warn('🗺️ Invalid geo data, showing fallback');
     return <SimpleMapFallback geo={geo || { audienceName: 'Unknown', topMarkets: [], totalAddressable: '0', insights: [] }} />;
-  }
-
-  // Check if markers were created successfully
-  if (markers.length === 0 || markers.every(m => !m.position || m.position.length !== 2)) {
-    console.warn('🗺️ No valid markers created, showing fallback');
-    return <SimpleMapFallback geo={geo} />;
   }
 
   if (mapError) {

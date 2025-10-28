@@ -1,5 +1,5 @@
 {
-  "name": "marketing-co-pilot-frontend",
+  "name": "launchpad-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -20,6 +20,8 @@
     "postcss": "^8.4.32",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-is": "^19.2.0",
+    "react-leaflet": "^4.2.1",
     "react-markdown": "^10.1.0",
     "recharts": "^3.2.1",
     "remark-gfm": "^4.0.1",

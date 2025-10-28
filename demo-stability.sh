@@ -161,7 +161,7 @@ health_check() {
     fi
     
     # Check frontend health
-    if curl -s http://localhost:3000 | grep -q "Marketing Co-Pilot"; then
+    if curl -s http://localhost:3000 | grep -q "Launchpad"; then
         success "Frontend health check passed"
     else
         error "Frontend health check failed"

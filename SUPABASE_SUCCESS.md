@@ -201,5 +201,5 @@ If needed, revert by setting `USE_SUPABASE=false` in `.env` and restarting.
 **Stability**: Tested and validated
 **Production**: Ready for deployment
 
-**Congratulations!** The Sovrn Marketing Co-Pilot is now powered by Supabase with significantly improved performance and scalability! 🚀
+**Congratulations!** Sovrn Launchpad is now powered by Supabase with significantly improved performance and scalability! 🚀
 

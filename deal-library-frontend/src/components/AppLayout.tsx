@@ -53,8 +53,9 @@ import { MarketingNewsDetailModal } from './MarketingNewsDetailModal';
 import { CompetitiveIntelligenceDetailModal } from './CompetitiveIntelligenceDetailModal';
 import { ContentStrategyDetailModal } from './ContentStrategyDetailModal';
 import { BrandStrategyDetailModal } from './BrandStrategyDetailModal';
+import CampaignBriefModal from './CampaignBriefModal';
 import CustomDealForm from './CustomDealForm';
-import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy } from '@/types/deal';
+import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy, CampaignBrief } from '@/types/deal';
 import { MarketSizing } from '@/components/MarketSizingCard';
 import { SavedCard } from '@/types/deal';
 
@@ -91,6 +92,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [isContentStrategyModalOpen, setIsContentStrategyModalOpen] = useState(false);
   const [selectedBrandStrategy, setSelectedBrandStrategy] = useState<BrandStrategy | null>(null);
   const [isBrandStrategyModalOpen, setIsBrandStrategyModalOpen] = useState(false);
+  const [selectedCampaignBrief, setSelectedCampaignBrief] = useState<any | null>(null);
+  const [isCampaignBriefModalOpen, setIsCampaignBriefModalOpen] = useState(false);
   
   // Cart and Custom Deal Form states
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -161,6 +164,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
         return `brand-strategy-${(card.data as any).brandOrCategory}`;
       case 'research':
         return `research-${(card.data as any).id}`;
+      case 'market-profile':
+        return `market-profile-${(card.data as any).geoLevel}-${(card.data as any).name}`;
+      case 'campaign-brief':
+        return `campaign-brief-${(card.data as any).marketGeoLevel}-${(card.data as any).marketName}`;
       default:
         return '';
     }
@@ -245,6 +252,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
       case 'research':
         // Navigate to research library page and open the specific study modal
         router.push(`/research?openStudy=${card.data.id}`);
+        break;
+      case 'market-profile':
+        // Navigate to market insights page with the market pre-selected
+        const profileData = card.data as any;
+        router.push(`/market-insights?geoLevel=${profileData.geoLevel}&market=${encodeURIComponent(profileData.name)}`);
+        break;
+      case 'campaign-brief':
+        // Open campaign brief modal
+        setSelectedCampaignBrief(card.data);
+        setIsCampaignBriefModalOpen(true);
         break;
       default:
         console.warn('Unknown card type:', card.type);
@@ -395,6 +412,20 @@ export default function AppLayout({ children }: AppLayoutProps) {
       }
     };
 
+    const handleAddToCartEvent = (event: any) => {
+      console.log('🛒 AppLayout: Received addToCart event:', event.detail);
+      if (event.detail?.deal) {
+        handleAddToCart(event.detail.deal);
+      }
+    };
+
+    const handleRemoveFromCartEvent = (event: any) => {
+      console.log('🛒 AppLayout: Received removeFromCart event:', event.detail);
+      if (event.detail?.dealId) {
+        handleRemoveFromCart(event.detail.dealId);
+      }
+    };
+
     window.addEventListener('openPersonaModal', handleOpenPersonaModal);
     window.addEventListener('openAudienceInsightsModal', handleOpenAudienceInsightsModal);
     window.addEventListener('openMarketSizingModal', handleOpenMarketSizingModal);
@@ -406,6 +437,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
     window.addEventListener('openCart', handleOpenCart);
     window.addEventListener('openCustomDealForm', handleOpenCustomDealForm);
     window.addEventListener('saveCard', handleSaveCardEvent);
+    window.addEventListener('addToCart', handleAddToCartEvent);
+    window.addEventListener('removeFromCart', handleRemoveFromCartEvent);
 
     return () => {
       window.removeEventListener('openPersonaModal', handleOpenPersonaModal);
@@ -419,11 +452,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
       window.removeEventListener('openCart', handleOpenCart);
       window.removeEventListener('openCustomDealForm', handleOpenCustomDealForm);
       window.removeEventListener('saveCard', handleSaveCardEvent);
+      window.removeEventListener('addToCart', handleAddToCartEvent);
+      window.removeEventListener('removeFromCart', handleRemoveFromCartEvent);
     };
   }, []);
 
   // Determine if we should show the header based on the current page
-  const showHeader = pathname === '/' || pathname === '/strategy-cards' || pathname === '/audience-insights' || pathname === '/research' || pathname === '/deals';
+  const showHeader = pathname === '/' || pathname === '/strategy-cards' || pathname === '/audience-insights' || pathname === '/market-insights' || pathname === '/research' || pathname === '/deals';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -465,7 +500,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       </div>
                     </div>
                     <div>
-                      <h1 className="text-2xl font-bold text-neutral-900">Marketing Co-Pilot</h1>
+                      <h1 className="text-2xl font-bold text-neutral-900">🚀 Launchpad</h1>
                     </div>
                   </div>
                 </div>
@@ -803,6 +838,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
         isSaved={isCardSaved}
       />
 
+      {/* Campaign Brief Modal */}
+      {isCampaignBriefModalOpen && selectedCampaignBrief && (
+        <CampaignBriefModal
+          brief={selectedCampaignBrief}
+          marketName={selectedCampaignBrief.marketName}
+          marketGeoLevel={selectedCampaignBrief.marketGeoLevel}
+          onClose={() => {
+            setIsCampaignBriefModalOpen(false);
+            setSelectedCampaignBrief(null);
+          }}
+          onSave={handleSaveCard as any}
+          onUnsave={handleUnsaveCard}
+          isSaved={isCardSaved(`campaign-brief-${selectedCampaignBrief.marketGeoLevel}-${selectedCampaignBrief.marketName}`)}
+        />
+      )}
 
       {/* Custom Deal Form Modal */}
       {isCustomDealFormOpen && (

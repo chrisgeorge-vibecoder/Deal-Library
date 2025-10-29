@@ -1,5 +1,4 @@
-import { Plus, Sparkles, Users, ShoppingCart, BookOpen, TrendingUp } from 'lucide-react';
-import SavedCards from './SavedCards';
+import { Plus, Sparkles, Users, ShoppingCart, BookOpen, TrendingUp, Bookmark, Lightbulb } from 'lucide-react';
 import Link from 'next/link';
 import { SavedCard } from '@/types/deal';
 
@@ -10,6 +9,9 @@ interface SidebarProps {
   savedCards?: SavedCard[];
   onUnsaveCard?: (cardId: string) => void;
   onCardClick?: (card: SavedCard) => void;
+  cart?: any[];
+  onOpenCart?: () => void;
+  onOpenSavedCards?: () => void;
 }
 
 export default function Sidebar({ 
@@ -18,7 +20,10 @@ export default function Sidebar({
   onNewChat, 
   savedCards = [],
   onUnsaveCard,
-  onCardClick
+  onCardClick,
+  cart = [],
+  onOpenCart,
+  onOpenSavedCards
 }: SidebarProps) {
 
   if (!isOpen) {
@@ -71,7 +76,25 @@ export default function Sidebar({
 
       {/* Plan Section */}
       <div className="p-4 border-b border-neutral-200">
-        <h3 className="text-sm font-medium text-neutral-700 mb-3">Plan</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-medium text-neutral-700">Plan</h3>
+          <button
+            onClick={onOpenSavedCards}
+            className={`relative p-1.5 rounded-lg transition-all ${
+              savedCards && savedCards.length > 0 
+                ? 'bg-brand-gold text-white' 
+                : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+            }`}
+            title="Saved Cards"
+          >
+            <Bookmark className="w-4 h-4" />
+            {savedCards && savedCards.length > 0 && (
+              <span className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-brand-orange text-white rounded-full text-xs font-semibold min-w-[18px] text-center">
+                {savedCards.length}
+              </span>
+            )}
+          </button>
+        </div>
         <div className="space-y-2">
           <Link
             href="/audience-insights"
@@ -98,7 +121,7 @@ export default function Sidebar({
             href="/strategy-cards"
             className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
           >
-            <Users className="w-4 h-4" />
+            <Lightbulb className="w-4 h-4" />
             Strategy Cards
           </Link>
         </div>
@@ -106,8 +129,33 @@ export default function Sidebar({
 
       {/* Activate Section */}
       <div className="p-4 border-b border-neutral-200">
-        <h3 className="text-sm font-medium text-neutral-700 mb-3">Activate</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-medium text-neutral-700">Activate</h3>
+          <button
+            onClick={onOpenCart}
+            className={`relative p-1.5 rounded-lg transition-all ${
+              cart && cart.length > 0 
+                ? 'bg-brand-gold text-white' 
+                : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+            }`}
+            title="My Selections"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            {cart && cart.length > 0 && (
+              <span className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-brand-orange text-white rounded-full text-xs font-semibold min-w-[18px] text-center">
+                {cart.length}
+              </span>
+            )}
+          </button>
+        </div>
         <div className="space-y-2">
+          <Link
+            href="/audiences"
+            className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
+          >
+            <Users className="w-4 h-4" />
+            Audiences
+          </Link>
           <Link
             href="/deals"
             className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
@@ -118,17 +166,8 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* Saved Cards */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-4">
-          <h3 className="text-sm font-medium text-neutral-700 mb-3">Saved Cards</h3>
-          <SavedCards
-            savedCards={savedCards}
-            onUnsaveCard={onUnsaveCard || (() => {})}
-            onCardClick={onCardClick}
-          />
-        </div>
-      </div>
+      {/* Spacer to push footer to bottom */}
+      <div className="flex-1"></div>
 
       {/* Footer */}
       <div className="p-4 border-t border-neutral-200">

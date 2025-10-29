@@ -11,6 +11,7 @@ import { DealsController } from './controllers/dealsController';
 import { ResearchLibraryController } from './controllers/researchLibraryController';
 import { MarketInsightsController } from './controllers/marketInsightsController';
 import { CampaignContentController } from './controllers/campaignContentController';
+import { AudienceTaxonomyController } from './controllers/audienceTaxonomyController';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { corsMiddleware } from './middleware/cors';
 import { PersonaService } from './services/personaService';
@@ -58,13 +59,19 @@ const marketInsightsController = new MarketInsightsController();
 
 // Initialize Campaign Content Controller (requires Gemini AI)
 let campaignContentController: CampaignContentController | null = null;
+let audienceTaxonomyController: AudienceTaxonomyController | null = null;
 try {
   const supabase = process.env.USE_SUPABASE === 'true' ? SupabaseService.getClient() : null;
   const geminiService = new GeminiService(supabase);
   campaignContentController = new CampaignContentController(geminiService);
   console.log('✅ Campaign Content Generator initialized');
+  
+  // Initialize Audience Taxonomy Controller (requires Gemini AI)
+  audienceTaxonomyController = new AudienceTaxonomyController(geminiService);
+  console.log('✅ Audience Taxonomy Search initialized');
 } catch (error) {
   console.warn('⚠️  Campaign Content Generator disabled (Gemini AI not available)');
+  console.warn('⚠️  Audience Taxonomy Search disabled (Gemini AI not available)');
 }
 
 // Initialize Research Library Controller (requires Supabase)
@@ -187,6 +194,11 @@ app.use('/api/market-insights', marketInsightsController.getRouter());
 // Campaign Content endpoints
 if (campaignContentController) {
   app.use('/api/campaign-content', campaignContentController.getRouter());
+}
+
+// Audience Taxonomy endpoints
+if (audienceTaxonomyController) {
+  app.use('/api/audiences', audienceTaxonomyController.getRouter());
 }
 
 // Persona endpoints

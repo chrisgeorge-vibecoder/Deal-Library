@@ -377,18 +377,6 @@ export default function DealBrowser({
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={onOpenCart}
-              className="btn-secondary flex items-center gap-2 px-6 py-3 relative"
-            >
-              <ShoppingCart className="w-4 h-4" />
-              My Selections
-              {cart.length > 0 && (
-                <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-brand-orange text-white rounded-full text-xs font-semibold">
-                  {cart.length}
-                </span>
-              )}
-            </button>
-            <button
               onClick={onRequestCustomDeal}
               className="btn-primary flex items-center gap-2 px-6 py-3"
             >
@@ -669,7 +657,7 @@ export default function DealBrowser({
 
                     {/* Add to Selections Button */}
                     <div className="pt-3 border-t border-neutral-200">
-                      {isInCart(deal.id) ? (
+                        {isInCart(deal.id) ? (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -678,7 +666,7 @@ export default function DealBrowser({
                           className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-xs font-medium"
                         >
                           <Trash2 className="w-3 h-3" />
-                          Remove from Selections
+                          Remove from Cart
                         </button>
                       ) : (
                         <button
@@ -693,7 +681,7 @@ export default function DealBrowser({
                           }`}
                         >
                           <ShoppingCart className="w-3 h-3" />
-                          Add to Selections
+                          Add to Cart
                         </button>
                       )}
                     </div>

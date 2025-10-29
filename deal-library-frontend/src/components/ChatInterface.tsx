@@ -8,6 +8,7 @@ import { GeoCard as GeoCardComponent } from './GeoCard';
 import MarketingSWOTCard from './MarketingSWOTCard';
 import CompanyProfileCard from './CompanyProfileCard';
 import MarketingNewsCard from './MarketingNewsCard';
+import AudienceCard from './AudienceCard';
 import { Send, Bot, User, Filter, Sparkles, ShoppingCart, Trash2, Users, Target, FileText, Award } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -30,6 +31,7 @@ interface ChatMessage {
   contentStrategy?: any[];
   brandStrategy?: any[];
   coaching?: any;
+  audiences?: any[];
 }
 
 interface ChatInterfaceProps {
@@ -54,10 +56,11 @@ interface ChatInterfaceProps {
   aiContentStrategy?: any[];
   aiBrandStrategy?: any[];
   aiCoaching?: any;
+  aiAudiences?: any[];
   onPersonaClick?: (persona: Persona) => void;
   inputValue?: string;
   onInputValueChange?: (value: string) => void;
-  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news', data: any }) => void;
+  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'audience-taxonomy', data: any }) => void;
   onUnsaveCard?: (cardId: string) => void;
   isSaved?: (cardId: string) => boolean;
   sidebarOpen?: boolean;
@@ -85,6 +88,7 @@ export default function ChatInterface({
   aiContentStrategy,
   aiBrandStrategy,
   aiCoaching,
+  aiAudiences,
   onPersonaClick,
   inputValue: externalInputValue,
   onInputValueChange,
@@ -251,6 +255,8 @@ export default function ChatInterface({
         brandStrategy: aiBrandStrategy && aiBrandStrategy.length > 0 ? aiBrandStrategy : undefined,
         // Include coaching insights if available - handle both null and undefined
         coaching: aiCoaching && typeof aiCoaching === 'object' && aiCoaching !== null ? aiCoaching : undefined,
+        // Include audiences if available
+        audiences: aiAudiences && aiAudiences.length > 0 ? aiAudiences : undefined,
       };
 
       console.log('🎯 Assistant message created with coaching:', assistantMessage.coaching);
@@ -264,7 +270,7 @@ export default function ChatInterface({
         typingTimeoutRef.current = null;
       }
     }
-  }, [aiResponse, isTyping, deals, aiPersonas, aiAudienceInsights, aiMarketSizing, aiGeoCards, aiMarketingSWOT, aiCompanyProfiles, aiMarketingNews, aiCoaching]);
+  }, [aiResponse, isTyping, deals, aiPersonas, aiAudienceInsights, aiMarketSizing, aiGeoCards, aiMarketingSWOT, aiCompanyProfiles, aiMarketingNews, aiCoaching, aiAudiences]);
 
   // Handle audience insights updates after the initial message is created
   useEffect(() => {
@@ -564,8 +570,8 @@ export default function ChatInterface({
                                 className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-xs font-medium"
                               >
                                 <Trash2 className="w-3 h-3" />
-                                Remove from Selections
-                              </button>
+                                Remove from Cart
+</button>
                             ) : (
                               <button
                                 onClick={(e) => {
@@ -579,7 +585,7 @@ export default function ChatInterface({
                                 }`}
                               >
                                 <ShoppingCart className="w-3 h-3" />
-                                Add to Selections
+                                Add to Cart
                               </button>
                             )}
                           </div>
@@ -642,6 +648,28 @@ export default function ChatInterface({
                             </button>
                           </div>
                         </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {message.audiences && message.audiences.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-neutral-600 mb-3">Relevant audiences:</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {message.audiences.map((audience) => (
+                        <AudienceCard
+                          key={audience.sovrnSegmentId}
+                          segment={audience}
+                          onClick={() => {
+                            // Open audience detail modal
+                            const event = new CustomEvent('openAudienceDetailModal', { detail: { audience } });
+                            window.dispatchEvent(event);
+                          }}
+                          onSaveCard={onSaveCard as any}
+                          onUnsaveCard={onUnsaveCard}
+                          isSaved={isSaved}
+                        />
                       ))}
                     </div>
                   </div>

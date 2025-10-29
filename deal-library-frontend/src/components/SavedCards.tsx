@@ -39,6 +39,8 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return <TrendingUp className="w-4 h-4 text-yellow-600" />;
       case 'campaign-brief':
         return <Sparkles className="w-4 h-4 text-brand-gold" />;
+      case 'audience-taxonomy':
+        return <Users className="w-4 h-4 text-brand-orange" />;
       default:
         return <BookmarkCheck className="w-4 h-4 text-gray-600" />;
     }
@@ -74,6 +76,8 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return (card.data as any).name;
       case 'campaign-brief':
         return `Campaign Brief: ${(card.data as CampaignBrief).marketName}`;
+      case 'audience-taxonomy':
+        return (card.data as any).segmentName || 'Audience Segment';
       default:
         return 'Unknown Card';
     }
@@ -118,6 +122,9 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         const brief = card.data as CampaignBrief;
         const briefGeoLevelLabel = brief.marketGeoLevel.charAt(0).toUpperCase() + brief.marketGeoLevel.slice(1);
         return `${briefGeoLevelLabel} • AI Generated`;
+      case 'audience-taxonomy':
+        const audienceTax = card.data as any;
+        return `${audienceTax.segmentType || 'Audience'} • ${audienceTax.tier1 || 'Taxonomy'}`;
       default:
         return '';
     }
@@ -153,6 +160,8 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return `market-profile-${(card.data as any).geoLevel}-${(card.data as any).name}`;
       case 'campaign-brief':
         return `campaign-brief-${(card.data as CampaignBrief).marketGeoLevel}-${(card.data as CampaignBrief).marketName}`;
+      case 'audience-taxonomy':
+        return `audience-taxonomy-${(card.data as any).sovrnSegmentId || 'unknown'}`;
       default:
         return '';
     }

@@ -59,6 +59,18 @@ export default function MarketInsightsPage() {
     }
   }, [searchParams]);
 
+  // Handle audience segment parameters from Audiences page
+  useEffect(() => {
+    const audienceSegment = searchParams.get('audienceSegment');
+    const audiencePath = searchParams.get('audiencePath');
+    
+    if (audienceSegment) {
+      // Show a success message indicating audience context is loaded
+      setSuccessMessage(`Campaign context loaded for audience: ${audienceSegment}`);
+      setTimeout(() => setSuccessMessage(null), 5000);
+    }
+  }, [searchParams]);
+
   // Fetch top markets when metric, geo level, or commercial ZIP filter changes
   useEffect(() => {
     if (selectedMetric) {

@@ -85,6 +85,13 @@ export const CARD_TYPES: CardType[] = [
   },
   // Activate Cards (help marketers execute)
   {
+    id: 'audiences',
+    name: 'Audiences',
+    icon: Users,
+    description: 'Browse and select audience segments for targeting',
+    category: 'activate'
+  },
+  {
     id: 'deals',
     name: 'Deal Opportunities',
     icon: ShoppingCart,

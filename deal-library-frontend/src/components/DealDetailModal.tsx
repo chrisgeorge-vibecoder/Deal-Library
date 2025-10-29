@@ -1,5 +1,5 @@
 import { Deal } from '@/types/deal';
-import { X, Target, Globe, Video, DollarSign, ShoppingCart, Trash2, Bookmark, BookmarkCheck } from 'lucide-react';
+import { X, Target, Globe, Video, DollarSign, ShoppingCart, Trash2 } from 'lucide-react';
 
 interface DealDetailModalProps {
   deal: Deal | null;
@@ -8,9 +8,6 @@ interface DealDetailModalProps {
   onAddToCart: (deal: Deal) => void;
   onRemoveFromCart: (dealId: string) => void;
   isInCart: (dealId: string) => boolean;
-  onSaveCard?: (card: { type: 'deal', data: Deal }) => void;
-  onUnsaveCard?: (cardId: string) => void;
-  isSaved?: (cardId: string) => boolean;
 }
 
 export default function DealDetailModal({ 
@@ -19,10 +16,7 @@ export default function DealDetailModal({
   onClose, 
   onAddToCart, 
   onRemoveFromCart, 
-  isInCart,
-  onSaveCard,
-  onUnsaveCard,
-  isSaved
+  isInCart
 }: DealDetailModalProps) {
   if (!isOpen || !deal) return null;
 
@@ -65,30 +59,6 @@ export default function DealDetailModal({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {onSaveCard && onUnsaveCard && isSaved && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (isSaved(`deal-${deal.dealId}`)) {
-                    onUnsaveCard(`deal-${deal.dealId}`);
-                  } else {
-                    onSaveCard({ type: 'deal', data: deal });
-                  }
-                }}
-                className={`p-2 rounded-lg transition-colors ${
-                  isSaved(`deal-${deal.dealId}`)
-                    ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
-                    : 'text-neutral-500 hover:text-blue-600 hover:bg-blue-50'
-                }`}
-                title={isSaved(`deal-${deal.dealId}`) ? 'Remove from saved' : 'Save card'}
-              >
-                {isSaved(`deal-${deal.dealId}`) ? (
-                  <BookmarkCheck className="w-5 h-5" />
-                ) : (
-                  <Bookmark className="w-5 h-5" />
-                )}
-              </button>
-            )}
             <button 
               onClick={(e) => {
                 e.stopPropagation();
@@ -221,7 +191,7 @@ export default function DealDetailModal({
                 className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
-                Remove from Selections
+                Remove from Cart
               </button>
             ) : (
               <button
@@ -233,7 +203,7 @@ export default function DealDetailModal({
                 }`}
               >
                 <ShoppingCart className="w-4 h-4" />
-                Add to Selections
+                Add to Cart
               </button>
             )}
             <button

@@ -112,6 +112,7 @@ export default function HomePage() {
   const [aiContentStrategy, setAiContentStrategy] = useState<any[]>([]);
   const [aiBrandStrategy, setAiBrandStrategy] = useState<any[]>([]);
   const [aiCoaching, setAiCoaching] = useState<any>(null);
+  const [aiAudiences, setAiAudiences] = useState<any[]>([]);
   
   // Note: Cart and modal state are now managed in AppLayout.tsx to work across all pages
 
@@ -268,6 +269,7 @@ export default function HomePage() {
       setAiContentStrategy([]);
       setAiBrandStrategy([]);
       setAiCoaching(undefined);
+      setAiAudiences([]);
 
       // Determine search type based on keywords
       const queryLower = query.toLowerCase();
@@ -410,6 +412,40 @@ export default function HomePage() {
           } catch (error) {
             console.error('Deals search request failed:', error);
             setAiResponse('Deals search is temporarily unavailable. Please try again later.');
+            return;
+          }
+        }
+        
+        if (selectedType === 'audiences') {
+          console.log('🔍 USING AUDIENCES SEARCH PATH for:', query);
+          try {
+            const response = await fetch('http://localhost:3002/api/audiences/search', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                query,
+                filters: {}
+              }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log('🎯 Audience search results:', data);
+              
+              // Combine all audience categories
+              const allAudiences = [
+                ...(data.bestFit || []),
+                ...(data.highValue || []),
+                ...(data.related || [])
+              ];
+              
+              setAiAudiences(allAudiences);
+              setAiResponse(data.aiResponse || `Found ${allAudiences.length} relevant audience segments for your query.`);
+              return;
+            }
+          } catch (error) {
+            console.error('Audience search request failed:', error);
+            setAiResponse('Audience search is temporarily unavailable. Please try again later.');
             return;
           }
         }
@@ -1078,6 +1114,7 @@ export default function HomePage() {
               aiContentStrategy={aiContentStrategy}
               aiBrandStrategy={aiBrandStrategy}
               aiCoaching={aiCoaching}
+              aiAudiences={aiAudiences}
               onAddToCart={onAddToCart}
               onRemoveFromCart={onRemoveFromCart}
               isInCart={isInCart}

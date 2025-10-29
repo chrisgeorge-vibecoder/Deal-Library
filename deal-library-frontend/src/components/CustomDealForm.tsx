@@ -94,7 +94,7 @@ export default function CustomDealForm({ isOpen, onClose }: CustomDealFormProps)
         <div className="p-6 border-b border-neutral-200">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-neutral-900">Don't see a Deal that matches your campaign objectives?</h2>
+              <h2 className="text-2xl font-bold text-neutral-900">Don't see an Audience that matches your campaign objectives?</h2>
               <p className="text-neutral-600 mt-2">Request a custom deal tailored to your specific needs.</p>
             </div>
             <button 

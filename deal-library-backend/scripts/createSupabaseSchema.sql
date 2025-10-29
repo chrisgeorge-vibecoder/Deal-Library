@@ -165,6 +165,63 @@ CREATE TABLE IF NOT EXISTS commerce_baseline (
 CREATE INDEX IF NOT EXISTS idx_baseline_date ON commerce_baseline(calculation_date DESC);
 
 -- ============================================================================
+-- Table: audience_taxonomy
+-- Purpose: Store Sovrn Audience Taxonomy segments from CSV
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS audience_taxonomy (
+  id SERIAL PRIMARY KEY,
+  segment_type VARCHAR(50),
+  sovrn_segment_id VARCHAR(50) UNIQUE,
+  sovrn_parent_segment_id VARCHAR(50),
+  segment_name VARCHAR(200),
+  segment_description TEXT,
+  tier_number INTEGER,
+  tier_1 VARCHAR(200),
+  tier_2 VARCHAR(200),
+  tier_3 VARCHAR(200),
+  tier_4 VARCHAR(200),
+  tier_5 VARCHAR(200),
+  tier_6 VARCHAR(200),
+  full_path VARCHAR(500),
+  cpm DECIMAL(6, 2),
+  media_cost_percent DECIMAL(6, 4),
+  actively_generated BOOLEAN,
+  scale_7day_global BIGINT,
+  scale_7day_us BIGINT,
+  scale_hem_us BIGINT,
+  scale_1day_ip BIGINT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes for audience_taxonomy
+CREATE INDEX IF NOT EXISTS idx_taxonomy_segment_name ON audience_taxonomy(segment_name);
+CREATE INDEX IF NOT EXISTS idx_taxonomy_segment_id ON audience_taxonomy(sovrn_segment_id);
+CREATE INDEX IF NOT EXISTS idx_taxonomy_tier_1 ON audience_taxonomy(tier_1);
+CREATE INDEX IF NOT EXISTS idx_taxonomy_tier_2 ON audience_taxonomy(tier_2);
+CREATE INDEX IF NOT EXISTS idx_taxonomy_type ON audience_taxonomy(segment_type);
+CREATE INDEX IF NOT EXISTS idx_taxonomy_active ON audience_taxonomy(actively_generated);
+CREATE INDEX IF NOT EXISTS idx_taxonomy_cpm ON audience_taxonomy(cpm);
+
+-- ============================================================================
+-- Table: audience_search_cache
+-- Purpose: Cache AI-generated audience search results to reduce Gemini API costs
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS audience_search_cache (
+  id SERIAL PRIMARY KEY,
+  query TEXT,
+  filters JSONB,
+  results JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  expires_at TIMESTAMPTZ
+);
+
+-- Indexes for audience_search_cache
+CREATE INDEX IF NOT EXISTS idx_search_cache_query ON audience_search_cache(query);
+CREATE INDEX IF NOT EXISTS idx_search_cache_expires ON audience_search_cache(expires_at);
+CREATE INDEX IF NOT EXISTS idx_search_cache_created ON audience_search_cache(created_at DESC);
+
+-- ============================================================================
 -- Row Level Security (RLS) Policies
 -- Note: For production, you should enable RLS and create appropriate policies
 -- For now, we'll leave it disabled for simplicity
@@ -206,6 +263,9 @@ CREATE TRIGGER update_audience_overlaps_updated_at BEFORE UPDATE ON audience_ove
 CREATE TRIGGER update_generated_personas_updated_at BEFORE UPDATE ON generated_personas
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_audience_taxonomy_updated_at BEFORE UPDATE ON audience_taxonomy
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- ============================================================================
 -- Verification Queries
 -- Run these after migration to verify data integrity
@@ -223,6 +283,8 @@ COMMENT ON TABLE audience_overlaps IS 'Audience segment behavioral overlap metad
 COMMENT ON TABLE generated_personas IS 'Dynamically generated and static audience personas';
 COMMENT ON TABLE audience_reports_cache IS 'Cache for generated audience insights reports (TTL-based)';
 COMMENT ON TABLE commerce_baseline IS 'Commerce baseline calculations for comparison metrics';
+COMMENT ON TABLE audience_taxonomy IS 'Sovrn Audience Taxonomy segments from CSV (1.3K records)';
+COMMENT ON TABLE audience_search_cache IS 'Cache for AI-generated audience search results (TTL-based)';
 
 -- Success message
 DO $$

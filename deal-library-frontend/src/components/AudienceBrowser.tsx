@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AudienceSegment } from '@/types/audience';
-import { Search, Target, ShoppingCart, Plus, Trash2 } from 'lucide-react';
+import { AudienceSegment, CategorizedSearchResults } from '@/types/audience';
+import { Search, Target, ShoppingCart, Plus, Trash2, Sparkles } from 'lucide-react';
+import { formatScale } from '@/utils/formatters';
+import SmartSearchResults from './SmartSearchResults';
 
 interface AudienceBrowserProps {
   onAudienceClick: (segment: AudienceSegment) => void;
@@ -38,6 +40,9 @@ export default function AudienceBrowser({
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSmartSearch, setIsSmartSearch] = useState(false);
+  const [smartSearchResults, setSmartSearchResults] = useState<CategorizedSearchResults | null>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   // Group segments by segmentType and extract unique tier2 categories for each type
   const segmentsByType = {
@@ -156,6 +161,36 @@ export default function AudienceBrowser({
     setSearchQuery('');
   };
 
+  const handleSmartSearch = async () => {
+    if (!searchQuery.trim()) return;
+    
+    setSearchLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('http://localhost:3002/api/audiences/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          query: searchQuery,
+          filters: {}
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setSmartSearchResults(data.results);
+        setIsSmartSearch(true);
+      } else {
+        setError('Smart search failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Smart search failed:', error);
+      setError('Smart search is temporarily unavailable. Please try again later.');
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col">
       {/* Header */}
@@ -187,15 +222,46 @@ export default function AudienceBrowser({
       <div className="w-80 bg-white border-r border-neutral-200 flex flex-col h-full overflow-hidden">
         {/* Search */}
         <div className="p-4 border-b border-neutral-200 flex-shrink-0">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search audiences..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-brand-orange"
-            />
+          <div className="space-y-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search audiences..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setIsSmartSearch(false);
+                  setSmartSearchResults(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && e.shiftKey) {
+                    handleSmartSearch();
+                  }
+                }}
+                className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-brand-orange"
+              />
+            </div>
+            <button
+              onClick={handleSmartSearch}
+              disabled={!searchQuery.trim() || searchLoading}
+              className="w-full btn-primary text-sm py-2 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Sparkles className="w-4 h-4" />
+              {searchLoading ? 'Searching...' : 'Smart Search (AI)'}
+            </button>
+            {isSmartSearch && (
+              <button
+                onClick={() => {
+                  setIsSmartSearch(false);
+                  setSmartSearchResults(null);
+                  setSearchQuery('');
+                }}
+                className="w-full text-xs text-neutral-500 hover:text-neutral-700 transition-colors py-1"
+              >
+                ← Back to Browse
+              </button>
+            )}
           </div>
         </div>
 
@@ -423,27 +489,38 @@ export default function AudienceBrowser({
             </div>
           )}
 
-          {/* Empty State */}
-          {!loading && !error && filteredSegments.length === 0 && (
-            <div className="text-center py-12">
-              <Target className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-neutral-500 mb-2">No audiences found</h3>
-              <p className="text-neutral-400 mb-4">
-                {searchQuery ? 'Try adjusting your search terms' : 'Try selecting different filters'}
-              </p>
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="btn-secondary"
-                >
-                  Clear Search
-                </button>
+          {/* Smart Search Results */}
+          {isSmartSearch && smartSearchResults ? (
+            <SmartSearchResults
+              results={smartSearchResults}
+              onAudienceClick={onAudienceClick}
+              onAddToCart={onAddToCart}
+              onRemoveFromCart={onRemoveFromCart}
+              isInCart={isInCart}
+            />
+          ) : (
+            <>
+              {/* Empty State */}
+              {!loading && !error && filteredSegments.length === 0 && (
+                <div className="text-center py-12">
+                  <Target className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-neutral-500 mb-2">No audiences found</h3>
+                  <p className="text-neutral-400 mb-4">
+                    {searchQuery ? 'Try adjusting your search terms' : 'Try selecting different filters'}
+                  </p>
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="btn-secondary"
+                    >
+                      Clear Search
+                    </button>
+                  )}
+                </div>
               )}
-            </div>
-          )}
 
-          {/* Audience Grid */}
-          {!loading && !error && filteredSegments.length > 0 && (
+              {/* Audience Grid */}
+              {!loading && !error && filteredSegments.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 max-w-4xl">
               {filteredSegments.map(segment => {
                 const inCart = isInCart(segment.sovrnSegmentId);
@@ -477,13 +554,18 @@ export default function AudienceBrowser({
                     </div>
 
                     {/* Metrics */}
-                    <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center gap-2 mb-4 flex-wrap">
                       <span className="inline-flex items-center px-2 py-1 bg-primary-100 text-primary-800 text-xs font-medium rounded-full">
                         ${segment.cpm.toFixed(2)} CPM
                       </span>
                       <span className="inline-flex items-center px-2 py-1 bg-secondary-100 text-secondary-800 text-xs font-medium rounded-full">
                         {(segment.mediaPercentCost * 100).toFixed(0)}% Media Cost
                       </span>
+                      {segment.scale7DayUS && (
+                        <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                          {formatScale(segment.scale7DayUS)} reach
+                        </span>
+                      )}
                     </div>
 
                     {/* Add to Cart Button */}
@@ -516,6 +598,8 @@ export default function AudienceBrowser({
                 );
               })}
             </div>
+          )}
+            </>
           )}
         </div>
       </div>

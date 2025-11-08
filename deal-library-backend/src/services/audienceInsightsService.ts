@@ -283,6 +283,21 @@ class AudienceInsightsService {
     );
     console.log(`✨ Generated strategic insights with Gemini (${Date.now() - stepStart}ms)`);
 
+    // Step 4b: Replace targetPersona with humanized version (narrative style like "Ambitious Aisha")
+    stepStart = Date.now();
+    const humanizedPersona = await this.generateHumanizedPersona(
+      segment,
+      category || 'General',
+      demographics,
+      geoIntelligence,
+      overlaps,
+      demographics.affluenceLevel,
+      demographics.familyProfile,
+      demographics.lifestyle?.selfEmployed && demographics.lifestyle.selfEmployed > 12 ? 'Often self-employed or entrepreneurial' : 'Typically employed'
+    );
+    strategicInsights.targetPersona = humanizedPersona;
+    console.log(`👤 Replaced targetPersona with "Ambitious Aisha" style narrative (${Date.now() - stepStart}ms)`);
+
     // Step 5: Generate executive summary with Gemini
     stepStart = Date.now();
     const executiveSummary = await this.generateExecutiveSummary(
@@ -2000,6 +2015,86 @@ Now analyze "${targetSegment}" and "${overlapSegment}" with ${percentage.toFixed
   }
 
   /**
+   * Generate HUMANIZED targetPersona separately with NO statistics
+   */
+  private async generateHumanizedPersona(
+    segment: string,
+    category: string,
+    demographics: any,
+    geoIntelligence: any,
+    overlaps: any[],
+    affluenceLevel: string,
+    familyProfile: string,
+    workStyle: string
+  ): Promise<string> {
+    // v4 = narrative style with integrated data (like "Ambitious Aisha" example)
+    const cacheKey = `humanized_persona_v4_${segment}_${category}`;
+    if (this.aiResponseCache.has(cacheKey)) {
+      console.log(`💨 Using cached humanized persona for ${segment}`);
+      return this.aiResponseCache.get(cacheKey);
+    }
+
+    console.log(`👤 Generating humanized persona for: "${segment}"`);
+
+    const prompt = `You are a creative writer crafting a humanized persona for a marketing audience.
+
+SEGMENT: "${segment}" (${category} category)
+
+DEMOGRAPHIC CONTEXT (integrate naturally into the narrative):
+- Age: ${demographics.topAgeBracket}
+- Affluence: ${affluenceLevel}
+- Family: ${familyProfile}
+- Work: ${workStyle}
+- Location: ${geoIntelligence.topCities.slice(0, 2).map((c: any) => `${c.city}, ${c.state}`).join(', ')}
+- Education: ${demographics.educationProfile}
+- Top cross-shopping: ${overlaps[0]?.segment || 'related products'} (${overlaps[0]?.overlapPercentage.toFixed(0)}% overlap)${overlaps[1] ? `, ${overlaps[1].segment} (${overlaps[1].overlapPercentage.toFixed(0)}% overlap)` : ''}
+
+YOUR TASK: Write a single paragraph persona (4-5 sentences) in this EXACT STYLE:
+
+REQUIRED FORMAT - Follow this structure:
+"[Name] is a [personality traits], [education level] professional in their [age range] who manages a [lifestyle descriptor], [location type] household. [Work/affluence context and analytical traits]. Driven by [motivations from overlaps], [Name] seeks [product category] that [why they buy and values]."
+
+EXAMPLE FOR COSMETICS:
+"Ambitious Aisha is a discerning, college-educated professional in her 40s who manages a busy, urban, dual-income household with children. Although she is value-conscious, her Upper-Middle Affluence and analytical, tech-savvy nature mean she prioritizes product efficacy and smart, efficient routines. Driven by both personal care (91% overlap) and a practical interest in home technology, Aisha seeks sophisticated beauty solutions that align with her ambition and busy, modern lifestyle."
+
+KEY REQUIREMENTS:
+✅ START with a persona name that reflects their key trait + segment (e.g., "Ambitious Aisha", "Pragmatic Paul", "Savvy Sarah")
+✅ USE age descriptors: "in their 40s", "in their late 30s" (NOT "median age 35.6")
+✅ USE affluence descriptors: "${affluenceLevel}" (NOT "$74,633 median income")
+✅ INCLUDE education naturally: "${demographics.educationProfile}" 
+✅ INCLUDE percentage overlaps: "X% overlap with [category]"
+✅ USE location naturally: "urban household in ${geoIntelligence.topCities[0]?.city}"
+✅ EXPLAIN motivations and why they buy ${segment}
+✅ Use **bold** for key personality traits
+
+❌ DO NOT use phrases like "vs commerce baseline", "vs national average", "median income of $X"
+❌ DO NOT use exact numerical ages like "35.6 years old"
+❌ DO NOT start with "This audience comprises" or "This segment represents"
+
+Write ONLY the persona paragraph (single paragraph, 4-5 sentences). No preamble, no JSON, just the persona narrative.`;
+
+    const gemini = this.getGeminiService();
+    if (!gemini) {
+      return `People interested in ${segment} are looking for reliable solutions that fit their busy lives in cities like ${geoIntelligence.topCities[0]?.city}.`;
+    }
+
+    try {
+      const result = await gemini['model'].generateContent(prompt);
+      const persona = result.response.text().trim();
+      
+      // Remove any markdown code blocks if present
+      const cleanPersona = persona.replace(/```[\s\S]*?```/g, '').trim();
+      
+      console.log(`✅ Generated humanized persona (${cleanPersona.length} chars)`);
+      this.aiResponseCache.set(cacheKey, cleanPersona);
+      return cleanPersona;
+    } catch (error) {
+      console.error('❌ Error generating humanized persona:', error);
+      return `People interested in ${segment} are ${affluenceLevel} consumers in areas like ${geoIntelligence.topCities[0]?.city} who value quality and practicality.`;
+    }
+  }
+
+  /**
    * Generate strategic insights with Gemini
    */
   /**
@@ -2014,7 +2109,8 @@ Now analyze "${targetSegment}" and "${overlapSegment}" with ${percentage.toFixed
     commerceBaseline: any
   ): Promise<{ name: string; emoji: string; description: string }> {
     // OPTIMIZATION: Check cache first
-    const cacheKey = `persona_${segment}_${category}`;
+    // v3 = humanized persona, no statistics/comparisons in description
+    const cacheKey = `persona_v3_${segment}_${category}`;
     if (this.aiResponseCache.has(cacheKey)) {
       console.log(`💨 Using cached AI persona for ${segment}`);
       return this.aiResponseCache.get(cacheKey);
@@ -2022,29 +2118,39 @@ Now analyze "${targetSegment}" and "${overlapSegment}" with ${percentage.toFixed
     
     console.log(`👤 Generating AI persona for: "${segment}"`);
 
-    const vsCommerce = {
-      income: ((demographics.medianHHI / commerceBaseline.medianHHI) - 1) * 100,
-      education: ((demographics.educationBachelors / commerceBaseline.educationBachelorsPlus) - 1) * 100,
-    };
+    const prompt = `You are an expert at creating humanized personas that help marketers develop empathy for their audience.
 
-    const prompt = `You are creating a vivid, memorable persona for the "${segment}" audience (${category} category).
+SEGMENT: "${segment}" (${category} category)
 
-DATA CONTEXT:
-- Income: $${demographics.medianHHI.toFixed(0)} (${vsCommerce.income >= 0 ? '+' : ''}${vsCommerce.income.toFixed(1)}% vs typical online shopper)
-- Age: ${demographics.topAgeBracket}, median ${demographics.medianAge.toFixed(1)} years
-- Education: ${demographics.educationProfile}
-- Family: ${demographics.familyProfile}, ${demographics.avgHouseholdSize.toFixed(1)} people per household
-- Location: ${geoIntelligence.topCities.slice(0, 3).map((c: any) => `${c.city} ${c.state}`).join(', ')}
-- Lifestyle: ${demographics.lifestyle?.selfEmployed && demographics.lifestyle.selfEmployed > 12 ? `${demographics.lifestyle.selfEmployed.toFixed(0)}% entrepreneurs, ` : ''}${demographics.lifestyle?.avgCommuteTime && demographics.lifestyle.avgCommuteTime > 25 ? `${demographics.lifestyle.avgCommuteTime.toFixed(0)}-min commute, ` : ''}${demographics.lifestyle?.stemDegree && demographics.lifestyle.stemDegree > 15 ? `tech-savvy (${demographics.lifestyle.stemDegree.toFixed(0)}% STEM), ` : ''}${demographics.lifestyle?.charitableGivers && demographics.lifestyle.charitableGivers > 40 ? `values-driven (${demographics.lifestyle.charitableGivers.toFixed(0)}% donate)` : 'typical lifestyle'}
-- Top Overlap: ${overlaps[0]?.segment || 'N/A'} (${overlaps[0]?.overlapPercentage.toFixed(1) || '0'}%)
+KEY INSIGHTS (use these to inform the persona, but DO NOT repeat the statistics in your description):
+- Income Level: ${demographics.affluenceLevel.toLowerCase()}
+- Age Range: ${demographics.topAgeBracket}
+- Education: ${demographics.educationProfile.toLowerCase()}
+- Family: ${demographics.familyProfile.toLowerCase()}, average ${demographics.avgHouseholdSize.toFixed(0)} people
+- Location: Lives in areas like ${geoIntelligence.topCities.slice(0, 2).map((c: any) => `${c.city}, ${c.state}`).join(' and ')}
+- Work: ${demographics.lifestyle?.selfEmployed && demographics.lifestyle.selfEmployed > 12 ? 'entrepreneurial' : 'employed'}
+- Interests: Also shops for ${overlaps[0]?.segment || 'related products'}
 
-TASK: Create a persona that brings this audience to life visually and emotionally.
+A PERSONA is a humanized profile that includes:
+1. Demographics: Basic facts about who they are (age, location, occupation)
+2. Psychographics: Their goals, motivations, values, and personality traits
+3. Behaviors: Daily routines, purchasing habits, how they use products
+4. Pain Points: Challenges and frustrations they face
 
-Return ONLY valid JSON in this exact format:
+CRITICAL INSTRUCTIONS FOR THE DESCRIPTION:
+❌ DO NOT include statistics, percentages, or numerical comparisons
+❌ DO NOT write "X% are..." or "median income of $X" or "vs national average"
+❌ DO NOT use phrases like "commerce baseline", "typical online shopper", "lower/higher than"
+✅ DO write in a storytelling, humanized style
+✅ DO describe their daily life, motivations, and challenges
+✅ DO make it visual and relatable - what do they care about? What frustrates them?
+✅ DO focus on behaviors, goals, values, and pain points
+
+Return ONLY valid JSON:
 {
-  "name": "The [Adjective] [Segment] [Descriptor]" (e.g., "The Affluent Coffee Enthusiast", "The Family-First Baby Monitor Parent", "The Tech-Savvy Fitness Tracker User"),
-  "emoji": "single emoji that represents this category/segment" (e.g., ☕ for coffee, 👶 for baby products, 💪 for fitness),
-  "description": "Paint a vivid picture in 2-3 sentences. Describe what they LOOK like doing on a typical Saturday morning, what's in their shopping cart, where they live, what they care about. Make it visual and specific - cite the data (income, location, lifestyle) but make it human and relatable. Example: 'Picture them at 7am in their suburban Ashburn home, brewing premium coffee while meal-prepping organic lunches for their two kids before a $95k dual-income workday. Their Amazon cart mixes baby monitors with home office upgrades—safety and productivity in equal measure. They're nest-builders: 78% homeowners who research extensively, prioritize wellness (62% buy organic), and invest in long-term quality over quick fixes.'"
+  "name": "The [Adjective] [Segment] [Descriptor]",
+  "emoji": "single emoji for ${category}",
+  "description": "Write a humanized 3-4 sentence persona that brings this person to life. Describe their typical day, what they care about, their goals and challenges, and why they buy ${segment}. Make it emotional and relatable WITHOUT using any statistics or percentages. Example good style: 'Meet Sarah, a busy working parent in suburban Chicago who starts her day before sunrise. She's always juggling family commitments with her home-based business, seeking products that save time without sacrificing quality. Coffee is her morning ritual and productivity fuel, but she's frustrated by inconsistent quality and high prices at local shops. She values reliability and convenience, researching extensively before committing to any new product or subscription.'"
 }`;
 
     const gemini = this.getGeminiService();
@@ -2094,7 +2200,8 @@ Return ONLY valid JSON in this exact format:
     commerceBaseline: any  // NEW: commerce baseline for context
   ) {
     // OPTIMIZATION: Check cache first
-    const cacheKey = `strategic_${segment}_${category}`;
+    // v4 = separate humanized persona function that replaces targetPersona
+    const cacheKey = `strategic_v4_${segment}_${category}`;
     if (this.aiResponseCache.has(cacheKey)) {
       console.log(`💨 Using cached strategic insights for ${segment}`);
       return this.aiResponseCache.get(cacheKey);
@@ -2211,21 +2318,35 @@ ${overlaps.map((o, i) => `${i + 1}. ${o.segment} (${o.overlapPercentage.toFixed(
 
 === YOUR TASK ===
 
-Synthesize ALL the data above into specific, actionable insights. Be SPECIFIC - cite actual cities, percentages, and data points.
+Synthesize ALL the data above into specific, actionable insights.
+
+CRITICAL - PERSONA FORMAT REQUIREMENTS (APPLIES ONLY TO targetPersona FIELD):
+⚠️  THE FOLLOWING RULES APPLY **ONLY** TO THE targetPersona FIELD - NOT TO OTHER FIELDS ⚠️
+❌ DO NOT include statistics, percentages, or numerical comparisons
+❌ DO NOT write "median age X", "income $X", "X% homeowners", etc.
+❌ DO NOT use "vs commerce baseline", "typical online shopper", or comparison language
+✅ DO write in a humanized, storytelling style
+✅ DO describe daily life, motivations, challenges, and pain points
+✅ DO make it visual and relatable - bring the person to life
+✅ DO use **bold** for personality traits, NOT for statistics
 
 EXAMPLE OF EXCELLENCE (for "Baby Monitors" segment):
-"targetPersona": "Affluent first-time parents (median age 31, income $95k, 78% homeowners) concentrated in high-growth suburban metros like Ashburn VA and Frisco TX. They're nest-builders making long-term investments—62% purchased homes within 2 years and show 62% overlap with Organic Baby Food, revealing a 'wellness-first parenting' philosophy. Despite being tech-savvy (42% work in tech), they prioritize safety over features and research extensively before purchase."
+"targetPersona": "Meet Emily, a first-time parent living in the suburbs of Ashburn, VA, balancing a demanding tech career with the joys and anxieties of new motherhood. Her days are a whirlwind of virtual meetings, diaper changes, and endless research on baby products—she's constantly comparing reviews, scrutinizing safety ratings, and joining parenting forums at 2am when she can't sleep. She's frustrated by flashy gadgets that promise convenience but deliver complexity, craving products that just work reliably without a steep learning curve. **Wellness** is her north star, evident in her pantry stocked with organic baby food and her commitment to chemical-free everything, extending naturally to her search for baby monitoring solutions that prioritize health and safety over bells and whistles."
 
-NOW generate insights of this caliber for "${segment}". Ground EVERY claim in the data above.
+NOW generate insights for "${segment}".
+
+IMPORTANT DISTINCTION:
+- targetPersona = HUMANIZED STORY (no stats)
+- All other fields = DATA-DRIVEN (cite stats, cities, percentages)
 
 Return as JSON:
 {
-  "targetPersona": "A vivid, 5-sentence narrative synthesizing ALL the data (demographics, geography, overlaps). Include: life stage, WHERE they live (cite top 2-3 cities), income level, family structure, what drives purchases, and non-obvious insights from overlaps. Ground EVERY detail in the data. Use **bold** formatting for key characteristics and important data points.",
+  "targetPersona": "⚠️  HUMANIZED STORY ONLY - NO STATISTICS ⚠️  Write a visual 5-sentence persona. Describe their typical day, where they live (mention 1-2 cities naturally as part of the story), what they care about, their goals and challenges, and why they buy ${segment}. Make it emotional and relatable WITHOUT using ANY statistics or percentages. Use **bold** for personality traits and values ONLY.",
   
   "messagingRecommendations": [
     {
-      "valueProposition": "Not keywords - VALUE PROPOSITIONS tied to data. E.g., 'Premium Quality for Growing Families'. Use **bold** for key value points.",
-      "dataBacking": "cite specific data: 60% suburban homeowners, 45% with children, avg household 3.2 people. Use **bold** for key statistics.",
+      "valueProposition": "✅ USE DATA HERE - VALUE PROPOSITIONS tied to specific data. E.g., 'Premium Quality for Growing Families'. Use **bold** for key value points.",
+      "dataBacking": "✅ CITE SPECIFIC DATA: 60% suburban homeowners, 45% with children, avg household 3.2 people. Use **bold** for key statistics.",
       "emotionalBenefit": "functional AND emotional benefits. Use **bold** for key emotional drivers.",
       "campaignReady": true
     }
@@ -2409,47 +2530,74 @@ Return ONLY valid JSON, no additional text.`;
     commerceBaseline: any  // NEW: commerce baseline for context
   ): Promise<string> {
     // OPTIMIZATION: Check cache first
-    const cacheKey = `executive_${segment}`;
+    // v3 = removed commerce baseline comparisons with explicit prohibitions
+    const cacheKey = `executive_v3_${segment}`;
     if (this.aiResponseCache.has(cacheKey)) {
       console.log(`💨 Using cached executive summary for ${segment}`);
       return this.aiResponseCache.get(cacheKey);
     }
     
-    // Calculate commerce baseline comparison
-    const vsCommerce = {
-      income: ((demographics.medianHHI / commerceBaseline.medianHHI) - 1) * 100,
-      education: ((demographics.educationBachelors / commerceBaseline.educationBachelorsPlus) - 1) * 100,
-    };
     console.log(`📝 Generating executive summary with Gemini`);
 
-    const prompt = `You are a senior marketing analyst presenting to a Fortune 500 CMO. Summarize the "${segment}" Commerce Audience in a way that makes them immediately understand WHO this audience is and WHY it matters.
+    const prompt = `You are a marketing strategist explaining WHY people buy "${segment}" products. The demographic data modules already show WHO they are. Your job is to make ANALYTICAL CONNECTIONS that explain their purchasing behavior.
 
 COMPLETE DATA CONTEXT:
-- Demographics: ${demographics.affluenceLevel} ($${demographics.medianHHI.toFixed(0)} median income)
-  - vs Commerce Baseline: ${vsCommerce.income >= 0 ? '+' : ''}${vsCommerce.income.toFixed(1)}% ${vsCommerce.income > 15 ? '(WEALTHIER than typical shopper)' : vsCommerce.income > -15 ? '(TYPICAL shopper income)' : '(VALUE-CONSCIOUS shopper)'} ⭐
-  - vs National: ${demographics.medianHHIvsNational >= 0 ? '+' : ''}${demographics.medianHHIvsNational.toFixed(1)}% (ignore - selection bias)
+- Income: $${demographics.medianHHI.toFixed(0)} median (${demographics.medianHHIvsNational >= 0 ? '+' : ''}${demographics.medianHHIvsNational.toFixed(1)}% vs US national average)
+- Education: ${demographics.educationBachelors.toFixed(1)}% Bachelor's+ (${demographics.educationVsNational >= 0 ? '+' : ''}${demographics.educationVsNational.toFixed(1)}% vs US national average)
 - Age: ${demographics.topAgeBracket}
-- Education: ${demographics.educationProfile}
-  - vs Commerce Baseline: ${vsCommerce.education >= 0 ? '+' : ''}${vsCommerce.education.toFixed(1)}% ${vsCommerce.education < -15 ? '(TRADE-SKILLED/BLUE-COLLAR despite high income!)' : vsCommerce.education > 15 ? '(MORE EDUCATED than typical shopper)' : '(TYPICAL education)'} ⭐
-- Family: ${demographics.familyProfile} (${demographics.avgHouseholdSize.toFixed(1)} people per household${demographics.lifestyle?.married ? `, ${demographics.lifestyle.married.toFixed(0)}% married${demographics.lifestyle.dualIncome && demographics.lifestyle.dualIncome > 60 ? ', mostly dual-income' : ''}` : ''})
-- Lifestyle: ${demographics.lifestyle?.selfEmployed && demographics.lifestyle.selfEmployed > 12 ? `${demographics.lifestyle.selfEmployed.toFixed(0)}% entrepreneurs/self-employed, ` : ''}${demographics.lifestyle?.avgCommuteTime && demographics.lifestyle.avgCommuteTime > 25 ? `${demographics.lifestyle.avgCommuteTime.toFixed(0)}-min avg commute, ` : ''}${demographics.lifestyle?.stemDegree && demographics.lifestyle.stemDegree > 15 ? `${demographics.lifestyle.stemDegree.toFixed(0)}% STEM-educated (tech-savvy), ` : ''}${demographics.lifestyle?.charitableGivers && demographics.lifestyle.charitableGivers > 40 ? `${demographics.lifestyle.charitableGivers.toFixed(0)}% charitable (values-driven)` : 'typical work patterns'}
-- Location: ${demographics.locationProfile} (${demographics.homeOwnership.toFixed(0)}% homeowners, $${demographics.medianHomeValue.toFixed(0)} median home value)
-- Top Markets: ${geoIntelligence.topCities.slice(0, 3).map((c: any) => `${c.city} ${c.state}`).join(', ')}
-- Key Overlap: ${overlaps[0]?.segment || 'N/A'} (${overlaps[0]?.overlapPercentage.toFixed(1) || '0'}%)
+- Household: ${demographics.avgHouseholdSize.toFixed(1)} people, ${demographics.homeOwnership.toFixed(0)}% homeowners
+- Location: ${demographics.locationProfile} (${geoIntelligence.topCities.slice(0, 2).map((c: any) => `${c.city}, ${c.state}`).join(' and ')})
+- STEM Education: ${demographics.lifestyle?.stemDegree ? `${demographics.lifestyle.stemDegree.toFixed(0)}%` : 'N/A'}
+- Key Cross-Shopping: ${overlaps[0]?.segment || 'N/A'} (${overlaps[0]?.overlapPercentage.toFixed(1) || '0'}%)
+- Secondary Cross-Shopping: ${overlaps[1]?.segment || 'N/A'} (${overlaps[1]?.overlapPercentage.toFixed(1) || '0'}%)
 
-IMPORTANT: Use Commerce Baseline comparisons (⭐) to position this segment. They show true differentiation from other online shoppers.
+YOUR TASK: Write an insightful analytical paragraph that CONNECTS these data points to explain purchasing motivations.
 
-Write a compelling 3-sentence executive summary that:
-1. Opens with the SINGLE most defining characteristic vs OTHER ONLINE SHOPPERS (use commerce baseline data)
-2. Describes WHERE they live and their life stage (cite top 2 markets + family/housing data)  
-3. Reveals a NON-OBVIOUS insight from the overlaps or demographics that changes how you'd market to them
+CRITICAL REQUIREMENTS:
+1. MUST start with: "Let's better understand people in the market for ${segment}."
+2. DO NOT describe demographics (age, income, location) - the modules show that
+3. DO NOT say "This audience is X" or "These are Y people" - avoid demographic descriptors
+4. FOCUS ON: Making connections between data points that reveal WHY they buy
+5. ANALYZE: What does the COMBINATION of stats tell us about their motivations?
+6. EXPLAIN: How does education level + income + cross-shopping reveal their values?
 
-Be specific. Cite actual numbers. Make it memorable.`;
+FORBIDDEN PHRASES - NEVER USE THESE:
+❌ "commerce baseline"
+❌ "typical online shopper"
+❌ "average online shopper"
+❌ "vs commerce baseline"
+❌ "compared to online shoppers"
+❌ "unlike the typical online shopper"
+
+ONLY USE THESE COMPARISON PHRASES:
+✅ "vs national average"
+✅ "vs US national average"
+✅ "compared to the national average"
+✅ "above/below national levels"
+
+ANALYTICAL FRAMEWORK - Connect these dots:
+- Income vs national + Education vs national = What does this reveal about their work/values?
+- Cross-shopping patterns = What broader needs/priorities does this show?
+- STEM education + product category = What does this say about how they evaluate products?
+- Homeownership + household size + segment = What life stage priorities drive purchases?
+
+GOOD EXAMPLE (for Baby Transport):
+"Let's better understand people in the market for Baby Transport. The combination of above-average household income (+15% vs national average) with lower educational attainment (-20% vs national average) suggests a trade-skilled workforce that prioritizes practical durability over brand prestige. Their 88% cross-shopping overlap with Electronics Accessories, combined with 44% STEM education rates, reveals a research-driven mindset that values functional specifications and safety ratings rather than aesthetic appeal. The convergence of family-stage purchasing (3.3 household size) with tech-savvy evaluation methods explains why this segment responds to data-rich product descriptions highlighting crash test ratings and engineering certifications."
+
+BAD EXAMPLE #1 - Describing WHO they are:
+"Good morning. This audience is uniquely trade-skilled with $72K income, aged 40-49, in Dallas and Houston. They have 3.3 people per household and 45% homeowners."
+↑ This just describes WHO they are, not WHY they buy.
+
+BAD EXAMPLE #2 - Using forbidden commerce baseline language:
+"Unlike the typical online shopper, this audience is distinctly more trade-skilled with education levels 17.2% below the commerce baseline..."
+↑ NEVER use "typical online shopper" or "commerce baseline" - use "vs national average" instead.
+
+Write 3-4 analytical sentences that connect data points to reveal purchasing motivations. Start with the required opening line. Use ONLY "vs national average" comparisons.`;
 
     const gemini = this.getGeminiService();
     if (!gemini) {
       console.log('⚠️  Gemini not available, using fallback executive summary');
-      return `The ${segment} audience indexes ${demographics.medianHHIvsNational >= 0 ? 'higher' : 'lower'} than the national average in household income, with a median of $${demographics.medianHHI.toFixed(0)}. This audience is primarily concentrated in the ${demographics.topAgeBracket} age bracket and shows strong overlap with ${overlaps[0]?.segment || 'related segments'}, indicating complementary purchase behaviors.`;
+      return `Let's better understand people in the market for ${segment}. The data reveals a ${demographics.affluenceLevel.toLowerCase()} segment with purchasing behaviors driven by ${overlaps[0]?.segment ? `strong cross-shopping patterns with ${overlaps[0].segment}` : 'practical value considerations'}, indicating complementary purchase motivations worth exploring further.`;
     }
 
     try {
@@ -2461,7 +2609,7 @@ Be specific. Cite actual numbers. Make it memorable.`;
       return summary;
     } catch (error) {
       console.error('❌ Error generating executive summary:', error);
-      return `The ${segment} audience indexes ${demographics.medianHHIvsNational >= 0 ? 'higher' : 'lower'} than the national average in household income, with a median of $${demographics.medianHHI.toFixed(0)}. This audience is primarily concentrated in the ${demographics.topAgeBracket} age bracket and shows strong overlap with ${overlaps[0]?.segment || 'related segments'}, indicating complementary purchase behaviors.`;
+      return `Let's better understand people in the market for ${segment}. The data reveals a ${demographics.affluenceLevel.toLowerCase()} segment with purchasing behaviors driven by ${overlaps[0]?.segment ? `strong cross-shopping patterns with ${overlaps[0].segment}` : 'practical value considerations'}, indicating complementary purchase motivations worth exploring further.`;
     }
   }
 

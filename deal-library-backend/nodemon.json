@@ -30,6 +30,7 @@
   "env": {
     "NODE_ENV": "development"
   },
+  "nodeArgs": ["--max-old-space-size=4096"],
   "legacyWatch": false,
   "polling": false,
   "verbose": false,

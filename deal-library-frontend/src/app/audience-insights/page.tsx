@@ -944,8 +944,8 @@ export default function AudienceInsightsPage() {
                 {report.executiveSummary}
               </p>
 
-              {/* KPI Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              {/* KPI Cards - Row 1 */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div className="bg-white p-4 rounded-lg border border-gray-300">
                   <div className="text-sm text-gray-700 font-medium mb-1">Median Household Income</div>
                   <div className="text-2xl font-bold text-gray-900">{formatCurrency(report.keyMetrics.medianHHI)}</div>
@@ -972,31 +972,25 @@ export default function AudienceInsightsPage() {
                   </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-lg border border-gray-300">
-                  <div className="text-sm text-gray-700 font-medium mb-1">Commerce Segment</div>
-                  <div className="text-lg font-bold text-gray-900">{report.segment}</div>
-                  <div className="text-sm text-gray-600 mt-1">{report.category}</div>
-                </div>
-              </div>
-
-              {/* Additional Census Data */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Home Value */}
                 {report.demographics.medianHomeValue && (
                   <div className="bg-white p-4 rounded-lg border border-gray-300">
                     <div className="text-sm text-gray-700 font-medium mb-1">Median Home Value</div>
-                    <div className="text-xl font-bold text-gray-900">${Math.round(report.demographics.medianHomeValue).toLocaleString()}</div>
+                    <div className="text-2xl font-bold text-gray-900">${Math.round(report.demographics.medianHomeValue).toLocaleString()}</div>
                     <div className="text-xs text-gray-600 mt-1">
                       {report.demographics.homeOwnership?.toFixed(0) || 0}% homeowners
                     </div>
                   </div>
                 )}
+              </div>
 
+              {/* KPI Cards - Row 2 */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {/* Ethnicity */}
                 {report.demographics.ethnicity && (
                   <div className="bg-white p-4 rounded-lg border border-gray-300">
                     <div className="text-sm text-gray-700 font-medium mb-1">Primary Ethnicity</div>
-                    <div className="text-lg font-bold text-gray-900">
+                    <div className="text-2xl font-bold text-gray-900">
                       {(() => {
                         const ethnicity = report.demographics.ethnicity;
                         const ethnicityMap = {
@@ -1025,7 +1019,7 @@ export default function AudienceInsightsPage() {
                 {report.demographics.urbanRuralDistribution && report.demographics.urbanRuralDistribution.length > 0 && (
                   <div className="bg-white p-4 rounded-lg border border-gray-300">
                     <div className="text-sm text-gray-700 font-medium mb-1">Location Type</div>
-                    <div className="text-lg font-bold text-gray-900 capitalize">
+                    <div className="text-2xl font-bold text-gray-900 capitalize">
                       {report.demographics.urbanRuralDistribution[0]?.type || 'Mixed'}
                     </div>
                     <div className="text-xs text-gray-600 mt-1">
@@ -1038,8 +1032,8 @@ export default function AudienceInsightsPage() {
                 {report.demographics.avgHouseholdSize && (
                   <div className="bg-white p-4 rounded-lg border border-gray-300">
                     <div className="text-sm text-gray-700 font-medium mb-1">Household Size</div>
-                    <div className="text-lg font-bold text-gray-900">{report.demographics.avgHouseholdSize.toFixed(1)}</div>
-                    <div className="text-xs text-emerald-600 mt-1">people per household</div>
+                    <div className="text-2xl font-bold text-gray-900">{report.demographics.avgHouseholdSize.toFixed(1)}</div>
+                    <div className="text-xs text-gray-600 mt-1">people per household</div>
                   </div>
                 )}
 
@@ -1047,7 +1041,7 @@ export default function AudienceInsightsPage() {
                 {report.demographics.lifestyle && (
                   <div className="bg-white p-4 rounded-lg border border-gray-300">
                     <div className="text-sm text-gray-700 font-medium mb-1">Marriage Rate</div>
-                    <div className="text-lg font-bold text-gray-900">{report.demographics.lifestyle.married.toFixed(0)}%</div>
+                    <div className="text-2xl font-bold text-gray-900">{report.demographics.lifestyle.married.toFixed(0)}%</div>
                     <div className="text-xs text-gray-600 mt-1">
                       {report.demographics.lifestyle.dualIncome.toFixed(0)}% dual income
                     </div>

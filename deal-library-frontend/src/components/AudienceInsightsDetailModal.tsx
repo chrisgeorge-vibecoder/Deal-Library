@@ -25,7 +25,7 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-0 sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -33,11 +33,11 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
       }}
     >
       <div 
-        className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-sovrn-lg sm:max-w-4xl sm:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-blue-100 rounded-lg">
               <Users className="h-6 w-6 text-blue-600" />
@@ -92,7 +92,7 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
               <Target className="h-5 w-5 mr-2 text-blue-600" />
               Demographics
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 sm:p-4">
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="text-sm font-medium text-gray-700 mb-1">Age Range</div>
                 <div className="text-gray-900">{insights.demographics.ageRange}</div>

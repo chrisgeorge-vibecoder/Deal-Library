@@ -2192,6 +2192,13 @@ CRITICAL INSTRUCTIONS:
 - Focus on market sizing and industry trends, not competitor analysis
 - If the query is broad (like "trends in sports"), break it into 1-2 key market segments
 
+RESPONSE FORMAT REQUIREMENTS:
+- Return ONLY valid JSON, nothing else
+- Do NOT include any text before or after the JSON
+- Do NOT wrap the JSON in code blocks or markdown
+- The "aiResponse" field MUST contain a natural language paragraph (NOT JSON, NOT a data structure)
+- The "aiResponse" should be 2-3 sentences summarizing the key insights for a CMO or marketing executive
+
 Return your response as JSON in this exact format:
 {
   "marketSizing": [
@@ -2251,7 +2258,7 @@ Return your response as JSON in this exact format:
       ]
     }
   ],
-  "aiResponse": "Your conversational response about the market sizing with strategic implications for advertising and media planning",
+  "aiResponse": "A 2-3 sentence natural language summary of the market opportunity, written for a CMO. This should be plain text, NOT JSON or data structures.",
   "strategicRecommendations": {
     "investmentPriority": "High/Medium/Low",
     "entryStrategy": "Recommended approach for entering this market",
@@ -2282,23 +2289,57 @@ Return your response as JSON in this exact format:
             throw new Error('No JSON found in response');
           }
         }
+        
+        // Validate that we got proper market sizing data
+        if (!parsed || typeof parsed !== 'object') {
+          throw new Error('Parsed response is not a valid object');
+        }
+        
+        // Check if the aiResponse field contains JSON instead of text (this is a bug)
+        if (parsed.aiResponse && typeof parsed.aiResponse === 'string') {
+          // Check if aiResponse looks like JSON
+          const aiResponseTrimmed = parsed.aiResponse.trim();
+          if (aiResponseTrimmed.startsWith('{') || aiResponseTrimmed.startsWith('[')) {
+            console.warn('⚠️ aiResponse appears to contain JSON instead of text, extracting from marketSizing data');
+            // Use a generic message instead
+            parsed.aiResponse = 'Here is the market sizing analysis based on your query.';
+          }
+        }
+        
       } catch (error) {
         console.error('❌ Failed to parse market sizing JSON:', error);
         console.log('📄 Raw Gemini response (first 500 chars):', responseText.substring(0, 500));
         
-        // If Gemini gave us a text response, use it as the AI response
-        if (responseText && responseText.trim().length > 0) {
+        // Check if the entire response looks like JSON (common issue)
+        const trimmedResponse = responseText.trim();
+        if (trimmedResponse.startsWith('{') && trimmedResponse.endsWith('}')) {
+          console.warn('⚠️ Entire response appears to be JSON, attempting direct parse');
+          try {
+            parsed = JSON.parse(trimmedResponse);
+            // Successfully parsed, continue with the normal flow
+          } catch (directParseError) {
+            console.error('❌ Direct parse also failed');
+            return {
+              marketSizing: [],
+              aiResponse: "I encountered an error generating market sizing data. The AI service returned an improperly formatted response. Please try again."
+            };
+          }
+        } else {
+          // If Gemini gave us a text response (not JSON), use it as the AI response
+          // But only if it doesn't look like a raw JSON dump
+          if (responseText && responseText.trim().length > 0 && !responseText.includes('"marketSizing"')) {
+            return {
+              marketSizing: [],
+              aiResponse: responseText.trim()
+            };
+          }
+          
+          // Return fallback response if we got malformed JSON
           return {
             marketSizing: [],
-            aiResponse: responseText.trim()
+            aiResponse: "I can provide market sizing data for the market you mentioned. Please try again with a more specific query."
           };
         }
-        
-        // Return fallback response only if we got nothing
-        return {
-          marketSizing: [],
-          aiResponse: "I can provide market sizing data for the market you mentioned. Please be more specific about which market you'd like me to analyze."
-        };
       }
 
       let finalResponse = parsed.aiResponse || "Here are the market sizing insights you requested.";
@@ -3105,6 +3146,69 @@ Return ONLY valid JSON in this exact format:
     } catch (error) {
       console.error('❌ Gemini health check failed:', error);
       return false;
+    }
+  }
+
+  /**
+   * Generate content with Google Search or Maps grounding
+   * This enables real-time web data retrieval for market intelligence
+   */
+  async generateContentWithGrounding(prompt: string, options?: {
+    useSearchGrounding?: boolean;
+    useMapsGrounding?: boolean;
+    dynamicThreshold?: number;
+  }) {
+    console.log(`🔍 Generating content with grounding: Search=${options?.useSearchGrounding}, Maps=${options?.useMapsGrounding}`);
+    
+    const tools: any[] = [];
+    
+    // Add Google Search grounding if requested
+    if (options?.useSearchGrounding) {
+      tools.push({
+        googleSearch: {}
+      });
+    }
+    
+    // Add Google Maps grounding if requested
+    if (options?.useMapsGrounding) {
+      tools.push({
+        googleMaps: {}
+      });
+    }
+    
+    // Create model with grounding tools
+    const groundedModel = this.genAI.getGenerativeModel({ 
+      model: "gemini-2.5-flash",
+      generationConfig: {
+        temperature: 0.1,
+        topP: 0.8,
+        maxOutputTokens: 8192,
+      },
+      tools: tools.length > 0 ? tools : undefined
+    });
+    
+    try {
+      const result = await groundedModel.generateContent(prompt);
+      const response = await result.response;
+      
+      // Extract grounding metadata if available
+      const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
+      if (groundingMetadata) {
+        console.log(`📚 Grounding metadata:`, JSON.stringify(groundingMetadata, null, 2).substring(0, 500));
+      }
+      
+      return {
+        text: response.text(),
+        groundingMetadata,
+        response: result
+      };
+    } catch (error) {
+      console.error('❌ Error generating content with grounding:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      throw error;
     }
   }
 }

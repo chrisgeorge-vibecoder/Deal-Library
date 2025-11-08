@@ -192,10 +192,10 @@ export default function FilterModal({
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-4xl h-[90vh] max-h-[800px] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white w-full h-full sm:h-[90vh] sm:rounded-xl sm:max-w-4xl sm:max-h-[800px] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Advanced Filters</h2>
           <div className="flex items-center space-x-3">
             <button
@@ -251,7 +251,7 @@ export default function FilterModal({
                 </button>
                 {expandedSections.has('zip-codes') && (
                   <div className="p-4 border-t border-gray-200 space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-0 sm:p-4">
                       <MultiSelect
                         label="States"
                         options={['CA', 'NY', 'TX', 'FL', 'IL', 'PA', 'OH', 'GA']}
@@ -265,7 +265,7 @@ export default function FilterModal({
                         onChange={(value) => updateZipCodeFilter('dmas', value)}
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-0 sm:p-4">
                       <RangeInput
                         label="Population Range"
                         value={filters.zipCode.populationRange}
@@ -285,7 +285,7 @@ export default function FilterModal({
                         suffix="$"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-0 sm:p-4">
                       <RangeInput
                         label="Market Penetration"
                         value={filters.zipCode.penetrationRange}
@@ -324,7 +324,7 @@ export default function FilterModal({
                 </button>
                 {expandedSections.has('markets') && (
                   <div className="p-4 border-t border-gray-200 space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-0 sm:p-4">
                       <RangeInput
                         label="DMA Rank"
                         value={filters.market.dmaRank}
@@ -386,7 +386,7 @@ export default function FilterModal({
                         onChange={(value) => updateSegmentFilter('segmentTypes', value)}
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-0 sm:p-4">
                       <RangeInput
                         label="Growth Rate"
                         value={filters.segment.growthRateRange}
@@ -406,7 +406,7 @@ export default function FilterModal({
                         suffix="$"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-0 sm:p-4">
                       <RangeInput
                         label="Penetration Rate"
                         value={filters.segment.penetrationRange}
@@ -445,7 +445,7 @@ export default function FilterModal({
                 </button>
                 {expandedSections.has('data-quality') && (
                   <div className="p-4 border-t border-gray-200 space-y-4">
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-3 gap-0 sm:p-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Data Freshness</label>
                         <select

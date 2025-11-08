@@ -256,7 +256,13 @@ export default function MarketInsightsMap({
         // Initialize map
         const map = L.map(mapContainerRef.current!, {
           zoomControl: true,
-          attributionControl: true
+          attributionControl: true,
+          touchZoom: true,
+          tap: true,
+          dragging: true,
+          scrollWheelZoom: 'center',
+          doubleClickZoom: true,
+          boxZoom: false
         }).setView([39.8283, -98.5795], 4);
         
         console.log('🗺️ Map instance created');

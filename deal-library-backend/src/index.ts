@@ -276,6 +276,12 @@ app.post('/api/audience-geo-analysis/export-pdf', (req, res) => dealsController.
 app.post('/api/audience-insights/generate', (req, res) => dealsController.generateAudienceInsightsReport(req, res));
 app.post('/api/persona/generate', (req, res) => dealsController.generatePersonaCard(req, res));
 
+// Agent Mode API Routes (Server-Sent Events)
+app.post('/api/agent-mode/generate-recommendation', (req, res) => dealsController.generateAgentModeRecommendation(req, res));
+
+// Campaign Planner API Routes
+app.post('/api/campaign-planner/parse-brief', (req, res) => dealsController.parseBrief(req, res));
+
 // Commerce Baseline API Route
 app.get('/api/commerce-baseline', async (req, res) => {
   try {
@@ -518,25 +524,10 @@ const server = app.listen(PORT, async () => {
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
   
-  // Auto-load commerce audience data on startup (always enabled)
-  console.log(`\n📦 Auto-loading commerce audience data...`);
-  try {
-    const { commerceAudienceService } = await import('./services/commerceAudienceService');
-    
-    // Check if segments are already loaded
-    const existingSegments = commerceAudienceService.getAudienceSegments();
-    if (existingSegments.length === 0) {
-      console.log(`🔄 No segments found, loading commerce data...`);
-      const result = await commerceAudienceService.loadCommerceData();
-      if (result.success) {
-        console.log(`✅ Commerce data loaded: ${result.stats?.totalRecords.toLocaleString()} records, ${result.stats?.audienceSegments.length} segments`);
-      }
-    } else {
-      console.log(`✅ Commerce segments already loaded: ${existingSegments.length} segments`);
-    }
-  } catch (error) {
-    console.error(`⚠️  Failed to auto-load commerce data:`, error);
-  }
+  // Skip commerce data auto-load to reduce memory usage for Agent Mode
+  console.log(`\n📦 Commerce data loading disabled (on-demand only for memory optimization)`);
+  // Commerce data will only load when explicitly requested via API
+  // This saves 2-3GB of memory at startup
   console.log(`📋 API endpoints:`);
   console.log(`   GET    /api/deals`);
   console.log(`   GET    /api/deals/:id`);

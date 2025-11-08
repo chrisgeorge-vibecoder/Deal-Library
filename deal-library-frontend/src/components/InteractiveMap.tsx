@@ -254,7 +254,13 @@ export default function InteractiveMap({ geo }: InteractiveMapProps) {
         console.log('🗺️ Creating map container:', mapRef.current);
         const map = L.map(mapRef.current!, {
           zoomControl: true,
-          attributionControl: true
+          attributionControl: true,
+          touchZoom: true,
+          tap: true,
+          dragging: true,
+          scrollWheelZoom: 'center',
+          doubleClickZoom: true,
+          boxZoom: false
         }).setView([39.8283, -98.5795], 4);
         
         console.log('🗺️ Map created successfully');
@@ -373,7 +379,7 @@ export default function InteractiveMap({ geo }: InteractiveMapProps) {
 
   if (isLoading) {
     return (
-      <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
+      <div className="w-full h-64 sm:h-96 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center touch-manipulation">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
           <div className="text-gray-600 text-sm">Loading map...</div>
@@ -383,7 +389,7 @@ export default function InteractiveMap({ geo }: InteractiveMapProps) {
   }
 
   return (
-    <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-200">
+    <div className="w-full h-64 sm:h-96 rounded-lg overflow-hidden border border-gray-200 touch-manipulation">
       <div ref={mapRef} className="w-full h-full" />
     </div>
   );

@@ -24,7 +24,7 @@ export default function DealDetailModal({
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-0 sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -32,24 +32,24 @@ export default function DealDetailModal({
       }}
     >
       <div 
-        className={`bg-white rounded-xl shadow-sovrn-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto ${
+        className={`bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-sovrn-lg sm:max-w-4xl sm:max-h-[90vh] overflow-y-auto ${
           isCommerceAudience ? 'border-l-4 border-brand-gold' : ''
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className={`flex justify-between items-start p-6 border-b border-neutral-200 ${
+        <div className={`flex justify-between items-start p-4 sm:p-6 border-b border-neutral-200 ${
           isCommerceAudience ? 'bg-gradient-to-r from-brand-gold/5 to-transparent' : ''
         }`}>
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h2 className="text-2xl font-bold text-neutral-900">{deal.dealName}</h2>
+            <div className="flex items-center gap-2 sm:gap-3 mb-2">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">{deal.dealName}</h2>
               {isCommerceAudience && (
                 <span className="text-2xl">🛍️</span>
               )}
             </div>
-            <p className="text-sm text-neutral-500 mb-4">ID: {deal.dealId}</p>
-            <div className="flex gap-2">
+            <p className="text-xs sm:text-sm text-neutral-500 mb-3 sm:mb-4">ID: {deal.dealId}</p>
+            <div className="flex gap-2 flex-wrap">
               <span className="badge bg-primary-100 text-primary-800">
                 {deal.environment}
               </span>
@@ -58,13 +58,14 @@ export default function DealDetailModal({
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ml-2">
             <button 
               onClick={(e) => {
                 e.stopPropagation();
                 onClose();
               }}
-              className="text-neutral-500 hover:text-neutral-700 p-2"
+              className="text-neutral-500 hover:text-neutral-700 touch-target"
+              aria-label="Close modal"
             >
               <X className="w-6 h-6" />
             </button>
@@ -72,15 +73,15 @@ export default function DealDetailModal({
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Description */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-neutral-900 mb-3">Description</h3>
-            <p className="text-neutral-700 leading-relaxed">{deal.description}</p>
+          <div className="mb-6 sm:mb-8">
+            <h3 className="text-base sm:text-lg font-semibold text-neutral-900 mb-2 sm:mb-3">Description</h3>
+            <p className="text-sm sm:text-base text-neutral-700 leading-relaxed">{deal.description}</p>
           </div>
 
           {/* Details Grid - 2x2 Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <div className="flex items-start gap-3">
               <div className="p-2 bg-primary-100 rounded-lg">
                 <Target className="w-5 h-5 text-primary-600" />

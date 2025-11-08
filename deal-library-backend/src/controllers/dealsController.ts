@@ -9,8 +9,11 @@ import { commerceAudienceService } from '../services/commerceAudienceService';
 import { audienceGeoAnalysisService } from '../services/audienceGeoAnalysisService';
 import { audienceInsightsService } from '../services/audienceInsightsService';
 import { coachingService } from '../services/coachingService';
+import { AgentModeService } from '../services/agentModeService';
+import { reportGenerationService } from '../services/reportGenerationService';
 import { Deal, DealFilters, SearchResult, CustomDealRequest } from '../types/deal';
 import { CensusQueryFilters } from '../types/censusData';
+import { AdvertiserBrief, ProgressUpdate } from '../types/agentMode';
 import { cacheService } from '../services/cacheService';
 
 export class DealsController {
@@ -20,6 +23,7 @@ export class DealsController {
   private hybridSearchService: HybridSearchService | null = null;
   private personaService: PersonaService;
   private censusDataService: CensusDataService;
+  private agentModeService: AgentModeService | null = null;
 
   constructor() {
     this.appsScriptService = new AppsScriptService();
@@ -32,9 +36,14 @@ export class DealsController {
       const supabase = process.env.USE_SUPABASE === 'true' ? require('../services/supabaseService').SupabaseService.getClient() : null;
       this.geminiService = new GeminiService(supabase);
       console.log('✅ Gemini AI service initialized');
+      
+      // Initialize Agent Mode service
+      this.agentModeService = new AgentModeService(this.geminiService);
+      console.log('✅ Agent Mode service initialized');
     } catch (error) {
       console.log('⚠️  Gemini AI service not available (missing API key)');
       this.geminiService = null;
+      this.agentModeService = null;
     }
 
     // Initialize embedding service
@@ -2545,6 +2554,242 @@ export class DealsController {
         updatedAt: now
       }
     ];
+  }
+
+  /**
+   * Generate Agent Mode comprehensive recommendation
+   * Uses Server-Sent Events (SSE) to stream progress updates
+   */
+  async generateAgentModeRecommendation(req: Request, res: Response): Promise<void> {
+    try {
+      const { rawBrief, formData } = req.body;
+
+      // Accept either rawBrief (legacy) or formData (new Campaign Planner)
+      if (!rawBrief && !formData) {
+        res.status(400).json({
+          error: 'Brief or form data is required',
+          message: 'Please provide an advertiser brief or form data'
+        });
+        return;
+      }
+
+      // Validate format
+      if (rawBrief && (typeof rawBrief !== 'string' || rawBrief.trim().length === 0)) {
+        res.status(400).json({
+          error: 'Invalid brief format',
+          message: 'Brief must be a non-empty string'
+        });
+        return;
+      }
+
+      if (formData && !formData.targetAudiences) {
+        res.status(400).json({
+          error: 'Invalid form data',
+          message: 'Target audiences are required'
+        });
+        return;
+      }
+
+      if (!this.agentModeService || !this.geminiService) {
+        res.status(503).json({
+          error: 'Agent Mode not available',
+          message: 'AI service is not configured. Please check server configuration.'
+        });
+        return;
+      }
+
+      console.log(`🤖 Agent Mode: Starting comprehensive recommendation generation`);
+      if (rawBrief) {
+        console.log(`   Brief length: ${rawBrief.length} characters`);
+      } else {
+        console.log(`   Using form data with ${formData.targetAudiences.length} audiences`);
+      }
+
+      // Set headers for Server-Sent Events (SSE)
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
+      res.flushHeaders();
+
+      // Start heartbeat to keep connection alive and prevent buffering
+      // Sends a keepalive comment every 10 seconds
+      const heartbeat = setInterval(() => {
+        res.write(':keepalive\n\n');
+        console.log('💓 SSE heartbeat sent');
+        if (typeof (res as any).flush === 'function') {
+          (res as any).flush();
+        }
+      }, 10000); // Every 10 seconds
+
+      // Create advertiser brief
+      const brief: any = rawBrief 
+        ? {
+            rawBrief: rawBrief.trim(),
+            timestamp: new Date()
+          }
+        : {
+            formData: formData,
+            timestamp: new Date()
+          };
+
+      // Progress callback to stream updates to frontend
+      const progressCallback = (update: ProgressUpdate) => {
+        const data = JSON.stringify(update);
+        console.log(`📤 Sending SSE event:`, update.stepName, update.status);
+        res.write(`data: ${data}\n\n`);
+        // Explicitly flush to ensure immediate delivery
+        if (typeof (res as any).flush === 'function') {
+          (res as any).flush();
+        }
+      };
+
+      // Send immediate initial progress event to show UI instantly
+      progressCallback({
+        type: 'progress',
+        step: 1,
+        totalSteps: 10,
+        stepName: 'Initializing',
+        status: 'in_progress',
+        message: 'Starting campaign analysis...',
+        timestamp: new Date(),
+        percentComplete: 0
+      } as ProgressUpdate);
+
+      try {
+        // Generate comprehensive recommendation
+        const report = await this.agentModeService.generateComprehensiveRecommendation(
+          brief,
+          progressCallback
+        );
+
+        // Generate markdown report
+        const markdownReport = reportGenerationService.generateReport(report.results);
+        report.markdownReport = markdownReport;
+
+        // Send completion event with full report
+        const completeUpdate = {
+          type: 'complete',
+          report: {
+            advertiserName: report.advertiserName,
+            generatedDate: report.generatedDate.toISOString(),
+            markdownReport: report.markdownReport,
+            summary: report.summary,
+            results: report.results // Include full results object with audiences, personas, deals, etc.
+          },
+          timestamp: new Date().toISOString()
+        };
+
+        res.write(`data: ${JSON.stringify(completeUpdate)}\n\n`);
+        
+        // Clear heartbeat before closing connection
+        clearInterval(heartbeat);
+        console.log('💓 SSE heartbeat stopped (success)');
+        
+        res.end();
+
+        console.log(`✅ Agent Mode: Recommendation generated successfully for ${report.advertiserName}`);
+      } catch (generationError) {
+        console.error('❌ Agent Mode generation error:', generationError);
+        
+        // Clear heartbeat on error
+        clearInterval(heartbeat);
+        console.log('💓 SSE heartbeat stopped (error)');
+        
+        const errorUpdate = {
+          type: 'error',
+          message: generationError instanceof Error ? generationError.message : 'Generation failed',
+          timestamp: new Date().toISOString()
+        };
+
+        res.write(`data: ${JSON.stringify(errorUpdate)}\n\n`);
+        res.end();
+      }
+    } catch (error) {
+      console.error('❌ Agent Mode endpoint error:', error);
+      
+      // If headers haven't been sent, send JSON error
+      if (!res.headersSent) {
+        res.status(500).json({
+          error: 'Failed to generate recommendation',
+          message: error instanceof Error ? error.message : 'Unknown error'
+        });
+      } else {
+        // If SSE stream already started, send error event
+        const errorUpdate = {
+          type: 'error',
+          message: error instanceof Error ? error.message : 'Unknown error',
+          timestamp: new Date().toISOString()
+        };
+        res.write(`data: ${JSON.stringify(errorUpdate)}\n\n`);
+        res.end();
+      }
+    }
+  }
+
+  /**
+   * Parse an advertiser brief and extract structured data
+   * Used by Campaign Planner form to auto-fill fields
+   */
+  async parseBrief(req: Request, res: Response): Promise<void> {
+    try {
+      const { rawBrief } = req.body;
+
+      if (!rawBrief || typeof rawBrief !== 'string' || rawBrief.trim().length === 0) {
+        res.status(400).json({
+          success: false,
+          error: 'Brief is required',
+          message: 'Please provide an advertiser brief'
+        });
+        return;
+      }
+
+      if (!this.agentModeService || !this.geminiService) {
+        res.status(503).json({
+          success: false,
+          error: 'Service not available',
+          message: 'AI service is not configured'
+        });
+        return;
+      }
+
+      console.log(`📋 Parsing brief (${rawBrief.length} characters)...`);
+
+      // Use the agent mode service's analyzeBrief method directly
+      const brief: AdvertiserBrief = {
+        rawBrief: rawBrief.trim(),
+        timestamp: new Date()
+      };
+
+      // Call the analyzeBrief method (we'll need to make it public)
+      const parsed = await (this.agentModeService as any).analyzeBrief(brief, () => {});
+
+      console.log(`✅ Brief parsed successfully:`, {
+        advertiser: parsed.advertiserName,
+        audiences: parsed.targetAudiences.length
+      });
+
+      res.json({
+        success: true,
+        parsed: {
+          advertiserName: parsed.advertiserName,
+          targetAudiences: parsed.targetAudiences,
+          campaignObjectives: parsed.campaignObjectives,
+          budgetRange: parsed.budgetRange,
+          geographicFocus: parsed.geographicFocus,
+          keyProducts: parsed.keyProducts,
+          timeline: parsed.timeline,
+          additionalContext: parsed.additionalContext
+        }
+      });
+    } catch (error) {
+      console.error('❌ Brief parsing error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to parse brief',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
   }
 
 }

@@ -66,7 +66,7 @@ export function MarketingNewsDetailModal({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-0 sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -74,11 +74,11 @@ export function MarketingNewsDetailModal({
       }}
     >
       <div 
-        className="relative bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+        className="relative bg-white rounded-lg shadow-xl w-full max-w-full sm:max-w-4xl h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-6 border-b border-neutral-200">
+        <div className="flex items-start justify-between p-4 sm:p-6 border-b border-neutral-200">
           <div className="flex items-start gap-4 flex-1">
             <div className="p-3 bg-primary-50 rounded-lg">
               <Newspaper className="w-6 h-6 text-primary-600" />
@@ -128,11 +128,11 @@ export function MarketingNewsDetailModal({
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Synopsis */}
           <div className="mb-6">
             <h3 className="text-lg font-medium text-neutral-900 mb-3">Summary</h3>
-            <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-4">
+            <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-0 sm:p-4">
               <p className="text-neutral-700 leading-relaxed">
                 {news.synopsis}
               </p>

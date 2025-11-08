@@ -20,6 +20,8 @@ export interface AudienceSegment {
   cpm: number;
   mediaPercentCost: number;
   activelyGenerated: boolean;
+  scale7DayUS?: number;
+  scale1DayIP?: number;
 }
 
 // Legacy type alias for backward compatibility

@@ -1,0 +1,200 @@
+[
+  {
+    "audienceName": "Health & Beauty",
+    "insights": [
+      {
+        "audience": "Health & Beauty",
+        "insight": "Income Level",
+        "data": "$81,406.63 median HHI",
+        "context": "15.6% higher than the national average"
+      },
+      {
+        "audience": "Health & Beauty",
+        "insight": "Purchasing Power",
+        "data": "4.5% lower income",
+        "context": "compared to average online shoppers"
+      },
+      {
+        "audience": "Health & Beauty",
+        "insight": "Education Level",
+        "data": "37.1% Bachelor's degree or higher",
+        "context": "5.9% higher than national average"
+      },
+      {
+        "audience": "Health & Beauty",
+        "insight": "Education vs Online Shoppers",
+        "data": "2.1% higher education level",
+        "context": "compared to typical e-commerce audience"
+      },
+      {
+        "audience": "Health & Beauty",
+        "insight": "Highest Indexing Markets",
+        "data": "Washington, District of Columbia (33779.3x) • Saint Louis, Missouri (22529.2x) • Brooklyn, New York (16655.8x)",
+        "context": "Most concentrated markets - audience over-indexes vs. national average"
+      },
+      {
+        "audience": "Health & Beauty",
+        "insight": "Primary Age Group",
+        "data": "Ages 40-49",
+        "context": "Represents 19% of this audience segment"
+      },
+      {
+        "audience": "Health & Beauty",
+        "insight": "Household Composition",
+        "data": "3.2 average household size",
+        "context": "Indicates larger families - important for product sizing and packaging"
+      },
+      {
+        "audience": "Health & Beauty",
+        "insight": "Homeownership & Wealth",
+        "data": "48% homeowners, $479K median home value",
+        "context": "Indicates market affluence and stability"
+      },
+      {
+        "audience": "Health & Beauty",
+        "insight": "Lifestyle Profile",
+        "data": "53% dual income",
+        "context": "Key demographic characteristics for targeting"
+      },
+      {
+        "audience": "Health & Beauty",
+        "insight": "Cross-Shopping Behavior",
+        "data": "90% also shop Cosmetics",
+        "context": "Opportunity for bundled offers and category expansion"
+      }
+    ],
+    "reportSummary": "This Health & Beauty audience, while upper-middle income nationally, earns 4.5% *less* than the typical online shopper with a median income of $81,407, indicating a discerning yet value-conscious approach to their purchases. Primarily suburban homeowners (48% homeowners, $478,946 median home value) in markets like Washington D.C. and Atlanta, this is a family-focused group with 3.2 people per household and 39% married. Crucially, with 45% being STEM-educated and tech-savvy, they are highly analytical consumers who will respond best to data-backed claims and transparent ingredient lists, rather than purely aspirational messaging."
+  },
+  {
+    "audienceName": "Cosmetics",
+    "insights": [
+      {
+        "audience": "Cosmetics",
+        "insight": "Income Level",
+        "data": "$83,136.729 median HHI",
+        "context": "18.1% higher than the national average"
+      },
+      {
+        "audience": "Cosmetics",
+        "insight": "Purchasing Power",
+        "data": "2.5% lower income",
+        "context": "compared to average online shoppers"
+      },
+      {
+        "audience": "Cosmetics",
+        "insight": "Education Level",
+        "data": "37.3% Bachelor's degree or higher",
+        "context": "6.5% higher than national average"
+      },
+      {
+        "audience": "Cosmetics",
+        "insight": "Education vs Online Shoppers",
+        "data": "2.7% higher education level",
+        "context": "compared to typical e-commerce audience"
+      },
+      {
+        "audience": "Cosmetics",
+        "insight": "Highest Indexing Markets",
+        "data": "Washington, District of Columbia (33725.6x) • Brooklyn, New York (17671.9x) • Louisville, Kentucky (16536.4x)",
+        "context": "Most concentrated markets - audience over-indexes vs. national average"
+      },
+      {
+        "audience": "Cosmetics",
+        "insight": "Primary Age Group",
+        "data": "Ages 40-49",
+        "context": "Represents 19% of this audience segment"
+      },
+      {
+        "audience": "Cosmetics",
+        "insight": "Household Composition",
+        "data": "3.2 average household size",
+        "context": "Indicates larger families - important for product sizing and packaging"
+      },
+      {
+        "audience": "Cosmetics",
+        "insight": "Homeownership & Wealth",
+        "data": "47% homeowners, $508K median home value",
+        "context": "Indicates market affluence and stability"
+      },
+      {
+        "audience": "Cosmetics",
+        "insight": "Lifestyle Profile",
+        "data": "54% dual income",
+        "context": "Key demographic characteristics for targeting"
+      },
+      {
+        "audience": "Cosmetics",
+        "insight": "Cross-Shopping Behavior",
+        "data": "91% also shop Personal Care",
+        "context": "Opportunity for bundled offers and category expansion"
+      }
+    ],
+    "reportSummary": "This Cosmetics audience, surprisingly, has a median income 2.5% lower than the average online shopper, suggesting a value-conscious approach to beauty. These are primarily suburban homeowners in their 40s, family-focused with 3.2 people per household, concentrated in markets like Washington D.C. and Atlanta. Crucially, with 45% being STEM-educated, this audience is highly tech-savvy and likely seeks data-driven efficacy and transparency in their beauty products, moving beyond traditional aspirational marketing."
+  },
+  {
+    "audienceName": "Hairdressing & Cosmetology",
+    "insights": [
+      {
+        "audience": "Hairdressing & Cosmetology",
+        "insight": "Income Level",
+        "data": "$69,934.497 median HHI",
+        "context": "0.7% lower than the national average"
+      },
+      {
+        "audience": "Hairdressing & Cosmetology",
+        "insight": "Purchasing Power",
+        "data": "18.0% lower income",
+        "context": "compared to average online shoppers"
+      },
+      {
+        "audience": "Hairdressing & Cosmetology",
+        "insight": "Education Level",
+        "data": "30.1% Bachelor's degree or higher",
+        "context": "14.1% lower than national average"
+      },
+      {
+        "audience": "Hairdressing & Cosmetology",
+        "insight": "Education vs Online Shoppers",
+        "data": "17.2% lower education level",
+        "context": "compared to typical e-commerce audience"
+      },
+      {
+        "audience": "Hairdressing & Cosmetology",
+        "insight": "Highest Indexing Markets",
+        "data": "Washington, District of Columbia (55073.3x) • Brooklyn, New York (26816.7x) • Miami, Florida (23905.6x)",
+        "context": "Most concentrated markets - audience over-indexes vs. national average"
+      },
+      {
+        "audience": "Hairdressing & Cosmetology",
+        "insight": "Primary Age Group",
+        "data": "Ages 40-49",
+        "context": "Represents 18% of this audience segment"
+      },
+      {
+        "audience": "Hairdressing & Cosmetology",
+        "insight": "Household Composition",
+        "data": "3.3 average household size",
+        "context": "Indicates larger families - important for product sizing and packaging"
+      },
+      {
+        "audience": "Hairdressing & Cosmetology",
+        "insight": "Homeownership & Wealth",
+        "data": "49% homeowners, $380K median home value",
+        "context": "Indicates market affluence and stability"
+      },
+      {
+        "audience": "Hairdressing & Cosmetology",
+        "insight": "Lifestyle Profile",
+        "data": "52% dual income",
+        "context": "Key demographic characteristics for targeting"
+      },
+      {
+        "audience": "Hairdressing & Cosmetology",
+        "insight": "Cross-Shopping Behavior",
+        "data": "73% also shop Network Software",
+        "context": "Opportunity for bundled offers and category expansion"
+      }
+    ],
+    "reportSummary": "\"This 'Hairdressing & Cosmetology' audience stands out as significantly more value-conscious than the average online shopper, with a median income 18% lower than the Commerce Baseline. Primarily suburban homeowners in markets like Washington D.C. and Jersey City, this family-focused segment (3.3 people per household, 37% married) is typically aged 40-49, settling into established lives. Despite their value-conscious nature and a strong trade-skilled background (17.2% lower education vs. baseline), a surprising 73% overlap with 'Network Software' and 43% STEM education reveals a highly tech-savvy and digitally connected audience, suggesting sophisticated online engagement beyond typical expectations.\""
+  }
+]

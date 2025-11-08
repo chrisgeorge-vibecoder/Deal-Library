@@ -79,16 +79,16 @@ export default function CampaignBriefModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-brand-gold to-brand-gold-light p-6 border-b border-brand-gold/20 flex items-center justify-between">
+        <div className="sticky top-0 bg-gradient-to-r from-brand-gold to-brand-gold-light p-4 sm:p-6 border-b border-brand-gold/20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white rounded-lg">
               <Sparkles className="w-6 h-6 text-brand-gold" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-white">AI Campaign Brief</h2>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">AI Campaign Brief</h2>
               <p className="text-sm text-white/80">{marketName}</p>
             </div>
           </div>

@@ -24,7 +24,7 @@ export default function PersonaDetailModal({
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-0 sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -32,16 +32,16 @@ export default function PersonaDetailModal({
       }}
     >
       <div 
-        className="bg-white rounded-xl shadow-sovrn-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+        className="bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-sovrn-lg w-full max-w-full sm:max-w-3xl h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-neutral-200 px-6 py-4 rounded-t-xl">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-0 sm:p-4">
               <span className="text-4xl">{persona.emoji}</span>
               <div>
-                <h2 className="text-2xl font-bold text-neutral-900">{persona.name}</h2>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">{persona.name}</h2>
                 <div className="flex items-center gap-3 mt-2">
                   <span className="inline-flex items-center px-3 py-1 bg-primary-100 text-primary-800 text-sm font-medium rounded-full">
                     {persona.category}
@@ -109,7 +109,7 @@ export default function PersonaDetailModal({
               <MessageSquare className="w-5 h-5 text-primary-600" />
               Creative Hook
             </h3>
-            <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+            <div className="bg-primary-50 border border-primary-200 rounded-lg p-0 sm:p-4">
               <p className="text-primary-800 italic font-medium">
                 "{persona.creativeHooks?.[0] || 'No creative hook available'}"
               </p>

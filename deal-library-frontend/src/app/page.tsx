@@ -116,29 +116,30 @@ export default function HomePage() {
   
   // Note: Cart and modal state are now managed in AppLayout.tsx to work across all pages
 
-  // Check for prompt URL parameter and auto-submit
+  // Check for prompt or search URL parameter and auto-submit
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const promptParam = urlParams.get('prompt');
+    const promptParam = urlParams.get('prompt') || urlParams.get('search');
     
     if (promptParam) {
-      console.log('🎯 Auto-submitting prompt from URL:', promptParam);
+      console.log('🎯 Auto-submitting query from URL:', promptParam);
       setChatInputValue(promptParam);
-      // Wait longer for the component to fully mount and for user to see the prompt
+      
+      // Clean up URL immediately to prevent duplicate executions
+      window.history.replaceState({}, '', '/');
+      
+      // Wait for the component to fully mount, then trigger search
       const timeoutId = setTimeout(() => {
         handleSearch(promptParam);
-        // Clear the input value after search starts
-        setChatInputValue('');
-        // Clean up URL after search completes
-        window.history.replaceState({}, '', '/');
-      }, 1500); // Increased from 500ms to 1500ms to show prompt longer
+      }, 100); // Reduced from 500ms to 100ms for faster execution
       
       // Cleanup timeout on unmount to prevent state updates after component unmounts
       return () => {
         clearTimeout(timeoutId);
       };
     }
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps is intentional - we only want this to run on mount
 
   // Load deals on component mount
   useEffect(() => {
@@ -610,7 +611,62 @@ export default function HomePage() {
         
       }
       
-      // Marketing News search - check this FIRST to avoid conflicts with market sizing
+      // Explicit deal requests - check this FIRST to avoid conflicts with market sizing
+      const explicitDealKeywords = [
+        'request deals', 'find deals', 'show me deals', 'get deals', 'deal request',
+        'provide relevant deals', 'relevant deals for', 'find relevant deals',
+        'reach new parents', 'reach parents', 'target new parents', 'target parents',
+        'media director', 'media strategy', 'building a', 'pet related', 'pet strategy',
+        'sports fans', 'reach sports fans', 'target sports fans', 'sports', 'athletics', 'fitness',
+        'luxury goods', 'fashion', 'accessories', 'targeting', 'reach'
+      ];
+      
+      // Only use keyword detection when no card types are explicitly selected
+      const isExplicitDealRequest = (!cardTypes || cardTypes.length === 0) && explicitDealKeywords.some(keyword => 
+        queryLower.includes(keyword)
+      );
+
+      if (isExplicitDealRequest) {
+        console.log('🔍 Explicit deal request detected, searching for deals...');
+        // Search for deals
+        const response = await fetch('http://localhost:3002/api/deals/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            query, 
+            conversationHistory: conversationHistory || [],
+            forceDeals: true // Backend expects forceDeals parameter
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to search deals: ${response.statusText}`);
+        }
+
+        const searchResults = await response.json();
+        console.log('🔍 FRONTEND DEBUG - Explicit Deal Request API Response:', {
+          hasDeals: !!(searchResults.deals && searchResults.deals.length > 0),
+          dealsCount: searchResults.deals?.length || 0,
+          hasCoaching: 'coaching' in searchResults,
+          coaching: searchResults.coaching,
+          responseKeys: Object.keys(searchResults)
+        });
+        const relevantDeals = getRelevantDeals(searchResults.deals || [], query, 6);
+        setFilteredDeals(relevantDeals);
+        setAiResponse(searchResults.aiResponse || `Found ${relevantDeals.length} relevant deals for your query.`);
+        console.log('🔍 FRONTEND DEBUG - Explicit Deal Request Setting coaching:', searchResults.coaching);
+        // Set coaching if it exists and has content
+        if (searchResults.coaching && typeof searchResults.coaching === 'object' && searchResults.coaching !== null) {
+          console.log('🔍 FRONTEND DEBUG - Explicit Deal Request Processing valid coaching data:', searchResults.coaching);
+          setAiCoaching(searchResults.coaching);
+        } else {
+          console.log('🔍 FRONTEND DEBUG - Explicit Deal Request No valid coaching data, setting to undefined');
+          setAiCoaching(undefined);
+        }
+        return;
+      }
+      
+      // Marketing News search - check this BEFORE market sizing
       const newsKeywords = ['news', 'headlines', 'latest', 'marketing news', 'advertising news', 'industry news', 'today\'s marketing', 'today\'s advertising', 'commerce media headlines', 'share headlines', 'commerce headlines'];
       const isMarketingNewsSearch = (!cardTypes || cardTypes.length === 0) && (
         newsKeywords.some(keyword => queryLower.includes(keyword)) || 
@@ -738,60 +794,6 @@ export default function HomePage() {
           setAiResponse('Market sizing analysis is temporarily unavailable. Please try again later.');
           return;
         }
-      }
-
-      // Explicit deal requests (now comes AFTER market sizing check)
-      const explicitDealKeywords = [
-        'request deals', 'find deals', 'show me deals', 'get deals', 'deal request',
-        'provide relevant deals', 'relevant deals for', 'find relevant deals',
-        'reach new parents', 'reach parents', 'target new parents', 'target parents',
-        'media director', 'media strategy', 'building a', 'pet related', 'pet strategy',
-        'sports fans', 'reach sports fans', 'target sports fans', 'sports', 'athletics', 'fitness',
-        'luxury goods', 'fashion', 'accessories', 'targeting', 'reach'
-      ];
-      
-      // Only use keyword detection when no card types are explicitly selected
-      const isExplicitDealRequest = (!cardTypes || cardTypes.length === 0) && explicitDealKeywords.some(keyword => 
-        queryLower.includes(keyword)
-      );
-
-      if (isExplicitDealRequest) {
-        // Search for deals
-        const response = await fetch('http://localhost:3002/api/deals/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query, 
-            conversationHistory: conversationHistory || [],
-            forceDeals: true // Backend expects forceDeals parameter
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to search deals: ${response.statusText}`);
-        }
-
-        const searchResults = await response.json();
-        console.log('🔍 FRONTEND DEBUG - Explicit Deal Request API Response:', {
-          hasDeals: !!(searchResults.deals && searchResults.deals.length > 0),
-          dealsCount: searchResults.deals?.length || 0,
-          hasCoaching: 'coaching' in searchResults,
-          coaching: searchResults.coaching,
-          responseKeys: Object.keys(searchResults)
-        });
-        const relevantDeals = getRelevantDeals(searchResults.deals || [], query, 6);
-        setFilteredDeals(relevantDeals);
-        setAiResponse(searchResults.aiResponse || `Found ${relevantDeals.length} relevant deals for your query.`);
-        console.log('🔍 FRONTEND DEBUG - Explicit Deal Request Setting coaching:', searchResults.coaching);
-        // Set coaching if it exists and has content
-        if (searchResults.coaching && typeof searchResults.coaching === 'object' && searchResults.coaching !== null) {
-          console.log('🔍 FRONTEND DEBUG - Explicit Deal Request Processing valid coaching data:', searchResults.coaching);
-          setAiCoaching(searchResults.coaching);
-        } else {
-          console.log('🔍 FRONTEND DEBUG - Explicit Deal Request No valid coaching data, setting to undefined');
-          setAiCoaching(undefined);
-        }
-        return;
       }
 
       // Persona search - use unified search for dynamic persona generation

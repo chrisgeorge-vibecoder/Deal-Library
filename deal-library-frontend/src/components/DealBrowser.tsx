@@ -165,7 +165,12 @@ export default function DealBrowser({
         const dealText = `${deal.dealName} ${deal.description}`.toLowerCase();
         return selectedCategories.some(categoryId => {
           const keywords = categoryKeywords[categoryId as keyof typeof categoryKeywords] || [];
-          return keywords.some(keyword => dealText.includes(keyword));
+          return keywords.some(keyword => {
+            // Use word boundary regex to match whole words only
+            // This prevents 'cat' from matching 'vacation' or 'style' from matching 'lifestyle'
+            const wordBoundaryRegex = new RegExp(`\\b${keyword}\\b`, 'i');
+            return wordBoundaryRegex.test(dealText);
+          });
         });
       });
     }

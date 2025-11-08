@@ -16,7 +16,7 @@ export function MarketingSWOTDetailModal({ swot, isOpen, onClose, onSaveCard, on
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-0 sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -24,11 +24,11 @@ export function MarketingSWOTDetailModal({ swot, isOpen, onClose, onSaveCard, on
       }}
     >
       <div 
-        className="relative bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto"
+        className="relative bg-white rounded-lg shadow-xl w-full max-w-full sm:max-w-5xl h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="sticky top-0 bg-white p-6 border-b border-neutral-200 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-neutral-200 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
             <Target className="w-6 h-6 text-primary-600" />
             <h3 className="text-xl font-semibold text-neutral-900">
@@ -150,7 +150,7 @@ export function MarketingSWOTDetailModal({ swot, isOpen, onClose, onSaveCard, on
               <CheckCircle className="w-5 h-5 text-primary-600" />
               <h4 className="text-lg font-semibold text-neutral-900">Recommended Actions</h4>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 sm:p-4">
               {swot.recommendedActions.map((action, index) => (
                 <div key={index} className="bg-white rounded-lg p-4 border border-neutral-200">
                   <div className="flex items-start gap-3">
@@ -165,7 +165,7 @@ export function MarketingSWOTDetailModal({ swot, isOpen, onClose, onSaveCard, on
           </div>
 
           {/* Disclaimer */}
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-0 sm:p-4">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
                 <div className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center">

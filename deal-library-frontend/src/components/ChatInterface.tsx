@@ -119,6 +119,7 @@ export default function ChatInterface({
   const [selectedGeo, setSelectedGeo] = useState<GeoCard | null>(null);
   const [isGeoModalOpen, setIsGeoModalOpen] = useState(false);
   
+  
   const lastProcessedResponse = useRef<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -361,6 +362,7 @@ export default function ChatInterface({
     };
   }, []);
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const currentInputValue = externalInputValue !== undefined ? externalInputValue : inputValue;
@@ -386,26 +388,34 @@ export default function ChatInterface({
       setIsTyping(false);
     }, 60000);
 
-    // Convert messages to conversation history format with deal context
-    const conversationHistory = messages.map(msg => {
-      if (msg.type === 'user') {
-        return {
-          role: 'user',
-          content: msg.content
-        };
-      } else {
-        // For assistant messages, include deal information if available
-        let content = msg.content;
-        if (msg.deals && msg.deals.length > 0) {
-          const dealNames = msg.deals.map(d => d.dealName).join(', ');
-          content = `${msg.content}\n\nRecommended deals: ${dealNames}`;
+    // If a card type is explicitly selected, start with fresh context (no conversation history)
+    // to avoid confusion from previous queries about different topics
+    let conversationHistory: Array<{role: string, content: string}> = [];
+    
+    if (!selectedCardTypes || selectedCardTypes.length === 0) {
+      // Only use conversation history for general queries without card type selection
+      conversationHistory = messages.map(msg => {
+        if (msg.type === 'user') {
+          return {
+            role: 'user',
+            content: msg.content
+          };
+        } else {
+          // For assistant messages, include deal information if available
+          let content = msg.content;
+          if (msg.deals && msg.deals.length > 0) {
+            const dealNames = msg.deals.map(d => d.dealName).join(', ');
+            content = `${msg.content}\n\nRecommended deals: ${dealNames}`;
+          }
+          return {
+            role: 'assistant',
+            content
+          };
         }
-        return {
-          role: 'assistant',
-          content
-        };
-      }
-    });
+      });
+    } else {
+      console.log(`🔍 Card type(s) selected: ${selectedCardTypes.join(', ')} - starting with fresh context`);
+    }
 
     // Trigger search with conversation history and selected card types
     onSearch(currentInputValue, conversationHistory, selectedCardTypes);
@@ -455,25 +465,33 @@ export default function ChatInterface({
       setIsTyping(false);
     }, 60000);
 
-    // Convert messages to conversation history format
-    const conversationHistory = messages.map(msg => {
-      if (msg.type === 'user') {
-        return {
-          role: 'user',
-          content: msg.content
-        };
-      } else {
-        let content = msg.content;
-        if (msg.deals && msg.deals.length > 0) {
-          const dealNames = msg.deals.map(d => d.dealName).join(', ');
-          content = `${msg.content}\n\nRecommended deals: ${dealNames}`;
+    // If a card type is explicitly selected, start with fresh context (no conversation history)
+    // to avoid confusion from previous queries about different topics
+    let conversationHistory: Array<{role: string, content: string}> = [];
+    
+    if (!selectedCardTypes || selectedCardTypes.length === 0) {
+      // Only use conversation history for general queries without card type selection
+      conversationHistory = messages.map(msg => {
+        if (msg.type === 'user') {
+          return {
+            role: 'user',
+            content: msg.content
+          };
+        } else {
+          let content = msg.content;
+          if (msg.deals && msg.deals.length > 0) {
+            const dealNames = msg.deals.map(d => d.dealName).join(', ');
+            content = `${msg.content}\n\nRecommended deals: ${dealNames}`;
+          }
+          return {
+            role: 'assistant',
+            content
+          };
         }
-        return {
-          role: 'assistant',
-          content
-        };
-      }
-    });
+      });
+    } else {
+      console.log(`🔍 Example clicked with card type(s): ${selectedCardTypes.join(', ')} - starting with fresh context`);
+    }
 
     // Trigger search
     onSearch(example, conversationHistory, selectedCardTypes);
@@ -962,7 +980,7 @@ export default function ChatInterface({
               value={externalInputValue !== undefined ? externalInputValue : (inputValue || '')}
               onChange={(e) => handleSetInputValue(e.target.value)}
               placeholder="Ask me about deals, targeting, or campaign strategies..."
-              className="w-full min-h-[60px] max-h-32 p-4 pr-12 text-sm border-2 border-neutral-200 rounded-xl bg-white focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/20 focus:outline-none transition-all duration-200 resize-none"
+              className="w-full min-h-[60px] max-h-32 p-4 pr-12 text-sm border-2 rounded-xl bg-white focus:ring-4 focus:outline-none transition-all duration-200 resize-none border-neutral-200 focus:border-brand-gold focus:ring-brand-gold/20"
               rows={1}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -981,14 +999,14 @@ export default function ChatInterface({
           </div>
         </form>
 
-          {/* Card Type Selector - moved below prompt for better UX */}
-          <CardTypeSelector 
-            selectedTypes={selectedCardTypes}
-            onSelectionChange={handleCardTypeChange}
-            className="mt-3"
-          />
+              {/* Card Type Selector - moved below prompt for better UX */}
+              <CardTypeSelector 
+                selectedTypes={selectedCardTypes}
+                onSelectionChange={handleCardTypeChange}
+                className="mt-3"
+              />
 
-          {/* Action Buttons - removed to save space */}
+              {/* Action Buttons - removed to save space */}
         </div>
       </div>
 

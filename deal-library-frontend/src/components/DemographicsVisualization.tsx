@@ -112,25 +112,25 @@ export default function DemographicsVisualization({ zipCodeInsights, searchType 
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-neutral-900 flex items-center">
-          <BarChart3 className="w-6 h-6 mr-2 text-blue-600" />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 flex items-center">
+          <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-blue-600" />
           Demographics Analysis
         </h2>
-        <div className="text-sm text-neutral-600">
+        <div className="text-xs sm:text-sm text-neutral-600">
           {totalZipCodes} ZIP codes analyzed
         </div>
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         
         {/* Income Distribution */}
-        <div className="bg-white rounded-xl shadow-sovrn border border-neutral-200 p-6">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
-            <DollarSign className="w-5 h-5 mr-2 text-green-600" />
+        <div className="card">
+          <h3 className="text-base sm:text-lg font-semibold text-neutral-900 mb-3 sm:mb-4 flex items-center">
+            <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600" />
             Income Distribution
           </h3>
           <div className="space-y-3">
@@ -153,9 +153,9 @@ export default function DemographicsVisualization({ zipCodeInsights, searchType 
         </div>
 
         {/* Age Distribution */}
-        <div className="bg-white rounded-xl shadow-sovrn border border-neutral-200 p-6">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
-            <Users className="w-5 h-5 mr-2 text-blue-600" />
+        <div className="card">
+          <h3 className="text-base sm:text-lg font-semibold text-neutral-900 mb-3 sm:mb-4 flex items-center">
+            <Users className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600" />
             Age Distribution
           </h3>
           <div className="space-y-3">
@@ -179,9 +179,9 @@ export default function DemographicsVisualization({ zipCodeInsights, searchType 
 
 
         {/* Commute Time Distribution */}
-        <div className="bg-white rounded-xl shadow-sovrn border border-neutral-200 p-6">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
-            <Clock className="w-5 h-5 mr-2 text-orange-600" />
+        <div className="card">
+          <h3 className="text-base sm:text-lg font-semibold text-neutral-900 mb-3 sm:mb-4 flex items-center">
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-orange-600" />
             Commute Time Distribution
           </h3>
           <div className="space-y-3">
@@ -205,29 +205,29 @@ export default function DemographicsVisualization({ zipCodeInsights, searchType 
       </div>
 
       {/* Key Statistics */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200 p-6">
-        <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center">
-          <TrendingUp className="w-5 h-5 mr-2 text-blue-600" />
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200 p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold text-neutral-900 mb-3 sm:mb-4 flex items-center">
+          <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600" />
           Key Statistics Summary
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-900">
+            <div className="text-xl sm:text-2xl font-bold text-blue-900">
               {zipCodeInsights.reduce((sum, zip) => sum + (zip.zipCodeData?.population || 0), 0).toLocaleString()}
             </div>
-            <div className="text-sm text-blue-700">Total Population</div>
+            <div className="text-xs sm:text-sm text-blue-700">Total Population</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-900">
+            <div className="text-xl sm:text-2xl font-bold text-blue-900">
               ${Math.round(zipCodeInsights.reduce((sum, zip) => sum + (zip.zipCodeData?.medianIncome || 0), 0) / totalZipCodes).toLocaleString()}
             </div>
-            <div className="text-sm text-blue-700">Average Median Income</div>
+            <div className="text-xs sm:text-sm text-blue-700">Average Median Income</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-900">
+            <div className="text-xl sm:text-2xl font-bold text-blue-900">
               {Math.round(zipCodeInsights.reduce((sum, zip) => sum + (zip.censusData?.medianAge || 0), 0) / totalZipCodes)}
             </div>
-            <div className="text-sm text-blue-700">Average Median Age</div>
+            <div className="text-xs sm:text-sm text-blue-700">Average Median Age</div>
           </div>
         </div>
       </div>

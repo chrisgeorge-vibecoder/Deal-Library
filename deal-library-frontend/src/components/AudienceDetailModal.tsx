@@ -24,7 +24,7 @@ export default function AudienceDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="flex min-h-screen items-center justify-center p-0 sm:p-4">
         {/* Backdrop */}
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
@@ -32,7 +32,7 @@ export default function AudienceDetailModal({
         />
         
         {/* Modal */}
-        <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="relative w-full max-w-4xl bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className={`sticky top-0 z-10 bg-white border-b px-6 py-4 ${
             isCommerceAudience 
@@ -47,7 +47,7 @@ export default function AudienceDetailModal({
                   ) : (
                     <Target className="w-6 h-6 text-brand-orange" />
                   )}
-                  <h2 className="text-2xl font-bold text-neutral-900">
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">
                     {segment.segmentName}
                   </h2>
                 </div>
@@ -72,16 +72,16 @@ export default function AudienceDetailModal({
           {/* Content */}
           <div className="p-6 space-y-6">
             {/* Key Metrics */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-0 sm:p-4">
               <div className="card p-4 text-center">
                 <div className="text-sm text-neutral-600 mb-1">CPM</div>
-                <div className="text-2xl font-bold text-neutral-900">
+                <div className="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">
                   ${segment.cpm.toFixed(2)}
                 </div>
               </div>
               <div className="card p-4 text-center">
                 <div className="text-sm text-neutral-600 mb-1">Media Cost</div>
-                <div className="text-2xl font-bold text-neutral-900">
+                <div className="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">
                   {(segment.mediaPercentCost * 100).toFixed(0)}%
                 </div>
               </div>
@@ -109,7 +109,7 @@ export default function AudienceDetailModal({
             {/* Segment Details */}
             <div className="card p-6">
               <h3 className="font-semibold text-neutral-900 mb-4">Segment Details</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-0 sm:p-4">
                 <div>
                   <div className="text-sm text-neutral-600 mb-1">Segment ID</div>
                   <div className="font-mono text-sm text-neutral-900">{segment.sovrnSegmentId}</div>

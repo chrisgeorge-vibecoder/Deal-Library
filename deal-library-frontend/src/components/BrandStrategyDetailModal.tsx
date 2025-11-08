@@ -32,7 +32,7 @@ export function BrandStrategyDetailModal({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-0 sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -40,11 +40,11 @@ export function BrandStrategyDetailModal({
       }}
     >
       <div 
-        className="relative bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto"
+        className="relative bg-white rounded-lg shadow-xl w-full max-w-full sm:max-w-6xl h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="sticky top-0 bg-white p-6 border-b border-neutral-200 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-neutral-200 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
             <Award className="w-6 h-6 text-primary-600" />
             <h3 className="text-xl font-semibold text-neutral-900">

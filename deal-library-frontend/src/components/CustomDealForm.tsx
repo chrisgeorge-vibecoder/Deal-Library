@@ -82,24 +82,25 @@ export default function CustomDealForm({ isOpen, onClose }: CustomDealFormProps)
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-0 sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
         }
       }}
     >
-      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-sovrn-lg max-h-[90vh] overflow-y-auto">
+      <div className="bg-white w-full h-full sm:h-auto max-w-full sm:max-w-2xl sm:rounded-2xl shadow-sovrn-lg sm:max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="p-6 border-b border-neutral-200">
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-bold text-neutral-900">Don't see an Audience that matches your campaign objectives?</h2>
-              <p className="text-neutral-600 mt-2">Request a custom deal tailored to your specific needs.</p>
+        <div className="p-4 sm:p-6 border-b border-neutral-200">
+          <div className="flex justify-between items-start gap-4">
+            <div className="flex-1">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">Don't see an Audience that matches your campaign objectives?</h2>
+              <p className="text-sm sm:text-base text-neutral-600 mt-2">Request a custom deal tailored to your specific needs.</p>
             </div>
             <button 
               onClick={onClose}
-              className="text-neutral-400 hover:text-neutral-600 transition-colors"
+              className="text-neutral-400 hover:text-neutral-600 transition-colors touch-target flex-shrink-0"
+              aria-label="Close form"
             >
               <X className="w-6 h-6" />
             </button>
@@ -107,45 +108,54 @@ export default function CustomDealForm({ isOpen, onClose }: CustomDealFormProps)
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label htmlFor="companyName" className="block text-sm font-medium text-neutral-700 mb-2">
                 Company Name *
               </label>
               <input
+                id="companyName"
+                name="companyName"
                 type="text"
                 value={formData.companyName}
                 onChange={(e) => handleChange('companyName', e.target.value)}
                 className="input w-full"
                 placeholder="Your company name"
+                autoComplete="organization"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label htmlFor="contactEmail" className="block text-sm font-medium text-neutral-700 mb-2">
                 Contact Email *
               </label>
               <input
+                id="contactEmail"
+                name="email"
                 type="email"
                 value={formData.contactEmail}
                 onChange={(e) => handleChange('contactEmail', e.target.value)}
                 className="input w-full"
                 placeholder="your.email@company.com"
+                autoComplete="email"
+                inputMode="email"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <label htmlFor="campaignObjectives" className="block text-sm font-medium text-neutral-700 mb-2">
               Campaign Objectives *
             </label>
             <textarea
+              id="campaignObjectives"
+              name="campaignObjectives"
               value={formData.campaignObjectives}
               onChange={(e) => handleChange('campaignObjectives', e.target.value)}
-              className="input w-full min-h-[100px] resize-none"
+              className="input w-full min-h-[100px] sm:min-h-[120px] resize-none"
               placeholder="Describe your campaign goals, objectives, and what you're trying to achieve..."
               required
             />

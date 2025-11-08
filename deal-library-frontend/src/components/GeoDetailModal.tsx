@@ -37,7 +37,7 @@ export default function GeoDetailModal({
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-0 sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -45,11 +45,11 @@ export default function GeoDetailModal({
       }}
     >
       <div 
-        className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[95vh] overflow-hidden"
+        className="bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-sovrn-lg sm:max-w-5xl sm:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <MapPin className="w-5 h-5 text-blue-600" />
@@ -175,9 +175,9 @@ export default function GeoDetailModal({
               <Users className="w-5 h-5 text-purple-600 mr-2" />
               Key Geo Insights
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 sm:p-4">
               {geo.insights.map((insight, index) => (
-                <div key={index} className="bg-white border border-gray-200 rounded-lg p-4">
+                <div key={index} className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-sm text-gray-700">{insight}</p>
@@ -194,20 +194,20 @@ export default function GeoDetailModal({
                 <Users className="w-5 h-5 text-green-600 mr-2" />
                 Demographics
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-0 sm:p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Population</h4>
                   <p className="text-sm text-gray-600">{geo.demographics.population}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Median Age</h4>
                   <p className="text-sm text-gray-600">{geo.demographics.medianAge}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Median Income</h4>
                   <p className="text-sm text-gray-600">{geo.demographics.medianIncome}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Urban/Rural Split</h4>
                   <p className="text-sm text-gray-600">{geo.demographics.urbanRuralSplit}</p>
                 </div>
@@ -222,20 +222,20 @@ export default function GeoDetailModal({
                 <TrendingUp className="w-5 h-5 text-orange-600 mr-2" />
                 Market Characteristics
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-0 sm:p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Economic Profile</h4>
                   <p className="text-sm text-gray-600">{geo.marketCharacteristics.economicProfile}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Tech Adoption</h4>
                   <p className="text-sm text-gray-600">{geo.marketCharacteristics.techAdoption}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Media Consumption</h4>
                   <p className="text-sm text-gray-600">{geo.marketCharacteristics.mediaConsumption}</p>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Purchase Behavior</h4>
                   <p className="text-sm text-gray-600">{geo.marketCharacteristics.purchaseBehavior}</p>
                 </div>
@@ -250,8 +250,8 @@ export default function GeoDetailModal({
                 <Target className="w-5 h-5 text-red-600 mr-2" />
                 Advertising Opportunities
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-0 sm:p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Optimal Channels</h4>
                   <div className="flex flex-wrap gap-1">
                     {geo.advertisingOpportunities.optimalChannels.map((channel, index) => (
@@ -261,7 +261,7 @@ export default function GeoDetailModal({
                     ))}
                   </div>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Peak Engagement</h4>
                   <div className="flex flex-wrap gap-1">
                     {geo.advertisingOpportunities.peakEngagement.map((time, index) => (
@@ -271,7 +271,7 @@ export default function GeoDetailModal({
                     ))}
                   </div>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Creative Considerations</h4>
                   <div className="flex flex-wrap gap-1">
                     {geo.advertisingOpportunities.creativeConsiderations.map((consideration, index) => (
@@ -281,7 +281,7 @@ export default function GeoDetailModal({
                     ))}
                   </div>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Budget Recommendations</h4>
                   <p className="text-sm text-gray-600">{geo.advertisingOpportunities.budgetRecommendations}</p>
                 </div>
@@ -296,8 +296,8 @@ export default function GeoDetailModal({
                 <BarChart3 className="w-5 h-5 text-indigo-600 mr-2" />
                 Competitive Landscape
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-0 sm:p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Market Saturation</h4>
                   <span className={`px-2 py-1 text-xs rounded ${
                     geo.competitiveLandscape.marketSaturation === 'High' ? 'bg-red-100 text-red-800' :
@@ -307,7 +307,7 @@ export default function GeoDetailModal({
                     {geo.competitiveLandscape.marketSaturation}
                   </span>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Key Competitors</h4>
                   <div className="flex flex-wrap gap-1">
                     {geo.competitiveLandscape.keyCompetitors.map((competitor, index) => (
@@ -339,7 +339,7 @@ export default function GeoDetailModal({
                 <p className="text-sm text-gray-600">Estimated audience size across all regions</p>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-blue-600">{geo.totalAddressable}</div>
+                <div className="text-lg sm:text-xl md:text-2xl font-bold text-blue-600">{geo.totalAddressable}</div>
                 <div className="text-sm text-gray-500">Total Reach</div>
               </div>
             </div>

@@ -109,7 +109,7 @@ interface CardTypeSelectorProps {
 export default function CardTypeSelector({ 
   selectedTypes, 
   onSelectionChange, 
-  className = '' 
+  className = ''
 }: CardTypeSelectorProps) {
   const toggleCardType = (typeId: string) => {
     if (selectedTypes.includes(typeId)) {

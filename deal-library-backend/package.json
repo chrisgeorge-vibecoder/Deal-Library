@@ -4,9 +4,9 @@
   "description": "Backend API for Sovrn Launchpad",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "cross-env PORT=3002 nodemon src/index.ts",
+    "dev": "cross-env NODE_OPTIONS='--max-old-space-size=4096' PORT=3002 nodemon src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node --max-old-space-size=4096 dist/index.js",
     "test": "jest",
     "precalculate-overlaps": "ts-node scripts/precalculate-overlaps.ts",
     "migrate:supabase": "ts-node scripts/migrateToSupabase.ts",

@@ -295,7 +295,12 @@ export default function AudienceInsightsMap({ hotspots, segmentName }: AudienceI
         const map = L.map(mapRef.current!, {
           zoomControl: true,
           attributionControl: true,
-          tap: false  // Disable tap handler to prevent some mobile errors
+          touchZoom: true,
+          tap: true,
+          dragging: true,
+          scrollWheelZoom: 'center',
+          doubleClickZoom: true,
+          boxZoom: false
         }).setView([39.8283, -98.5795], 4);
         
         mapInstanceRef.current = map;

@@ -38,7 +38,7 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-0 sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -46,11 +46,11 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
       }}
     >
       <div 
-        className="relative bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto"
+        className="relative bg-white rounded-lg shadow-xl w-full max-w-full sm:max-w-6xl h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="sticky top-0 bg-white p-6 border-b border-neutral-200 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-neutral-200 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
             <Building2 className="w-6 h-6 text-primary-600" />
             <div>
@@ -155,7 +155,7 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
               <p className="text-neutral-700 mb-4">{profile.recentPerformance.executiveSummary}</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 sm:p-4">
               {profile.recentPerformance.keyMetrics.map((metric, index) => (
                 <div key={index} className={`p-4 rounded-lg border ${getTrendColor(metric.trend)}`}>
                   <div className="flex items-center justify-between mb-2">
@@ -185,9 +185,9 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
 
             <div>
               <h5 className="font-medium text-neutral-900 mb-3">Main Competitors</h5>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-0 sm:p-4">
                 {profile.competitiveAnalysis.mainCompetitors.map((competitor, index) => (
-                  <div key={index} className="bg-neutral-50 rounded-lg p-4">
+                  <div key={index} className="bg-neutral-50 rounded-lg p-0 sm:p-4">
                     <h6 className="font-medium text-neutral-900 mb-2">{competitor.name}</h6>
                     <p className="text-sm text-neutral-600">{competitor.strength}</p>
                   </div>
@@ -203,9 +203,9 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
               Growth Opportunities
             </h4>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 sm:p-4">
               {profile.growthOpportunities.map((opportunity, index) => (
-                <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-0 sm:p-4">
                   <h6 className="font-medium text-blue-900 mb-2">{opportunity.opportunity}</h6>
                   <p className="text-sm text-blue-800">{opportunity.potential}</p>
                 </div>
@@ -247,7 +247,7 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
           </div>
 
           {/* Disclaimer */}
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-0 sm:p-4">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
                 <div className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center">

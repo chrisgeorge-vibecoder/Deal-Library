@@ -3,7 +3,6 @@
  * Generates strategic marketing recommendations including:
  * - Competitor analysis
  * - Market tier recommendations  
- * - Budget pacing by phase
  * - Dayparting recommendations
  * - Differentiation strategies
  */
@@ -19,19 +18,6 @@ export interface MarketTiers {
   tier1: string[];
   tier2: string[];
   rationale: string;
-}
-
-export interface BudgetPhase {
-  name: string;
-  percentage: number;
-  budget: string;
-  focus: string;
-  duration: string;
-}
-
-export interface BudgetPacing {
-  phases: BudgetPhase[];
-  totalBudget: string;
 }
 
 export interface Dayparting {
@@ -261,76 +247,6 @@ export class StrategyGeneratorService {
   }
   
   /**
-   * Generate budget pacing recommendations
-   */
-  generateBudgetPacing(brief: ParsedBrief): BudgetPacing {
-    const totalBudget = brief.budgetRange || '$250K-$500K';
-    const timeline = brief.timeline || '90 days';
-    const objectives = brief.campaignObjectives || [];
-    
-    console.log(`💰 Generating budget pacing for ${totalBudget} over ${timeline}`);
-    
-    // Analyze objectives to determine pacing
-    const hasAwareness = objectives.some(o => /awareness|brand/i.test(o));
-    const hasSales = objectives.some(o => /sales|conversion|revenue|drive/i.test(o));
-    const hasLaunch = objectives.some(o => /launch|introduce/i.test(o));
-    const hasEngagement = objectives.some(o => /engagement|community/i.test(o));
-    
-    // Determine pacing strategy
-    let pacing = { awareness: 40, consideration: 35, conversion: 25 };
-    
-    if (hasLaunch) {
-      // Product launch needs heavy awareness upfront
-      pacing = { awareness: 50, consideration: 30, conversion: 20 };
-    } else if (hasAwareness && !hasSales) {
-      // Pure awareness campaign
-      pacing = { awareness: 60, consideration: 30, conversion: 10 };
-    } else if (hasSales && !hasAwareness) {
-      // Performance/sales focused
-      pacing = { awareness: 20, consideration: 30, conversion: 50 };
-    } else if (hasEngagement) {
-      // Engagement/community building
-      pacing = { awareness: 35, consideration: 40, conversion: 25 };
-    }
-    
-    // Parse budget
-    const budgetNum = this.parseBudgetString(totalBudget);
-    const budgetMid = budgetNum; // Use midpoint if range
-    
-    // Parse timeline
-    const days = this.parseTimelineDays(timeline);
-    
-    const phases: BudgetPhase[] = [
-      {
-        name: 'Phase 1 - Awareness',
-        percentage: pacing.awareness,
-        budget: this.formatBudget(budgetMid * pacing.awareness / 100),
-        focus: 'Heavy media weight to build awareness. Focus on reach over frequency. Creative: Brand story, product benefits, category education.',
-        duration: `Days 1-${Math.floor(days * 0.33)}`
-      },
-      {
-        name: 'Phase 2 - Consideration',
-        percentage: pacing.consideration,
-        budget: this.formatBudget(budgetMid * pacing.consideration / 100),
-        focus: 'Shift to middle-funnel tactics. Retarget engaged users. Creative: Product details, customer testimonials, comparison content.',
-        duration: `Days ${Math.floor(days * 0.33) + 1}-${Math.floor(days * 0.67)}`
-      },
-      {
-        name: 'Phase 3 - Conversion',
-        percentage: pacing.conversion,
-        budget: this.formatBudget(budgetMid * pacing.conversion / 100),
-        focus: 'Performance-focused optimization. Heavy retargeting of site visitors. Creative: Limited-time offers, urgency messaging, social proof.',
-        duration: `Days ${Math.floor(days * 0.67) + 1}-${days}`
-      }
-    ];
-    
-    return {
-      phases,
-      totalBudget: this.formatBudget(budgetMid)
-    };
-  }
-  
-  /**
    * Generate dayparting recommendations
    */
   generateDayparting(brief: ParsedBrief): Dayparting {
@@ -412,72 +328,5 @@ export class StrategyGeneratorService {
     return 'general';
   }
   
-  /**
-   * Parse budget string to number
-   */
-  private parseBudgetString(budget: string): number {
-    // Handle ranges like "$250K-$500K" - return midpoint
-    const rangeMatch = budget.match(/\$?([\d,]+)([kKmM])?.*?\$?([\d,]+)([kKmM])?/);
-    if (rangeMatch && rangeMatch[3]) {
-      const low = this.parseAmount(rangeMatch[1] || '250', rangeMatch[2]);
-      const high = this.parseAmount(rangeMatch[3] || '500', rangeMatch[4]);
-      return (low + high) / 2;
-    }
-    
-    // Handle single amount like "$250K" or "$1M+"
-    const match = budget.match(/\$?([\d,]+)([kKmM])?/);
-    if (!match || !match[1]) return 250000; // Default
-    
-    return this.parseAmount(match[1], match[2]);
-  }
-  
-  private parseAmount(numStr: string, multiplier?: string): number {
-    let num = parseInt(numStr.replace(/,/g, ''));
-    if (multiplier?.toLowerCase() === 'k') num *= 1000;
-    if (multiplier?.toLowerCase() === 'm') num *= 1000000;
-    return num;
-  }
-  
-  /**
-   * Parse timeline to days
-   */
-  private parseTimelineDays(timeline: string): number {
-    const lower = timeline.toLowerCase();
-    
-    // Check for specific day count
-    const dayMatch = lower.match(/(\d+)\s*days?/);
-    if (dayMatch && dayMatch[1]) return parseInt(dayMatch[1]);
-    
-    // Check for weeks
-    const weekMatch = lower.match(/(\d+)\s*weeks?/);
-    if (weekMatch && weekMatch[1]) return parseInt(weekMatch[1]) * 7;
-    
-    // Check for months
-    const monthMatch = lower.match(/(\d+)\s*months?/);
-    if (monthMatch && monthMatch[1]) return parseInt(monthMatch[1]) * 30;
-    
-    // Check for quarters
-    if (lower.includes('q1') || lower.includes('q2') || lower.includes('q3') || lower.includes('q4')) {
-      return 90;
-    }
-    
-    // Default to 90 days
-    return 90;
-  }
-  
-  /**
-   * Format budget number to string
-   */
-  private formatBudget(amount: number): string {
-    if (amount >= 1000000) {
-      const millions = amount / 1000000;
-      return `$${millions % 1 === 0 ? millions : millions.toFixed(1)}M`;
-    }
-    if (amount >= 1000) {
-      const thousands = amount / 1000;
-      return `$${thousands % 1 === 0 ? thousands : thousands.toFixed(0)}K`;
-    }
-    return `$${amount.toFixed(0)}`;
-  }
 }
 

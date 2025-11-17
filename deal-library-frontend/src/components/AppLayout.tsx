@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { Mail, Download } from 'lucide-react';
 
 // Create context for sidebar state
 const SidebarContext = createContext<{
@@ -102,6 +103,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [isSavedCardsModalOpen, setIsSavedCardsModalOpen] = useState(false);
   const [isCustomDealFormOpen, setIsCustomDealFormOpen] = useState(false);
   const [cart, setCart] = useState<Deal[]>([]);
+  const [isEmailingSent, setIsEmailingSent] = useState(false);
+  
+  // Email form states
+  const [isEmailFormOpen, setIsEmailFormOpen] = useState(false);
+  const [senderName, setSenderName] = useState('');
+  const [senderCompany, setSenderCompany] = useState('');
+  const [senderEmail, setSenderEmail] = useState('');
   
   // Get saved audiences from savedCards
   const savedAudiences = savedCards.filter(card => card.type === 'audience-taxonomy');
@@ -114,6 +122,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
         setSavedCards(JSON.parse(saved));
       } catch (error) {
         console.error('Error loading saved cards:', error);
+      }
+    }
+  }, []);
+
+  // Load sender info from localStorage on mount
+  useEffect(() => {
+    const savedSenderInfo = localStorage.getItem('cartEmailSenderInfo');
+    if (savedSenderInfo) {
+      try {
+        const { name, company, email } = JSON.parse(savedSenderInfo);
+        setSenderName(name || '');
+        setSenderCompany(company || '');
+        setSenderEmail(email || '');
+      } catch (error) {
+        console.error('Error loading sender info:', error);
       }
     }
   }, []);
@@ -338,6 +361,78 @@ export default function AppLayout({ children }: AppLayoutProps) {
     a.download = `sovrn-deals-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
+  };
+
+  const handleEmailCart = async () => {
+    // Validate sender info
+    if (!senderName.trim() || !senderCompany.trim() || !senderEmail.trim()) {
+      alert('❌ Please fill in all your information fields (Name, Company, Email)');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(senderEmail)) {
+      alert('❌ Please enter a valid email address');
+      return;
+    }
+
+    setIsEmailingSent(true);
+
+    try {
+      // Save sender info to localStorage for future use
+      const senderInfo = {
+        name: senderName.trim(),
+        company: senderCompany.trim(),
+        email: senderEmail.trim()
+      };
+      localStorage.setItem('cartEmailSenderInfo', JSON.stringify(senderInfo));
+
+      // Prepare deals data
+      const dealsData = cart.map(deal => ({
+        dealName: deal.dealName,
+        dealId: deal.dealId,
+        id: deal.id
+      }));
+
+      // Prepare audiences data
+      const audiencesData = savedAudiences.map(card => ({
+        segmentName: card.data.segmentName || card.data.segment?.segmentName,
+        sovrnSegmentId: card.data.sovrnSegmentId || card.data.segment?.sovrnSegmentId,
+        id: card.id
+      }));
+
+      // Call the API
+      const response = await fetch('/api/send-cart-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          deals: dealsData,
+          audiences: audiencesData,
+          senderInfo: senderInfo
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send email');
+      }
+
+      // Show success message
+      alert('✅ Selections sent successfully! Email sent to cgeorge@sovrn.com and exchangedemand@sovrn.com');
+      
+      // Close the form after successful send
+      setIsEmailFormOpen(false);
+      
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('❌ Failed to send email. Please try again or export as CSV instead.');
+    } finally {
+      setIsEmailingSent(false);
+    }
   };
 
   // Listen for custom events from the main page to open modals
@@ -685,11 +780,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <h2 className="text-lg sm:text-xl font-bold text-neutral-900">My Selections</h2>
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <button
-                  onClick={handleClearCart}
+                  onClick={() => setIsCartOpen(false)}
                   className="btn-secondary text-xs sm:text-sm px-3 py-2 sm:px-4 sm:py-3"
-                  disabled={cart.length === 0 && savedAudiences.length === 0}
                 >
-                  Clear All
+                  Continue Shopping
                 </button>
                 <button 
                   onClick={() => setIsCartOpen(false)}
@@ -788,6 +882,57 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     </>
                   )}
                   
+                  {/* Email Sender Info Form - Inline Expansion */}
+                  {isEmailFormOpen && (
+                    <div className="border-t border-neutral-200 pt-6 mt-6">
+                      <h3 className="text-base font-semibold text-neutral-900 mb-4">Your Information</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label htmlFor="senderName" className="block text-sm font-medium text-neutral-700 mb-1">
+                            Name <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            id="senderName"
+                            value={senderName}
+                            onChange={(e) => setSenderName(e.target.value)}
+                            placeholder="Your name"
+                            className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand-gold focus:border-transparent"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="senderCompany" className="block text-sm font-medium text-neutral-700 mb-1">
+                            Company <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            id="senderCompany"
+                            value={senderCompany}
+                            onChange={(e) => setSenderCompany(e.target.value)}
+                            placeholder="Company name"
+                            className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand-gold focus:border-transparent"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="senderEmail" className="block text-sm font-medium text-neutral-700 mb-1">
+                            Email Address <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="email"
+                            id="senderEmail"
+                            value={senderEmail}
+                            onChange={(e) => setSenderEmail(e.target.value)}
+                            placeholder="your.email@company.com"
+                            className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand-gold focus:border-transparent"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="border-t border-neutral-200 pt-4 mt-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                       <span className="text-base sm:text-lg font-semibold text-neutral-900">
@@ -795,16 +940,39 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       </span>
                       <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2 sm:gap-3">
                         <button
-                          onClick={() => setIsCartOpen(false)}
-                          className="btn-secondary w-full sm:w-auto"
+                          onClick={handleExportCart}
+                          className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2"
                         >
-                          Continue Shopping
+                          <Download className="w-4 h-4" />
+                          Export
                         </button>
                         <button 
-                          onClick={handleExportCart}
-                          className="btn-primary w-full sm:w-auto"
+                          onClick={() => {
+                            if (isEmailFormOpen) {
+                              // Form is open, submit it
+                              handleEmailCart();
+                            } else {
+                              // Form is closed, open it
+                              setIsEmailFormOpen(true);
+                            }
+                          }}
+                          disabled={isEmailingSent}
+                          className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2"
                         >
-                          Export My Selections
+                          {isEmailingSent ? (
+                            <>
+                              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              <Mail className="w-4 h-4" />
+                              {isEmailFormOpen ? 'Send Email' : 'Email'}
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>

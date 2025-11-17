@@ -43,6 +43,58 @@ export class AudienceSearchService {
   }
 
   /**
+   * Expand search query with synonyms and related terms for better matching
+   */
+  private expandKeywords(query: string): string[] {
+    const baseKeywords = query.toLowerCase()
+      .split(/\s+/)
+      .filter(w => w.length > 3 && !['for', 'the', 'and', 'with', 'that', 'this', 'from'].includes(w));
+    
+    // Keyword expansion map for common queries
+    const expansions: { [key: string]: string[] } = {
+      'gaming': ['gaming', 'video games', 'esports', 'console', 'gamer', 'game'],
+      'game': ['gaming', 'video games', 'esports', 'console', 'gamer'],
+      'games': ['gaming', 'video games', 'esports', 'console', 'gamer'],
+      'fitness': ['fitness', 'exercise', 'workout', 'gym', 'health', 'wellness', 'active'],
+      'exercise': ['fitness', 'exercise', 'workout', 'gym', 'health', 'active'],
+      'workout': ['fitness', 'exercise', 'workout', 'gym', 'training'],
+      'food': ['food', 'cooking', 'recipes', 'culinary', 'dining', 'restaurant'],
+      'cooking': ['food', 'cooking', 'recipes', 'culinary', 'chef', 'kitchen'],
+      'travel': ['travel', 'tourism', 'vacation', 'trip', 'destination', 'leisure'],
+      'fashion': ['fashion', 'style', 'clothing', 'apparel', 'designer', 'outfit'],
+      'beauty': ['beauty', 'cosmetics', 'makeup', 'skincare', 'grooming'],
+      'tech': ['technology', 'tech', 'gadgets', 'electronics', 'digital'],
+      'technology': ['technology', 'tech', 'gadgets', 'electronics', 'digital', 'innovation'],
+      'sports': ['sports', 'athletic', 'athletes', 'competition', 'team'],
+      'music': ['music', 'audio', 'concert', 'artist', 'song', 'entertainment'],
+      'auto': ['automotive', 'auto', 'vehicle', 'cars', 'automobile'],
+      'automotive': ['automotive', 'auto', 'vehicle', 'cars', 'automobile', 'driving'],
+      'home': ['home', 'house', 'household', 'residence', 'property'],
+      'pet': ['pet', 'animal', 'dog', 'cat', 'pets'],
+      'pets': ['pet', 'animal', 'dog', 'cat', 'pets'],
+      'finance': ['finance', 'financial', 'money', 'investment', 'banking'],
+      'business': ['business', 'professional', 'corporate', 'entrepreneur', 'commerce']
+    };
+    
+    const expandedSet = new Set(baseKeywords);
+    
+    // Add expansions for each base keyword
+    baseKeywords.forEach(keyword => {
+      if (expansions[keyword]) {
+        expansions[keyword].forEach(exp => expandedSet.add(exp));
+      }
+      // Also check for partial matches in expansion keys
+      Object.keys(expansions).forEach(key => {
+        if (keyword && key && (keyword.includes(key) || key.includes(keyword))) {
+          expansions[key]?.forEach(exp => expandedSet.add(exp));
+        }
+      });
+    });
+    
+    return Array.from(expandedSet);
+  }
+
+  /**
    * Fast keyword pre-filter before semantic ranking (HYBRID SEARCH - PHASE 1)
    * Reduces segments from 1,342 to top 100 by keyword relevance + scale
    */
@@ -56,12 +108,10 @@ export class AudienceSearchService {
     // Get all segments
     const allSegments = await this.taxonomyService.getTaxonomyData();
     
-    // Extract keywords from query (min 3 characters)
-    const keywords = query.toLowerCase()
-      .split(/\s+/)
-      .filter(w => w.length > 3 && !['for', 'the', 'and', 'with'].includes(w));
+    // Expand keywords with synonyms and related terms
+    const keywords = this.expandKeywords(query);
     
-    console.log(`   Keywords: ${keywords.join(', ')}`);
+    console.log(`   Keywords (${keywords.length}): ${keywords.slice(0, 5).join(', ')}${keywords.length > 5 ? '...' : ''}`);
     
     // Score by keyword matches + scale
     const scored = allSegments
@@ -144,12 +194,14 @@ export class AudienceSearchService {
     
     console.log(`   📊 After filters: ${preFiltered.length} segments`);
 
-    // PHASE 2: Semantic ranking on pre-filtered set (5-10 seconds instead of 30-45s)
-    const searchIntent = await this.extractSearchIntent(query);
-    console.log(`   🎯 Search intent extracted`);
-    
-    const scoredSegments = await this.scoreSegments(preFiltered, searchIntent);
-    console.log(`   ⚡ Scored ${preFiltered.length} segments in ${Date.now() - startTime}ms total`);
+    // PHASE 2: Fast keyword-based scoring (skip Gemini for speed - P0-3 optimization)
+    // Keyword pre-filter already provides excellent relevance ranking with scale boosting
+    const scoredSegments: SegmentScore[] = preFiltered.map((segment, index) => ({
+      segment,
+      score: 100 - index, // Already sorted by relevance from keywordPreFilter
+      relevanceReason: `Matches search query "${query}" with high relevance`
+    }));
+    console.log(`   ⚡ Scored ${preFiltered.length} segments in ${Date.now() - startTime}ms total (keyword-based)`);
 
     // PHASE 3: Categorize
     const bestFit = scoredSegments.slice(0, 8);

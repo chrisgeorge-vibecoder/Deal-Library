@@ -26,6 +26,8 @@ export interface AnalysisResults {
     targetAudiences: string[];
     campaignObjectives: string[];
     budgetRange?: string;
+    budgetValue?: number;
+    budgetNotes?: string;
     geographicFocus?: string;
     keyProducts?: string[];
     timeline?: string;
@@ -75,16 +77,6 @@ export interface AnalysisResults {
       tier2: string[];
       rationale: string;
     };
-    budgetPacing?: {
-      phases: Array<{
-        name: string;
-        percentage: number;
-        budget: string;
-        focus: string;
-        duration: string;
-      }>;
-      totalBudget: string;
-    };
     dayparting?: {
       optimal: string[];
       rationale: string;
@@ -110,6 +102,8 @@ export interface ComprehensiveReport {
     totalPersonas: number;
     estimatedReach: number;
     recommendedBudget: string;
+    recommendedBudgetValue?: number;
+    recommendedBudgetNotes?: string;
   };
 }
 

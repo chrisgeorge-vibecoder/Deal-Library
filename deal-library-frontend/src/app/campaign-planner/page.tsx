@@ -7,6 +7,8 @@ import CampaignPlannerResults from '@/components/CampaignPlannerResults';
 import AgentProgressTracker from '@/components/AgentProgressTracker';
 import { ProgressUpdate, ComprehensiveReport } from '@/types/agentMode';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+
 export default function CampaignPlannerPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState<ProgressUpdate | null>(null);
@@ -28,7 +30,7 @@ export default function CampaignPlannerPage() {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:3002/api/agent-mode/generate-recommendation', {
+      const response = await fetch(`${API_BASE_URL}/api/agent-mode/generate-recommendation`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +113,22 @@ export default function CampaignPlannerPage() {
       }
     } catch (error) {
       console.error('❌ Campaign generation error:', error);
-      setError(error instanceof Error ? error.message : String(error));
+      
+      // Provide more helpful error messages
+      let errorMessage = 'Failed to generate campaign';
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED') || error.message.includes('NetworkError')) {
+          errorMessage = 'Unable to connect to the backend server. Please ensure the backend is running on port 3002.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Request timed out. The server may be taking longer than expected. Please try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      } else {
+        errorMessage = String(error);
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsGenerating(false);
     }
@@ -149,9 +166,17 @@ export default function CampaignPlannerPage() {
           />
         )}
 
-        {isGenerating && progress && (
+        {isGenerating && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <AgentProgressTracker progress={progress} />
+            {progress ? (
+              <AgentProgressTracker progress={progress} />
+            ) : (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Initializing Campaign Generation</h3>
+                <p className="text-gray-600">Setting up AI analysis and preparing your comprehensive marketing recommendation...</p>
+              </div>
+            )}
           </div>
         )}
 

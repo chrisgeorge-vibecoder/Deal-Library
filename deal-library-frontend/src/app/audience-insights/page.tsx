@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Target, TrendingUp, Users, MapPin, BarChart3, Download, Sparkles, Bookmark, ArrowRight, BookmarkCheck } from 'lucide-react';
+import { Target, TrendingUp, Users, MapPin, BarChart3, Download, Sparkles, Bookmark, ArrowRight, ShoppingCart, Trash2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import dynamic from 'next/dynamic';
 import jsPDF from 'jspdf';
@@ -105,7 +105,6 @@ export default function AudienceInsightsPage() {
   // Deal Modal State
   const [isDealModalOpen, setIsDealModalOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
-  const [savedDealIds, setSavedDealIds] = useState<Set<string>>(new Set());
 
   // Helper function to convert Markdown bold (**text**) to HTML <strong>text</strong>
   const renderMarkdown = (text: string) => {
@@ -197,41 +196,7 @@ export default function AudienceInsightsPage() {
     setSelectedDeal(null);
   };
 
-  const handleSaveDeal = (card: { type: 'deal', data: Deal }) => {
-    window.dispatchEvent(new CustomEvent('saveCard', { detail: card }));
-    setSavedDealIds(prev => new Set(prev).add(`deal-${card.data.dealId || card.data.id}`));
-  };
-
-  const handleUnsaveDeal = (cardId: string) => {
-    // Remove from localStorage
-    const savedCardsJson = localStorage.getItem('savedCards');
-    if (savedCardsJson) {
-      try {
-        const savedCards = JSON.parse(savedCardsJson);
-        const filteredCards = savedCards.filter((card: any) => {
-          if (card.type === 'deal') {
-            const id = `deal-${card.data.dealId || card.data.id}`;
-            return id !== cardId;
-          }
-          return true;
-        });
-        localStorage.setItem('savedCards', JSON.stringify(filteredCards));
-        setSavedDealIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(cardId);
-          return newSet;
-        });
-      } catch (e) {
-        console.error('Error unsaving deal:', e);
-      }
-    }
-  };
-
-  const isDealSaved = (cardId: string) => {
-    return savedDealIds.has(cardId);
-  };
-
-  // Cart handlers (mock for now - real implementation would use AppLayout's cart state)
+  // Cart handlers
   const handleAddToCart = (deal: Deal) => {
     console.log('Adding to cart:', deal.dealName);
     // Dispatch event to AppLayout to handle cart
@@ -1551,8 +1516,8 @@ export default function AudienceInsightsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {recommendedDeals.map((deal, index) => {
                       const isCommerceAudience = (deal.dealName || '').toLowerCase().includes('purchase intender');
-                      const dealCardId = `deal-${deal.dealId || deal.id}`;
-                      const isSaved = isDealSaved(dealCardId);
+                      const dealId = deal.dealId || deal.id;
+                      const inCart = isInCart(dealId);
                       
                       return (
                         <div
@@ -1563,27 +1528,27 @@ export default function AudienceInsightsPage() {
                               : 'border-gray-200 hover:border-brand-orange'
                           }`}
                         >
-                          {/* Bookmark Icon - Top Right */}
+                          {/* Cart Icon - Top Right */}
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (isSaved) {
-                                handleUnsaveDeal(dealCardId);
+                              if (inCart) {
+                                handleRemoveFromCart(dealId);
                               } else {
-                                handleSaveDeal({ type: 'deal', data: deal });
+                                handleAddToCart(deal);
                               }
                             }}
                             className={`absolute top-3 right-3 p-2 rounded-lg transition-colors border z-10 ${
-                              isSaved
-                                ? 'text-blue-600 bg-blue-50 hover:bg-blue-100 border-blue-200'
-                                : 'text-gray-400 hover:text-blue-600 hover:bg-blue-50 border-gray-200 bg-white'
+                              inCart
+                                ? 'text-red-600 bg-red-50 hover:bg-red-100 border-red-200'
+                                : 'text-brand-gold hover:text-brand-orange hover:bg-brand-gold/10 border-gray-200 bg-white'
                             }`}
-                            title={isSaved ? 'Remove from saved' : 'Save card'}
+                            title={inCart ? 'Remove from cart' : 'Add to cart'}
                           >
-                            {isSaved ? (
-                              <BookmarkCheck className="w-4 h-4" />
+                            {inCart ? (
+                              <Trash2 className="w-4 h-4" />
                             ) : (
-                              <Bookmark className="w-4 h-4" />
+                              <ShoppingCart className="w-4 h-4" />
                             )}
                           </button>
 
@@ -1755,9 +1720,6 @@ Generated: ${new Date().toLocaleString()}
           onAddToCart={handleAddToCart}
           onRemoveFromCart={handleRemoveFromCart}
           isInCart={isInCart}
-          onSaveCard={handleSaveDeal}
-          onUnsaveCard={handleUnsaveDeal}
-          isSaved={isDealSaved}
         />
       )}
     </div>

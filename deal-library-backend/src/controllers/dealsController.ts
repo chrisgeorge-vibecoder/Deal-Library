@@ -2776,6 +2776,8 @@ export class DealsController {
           targetAudiences: parsed.targetAudiences,
           campaignObjectives: parsed.campaignObjectives,
           budgetRange: parsed.budgetRange,
+          budgetValue: parsed.budgetValue,
+          budgetNotes: parsed.budgetNotes,
           geographicFocus: parsed.geographicFocus,
           keyProducts: parsed.keyProducts,
           timeline: parsed.timeline,

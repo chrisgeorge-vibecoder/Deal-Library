@@ -1,6 +1,7 @@
 import React from 'react';
-import { X, Building2, TrendingUp, TrendingDown, Minus, DollarSign, Users, BarChart3, Target, AlertTriangle, Bookmark, BookmarkCheck } from 'lucide-react';
+import { X, Building2, TrendingUp, TrendingDown, Minus, DollarSign, Users, BarChart3, Target, AlertTriangle, Bookmark, BookmarkCheck, Copy, Download, Printer, CheckCircle2 } from 'lucide-react';
 import { CompanyProfile } from '@/types/deal';
+import { useCardExport } from '@/hooks/useCardExport';
 
 interface CompanyProfileDetailModalProps {
   profile: CompanyProfile | null;
@@ -12,7 +13,12 @@ interface CompanyProfileDetailModalProps {
 }
 
 export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard, onUnsaveCard, isSaved }: CompanyProfileDetailModalProps) {
+  const { handleCopyAsHTML, handleDownloadAsImage, handlePrint, isExporting, exportSuccess } = useCardExport();
+
   if (!isOpen || !profile) return null;
+
+  const modalId = 'company-profile-modal-content';
+  const filename = `company-profile-${profile.stockSymbol?.replace(/[^a-zA-Z0-9]/g, '-')}`;
 
   const getTrendIcon = (trend: 'positive' | 'negative' | 'neutral') => {
     switch (trend) {
@@ -50,17 +56,18 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-neutral-200 flex items-center justify-between z-10">
-          <div className="flex items-center gap-3">
-            <Building2 className="w-6 h-6 text-primary-600" />
-            <div>
-              <h3 className="text-xl font-semibold text-neutral-900">
-                {profile.companyInfo.name} ({profile.stockSymbol})
-              </h3>
-              <p className="text-sm text-neutral-600">{profile.companyInfo.sector}</p>
+        <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-neutral-200 z-10">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <Building2 className="w-6 h-6 text-primary-600" />
+              <div>
+                <h3 className="text-2xl font-bold text-neutral-900">
+                  {profile.companyInfo.name} ({profile.stockSymbol})
+                </h3>
+                <p className="text-sm text-neutral-600 font-medium">{profile.companyInfo.sector}</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
             {onSaveCard && onUnsaveCard && isSaved && (
               <button
                 onClick={(e) => {
@@ -92,52 +99,84 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
               <X className="w-5 h-5 text-neutral-600" />
             </button>
           </div>
+          </div>
+
+          {/* Export Toolbar */}
+          <div className="flex items-center gap-2 px-2">
+            <span className="text-xs text-neutral-500 font-medium mr-2">Export:</span>
+            <button
+              onClick={() => handleCopyAsHTML(`#${modalId}`)}
+              disabled={isExporting}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors disabled:opacity-50"
+              title="Copy formatted content for PowerPoint/Google Slides"
+            >
+              {exportSuccess ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">{exportSuccess ? 'Copied!' : 'Copy'}</span>
+            </button>
+            <button
+              onClick={() => handleDownloadAsImage(`#${modalId}`, filename)}
+              disabled={isExporting}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors disabled:opacity-50"
+              title="Download as high-quality image"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Image</span>
+            </button>
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
+              title="Print or save as PDF"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Print</span>
+            </button>
+          </div>
         </div>
 
         {/* Modal Content */}
-        <div className="p-6 space-y-6">
+        <div id={modalId} className="p-8 space-y-10">
           {/* Company Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <Building2 className="w-5 h-5 text-blue-600" />
-                <h4 className="font-semibold text-blue-900">Company Info</h4>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-6 shadow-sm hover:shadow-lg transition-shadow">
+              <div className="flex items-center gap-3 mb-4">
+                <Building2 className="w-6 h-6 text-blue-600" />
+                <h4 className="font-bold text-blue-900">Company Info</h4>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div>
-                  <span className="text-sm text-blue-700">Market Cap:</span>
-                  <div className="font-medium text-blue-900">{profile.companyInfo.marketCap}</div>
+                  <span className="text-sm text-blue-700 font-medium">Market Cap:</span>
+                  <div className="text-lg font-bold text-blue-900">{profile.companyInfo.marketCap}</div>
                 </div>
                 <div>
-                  <span className="text-sm text-blue-700">Stock Price:</span>
-                  <div className="font-medium text-blue-900">{profile.companyInfo.recentPrice}</div>
+                  <span className="text-sm text-blue-700 font-medium">Stock Price:</span>
+                  <div className="text-lg font-bold text-blue-900">{profile.companyInfo.recentPrice}</div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <BarChart3 className="w-5 h-5 text-green-600" />
-                <h4 className="font-semibold text-green-900">Performance</h4>
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-green-200 p-6 shadow-sm hover:shadow-lg transition-shadow">
+              <div className="flex items-center gap-3 mb-4">
+                <BarChart3 className="w-6 h-6 text-green-600" />
+                <h4 className="font-bold text-green-900">Performance</h4>
               </div>
-              <p className="text-sm text-green-800 line-clamp-3">{profile.recentPerformance.earningsSummary}</p>
+              <p className="text-sm text-green-800 line-clamp-3 leading-relaxed">{profile.recentPerformance.earningsSummary}</p>
             </div>
 
-            <div className={`rounded-lg p-6 ${profile.investmentOutlook.recommendation.toLowerCase().includes('buy') 
-              ? 'bg-green-50 border border-green-200' 
+            <div className={`rounded-xl p-6 shadow-sm hover:shadow-lg transition-shadow ${profile.investmentOutlook.recommendation.toLowerCase().includes('buy') 
+              ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300' 
               : profile.investmentOutlook.recommendation.toLowerCase().includes('sell')
-              ? 'bg-red-50 border border-red-200'
-              : 'bg-gray-50 border border-gray-200'}`}>
-              <div className="flex items-center gap-2 mb-3">
-                <Target className="w-5 h-5 text-gray-600" />
-                <h4 className="font-semibold text-gray-900">Recommendation</h4>
+              ? 'bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-300'
+              : 'bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-gray-300'}`}>
+              <div className="flex items-center gap-3 mb-4">
+                <Target className="w-6 h-6 text-gray-600" />
+                <h4 className="font-bold text-gray-900">Recommendation</h4>
               </div>
-              <div className={`text-lg font-bold ${
+              <div className={`text-2xl font-bold ${
                 profile.investmentOutlook.recommendation.toLowerCase().includes('buy') 
-                  ? 'text-green-600' 
+                  ? 'text-green-700' 
                   : profile.investmentOutlook.recommendation.toLowerCase().includes('sell')
-                  ? 'text-red-600'
-                  : 'text-gray-600'
+                  ? 'text-red-700'
+                  : 'text-gray-700'
               }`}>
                 {profile.investmentOutlook.recommendation}
               </div>
@@ -145,51 +184,51 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
           </div>
 
           {/* Recent Performance */}
-          <div className="bg-white border border-neutral-200 rounded-lg p-6">
-            <h4 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary-600" />
+          <div className="bg-white border-2 border-neutral-200 rounded-xl p-8 shadow-sm">
+            <h4 className="text-lg font-bold text-neutral-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-neutral-200">
+              <TrendingUp className="w-6 h-6 text-primary-600" />
               Recent Performance
             </h4>
             
-            <div className="mb-4">
-              <p className="text-neutral-700 mb-4">{profile.recentPerformance.executiveSummary}</p>
+            <div className="mb-6">
+              <p className="text-neutral-700 leading-relaxed text-base">{profile.recentPerformance.executiveSummary}</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 sm:p-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
               {profile.recentPerformance.keyMetrics.map((metric, index) => (
-                <div key={index} className={`p-4 rounded-lg border ${getTrendColor(metric.trend)}`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium">{metric.metric}</span>
+                <div key={index} className={`p-5 rounded-xl border-2 shadow-sm hover:shadow-lg transition-shadow ${getTrendColor(metric.trend)}`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-bold text-base">{metric.metric}</span>
                     {getTrendIcon(metric.trend)}
                   </div>
-                  <div className="text-lg font-semibold">{metric.value}</div>
+                  <div className="text-2xl font-bold">{metric.value}</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Competitive Analysis */}
-          <div className="bg-white border border-neutral-200 rounded-lg p-6">
-            <h4 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary-600" />
+          <div className="bg-white border-2 border-neutral-200 rounded-xl p-8 shadow-sm">
+            <h4 className="text-lg font-bold text-neutral-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-neutral-200">
+              <Users className="w-6 h-6 text-primary-600" />
               Competitive Analysis
             </h4>
             
-            <div className="mb-6">
-              <p className="text-neutral-700 mb-2">{profile.competitiveAnalysis.competitivePosition}</p>
-              <div>
-                <span className="text-sm text-neutral-600">Market Share: </span>
-                <span className="font-medium">{profile.competitiveAnalysis.marketShare}</span>
+            <div className="mb-8">
+              <p className="text-neutral-700 mb-4 leading-relaxed">{profile.competitiveAnalysis.competitivePosition}</p>
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl border-2 border-blue-200">
+                <span className="text-sm text-blue-700 font-semibold">Market Share: </span>
+                <span className="font-bold text-blue-900 text-lg">{profile.competitiveAnalysis.marketShare}</span>
               </div>
             </div>
 
             <div>
-              <h5 className="font-medium text-neutral-900 mb-3">Main Competitors</h5>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-0 sm:p-4">
+              <h5 className="text-base font-bold text-neutral-900 mb-4">Main Competitors</h5>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 {profile.competitiveAnalysis.mainCompetitors.map((competitor, index) => (
-                  <div key={index} className="bg-neutral-50 rounded-lg p-0 sm:p-4">
-                    <h6 className="font-medium text-neutral-900 mb-2">{competitor.name}</h6>
-                    <p className="text-sm text-neutral-600">{competitor.strength}</p>
+                  <div key={index} className="bg-neutral-50 rounded-xl p-5 border-2 border-neutral-200 hover:shadow-lg transition-shadow">
+                    <h6 className="font-bold text-neutral-900 mb-3">{competitor.name}</h6>
+                    <p className="text-sm text-neutral-600 leading-relaxed">{competitor.strength}</p>
                   </div>
                 ))}
               </div>
@@ -197,49 +236,52 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
           </div>
 
           {/* Growth Opportunities */}
-          <div className="bg-white border border-neutral-200 rounded-lg p-6">
-            <h4 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary-600" />
+          <div className="bg-white border-2 border-neutral-200 rounded-xl p-8 shadow-sm">
+            <h4 className="text-lg font-bold text-neutral-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-neutral-200">
+              <Target className="w-6 h-6 text-primary-600" />
               Growth Opportunities
             </h4>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 sm:p-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
               {profile.growthOpportunities.map((opportunity, index) => (
-                <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-0 sm:p-4">
-                  <h6 className="font-medium text-blue-900 mb-2">{opportunity.opportunity}</h6>
-                  <p className="text-sm text-blue-800">{opportunity.potential}</p>
+                <div key={index} className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-lg transition-shadow">
+                  <div className="flex items-start gap-3 mb-3">
+                    <DollarSign className="w-6 h-6 text-blue-600 flex-shrink-0" />
+                    <h6 className="font-bold text-blue-900">{opportunity.opportunity}</h6>
+                  </div>
+                  <p className="text-sm text-blue-800 leading-relaxed">{opportunity.potential}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Investment Outlook */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white border border-neutral-200 rounded-lg p-6">
-              <h4 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-green-600" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-white border-2 border-neutral-200 rounded-xl p-8 shadow-sm">
+              <h4 className="text-lg font-bold text-neutral-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-green-200">
+                <TrendingUp className="w-6 h-6 text-green-600" />
                 Strengths
               </h4>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {profile.investmentOutlook.strengths.map((strength, index) => (
-                  <div key={index} className="flex items-start gap-2">
+                  <div key={index} className="flex items-start gap-3 bg-green-50 p-4 rounded-xl border border-green-200">
                     <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-sm text-neutral-700">{strength}</p>
+                    <p className="text-sm text-neutral-700 leading-relaxed">{strength}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="bg-white border border-neutral-200 rounded-lg p-6">
-              <h4 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-red-600" />
+            <div className="bg-white border-2 border-neutral-200 rounded-xl p-8 shadow-sm">
+              <h4 className="text-lg font-bold text-neutral-900 mb-6 flex items-center gap-3 pb-3 border-b-2 border-red-200">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
                 Risks
               </h4>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {profile.investmentOutlook.risks.map((risk, index) => (
-                  <div key={index} className="flex items-start gap-2">
+                  <div key={index} className="flex items-start gap-3 bg-red-50 p-4 rounded-xl border border-red-200">
                     <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-sm text-neutral-700">{risk}</p>
+                    <p className="text-sm text-neutral-700 leading-relaxed">{risk}</p>
                   </div>
                 ))}
               </div>
@@ -247,16 +289,16 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
           </div>
 
           {/* Disclaimer */}
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-0 sm:p-4">
-            <div className="flex items-start gap-3">
+          <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-5">
+            <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
-                <div className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center">
-                  <span className="text-amber-600 text-sm font-bold">ℹ</span>
+                <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                  <span className="text-amber-600 text-base font-bold">ℹ</span>
                 </div>
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-amber-800 mb-1">Financial Analysis Disclaimer</h4>
-                <p className="text-sm text-amber-700">
+                <h4 className="text-base font-bold text-amber-900 mb-2">Financial Analysis Disclaimer</h4>
+                <p className="text-sm text-amber-800 leading-relaxed">
                   This company profile is generated using AI and may not reflect the most current information. 
                   Always verify with official financial documents and consult with financial advisors before 
                   making investment decisions. Past performance does not guarantee future results.

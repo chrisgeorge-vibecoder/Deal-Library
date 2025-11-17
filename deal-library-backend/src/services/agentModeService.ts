@@ -12,6 +12,7 @@ import { audienceGeoAnalysisService } from './audienceGeoAnalysisService';
 import { AudienceSearchService } from './audienceSearchService';
 import { AudienceTaxonomyService } from './audienceTaxonomyService';
 import { StrategyGeneratorService } from './strategyGeneratorService';
+import { SupabaseService } from './supabaseService';
 import { Deal } from '../types/deal';
 import {
   AdvertiserBrief,
@@ -21,6 +22,7 @@ import {
   ComprehensiveReport,
   AnalysisStep
 } from '../types/agentMode';
+import * as crypto from 'crypto';
 
 export class AgentModeService {
   private geminiService: GeminiService;
@@ -85,8 +87,10 @@ export class AgentModeService {
           totalAudiences: results.audiences.count,
           totalDeals: results.deals.count,
           totalPersonas: results.personas.count,
-          estimatedReach: results.marketSizing.reachEstimate,
-          recommendedBudget: parsedBrief.budgetRange || 'TBD'
+          estimatedReach: Math.max(0, results.marketSizing.reachEstimate || 0),
+          recommendedBudget: parsedBrief.budgetRange || (parsedBrief.budgetValue ? this.formatBudget(parsedBrief.budgetValue) : 'TBD'),
+          recommendedBudgetValue: parsedBrief.budgetValue,
+          recommendedBudgetNotes: parsedBrief.budgetNotes
         }
       };
 
@@ -200,8 +204,8 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       console.log(`   Objectives: ${campaignObjectives.join(', ')}`);
       
       console.log('🔍 Extracting budget...');
-      const budgetRange = this.extractBudget(brief.rawBrief);
-      console.log(`   Budget: ${budgetRange || 'N/A'}`);
+      const budgetInfo = this.extractBudgetInfo(brief.rawBrief);
+      console.log(`   Budget: ${budgetInfo?.formatted || 'N/A'}`);
       
       console.log('🔍 Extracting geography...');
       const geographicFocus = this.extractGeography(brief.rawBrief);
@@ -215,7 +219,9 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
         advertiserName,
         targetAudiences,
         campaignObjectives,
-        budgetRange,
+        budgetRange: budgetInfo?.formatted,
+        budgetValue: budgetInfo?.approxValue,
+        budgetNotes: budgetInfo?.note,
         geographicFocus,
         keyProducts,
         timeline: undefined,
@@ -232,11 +238,12 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       
       // If timeout or API error, fall back to rule-based extraction
       console.log('⚡ Using fast rule-based extraction as fallback');
+      const budgetInfo = this.extractBudgetInfo(brief.rawBrief);
       const parsedBrief = {
         advertiserName: this.extractAdvertiserName(brief.rawBrief),
         targetAudiences: this.extractAudiences(brief.rawBrief),
         campaignObjectives: this.extractObjectives(brief.rawBrief),
-        budgetRange: this.extractBudget(brief.rawBrief),
+        budgetRange: budgetInfo?.formatted || undefined,
         geographicFocus: this.extractGeography(brief.rawBrief),
         keyProducts: this.extractProducts(brief.rawBrief),
         timeline: undefined,
@@ -277,7 +284,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
     // Parallel was causing out-of-memory errors
     console.log('🔄 Running analyses one at a time...');
     
-    // Run critical analyses first
+    // Run critical analyses first - audiences and deals in parallel
     const analyses = await Promise.allSettled([
       this.findAudiences(parsedBrief, progressCallback).catch(err => {
         results.errors.push({ step: 'audiences', error: err.message });
@@ -286,24 +293,45 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       this.findDeals(parsedBrief, progressCallback).catch(err => {
         results.errors.push({ step: 'deals', error: err.message });
         return { recommendations: [], count: 0 };
-      }),
-      this.generatePersonas(parsedBrief, progressCallback).catch(err => {
-        results.errors.push({ step: 'personas', error: err.message });
-        return { profiles: [], count: 0 };
-      }),
-      this.generateAudienceInsights(parsedBrief, progressCallback).catch(err => {
-        results.errors.push({ step: 'insights', error: err.message });
-        return { reports: [], count: 0 };
-      }),
-      this.calculateMarketSizing(parsedBrief, progressCallback).catch(err => {
-        results.errors.push({ step: 'sizing', error: err.message });
-        return { totalAddressableMarket: 0, reachEstimate: 0, demographicBreakdown: {} };
-      }),
-      this.analyzeGeographic(parsedBrief, progressCallback).catch(err => {
-        results.errors.push({ step: 'geographic', error: err.message });
-        return { topMarkets: [], coverageMap: {} };
-      }),
-      this.buildSWOT(parsedBrief, progressCallback).catch(err => {
+      })
+    ]);
+
+    // Extract results
+    if (analyses[0].status === 'fulfilled') results.audiences = analyses[0].value;
+    if (analyses[1].status === 'fulfilled') results.deals = analyses[1].value;
+
+    // NOW generate personas with access to actual audience segments
+    // This allows us to use audienceInsightsService for rich persona data
+    results.personas = await this.generatePersonas(parsedBrief, results.audiences, progressCallback).catch(err => {
+      results.errors.push({ step: 'personas', error: err.message });
+      return { profiles: [], count: 0 };
+    });
+
+    // Generate audience insights for first target audience (separate from personas)
+    results.audienceInsights = await this.generateAudienceInsights(parsedBrief, progressCallback).catch(err => {
+      results.errors.push({ step: 'insights', error: err.message });
+      return { reports: [], count: 0 };
+    });
+
+    // Now run market sizing with access to actual audience data
+    results.marketSizing = await this.calculateMarketSizing(parsedBrief, results.audiences, progressCallback).catch(err => {
+      results.errors.push({ step: 'sizing', error: err.message });
+      return { totalAddressableMarket: 0, reachEstimate: 0, demographicBreakdown: {} };
+    });
+
+    // Run geographic analysis with access to audience data
+    results.geographic = await this.analyzeGeographic(parsedBrief, results.audiences, progressCallback).catch(err => {
+      results.errors.push({ step: 'geographic', error: err.message });
+      return { topMarkets: [], coverageMap: {} };
+    });
+
+    // Generate strategic insights FIRST (includes AI competitive intelligence)
+    console.log('🎯 Generating strategic insights...');
+    results.strategy = await this.generateStrategyInsights(parsedBrief, progressCallback);
+
+    // Continue with remaining analyses (SWOT now has access to strategy insights)
+    const remainingAnalyses = await Promise.allSettled([
+      this.buildSWOT(parsedBrief, results.strategy, progressCallback).catch(err => {
         results.errors.push({ step: 'swot', error: err.message });
         return { strengths: [], weaknesses: [], opportunities: [], threats: [] };
       }),
@@ -313,19 +341,8 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       })
     ]);
 
-    // Extract results
-    if (analyses[0].status === 'fulfilled') results.audiences = analyses[0].value;
-    if (analyses[1].status === 'fulfilled') results.deals = analyses[1].value;
-    if (analyses[2].status === 'fulfilled') results.personas = analyses[2].value;
-    if (analyses[3].status === 'fulfilled') results.audienceInsights = analyses[3].value;
-    if (analyses[4].status === 'fulfilled') results.marketSizing = analyses[4].value;
-    if (analyses[5].status === 'fulfilled') results.geographic = analyses[5].value;
-    if (analyses[6].status === 'fulfilled') results.swot = analyses[6].value;
-    if (analyses[7].status === 'fulfilled') results.companyProfile = analyses[7].value;
-
-    // Generate strategic insights (fast, no API calls)
-    console.log('🎯 Generating strategic insights...');
-    results.strategy = await this.generateStrategyInsights(parsedBrief, progressCallback);
+    if (remainingAnalyses[0].status === 'fulfilled') results.swot = remainingAnalyses[0].value;
+    if (remainingAnalyses[1].status === 'fulfilled') results.companyProfile = remainingAnalyses[1].value;
 
     console.log(`✅ Orchestration complete: ${results.errors.length} errors`);
     return results;
@@ -398,9 +415,19 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       }
 
       // Deduplicate by segment ID
-      const uniqueSegments = Array.from(
+      const dedupedSegments = Array.from(
         new Map(allSegments.map(seg => [seg.sovrnSegmentId || seg.id, seg])).values()
-      ).slice(0, 25); // Increase to 25 segments for LabCorp-quality results (was 10)
+      );
+      
+      console.log(`📦 After deduplication: ${dedupedSegments.length} segments`);
+
+      // Filter out obviously irrelevant segments based on original query intent
+      const filteredSegments = this.filterIrrelevantSegments(dedupedSegments, parsedBrief.targetAudiences, baseQueries);
+      console.log(`🔍 After relevance filtering: ${filteredSegments.length} segments (removed ${dedupedSegments.length - filteredSegments.length})`);
+      
+      const uniqueSegments = filteredSegments
+        .slice(0, 25) // Increase to 25 segments for LabCorp-quality results (was 10)
+        .map(segment => this.normalizeSegment(segment));
 
       console.log(`✅ Final unique segments: ${uniqueSegments.length}`);
       if (uniqueSegments.length > 0) {
@@ -416,6 +443,198 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       console.error('   Stack trace:', (error as any).stack);
       return { segments: [], count: 0 };
     }
+  }
+
+  /**
+   * Filter out segments that are clearly irrelevant to the original search intent
+   */
+  private filterIrrelevantSegments(segments: any[], targetAudiences: string[], baseQueries: string[]): any[] {
+    const coreKeywords = this.extractCoreKeywords(targetAudiences, baseQueries);
+    const coreThemes = this.extractCoreThemes(targetAudiences, baseQueries);
+    
+    console.log(`   Core keywords for filtering:`, Array.from(coreKeywords).join(', '));
+    console.log(`   Core themes:`, Array.from(coreThemes).join(', '));
+    
+    // Filter segments
+    const filtered = segments.filter(seg => {
+      const segmentName = (seg.segmentName || seg.name || '').toLowerCase();
+      const segmentDesc = (seg.segmentDescription || seg.description || '').toLowerCase();
+      const searchText = `${segmentName} ${segmentDesc}`;
+      
+      // Check if segment relates to any core keyword
+      const hasKeywordMatch = Array.from(coreKeywords).some(keyword => 
+        searchText.includes(keyword)
+      );
+      
+      // Check if segment relates to any core theme
+      const hasThemeMatch = this.segmentMatchesThemes(searchText, coreThemes);
+      
+      // Keep segment if it matches keywords OR themes
+      const isRelevant = hasKeywordMatch || hasThemeMatch;
+      
+      if (!isRelevant) {
+        console.log(`   ❌ Filtering out irrelevant: ${seg.segmentName || seg.name}`);
+      }
+      
+      return isRelevant;
+    });
+    
+    return filtered;
+  }
+
+  private extractCoreKeywords(targetAudiences: string[], baseQueries?: string[]): Set<string> {
+    const coreKeywords = new Set<string>();
+    const combinedQueries = baseQueries && baseQueries.length > 0
+      ? [...targetAudiences, ...baseQueries]
+      : [...targetAudiences];
+    
+    for (const query of combinedQueries) {
+      const words = query.toLowerCase().split(/\s+/);
+      words.forEach(word => {
+        if (word.length > 3) { // Ignore short words like "for", "the", etc.
+          coreKeywords.add(word);
+          if (word.endsWith('s')) {
+            const singular = word.replace(/s$/, '');
+            if (singular.length > 3) {
+              coreKeywords.add(singular);
+            }
+          }
+          if (word.includes('-')) {
+            coreKeywords.add(word.replace(/-/g, ' '));
+          }
+        }
+      });
+    }
+    return coreKeywords;
+  }
+
+  private extractCoreThemes(targetAudiences: string[], baseQueries?: string[]): Set<string> {
+    const coreThemes = new Set<string>();
+    const combinedQueries = baseQueries && baseQueries.length > 0
+      ? [...targetAudiences, ...baseQueries]
+      : [...targetAudiences];
+    
+    for (const query of combinedQueries) {
+      const queryLower = query.toLowerCase();
+      if (queryLower.includes('basketball') || queryLower.includes('sports') || queryLower.includes('athletic')) {
+        coreThemes.add('sports_fitness');
+      }
+      if (queryLower.includes('pet') || queryLower.includes('dog') || queryLower.includes('cat')) {
+        coreThemes.add('pets');
+      }
+      if (queryLower.includes('parent') || queryLower.includes('mom') || queryLower.includes('dad')) {
+        coreThemes.add('family');
+      }
+      if (queryLower.includes('professional') || queryLower.includes('business')) {
+        coreThemes.add('business');
+      }
+      if (queryLower.includes('coffee') || queryLower.includes('food') || queryLower.includes('beverage')) {
+        coreThemes.add('food_beverage');
+      }
+    }
+    return coreThemes;
+  }
+
+  private segmentMatchesThemes(searchText: string, coreThemes: Set<string>): boolean {
+    return Array.from(coreThemes).some(theme => {
+      switch(theme) {
+        case 'sports_fitness':
+          return searchText.includes('sport') || searchText.includes('athletic') || 
+                 searchText.includes('fitness') || searchText.includes('exercise') ||
+                 searchText.includes('basketball') || searchText.includes('football') ||
+                 searchText.includes('workout') || searchText.includes('active') ||
+                 searchText.includes('training') || searchText.includes('gym');
+        case 'pets':
+          return searchText.includes('pet') || searchText.includes('dog') || 
+                 searchText.includes('cat') || searchText.includes('animal');
+        case 'family':
+          return searchText.includes('parent') || searchText.includes('mom') || 
+                 searchText.includes('dad') || searchText.includes('family') || 
+                 searchText.includes('child') || searchText.includes('baby');
+        case 'business':
+          return searchText.includes('business') || searchText.includes('professional') || 
+                 searchText.includes('career') || searchText.includes('office');
+        case 'food_beverage':
+          return searchText.includes('food') || searchText.includes('beverage') || 
+                 searchText.includes('coffee') || searchText.includes('dining') || 
+                 searchText.includes('restaurant') || searchText.includes('grocery');
+        default:
+          return false;
+      }
+    });
+  }
+
+  private normalizeSegment(enrichedSegment: any): any {
+    const seg = enrichedSegment.segment || enrichedSegment;
+    const segmentName = seg.segmentName || seg.name || enrichedSegment.segmentName || enrichedSegment.name;
+
+    return {
+      ...enrichedSegment,
+      segment: seg,
+      segmentName,
+      segmentDescription: this.buildSegmentDescription(seg, enrichedSegment),
+      segmentType: seg.segmentType || enrichedSegment.segmentType,
+      scale7DayUS: seg.scale7DayUS || seg.scale || seg['scale_7day_us'] || enrichedSegment.scale7DayUS || null,
+      cpm: seg.cpm || enrichedSegment.cpm || null,
+      tier1: seg.tier1 || enrichedSegment.tier1,
+      tier2: seg.tier2 || enrichedSegment.tier2,
+      tier3: seg.tier3 || enrichedSegment.tier3,
+      dataSources: enrichedSegment.dataSources || [],
+      strategicHook: enrichedSegment.strategicHook || seg.strategicHook || ''
+    };
+  }
+
+  private buildSegmentDescription(seg: any, enrichedSegment: any): string {
+    if (seg.segmentDescription) return seg.segmentDescription;
+    if (seg.description) return seg.description;
+    if (enrichedSegment?.strategicHook) return enrichedSegment.strategicHook;
+
+    const tiers = [seg.tier1, seg.tier2, seg.tier3].filter(Boolean);
+    if (tiers.length > 0) {
+      return `Audience interested in ${tiers.join(' › ')}`;
+    }
+
+    return 'High-value audience segment identified from Sovrn taxonomy and commerce signals.';
+  }
+
+  private isPersonaContentRelevant(persona: any, coreKeywords: Set<string>, coreThemes: Set<string>): boolean {
+    const combinedText = [
+      persona.personaName || persona.name || '',
+      persona.category || '',
+      persona.coreInsight || persona.description || '',
+      persona.segmentName || '',
+      (persona.audienceMotivation || ''),
+      Array.isArray(persona.creativeHooks) ? persona.creativeHooks.join(' ') : '',
+      Array.isArray(persona.mediaTargeting) ? persona.mediaTargeting.join(' ') : ''
+    ].join(' ').toLowerCase();
+
+    const normalizedKeywords = new Set<string>();
+    for (const keyword of coreKeywords) {
+      if (keyword.length <= 3) continue;
+      normalizedKeywords.add(keyword);
+      if (keyword.endsWith('s')) {
+        const singular = keyword.replace(/s$/, '');
+        if (singular.length > 3) normalizedKeywords.add(singular);
+      }
+      if (keyword.endsWith('ers')) {
+        const base = keyword.replace(/ers$/, 'er');
+        if (base.length > 3) normalizedKeywords.add(base);
+      }
+    }
+
+    const keywordMatches = Array.from(normalizedKeywords).filter(keyword => combinedText.includes(keyword));
+    // Simple theme matching: check if any theme appears in the combined text
+    const themeMatches = coreThemes.size > 0 ? Array.from(coreThemes).some(theme => combinedText.includes(theme.toLowerCase())) : false;
+
+    if (normalizedKeywords.size > 0 && keywordMatches.length === 0) {
+      return false;
+    }
+
+    if (normalizedKeywords.size === 0 && coreThemes.size > 0) {
+      return themeMatches;
+    }
+
+    return keywordMatches.length > 0 || themeMatches;
   }
 
   /**
@@ -634,6 +853,10 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       // Get all deals from AppsScript
       const allDeals = await this.appsScriptService.getAllDeals();
       
+      // Detect advertiser category for context-aware keyword expansion
+      const advertiserCategory = this.detectAdvertiserCategory(parsedBrief.advertiserName, parsedBrief.keyProducts || []);
+      console.log(`🏷️  Detected advertiser category: ${advertiserCategory}`);
+      
       // Expand keywords to include variations (for better matching)
       const baseKeywords = [
         parsedBrief.advertiserName, // Include advertiser name (e.g., "Chewy")
@@ -642,13 +865,28 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
         ...(parsedBrief.keyProducts || [])
       ].filter(Boolean); // Remove any undefined/empty values
       
-      const expandedKeywords = this.expandDealKeywords(baseKeywords);
+      const expandedKeywords = this.expandDealKeywords(baseKeywords, advertiserCategory);
       console.log(`🔍 Searching deals with ${expandedKeywords.length} keywords:`, expandedKeywords.slice(0, 10).join(', '));
 
       // Score and rank deals by relevance
       const scoredDeals = allDeals.map((deal: Deal) => {
         const searchText = `${deal.dealName} ${deal.description} ${deal.targeting}`.toLowerCase();
         let score = 0;
+        
+        // Boost score for category-relevant deals
+        if (advertiserCategory === 'automotive' && 
+            (searchText.includes('automotive') || searchText.includes('vehicle') || 
+             searchText.includes('car') || searchText.includes('auto') || 
+             searchText.includes('truck') || searchText.includes('suv'))) {
+          score += 5; // Strong boost for category match
+        }
+        
+        // Penalize category-mismatched deals (e.g., baby deals for automotive)
+        if (advertiserCategory === 'automotive' && 
+            (searchText.includes('baby') || searchText.includes('toddler') || 
+             searchText.includes('infant') || searchText.includes('nursery'))) {
+          score -= 10; // Strong penalty for category mismatch
+        }
         
         // Higher score for exact matches in deal name
         expandedKeywords.forEach((keyword: string) => {
@@ -682,9 +920,52 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
   }
 
   /**
-   * Expand deal search keywords to include variations
+   * Detect advertiser category for context-aware matching
    */
-  private expandDealKeywords(baseKeywords: string[]): string[] {
+  private detectAdvertiserCategory(advertiserName: string, keyProducts: string[]): string {
+    const nameLower = advertiserName.toLowerCase();
+    const productsLower = keyProducts.join(' ').toLowerCase();
+    const combined = `${nameLower} ${productsLower}`;
+    
+    // Automotive
+    if (combined.includes('dodge') || combined.includes('ford') || combined.includes('chevrolet') ||
+        combined.includes('toyota') || combined.includes('honda') || combined.includes('nissan') ||
+        combined.includes('bmw') || combined.includes('mercedes') || combined.includes('audi') ||
+        combined.includes('car') || combined.includes('vehicle') || combined.includes('automotive') ||
+        combined.includes('auto') || combined.includes('truck') || combined.includes('suv')) {
+      return 'automotive';
+    }
+    
+    // Pet/Animal
+    if (combined.includes('chewy') || combined.includes('pet') || combined.includes('animal')) {
+      return 'pet';
+    }
+    
+    // Baby/Children
+    if (combined.includes('baby') || combined.includes('toddler') || combined.includes('infant') ||
+        combined.includes('children') || combined.includes('kids')) {
+      return 'baby';
+    }
+    
+    // Sports/Athletic
+    if (combined.includes('nike') || combined.includes('adidas') || combined.includes('athletic') ||
+        combined.includes('sport') || combined.includes('fitness') || combined.includes('exercise')) {
+      return 'sports';
+    }
+    
+    // Electronics/Audio
+    if (combined.includes('sonos') || combined.includes('bose') || combined.includes('audio') ||
+        combined.includes('speaker') || combined.includes('electronics')) {
+      return 'electronics';
+    }
+    
+    return 'general';
+  }
+
+  /**
+   * Expand deal search keywords to include variations (with advertiser context)
+   */
+  private expandDealKeywords(baseKeywords: string[], advertiserCategory: string = 'general'): string[] {
     const expanded = new Set<string>();
     
     for (const keyword of baseKeywords) {
@@ -722,6 +1003,21 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
         expanded.add('training');
       }
       
+      // Automotive variations (for Dodge, Ford, etc.)
+      if (lower.includes('dodge') || lower.includes('ford') || lower.includes('car') || 
+          lower.includes('vehicle') || lower.includes('automotive') || lower.includes('auto') ||
+          lower.includes('truck') || lower.includes('suv') || advertiserCategory === 'automotive') {
+        expanded.add('automotive');
+        expanded.add('vehicle');
+        expanded.add('car');
+        expanded.add('auto');
+        expanded.add('truck');
+        expanded.add('suv');
+        expanded.add('driving');
+        expanded.add('transportation');
+        expanded.add('family vehicle');
+      }
+      
       // Footwear/Fashion variations
       if (lower.includes('shoe') || lower.includes('sneaker') || lower.includes('footwear')) {
         expanded.add('footwear');
@@ -742,14 +1038,29 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
         expanded.add('retail');
       }
       
-      // Family/Parenting variations
+      // Family/Parenting variations (context-aware)
       if (lower.includes('mom') || lower.includes('mother') || lower.includes('parent')) {
         expanded.add('family');
-        expanded.add('children');
-        expanded.add('baby');
-        expanded.add('toddler');
-        expanded.add('kids');
         expanded.add('household');
+        
+        // Only expand to baby/toddler if advertiser is in baby/children category
+        if (advertiserCategory === 'baby' || advertiserCategory === 'general') {
+          expanded.add('children');
+          expanded.add('baby');
+          expanded.add('toddler');
+          expanded.add('kids');
+        }
+        
+        // For automotive, expand to vehicle/family vehicle terms instead
+        if (advertiserCategory === 'automotive') {
+          expanded.add('vehicle');
+          expanded.add('car');
+          expanded.add('automotive');
+          expanded.add('family vehicle');
+          expanded.add('suv');
+          expanded.add('minivan');
+          expanded.add('family car');
+        }
       }
       
       // Fitness/Health variations
@@ -846,54 +1157,117 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
   }
 
   /**
-   * Step 4: Generate personas (updated to use actual found audiences)
+   * Step 4: Generate personas using Audience Insights for matched segments
    */
   private async generatePersonas(
     parsedBrief: ParsedBrief,
+    audiences: { segments: any[]; count: number },
     progressCallback: (update: ProgressUpdate) => void
   ): Promise<{ profiles: any[]; count: number }> {
     this.emitProgress(progressCallback, 4, 'personas', 'in_progress', 'Generating audience personas...');
-    console.log('👤 Generating personas from target audiences...');
+    console.log('👤 Generating personas from audience segments...');
 
     try {
       const personas: any[] = [];
+      const personaKeywordSet = this.extractCoreKeywords(parsedBrief.targetAudiences);
+      const personaThemeSet = this.extractCoreThemes(parsedBrief.targetAudiences);
+      const basePersonaQueries = parsedBrief.targetAudiences.slice(0, 2);
       
-      // Get personas directly from the PersonaService for now
-      // In a future iteration, we could generate these dynamically using Gemini
-      const allPersonas = this.personaService.getAllPersonas();
-      
-      // First, try to match against target audiences
-      const keywords = parsedBrief.targetAudiences.slice(0, 3).map(a => a.toLowerCase());
-      console.log(`   Searching personas for keywords: ${keywords.join(', ')}`);
-      
-      const relevantPersonas = allPersonas.filter(persona => {
-        const searchText = `${persona.category} ${persona.personaName} ${persona.coreInsight}`.toLowerCase();
-        return keywords.some(keyword => {
-          // Split keyword into words and check if any word matches
-          const keywordWords = keyword.split(/\s+/);
-          return keywordWords.some(word => word.length > 3 && searchText.includes(word));
-        });
-      });
-      
-      if (relevantPersonas.length > 0) {
-        console.log(`   ✓ Found ${relevantPersonas.length} matching personas`);
-        personas.push(...relevantPersonas.slice(0, 3));
+      let personaSegments = audiences.segments || [];
+      if (personaSegments.length > 0) {
+        const filteredForPersonas = this.filterIrrelevantSegments(
+          personaSegments,
+          parsedBrief.targetAudiences,
+          basePersonaQueries
+        );
+        if (filteredForPersonas.length > 0) {
+          personaSegments = filteredForPersonas;
+        }
       }
       
-      // If we don't have enough personas, generate category-based personas for the target audience
+      // PRIORITY 1: Use rich Audience Insights for matched segments (top 3)
+      if (personaSegments && personaSegments.length > 0) {
+        console.log(`   ✓ Found ${personaSegments.length} audience segments - generating rich personas...`);
+        
+        const topSegments = personaSegments.slice(0, 3);
+        const personaPromises = topSegments.map(async (enrichedSegment) => {
+          try {
+            const segment = enrichedSegment.segment || enrichedSegment;
+            const segmentName = segment.segmentName || segment.name;
+            
+            if (!segmentName) return null;
+            
+            console.log(`   📊 Generating rich persona for: ${segmentName}`);
+            
+            // Generate full Audience Insights report (includes demographics, behavioral overlaps, messaging recommendations)
+            const insightsReport = await audienceInsightsService.generateReport(segmentName);
+            
+            // Transform Audience Insights into Persona format
+            const personaCandidate = {
+              personaName: insightsReport.personaName,
+              emoji: insightsReport.personaEmoji,
+              category: insightsReport.category,
+              coreInsight: insightsReport.executiveSummary,
+              creativeHooks: insightsReport.strategicInsights?.messagingRecommendations || [],
+              mediaTargeting: insightsReport.strategicInsights?.channelRecommendations || [],
+              audienceMotivation: insightsReport.strategicInsights?.targetPersona || '',
+              demographics: {
+                medianIncome: insightsReport.keyMetrics?.medianHHI,
+                topAge: insightsReport.keyMetrics?.topAgeBracket,
+                educationLevel: insightsReport.keyMetrics?.educationLevel,
+                topMarkets: insightsReport.geographicHotspots?.slice(0, 5).map(h => `${h.city}, ${h.state}`)
+              },
+              behavioralOverlap: insightsReport.behavioralOverlap?.slice(0, 3),
+              segmentName: segmentName,
+              isAIGenerated: true
+            };
+
+            if (!this.isPersonaContentRelevant(personaCandidate, personaKeywordSet, personaThemeSet)) {
+              console.warn(`⚠️ Persona for ${segmentName} did not match core keywords, discarding.`);
+              return null;
+            }
+
+            return personaCandidate;
+          } catch (error) {
+            console.warn(`⚠️ Could not generate rich persona for segment:`, error);
+            return null;
+          }
+        });
+        
+        const richPersonas = (await Promise.all(personaPromises)).filter(p => p !== null);
+        personas.push(...richPersonas);
+        console.log(`   ✅ Generated ${richPersonas.length} rich AI personas`);
+      }
+      
+      // PRIORITY 2: Fill gaps with static PersonaService personas
       if (personas.length < 3) {
-        console.log(`   Generating synthetic personas for target audiences...`);
+        console.log(`   Searching static personas to fill gaps...`);
+        const allPersonas = this.personaService.getAllPersonas();
+        
+        const relevantPersonas = allPersonas.filter(persona => {
+          const searchText = `${persona.category} ${persona.personaName} ${persona.coreInsight}`.toLowerCase();
+          const matchesKeyword = Array.from(personaKeywordSet).some(keyword => searchText.includes(keyword));
+          return matchesKeyword && this.isPersonaContentRelevant(persona, personaKeywordSet, personaThemeSet);
+        });
+        
+        if (relevantPersonas.length > 0) {
+          const needed = 3 - personas.length;
+          personas.push(...relevantPersonas.slice(0, needed));
+          console.log(`   ✓ Added ${Math.min(needed, relevantPersonas.length)} static personas`);
+        }
+      }
+      
+      // PRIORITY 3: Generate synthetic personas as last resort
+      if (personas.length < 3) {
+        console.log(`   Generating synthetic personas as fallback...`);
         
         for (const audience of parsedBrief.targetAudiences.slice(0, 3 - personas.length)) {
-          const syntheticPersona = this.generateSyntheticPersona(
-            audience, 
-            parsedBrief
-          );
+          const syntheticPersona = this.generateSyntheticPersona(audience, parsedBrief);
           personas.push(syntheticPersona);
         }
       }
       
-      console.log(`   ✓ Total personas generated: ${personas.length}`);
+      console.log(`   ✅ Total personas: ${personas.length} (${personas.filter(p => p.isAIGenerated).length} AI-generated)`);
       this.emitProgress(progressCallback, 4, 'personas', 'completed', `Generated ${personas.length} personas`, 52);
       return { profiles: personas, count: personas.length };
     } catch (error) {
@@ -1053,15 +1427,25 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       const reports: any[] = [];
       const audiences = parsedBrief.targetAudiences.slice(0, 1);
 
+      const INSIGHTS_TIMEOUT_MS = 30000; // 30 second timeout per audience
+
       for (const audience of audiences) {
         try {
-          const report = await audienceInsightsService.generateReport(audience);
+          const report = await Promise.race([
+            audienceInsightsService.generateReport(audience),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Audience insights generation timeout')), INSIGHTS_TIMEOUT_MS)
+            )
+          ]) as any;
+          
           reports.push({
             audience,
-            ...report
+            ...(report && typeof report === 'object' ? report : {})
           });
         } catch (error) {
           console.warn(`⚠️ Could not generate insights for ${audience}:`, error);
+          console.warn(`   Falling back to lightweight insight for ${audience}`);
+          reports.push(this.generateFallbackInsight(audience));
         }
       }
       
@@ -1074,76 +1458,774 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
   }
 
   /**
-   * Step 6: Calculate market sizing
+   * Generate lightweight fallback insight when rich insights fail or timeout
+   */
+  private generateFallbackInsight(audience: string) {
+    return {
+      audience,
+      segment: audience,
+      executiveSummary: `Audience insights for ${audience} are unavailable at this time. We recommend focusing on core demographic and behavioral signals collected from matched audience segments.`,
+      personaName: `${audience} Audience`,
+      personaEmoji: '📊',
+      strategicInsights: {
+        messagingRecommendations: [
+          `Highlight the value proposition that resonates most with ${audience}.`,
+          'Leverage performance creative variations and iterate quickly based on engagement.'
+        ],
+        channelRecommendations: [
+          'Mix of CTV + high-impact mobile inventory for reach',
+          'Retarget engaged users via programmatic display and social extensions'
+        ],
+        targetPersona: `Reach ${audience} with tailored creative and offers.`
+      },
+      keyMetrics: {
+        medianHHI: null,
+        medianHHIvsNational: null,
+        medianHHIvsCommerce: null,
+        topAgeBracket: null,
+        educationLevel: null,
+        educationVsNational: null,
+        educationVsCommerce: null
+      },
+      geographicHotspots: [],
+      demographics: {},
+      behavioralOverlap: []
+    };
+  }
+
+  /**
+   * Step 6: Calculate market sizing from actual audience data
    */
   private async calculateMarketSizing(
     parsedBrief: ParsedBrief,
+    audiences: { segments: any[]; count: number },
     progressCallback: (update: ProgressUpdate) => void
   ): Promise<{ totalAddressableMarket: number; reachEstimate: number; demographicBreakdown: any }> {
-    this.emitProgress(progressCallback, 6, 'sizing', 'in_progress', 'Calculating market size...');
-    console.log('📈 Calculating market sizing...');
+    this.emitProgress(progressCallback, 6, 'sizing', 'in_progress', 'Calculating market size from audience data...');
+    console.log('📈 Calculating market sizing from actual audience segments...');
 
     try {
-      // Placeholder market sizing calculation
+      // Ensure commerce data is loaded for demographic analysis
+      if (!commerceAudienceService['isLoaded']) {
+        console.log('   Loading commerce data for demographic analysis...');
+        try {
+          const loadResult = await commerceAudienceService.loadCommerceData();
+          if (!loadResult.success) {
+            console.warn('⚠️  Commerce data loading failed, demographics will be limited:', loadResult.message);
+          }
+        } catch (error) {
+          console.warn('⚠️  Commerce data loading error, continuing without commerce data:', error);
+        }
+      }
+      
+      // Calculate reach from actual audience segments
+      let totalReach = 0;
+      let segmentCount = 0;
+      const demographicData: any = {
+        ageDistribution: {},
+        incomeDistribution: {},
+        educationDistribution: {},
+        urbanRuralMix: {}
+      };
+
+      let usedFallbackMarkets = false;
+      if (audiences.segments && audiences.segments.length > 0) {
+        console.log(`   Analyzing ${audiences.segments.length} audience segments...`);
+        
+        // Calculate reach from segments
+        // IMPORTANT: We use MAX reach instead of SUM to avoid double-counting overlapping audiences
+        // Multiple fitness/athletic segments will have significant overlap
+        let maxReach = 0;
+        const segmentReaches: Array<{name: string, reach: number}> = [];
+        
+        for (const enrichedSegment of audiences.segments) {
+          // Segments come back enriched - unwrap to get the actual segment data
+          const segment = enrichedSegment.segment || enrichedSegment;
+          
+          // Try different property names for scale data
+          const scale = segment.scale7DayUS || segment['scale_7day_us'] || segment.scale || 0;
+          if (scale > 0) {
+            segmentReaches.push({
+              name: segment.segmentName || segment.name,
+              reach: scale
+            });
+            maxReach = Math.max(maxReach, scale);
+            segmentCount++;
+            console.log(`   ${segment.segmentName || segment.name}: ${(scale / 1000000).toFixed(1)}M reach`);
+          } else {
+            // If no scale property, log the segment structure for debugging
+            if (segmentCount === 0) {
+              console.log(`   Debug - Enriched segment has 'segment' property:`, !!enrichedSegment.segment);
+              console.log(`   Debug - Sample properties:`, Object.keys(segment).slice(0, 10).join(', '));
+            }
+          }
+        }
+        
+        // Use max reach as the base, then add 20% for each additional top segment (capped at 50% increase)
+        // This accounts for some incremental reach from complementary segments without massive double-counting
+        if (segmentReaches.length > 1) {
+          const topSegments = segmentReaches.sort((a, b) => b.reach - a.reach).slice(0, 5);
+          if (topSegments[0]) {
+            totalReach = topSegments[0].reach; // Start with largest segment
+            
+            // Add incremental reach from other top segments (diminishing returns)
+            for (let i = 1; i < topSegments.length; i++) {
+              const segment = topSegments[i];
+              if (segment) {
+                const incrementalPct = 0.15 / i; // 15% for 2nd segment, 7.5% for 3rd, 5% for 4th, etc.
+                totalReach += segment.reach * incrementalPct;
+              }
+            }
+          }
+          
+          console.log(`   📊 Using max reach model: ${(maxReach / 1000000).toFixed(1)}M base + incremental from top segments`);
+          console.log(`   📈 Adjusted reach: ${(totalReach / 1000000).toFixed(1)}M (vs ${(segmentReaches.reduce((sum, s) => sum + s.reach, 0) / 1000000).toFixed(1)}M if summed)`);
+        } else {
+          totalReach = maxReach;
+        }
+
+        // Get demographic insights from top 3 segments using commerce data
+        const topSegments = audiences.segments.slice(0, 3); // Reduced to 3 for performance
+        console.log(`   Gathering demographics from ${topSegments.length} top segments...`);
+        
+        for (const enrichedSegment of topSegments) {
+          // Unwrap enriched segment to get actual segment data (outside try for catch block access)
+          const segment = enrichedSegment.segment || enrichedSegment;
+          const segmentName = segment.segmentName || segment.name;
+          if (!segmentName) continue;
+
+          try {
+            console.log(`   Analyzing demographics for: ${segmentName}`);
+
+            // Get top ZIPs for this segment
+            const audienceData = commerceAudienceService.searchZipCodesByAudience(segmentName, 50);
+            
+            if (!audienceData || audienceData.length === 0) {
+              console.log(`   No data for ${segmentName}`);
+              continue;
+            }
+
+            // Get census data for these ZIPs
+            const zipCodes = audienceData.slice(0, 30).map((item: any) => item.zipCode);
+            const censusDataArray = await this.censusDataService.getZipCodeData(zipCodes);
+            
+            // Aggregate weighted demographics
+            let totalWeight = 0;
+            const ageGroups: { [key: string]: number } = {};
+            const incomeGroups: { [key: string]: number } = {};
+            const educationGroups: { [key: string]: number } = {};
+
+            for (const item of audienceData.slice(0, 30)) {
+              const census = censusDataArray.find(c => c.zipCode === item.zipCode);
+              if (!census || !census.population) continue;
+
+              const weight = item.weight;
+              totalWeight += weight;
+
+              // Age distribution (from median age)
+              if (census.demographics?.ageMedian) {
+                const ageGroup = this.getAgeGroup(census.demographics.ageMedian);
+                ageGroups[ageGroup] = (ageGroups[ageGroup] || 0) + weight;
+              }
+
+              // Income distribution
+              if (census.economics?.householdIncome?.median) {
+                const incomeGroup = this.getIncomeGroup(census.economics.householdIncome.median);
+                incomeGroups[incomeGroup] = (incomeGroups[incomeGroup] || 0) + weight;
+              }
+
+              // Education (bachelor's + graduate degree percentages)
+              if (census.demographics?.education) {
+                const bachelorsPct = (census.demographics.education.bachelorDegree || 0) + 
+                                    (census.demographics.education.graduateDegree || 0);
+                const eduGroup = bachelorsPct > 50 ? "Bachelor's or higher" : 
+                                bachelorsPct > 25 ? "Some college" : "High school or less";
+                educationGroups[eduGroup] = (educationGroups[eduGroup] || 0) + weight;
+              }
+            }
+
+            // Convert to percentages and aggregate
+            if (totalWeight > 0) {
+              for (const group in ageGroups) {
+                const value = ageGroups[group];
+                if (value !== undefined) {
+                  const percentage = (value / totalWeight) * 100;
+                  demographicData.ageDistribution[group] = 
+                    (demographicData.ageDistribution[group] || 0) + percentage;
+                }
+              }
+              for (const group in incomeGroups) {
+                const value = incomeGroups[group];
+                if (value !== undefined) {
+                  const percentage = (value / totalWeight) * 100;
+                  demographicData.incomeDistribution[group] = 
+                    (demographicData.incomeDistribution[group] || 0) + percentage;
+                }
+              }
+              for (const group in educationGroups) {
+                const value = educationGroups[group];
+                if (value !== undefined) {
+                  const percentage = (value / totalWeight) * 100;
+                  demographicData.educationDistribution[group] = 
+                    (demographicData.educationDistribution[group] || 0) + percentage;
+                }
+              }
+            }
+
+          } catch (error) {
+            console.warn(`⚠️ Could not fetch demographics for ${segment.segmentName}:`, error);
+          }
+        }
+
+        // Average the demographic percentages across segments
+        const segmentsAnalyzed = topSegments.length;
+        if (segmentsAnalyzed > 0 && Object.keys(demographicData.ageDistribution).length > 0) {
+          for (const key in demographicData.ageDistribution) {
+            demographicData.ageDistribution[key] /= segmentsAnalyzed;
+          }
+          for (const key in demographicData.incomeDistribution) {
+            demographicData.incomeDistribution[key] /= segmentsAnalyzed;
+          }
+          for (const key in demographicData.educationDistribution) {
+            demographicData.educationDistribution[key] /= segmentsAnalyzed;
+          }
+          console.log(`   ✅ Demographics aggregated from ${segmentsAnalyzed} segments`);
+        }
+      }
+
+      // If no audience data, use reasonable defaults
+      if (totalReach === 0) {
+        console.log('   No audience data available, using estimated market size');
+        totalReach = 30000000; // 30M default
+      }
+
+      // Apply sanity caps to reach estimate to prevent unrealistic numbers
+      const REACH_CAP = 120000000; // 120M upper bound for 7-day reach
+      if (totalReach > REACH_CAP) {
+        console.warn(`⚠️ Reach estimate ${totalReach.toLocaleString()} exceeds cap (${REACH_CAP.toLocaleString()}) - clamping to cap.`);
+        totalReach = REACH_CAP;
+      }
+      
+      // Calculate TAM as 2.5x reach estimate (standard market sizing ratio) and cap to avoid unrealistic totals
+      let tam = Math.round(totalReach * 2.5);
+      const TAM_CAP = 250000000; // 250M upper bound
+      if (tam > TAM_CAP) {
+        console.warn(`⚠️ TAM ${tam.toLocaleString()} exceeds cap (${TAM_CAP.toLocaleString()}) - clamping to cap.`);
+        tam = TAM_CAP;
+      }
+
+      console.log(`✅ Market sizing calculated:`);
+      console.log(`   Reach: ${(totalReach / 1000000).toFixed(1)}M (from ${segmentCount} segments)`);
+      console.log(`   TAM: ${(tam / 1000000).toFixed(1)}M`);
+      
       const sizing = {
-        totalAddressableMarket: 50000000, // 50M estimate
-        reachEstimate: 30000000, // 30M reach
-        demographicBreakdown: {}
+        totalAddressableMarket: tam,
+        reachEstimate: totalReach,
+        demographicBreakdown: demographicData
       };
       
-      this.emitProgress(progressCallback, 6, 'sizing', 'completed', 'Market sizing complete', 72);
+      this.emitProgress(progressCallback, 6, 'sizing', 'completed', `Market sizing: ${(totalReach / 1000000).toFixed(1)}M reach`, 72);
       return sizing;
     } catch (error) {
       console.error('❌ Market sizing failed:', error);
-      throw error;
+      // Return fallback values
+      return {
+        totalAddressableMarket: 50000000,
+        reachEstimate: 30000000,
+        demographicBreakdown: {}
+      };
     }
   }
 
   /**
-   * Step 7: Analyze geographic distribution
+   * Step 7: Analyze geographic distribution from actual audience data
    */
   private async analyzeGeographic(
     parsedBrief: ParsedBrief,
+    audiences: { segments: any[]; count: number },
     progressCallback: (update: ProgressUpdate) => void
   ): Promise<{ topMarkets: any[]; coverageMap: any }> {
-    this.emitProgress(progressCallback, 7, 'geographic', 'in_progress', 'Analyzing geography...');
-    console.log('🗺️ Analyzing geographic distribution...');
+    this.emitProgress(progressCallback, 7, 'geographic', 'in_progress', 'Analyzing geographic distribution...');
+    console.log('🗺️ Analyzing geographic distribution from audience data...');
 
     try {
-      // Skip slow geographic analysis to prevent timeouts
-      console.log('⚡ Using fast geographic fallback (skipping slow analysis)');
+      // Ensure commerce data is loaded for geographic analysis
+      if (!commerceAudienceService['isLoaded']) {
+        console.log('   Loading commerce data for geographic analysis...');
+        try {
+          const loadResult = await commerceAudienceService.loadCommerceData();
+          console.log(`   Commerce data loaded: ${loadResult.success} (${loadResult.message})`);
+          if (!loadResult.success) {
+            console.warn('⚠️  Geographic analysis may be limited without commerce data');
+          }
+        } catch (error) {
+          console.error('❌ Commerce data loading failed:', error);
+          console.warn('⚠️  Continuing without commerce data - geographic results will be limited');
+        }
+      }
       
+      const topMarkets: any[] = [];
+      const marketConcentrationMap: { [key: string]: number } = {};
+      const cityDataMap: { [key: string]: any } = {}; // Store city metadata
+
+      if (audiences.segments && audiences.segments.length > 0) {
+        console.log(`   Analyzing geography for ${audiences.segments.length} audience segments...`);
+        
+        // Get top ZIPs for each audience segment using commerceAudienceService
+        for (const enrichedSegment of audiences.segments.slice(0, 5)) { // Analyze top 5 segments for performance
+          // Unwrap enriched segment to get actual segment data (outside try for catch block access)
+          const segment = enrichedSegment.segment || enrichedSegment;
+          const segmentName = segment.segmentName || segment.name;
+          if (!segmentName) continue;
+
+          try {
+            console.log(`   Getting top ZIPs for: ${segmentName}`);
+            
+            // Get geographic distribution for this segment using commerce data
+            const audienceData = commerceAudienceService.searchZipCodesByAudience(segmentName, 30);
+
+            if (!audienceData || audienceData.length === 0) {
+              console.log(`   No geo data found for ${segmentName}`);
+              continue;
+            }
+
+            console.log(`   Found ${audienceData.length} ZIPs for ${segmentName}`);
+
+            // Get census data for these ZIPs
+            const zipCodes = audienceData.slice(0, 20).map((item: any) => item.zipCode);
+            const censusDataArray = await this.censusDataService.getZipCodeData(zipCodes);
+            const censusDataMap = new Map(censusDataArray.map(data => [data.zipCode, data]));
+
+            // Calculate national baseline for over-indexing
+            const totalSegmentWeight = audienceData.reduce((sum: any, item: any) => sum + item.weight, 0);
+            const estimatedUSPopulation = 330000000;
+            const nationalPenetration = totalSegmentWeight / estimatedUSPopulation;
+            
+            console.log(`   📊 National baseline: ${(nationalPenetration * 1000).toFixed(3)} per 1,000 people`);
+            
+            // Aggregate market data by city
+            // Track urban/rural classifications for mode calculation
+            const cityUrbanRuralMap: { [key: string]: { urban: number, suburban: number, rural: number } } = {};
+            const cityWeightMap: { [key: string]: number } = {}; // Track total weight per city
+            const cityPopulationMap: { [key: string]: number } = {}; // Track total population per city
+            
+            for (const item of audienceData.slice(0, 20)) {
+              const censusData = censusDataMap.get(item.zipCode);
+              if (!censusData || !censusData.population) continue;
+
+              const city = censusData.geography?.city || 'Unknown';
+              const state = censusData.geography?.state || 'Unknown';
+              
+              if (city === 'Unknown' || state === 'Unknown') continue;
+
+              const marketKey = `${city}, ${state}`;
+              
+              // Aggregate weights and populations by city
+              if (!cityDataMap[marketKey]) {
+                cityDataMap[marketKey] = {
+                  city,
+                  state,
+                  population: 0,
+                  medianIncome: censusData.economics?.householdIncome?.median || 0,
+                  urbanRural: 'suburban', // Will be calculated from mode
+                  zipCodesCount: 0
+                };
+                cityUrbanRuralMap[marketKey] = { urban: 0, suburban: 0, rural: 0 };
+                cityWeightMap[marketKey] = 0;
+                cityPopulationMap[marketKey] = 0;
+              }
+              
+              // Aggregate weight and population
+              if (cityWeightMap[marketKey] !== undefined) {
+                cityWeightMap[marketKey] += item.weight;
+              }
+              if (cityPopulationMap[marketKey] !== undefined) {
+                cityPopulationMap[marketKey] += censusData.population;
+              }
+              if (cityDataMap[marketKey]) {
+                cityDataMap[marketKey].zipCodesCount++;
+              }
+              
+              // Track urban/rural classifications for mode calculation
+              const urbanRuralType = (censusData.geography?.urbanRural || 'suburban').toLowerCase();
+              const urbanRuralData = cityUrbanRuralMap[marketKey];
+              if (urbanRuralData) {
+                if (urbanRuralType === 'urban') {
+                  urbanRuralData.urban++;
+                } else if (urbanRuralType === 'rural') {
+                  urbanRuralData.rural++;
+                } else {
+                  urbanRuralData.suburban++;
+                }
+              }
+              
+              // Update max income across ZIPs
+              if (censusData.economics?.householdIncome?.median) {
+                cityDataMap[marketKey].medianIncome = Math.max(
+                  cityDataMap[marketKey].medianIncome,
+                  censusData.economics.householdIncome.median
+                );
+              }
+            }
+            
+            // Calculate over-index (concentration) for each city relative to national baseline
+            for (const marketKey in cityWeightMap) {
+              const totalWeight = cityWeightMap[marketKey];
+              const totalPopulation = cityPopulationMap[marketKey];
+              
+              if (totalWeight !== undefined && totalPopulation !== undefined && totalPopulation > 0 && nationalPenetration > 0) {
+                const cityPenetration = totalWeight / totalPopulation;
+                const overIndex = cityPenetration / nationalPenetration;
+                
+                // Store as decimal (will be converted to percentage in report)
+                // e.g., 1.5 = 150% (1.5x national average)
+                marketConcentrationMap[marketKey] = overIndex;
+                if (cityDataMap[marketKey]) {
+                  cityDataMap[marketKey].population = totalPopulation;
+                }
+                
+                console.log(`   📍 ${marketKey}: ${overIndex.toFixed(2)}x national average`);
+              }
+            }
+            
+            // Calculate mode (most common) urban/rural classification for each city
+            for (const marketKey in cityUrbanRuralMap) {
+              const counts = cityUrbanRuralMap[marketKey];
+              if (counts && cityDataMap[marketKey]) {
+                const maxCount = Math.max(counts.urban, counts.suburban, counts.rural);
+                
+                if (counts.urban === maxCount) {
+                  cityDataMap[marketKey].urbanRural = 'urban';
+                } else if (counts.rural === maxCount) {
+                  cityDataMap[marketKey].urbanRural = 'rural';
+                } else {
+                  cityDataMap[marketKey].urbanRural = 'suburban';
+                }
+                
+                console.log(`   🏙️ ${marketKey}: ${cityDataMap[marketKey].urbanRural} (${counts.urban}U/${counts.suburban}S/${counts.rural}R)`);
+              }
+            }
+          } catch (error) {
+            console.warn(`⚠️ Could not get geo data for segment ${segment.segmentName}:`, error);
+          }
+        }
+
+        // Build markets array from aggregated data
+        for (const marketKey in marketConcentrationMap) {
+          const cityData = cityDataMap[marketKey];
+          const overIndex = marketConcentrationMap[marketKey];
+          if (!cityData || !cityData.zipCodesCount || overIndex === undefined) continue;
+          
+          // overIndex is already calculated as cityPenetration / nationalPenetration
+          // e.g., 1.5 means 150% of national average (1.5x)
+          // No need to divide by zipCodesCount anymore
+          
+          topMarkets.push({
+            city: cityData.city,
+            state: cityData.state,
+            concentration: overIndex, // Already an over-index ratio
+            population: cityData.population,
+            medianIncome: cityData.medianIncome,
+            urbanRural: cityData.urbanRural,
+            zipCodesCount: cityData.zipCodesCount,
+            opportunityScore: 0 // Will be calculated below
+          });
+        }
+
+        // Apply sanity filters to topMarkets
+        const MAX_CONCENTRATION = 6.0; // 600% (6x national average)
+        for (const market of topMarkets) {
+          if (market.concentration > MAX_CONCENTRATION) {
+            console.warn(`⚠️ Market ${market.city}, ${market.state} concentration ${market.concentration.toFixed(2)}x exceeds cap (${MAX_CONCENTRATION}x) - clamping.`);
+            market.concentration = MAX_CONCENTRATION;
+          }
+
+          // Validate urban/rural classification for major metros
+          const normalizedCity = `${market.city}, ${market.state}`.toLowerCase();
+          const majorMetroOverrides: Record<string, 'urban' | 'suburban'> = {
+            'new york, new york': 'urban',
+            'chicago, illinois': 'urban',
+            'los angeles, california': 'urban',
+            'san francisco, california': 'urban',
+            'boston, massachusetts': 'urban',
+            'seattle, washington': 'urban',
+            'washington, district of columbia': 'urban',
+            'brooklyn, new york': 'urban',
+            'jersey city, new jersey': 'urban'
+          };
+
+          if (majorMetroOverrides[normalizedCity]) {
+            const expected = majorMetroOverrides[normalizedCity];
+            if (market.urbanRural !== expected) {
+              console.warn(`⚠️ Market ${market.city}, ${market.state} classified as ${market.urbanRural}, overriding to ${expected}.`);
+              market.urbanRural = expected;
+            }
+          }
+        }
+
+        // Calculate opportunity scores and sort
+        for (const market of topMarkets) {
+          market.opportunityScore = this.calculateOpportunityScore(market);
+        }
+
+        // Sort by opportunity score (combination of concentration and population)
+        topMarkets.sort((a, b) => b.opportunityScore - a.opportunityScore);
+        
+        console.log(`✅ Geographic analysis complete: ${topMarkets.length} markets identified`);
+        if (topMarkets.length > 0) {
+          console.log(`   Top market: ${topMarkets[0].city}, ${topMarkets[0].state} (score: ${topMarkets[0].opportunityScore.toFixed(2)}, conc: ${(topMarkets[0].concentration * 100).toFixed(2)}%)`);
+        }
+      } else {
+        console.log('   No audience segments available for geographic analysis');
+      }
+
+      let usedFallbackMarkets = false;
+      if (topMarkets.length === 0) {
+        console.warn('⚠️ No geographic markets identified from data - using intelligent fallback markets.');
+        const fallbackMarkets = this.generateFallbackMarkets(parsedBrief);
+        fallbackMarkets.forEach(market => {
+          market.opportunityScore = this.calculateOpportunityScore(market);
+        });
+        topMarkets.push(...fallbackMarkets);
+        usedFallbackMarkets = true;
+      }
+
       const geographic = {
-        topMarkets: [],
-        coverageMap: parsedBrief.geographicFocus ? { 
-          focus: parsedBrief.geographicFocus,
-          note: 'Geographic targeting available at ZIP code level'
-        } : {}
+        topMarkets: topMarkets.slice(0, 15), // Return top 15 markets
+        coverageMap: {
+          totalMarkets: topMarkets.length,
+          geographicFocus: parsedBrief.geographicFocus || 'US National',
+          note: usedFallbackMarkets
+            ? 'Fallback market set based on audience archetype and national performance patterns'
+            : 'Markets ranked by opportunity score (concentration × population)'
+        }
       };
       
-      this.emitProgress(progressCallback, 7, 'geographic', 'completed', 'Geographic analysis complete', 80);
+      this.emitProgress(progressCallback, 7, 'geographic', 'completed', `Identified ${topMarkets.length} key markets`, 80);
       return geographic;
     } catch (error) {
       console.error('❌ Geographic analysis failed:', error);
-      return { topMarkets: [], coverageMap: {} };
+      console.error('   Error details:', (error as any).stack);
+      return { 
+        topMarkets: [], 
+        coverageMap: { 
+          note: 'Geographic targeting available at ZIP code level',
+          geographicFocus: parsedBrief.geographicFocus || 'US National'
+        } 
+      };
     }
   }
 
   /**
-   * Step 8: Build SWOT analysis (context-aware based on brief)
+   * Calculate opportunity score for a market
+   * Combines concentration (audience density) with population (market size)
+   */
+  private calculateOpportunityScore(market: any): number {
+    const concentrationScore = market.concentration || 0;
+    const populationScore = Math.log10(market.population || 10000) / 6; // Normalize to 0-1 scale
+    const incomeBoost = market.medianIncome > 75000 ? 1.2 : 1.0; // Boost for high-income markets
+    
+    // Weighted formula: 70% concentration, 30% population, with income boost
+    return (concentrationScore * 0.7 + populationScore * 0.3) * incomeBoost;
+  }
+
+  /**
+   * Provide sensible fallback markets when real geo data is unavailable
+   */
+  private generateFallbackMarkets(parsedBrief: ParsedBrief): any[] {
+    const audiencesText = (parsedBrief.targetAudiences || []).join(' ').toLowerCase();
+    const contextText = `${parsedBrief.additionalContext || ''}`.toLowerCase();
+
+    const isSportsCampaign = /sport|basketball|athlet|fitness|gym|active|runner/.test(audiencesText + contextText);
+    const isTravelCampaign = /travel|airline|hotel|tourism|vacation/.test(audiencesText + contextText);
+    const isLuxuryCampaign = /luxury|premium|affluent|wealth|fashion|designer/.test(audiencesText + contextText);
+
+    const sportsMarkets = [
+      { city: 'New York', state: 'NY', concentration: 1.35, population: 8400000, medianIncome: 82000, urbanRural: 'urban', zipCodesCount: 25 },
+      { city: 'Los Angeles', state: 'CA', concentration: 1.30, population: 3900000, medianIncome: 76000, urbanRural: 'urban', zipCodesCount: 20 },
+      { city: 'Chicago', state: 'IL', concentration: 1.28, population: 2700000, medianIncome: 72000, urbanRural: 'urban', zipCodesCount: 15 },
+      { city: 'Dallas', state: 'TX', concentration: 1.22, population: 1350000, medianIncome: 72000, urbanRural: 'urban', zipCodesCount: 12 },
+      { city: 'Atlanta', state: 'GA', concentration: 1.24, population: 500000, medianIncome: 71000, urbanRural: 'urban', zipCodesCount: 10 },
+      { city: 'Miami', state: 'FL', concentration: 1.20, population: 470000, medianIncome: 68000, urbanRural: 'urban', zipCodesCount: 9 }
+    ];
+
+    const travelMarkets = [
+      { city: 'New York', state: 'NY', concentration: 1.32, population: 8400000, medianIncome: 82000, urbanRural: 'urban', zipCodesCount: 25 },
+      { city: 'Los Angeles', state: 'CA', concentration: 1.25, population: 3900000, medianIncome: 76000, urbanRural: 'urban', zipCodesCount: 20 },
+      { city: 'Chicago', state: 'IL', concentration: 1.18, population: 2700000, medianIncome: 72000, urbanRural: 'urban', zipCodesCount: 15 },
+      { city: 'San Francisco', state: 'CA', concentration: 1.22, population: 880000, medianIncome: 112000, urbanRural: 'urban', zipCodesCount: 8 },
+      { city: 'Seattle', state: 'WA', concentration: 1.16, population: 760000, medianIncome: 97000, urbanRural: 'urban', zipCodesCount: 8 },
+      { city: 'Denver', state: 'CO', concentration: 1.14, population: 720000, medianIncome: 82000, urbanRural: 'urban', zipCodesCount: 7 }
+    ];
+
+    const luxuryMarkets = [
+      { city: 'New York', state: 'NY', concentration: 1.40, population: 8400000, medianIncome: 82000, urbanRural: 'urban', zipCodesCount: 25 },
+      { city: 'Los Angeles', state: 'CA', concentration: 1.32, population: 3900000, medianIncome: 76000, urbanRural: 'urban', zipCodesCount: 20 },
+      { city: 'San Francisco', state: 'CA', concentration: 1.28, population: 880000, medianIncome: 112000, urbanRural: 'urban', zipCodesCount: 9 },
+      { city: 'Chicago', state: 'IL', concentration: 1.20, population: 2700000, medianIncome: 72000, urbanRural: 'urban', zipCodesCount: 15 },
+      { city: 'Dallas', state: 'TX', concentration: 1.18, population: 1350000, medianIncome: 82000, urbanRural: 'urban', zipCodesCount: 12 },
+      { city: 'Boston', state: 'MA', concentration: 1.22, population: 690000, medianIncome: 89000, urbanRural: 'urban', zipCodesCount: 8 }
+    ];
+
+    const generalMarkets = [
+      { city: 'New York', state: 'NY', concentration: 1.28, population: 8400000, medianIncome: 82000, urbanRural: 'urban', zipCodesCount: 25 },
+      { city: 'Los Angeles', state: 'CA', concentration: 1.24, population: 3900000, medianIncome: 76000, urbanRural: 'urban', zipCodesCount: 20 },
+      { city: 'Chicago', state: 'IL', concentration: 1.20, population: 2700000, medianIncome: 72000, urbanRural: 'urban', zipCodesCount: 15 },
+      { city: 'Dallas', state: 'TX', concentration: 1.16, population: 1350000, medianIncome: 72000, urbanRural: 'urban', zipCodesCount: 12 },
+      { city: 'Atlanta', state: 'GA', concentration: 1.14, population: 500000, medianIncome: 71000, urbanRural: 'urban', zipCodesCount: 10 },
+      { city: 'Seattle', state: 'WA', concentration: 1.12, population: 760000, medianIncome: 97000, urbanRural: 'urban', zipCodesCount: 9 }
+    ];
+
+    let selectedMarkets = generalMarkets;
+    if (isSportsCampaign) {
+      selectedMarkets = sportsMarkets;
+    } else if (isTravelCampaign) {
+      selectedMarkets = travelMarkets;
+    } else if (isLuxuryCampaign) {
+      selectedMarkets = luxuryMarkets;
+    }
+
+    return selectedMarkets.map(market => ({
+      ...market
+    }));
+  }
+
+  /**
+   * Group median age into age ranges
+   */
+  private getAgeGroup(medianAge: number): string {
+    if (medianAge < 25) return '18-24';
+    if (medianAge < 35) return '25-34';
+    if (medianAge < 45) return '35-44';
+    if (medianAge < 55) return '45-54';
+    if (medianAge < 65) return '55-64';
+    return '65+';
+  }
+
+  /**
+   * Group household income into income ranges
+   */
+  private getIncomeGroup(income: number): string {
+    if (income < 35000) return 'Under $35K';
+    if (income < 50000) return '$35K-$50K';
+    if (income < 75000) return '$50K-$75K';
+    if (income < 100000) return '$75K-$100K';
+    if (income < 150000) return '$100K-$150K';
+    return '$150K+';
+  }
+
+  /**
+   * Step 8: Build SWOT analysis (Enhanced with AI competitive intelligence and strategy cards)
    */
   private async buildSWOT(
     parsedBrief: ParsedBrief,
+    strategy: any,
     progressCallback: (update: ProgressUpdate) => void
   ): Promise<{ strengths: string[]; weaknesses: string[]; opportunities: string[]; threats: string[] }> {
     this.emitProgress(progressCallback, 8, 'swot', 'in_progress', 'Building SWOT analysis...');
-    console.log('📋 Building context-aware SWOT...');
+    console.log('📋 Building AI-enhanced SWOT analysis...');
 
     try {
-      const swot = this.generateContextualSWOT(parsedBrief);
+      // Try to fetch Marketing SWOT card for this company first
+      let swotFromCard: any = null;
+      try {
+        console.log(`   🔍 Searching for Marketing SWOT card for "${parsedBrief.advertiserName}"...`);
+        const swotResult = await this.geminiService.generateMarketingSWOT(parsedBrief.advertiserName);
+        
+        if (swotResult && swotResult.swot) {
+          swotFromCard = swotResult.swot;
+          console.log(`   ✅ Found Marketing SWOT card with ${swotFromCard.strengths?.length || 0} strengths`);
+        }
+      } catch (error) {
+        console.log(`   ⚠️ Could not fetch Marketing SWOT card:`, error);
+      }
+      
+      // If we have SWOT card data, use it as the primary source
+      if (swotFromCard) {
+        const swot = {
+          strengths: swotFromCard.strengths?.map((s: any) => 
+            typeof s === 'string' ? s : `${s.title}: ${s.description}`
+          ).slice(0, 5) || [],
+          weaknesses: swotFromCard.weaknesses?.map((w: any) => 
+            typeof w === 'string' ? w : `${w.title}: ${w.description}`
+          ).slice(0, 5) || [],
+          opportunities: swotFromCard.opportunities?.map((o: any) => 
+            typeof o === 'string' ? o : `${o.title}: ${o.description}`
+          ).slice(0, 5) || [],
+          threats: swotFromCard.threats?.map((t: any) => 
+            typeof t === 'string' ? t : `${t.title}: ${t.description}`
+          ).slice(0, 5) || []
+        };
+        
+        // Augment with strategy insights if available
+        if (strategy && strategy.isAIGenerated) {
+          console.log('   ✨ Augmenting Marketing SWOT card with competitive strategy insights...');
+          
+          // Add top differentiator to Opportunities if not already present
+          if (strategy.differentiators && strategy.differentiators.length > 0) {
+            const topDiff = strategy.differentiators[0]?.split(':')[0]?.trim();
+            if (topDiff && !swot.opportunities.some((o: string) => o.includes(topDiff))) {
+              swot.opportunities.push(`Market differentiation: ${topDiff}`);
+            }
+          }
+          
+          // Add top competitor as threat if not already present
+          if (strategy.competitors && strategy.competitors.length > 0) {
+            const topCompetitor = strategy.competitors[0]?.split(' - ')[0];
+            if (topCompetitor && !swot.threats.some((t: string) => t.includes(topCompetitor))) {
+              swot.threats.push(`Intense competitive pressure from both established brands and new entrants`);
+            }
+          }
+        }
+        
+        this.emitProgress(progressCallback, 8, 'swot', 'completed', 'SWOT analysis complete (using Marketing SWOT card)', 87);
+        return swot;
+      }
+      
+      // Fallback: Start with rule-based contextual SWOT
+      const baseSWOT = this.generateContextualSWOT(parsedBrief);
+      
+      // Augment with AI competitive intelligence if available
+      if (strategy && strategy.isAIGenerated) {
+        console.log('   ✅ Augmenting contextual SWOT with AI competitive insights...');
+        
+        // Add differentiation opportunities to Opportunities
+        if (strategy.differentiators && strategy.differentiators.length > 0) {
+          strategy.differentiators.slice(0, 2).forEach((diff: string) => {
+            const parts = diff.split(':');
+            const simplified = (parts[0] || diff).trim(); // Extract key point
+            if (!baseSWOT.opportunities.some(o => o.includes(simplified))) {
+              baseSWOT.opportunities.push(`Market differentiation: ${simplified}`);
+            }
+          });
+        }
+        
+        // Add messaging gaps as Opportunities
+        if (strategy.messagingGaps && strategy.messagingGaps.length > 0) {
+          strategy.messagingGaps.slice(0, 1).forEach((gap: string) => {
+            baseSWOT.opportunities.push(`Messaging opportunity: ${gap}`);
+          });
+        }
+        
+        // Extract competitive threats from competitor positioning
+        if (strategy.competitors && strategy.competitors.length > 0) {
+          const topCompetitor = strategy.competitors[0].split(' - ')[0];
+          baseSWOT.threats.unshift(`Strong competition from ${topCompetitor} and established market leaders`);
+        }
+        
+        // Add strategic recommendations as Strengths (if they align)
+        if (strategy.strategicRecommendations?.positioning) {
+          const recommendation = strategy.strategicRecommendations.positioning[0];
+          if (recommendation) {
+            baseSWOT.strengths.push(`Strategic positioning: ${recommendation}`);
+          }
+        }
+        
+        console.log(`   ✨ SWOT enhanced with ${strategy.differentiators?.length || 0} differentiators`);
+      }
       
       this.emitProgress(progressCallback, 8, 'swot', 'completed', 'SWOT analysis complete', 87);
-      return swot;
+      return baseSWOT;
     } catch (error) {
       console.error('❌ SWOT analysis failed:', error);
       // Return default SWOT
@@ -1297,8 +2379,59 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
   }
 
   /**
-   * Generate strategic insights (NEW - Cursor parity feature)
-   * Includes: competitors, differentiators, market tiers, budget pacing, dayparting
+   * Generate AI-powered competitive intelligence with caching
+   */
+  private async generateAICompetitiveIntelligence(
+    parsedBrief: ParsedBrief
+  ): Promise<any | null> {
+    try {
+      // Check cache first
+      const cached = await this.getCachedCompetitiveIntelligence(parsedBrief);
+      if (cached) {
+        return cached;
+      }
+
+      console.log('🤖 Generating AI competitive intelligence...');
+      
+      // Build query for Gemini
+      const query = parsedBrief.advertiserName 
+        ? `${parsedBrief.advertiserName} in ${parsedBrief.industry || 'their industry'}`
+        : `${parsedBrief.industry || 'the industry'} for ${parsedBrief.keyProducts?.join(', ') || 'these products'}`;
+
+      // Call Gemini for competitive intelligence
+      const aiResponse = await this.geminiService.generateCompetitiveIntelligence(query);
+      
+      if (aiResponse.success && aiResponse.data) {
+        const intelligence = {
+          competitors: aiResponse.data.competitiveAnalysis?.mainCompetitors?.map((c: any) => 
+            `${c.name} - ${c.positioning}`) || [],
+          differentiators: aiResponse.data.competitiveAnalysis?.differentiationOpportunities || [],
+          messagingGaps: aiResponse.data.messagingAnalysis?.messagingGaps || [],
+          commonThemes: aiResponse.data.messagingAnalysis?.commonThemes || [],
+          strategicRecommendations: aiResponse.data.strategicRecommendations || {},
+          sources: aiResponse.data.sources || []
+        };
+
+        // Cache the result
+        await this.cacheCompetitiveIntelligence(parsedBrief, intelligence);
+        
+        console.log(`✅ AI competitive intelligence generated:`);
+        console.log(`   Competitors: ${intelligence.competitors.length}`);
+        console.log(`   Differentiators: ${intelligence.differentiators.length}`);
+        
+        return intelligence;
+      }
+
+      return null;
+    } catch (error) {
+      console.warn('⚠️ AI competitive intelligence failed:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Generate strategic insights (Enhanced with AI competitive intelligence)
+   * Includes: competitors, differentiators, market tiers, dayparting
    */
   private async generateStrategyInsights(
     parsedBrief: ParsedBrief,
@@ -1307,25 +2440,45 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
     console.log('🎯 Generating strategic insights...');
     
     try {
-      // Generate all strategic components (fast, no API calls)
-      const competitorAnalysis = this.strategyGenerator.generateCompetitorAnalysis(parsedBrief);
+      // PRIORITY 1: Try AI competitive intelligence first (with caching)
+      let competitorAnalysis;
+      const aiIntelligence = await this.generateAICompetitiveIntelligence(parsedBrief);
+      
+      if (aiIntelligence) {
+        // Use AI-generated insights
+        console.log('✅ Using AI competitive intelligence');
+        competitorAnalysis = {
+          competitors: aiIntelligence.competitors,
+          differentiators: aiIntelligence.differentiators,
+          messagingGaps: aiIntelligence.messagingGaps,
+          strategicRecommendations: aiIntelligence.strategicRecommendations,
+          isAIGenerated: true
+        };
+      } else {
+        // PRIORITY 2: Fallback to rule-based competitors from hardcoded lists
+        console.log('⚠️ Falling back to rule-based competitive analysis');
+        const rulebased = this.strategyGenerator.generateCompetitorAnalysis(parsedBrief);
+        competitorAnalysis = {
+          competitors: rulebased.competitors,
+          differentiators: rulebased.differentiators,
+          isAIGenerated: false
+        };
+      }
+      
+      // Generate other strategic components (fast, no API calls)
       const marketTiers = this.strategyGenerator.generateMarketTiers(parsedBrief);
-      const budgetPacing = this.strategyGenerator.generateBudgetPacing(parsedBrief);
       const dayparting = this.strategyGenerator.generateDayparting(parsedBrief);
       
       const strategy = {
-        competitors: competitorAnalysis.competitors,
-        differentiators: competitorAnalysis.differentiators,
+        ...competitorAnalysis,
         marketTiers,
-        budgetPacing,
         dayparting
       };
       
       console.log(`✅ Strategic insights generated:`);
-      console.log(`   Competitors: ${strategy.competitors.length}`);
+      console.log(`   Competitors: ${strategy.competitors.length} (AI: ${strategy.isAIGenerated})`);
       console.log(`   Differentiators: ${strategy.differentiators.length}`);
       console.log(`   Tier 1 markets: ${strategy.marketTiers.tier1.length}`);
-      console.log(`   Budget phases: ${strategy.budgetPacing.phases.length}`);
       console.log(`   Dayparts: ${strategy.dayparting.optimal.length}`);
       
       return strategy;
@@ -1530,24 +2683,125 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
   }
 
   /**
-   * Extract budget information from brief text
+   * Extract budget information from brief text (normalized string + numeric approximation)
    */
-  private extractBudget(text: string): string | undefined {
-    // Look for budget patterns
-    const budgetPatterns = [
-      /budget:\s*\$?([\d,]+k?)/i,
-      /\$\s*([\d,]+k?)\s*budget/i,
-      /\$\s*([\d,]+(?:,\d{3})*(?:\.\d{2})?)\b/i
-    ];
+  private extractBudgetInfo(text: string): { formatted: string; approxValue: number; note?: string } | undefined {
+    if (!text) return undefined;
 
-    for (const pattern of budgetPatterns) {
-      const match = text.match(pattern);
-      if (match && match[1]) {
-        return match[1].includes('$') ? match[1] : `$${match[1]}`;
+    const normalized = text.replace(/[\u2013\u2014]/g, '-');
+    const budgetKeywords = /(budget|media spend|ad spend|spend|investment|allocation|marketing spend|budgeted)/i;
+
+    const candidateSentences = normalized
+      .split(/[\.\n]/)
+      .map(sentence => sentence.trim())
+      .filter(sentence => budgetKeywords.test(sentence));
+
+    const blocks = candidateSentences.length > 0 ? candidateSentences : [normalized];
+
+    for (const block of blocks) {
+      const parsed = this.parseBudgetBlock(block);
+      if (parsed) {
+        return parsed;
       }
     }
 
     return undefined;
+  }
+
+  private parseBudgetBlock(block: string): { formatted: string; approxValue: number; note?: string } | undefined {
+    const rangePatterns = [
+      /\$?\s*([\d,.]+)\s*(k|m|b|bn|thousand|million|billion)?\s*(?:-|–|—|to|through|and)\s*\$?\s*([\d,.]+)\s*(k|m|b|bn|thousand|million|billion)?/i,
+      /between\s+\$?\s*([\d,.]+)\s*(k|m|b|bn|thousand|million|billion)?\s+(?:and|to)\s+\$?\s*([\d,.]+)\s*(k|m|b|bn|thousand|million|billion)?/i
+    ];
+
+    for (const pattern of rangePatterns) {
+      const match = block.match(pattern);
+      if (match && match[1] && match[3]) {
+        const min = this.parseBudgetAmount(match[1], match[2]);
+        const max = this.parseBudgetAmount(match[3], match[4]);
+        if (isFinite(min) && isFinite(max) && max >= min) {
+          const formatted = `${this.formatBudget(min)}-${this.formatBudget(max)}`;
+          return {
+            formatted,
+            approxValue: (min + max) / 2
+          };
+        }
+      }
+    }
+
+    const upToMatch = block.match(/up to\s+\$?\s*([\d,.]+)\s*(k|m|b|bn|thousand|million|billion)?/i);
+    if (upToMatch && upToMatch[1]) {
+      const max = this.parseBudgetAmount(upToMatch[1], upToMatch[2]);
+      if (isFinite(max)) {
+        return {
+          formatted: `Up to ${this.formatBudget(max)}`,
+          approxValue: max / 2,
+          note: 'up_to'
+        };
+      }
+    }
+
+    const plusMatch = block.match(/\$?\s*([\d,.]+)\s*(k|m|b|bn|thousand|million|billion)?\s*(\+|plus|or more|minimum|min)/i);
+    if (plusMatch && plusMatch[1]) {
+      const value = this.parseBudgetAmount(plusMatch[1], plusMatch[2]);
+      if (isFinite(value)) {
+        const formatted = `${this.formatBudget(value)}+`;
+        return {
+          formatted,
+          approxValue: value,
+          note: 'minimum'
+        };
+      }
+    }
+
+    const singleMatch = block.match(/\$?\s*([\d,.]+(?:\.\d{1,2})?)\s*(k|m|b|bn|thousand|million|billion)?/i);
+    if (singleMatch && singleMatch[1]) {
+      const value = this.parseBudgetAmount(singleMatch[1], singleMatch[2]);
+      if (isFinite(value)) {
+        return {
+          formatted: this.formatBudget(value),
+          approxValue: value
+        };
+      }
+    }
+
+    return undefined;
+  }
+
+  private parseBudgetAmount(numStr: string, multiplier?: string): number {
+    const cleaned = numStr.replace(/,/g, '');
+    let value = parseFloat(cleaned);
+    if (isNaN(value)) return NaN;
+
+    const mult = multiplier?.toLowerCase();
+    if (!mult) return value;
+
+    if (['k', 'thousand'].includes(mult)) {
+      value *= 1_000;
+    } else if (['m', 'million'].includes(mult)) {
+      value *= 1_000_000;
+    } else if (['b', 'bn', 'billion'].includes(mult)) {
+      value *= 1_000_000_000;
+    }
+
+    return value;
+  }
+
+  private formatBudget(amount: number): string {
+    if (!isFinite(amount) || amount <= 0) return '$0';
+    if (amount >= 1_000_000_000) {
+      const billions = amount / 1_000_000_000;
+      return `$${billions % 1 === 0 ? billions.toFixed(0) : billions.toFixed(1)}B`;
+    }
+    if (amount >= 1_000_000) {
+      const millions = amount / 1_000_000;
+      return `$${millions % 1 === 0 ? millions.toFixed(0) : millions.toFixed(1)}M`;
+    }
+    if (amount >= 1_000) {
+      const thousands = amount / 1_000;
+      return `$${thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(1)}K`;
+    }
+    return `$${amount.toFixed(0)}`;
   }
 
   /**
@@ -1607,6 +2861,94 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
 
     // Deduplicate
     return [...new Set(products)];
+  }
+
+  /**
+   * ============================================================================
+   * CAMPAIGN INTELLIGENCE CACHE METHODS
+   * ============================================================================
+   */
+
+  /**
+   * Generate cache key for campaign intelligence
+   */
+  private generateCacheKey(parsedBrief: ParsedBrief): string {
+    const keyComponents = [
+      parsedBrief.advertiserName || 'unknown',
+      parsedBrief.industry || 'general',
+      (parsedBrief.keyProducts || []).slice(0, 3).join(','),
+      (parsedBrief.campaignObjectives || []).slice(0, 2).join(',')
+    ].join('|').toLowerCase();
+
+    return crypto.createHash('md5').update(keyComponents).digest('hex');
+  }
+
+  /**
+   * Get cached competitive intelligence
+   */
+  private async getCachedCompetitiveIntelligence(parsedBrief: ParsedBrief): Promise<any | null> {
+    try {
+      const useSupabase = process.env.USE_SUPABASE === 'true';
+      if (!useSupabase) return null;
+
+      const cacheKey = this.generateCacheKey(parsedBrief);
+      const supabase = SupabaseService.getClient();
+
+      const { data, error } = await supabase
+        .from('campaign_intelligence_cache')
+        .select('competitive_intelligence, expires_at')
+        .eq('cache_key', cacheKey)
+        .single();
+
+      if (error || !data) {
+        return null;
+      }
+
+      // Check if cache has expired
+      if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        console.log('⏰ Campaign intelligence cache expired');
+        return null;
+      }
+
+      console.log('✅ Using cached competitive intelligence');
+      return data.competitive_intelligence;
+    } catch (error) {
+      console.warn('⚠️ Error fetching cached competitive intelligence:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Save competitive intelligence to cache
+   */
+  private async cacheCompetitiveIntelligence(
+    parsedBrief: ParsedBrief,
+    intelligence: any
+  ): Promise<void> {
+    try {
+      const useSupabase = process.env.USE_SUPABASE === 'true';
+      if (!useSupabase) return;
+
+      const cacheKey = this.generateCacheKey(parsedBrief);
+      const supabase = SupabaseService.getClient();
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+      await supabase
+        .from('campaign_intelligence_cache')
+        .upsert({
+          cache_key: cacheKey,
+          advertiser_name: parsedBrief.advertiserName || 'Unknown',
+          industry: parsedBrief.industry || 'General',
+          products: parsedBrief.keyProducts || [],
+          objectives: parsedBrief.campaignObjectives || [],
+          competitive_intelligence: intelligence,
+          expires_at: expiresAt.toISOString()
+        }, { onConflict: 'cache_key' });
+
+      console.log('💾 Cached competitive intelligence (24h TTL)');
+    } catch (error) {
+      console.warn('⚠️ Error caching competitive intelligence:', error);
+    }
   }
 }
 

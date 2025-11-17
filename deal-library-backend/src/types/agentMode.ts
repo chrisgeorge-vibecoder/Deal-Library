@@ -21,10 +21,13 @@ export interface ParsedBrief {
   targetAudiences: string[]; // Array of audience descriptions
   campaignObjectives: string[]; // Array of objectives
   budgetRange?: string; // Optional budget if mentioned
+  budgetValue?: number; // Parsed numeric budget (midpoint or minimum)
+  budgetNotes?: string; // Additional context like "minimum" or "up to"
   geographicFocus?: string; // Optional geographic targeting
   keyProducts?: string[]; // Products/services mentioned
   timeline?: string; // Campaign timeline if mentioned
   additionalContext?: string; // Any other relevant info
+  industry?: string; // Optional industry classification
 }
 
 /**
@@ -109,16 +112,6 @@ export interface AnalysisResults {
       tier2: string[];
       rationale: string;
     };
-    budgetPacing?: {
-      phases: Array<{
-        name: string;
-        percentage: number;
-        budget: string;
-        focus: string;
-        duration: string;
-      }>;
-      totalBudget: string;
-    };
     dayparting?: {
       optimal: string[];
       rationale: string;
@@ -153,6 +146,8 @@ export interface ComprehensiveReport {
     totalPersonas: number;
     estimatedReach: number;
     recommendedBudget: string;
+    recommendedBudgetValue?: number;
+    recommendedBudgetNotes?: string;
   };
 }
 

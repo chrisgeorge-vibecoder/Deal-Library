@@ -177,38 +177,127 @@ export default function CampaignPlannerResults({ report }: CampaignPlannerResult
 
         {/* Geographic Targeting */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Geographic Targeting Capabilities</h2>
-          <p className="text-gray-700 leading-relaxed mb-6">
-            Our platform provides <strong>ZIP code-level targeting</strong> capabilities to maximize campaign efficiency. For each campaign, we can:
-          </p>
-          <ul className="space-y-2 mb-6">
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span className="text-gray-700">Identify Top Markets: Pinpoint the highest-concentration ZIPs for each audience segment</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span className="text-gray-700">Optimize for Location: Align campaigns with proximity to physical locations</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-purple-600 font-bold">•</span>
-              <span className="text-gray-700">Exclude Low-Performing Areas: Avoid waste by filtering out low-density markets</span>
-            </li>
-          </ul>
-
-          {report.results.geographic.topMarkets && report.results.geographic.topMarkets.length > 0 && (
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Geographic Targeting Strategy</h2>
+          
+          {report.results.geographic.topMarkets && report.results.geographic.topMarkets.length > 0 ? (
             <>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Top Recommended Markets</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {report.results.geographic.topMarkets.map((market: any, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-3 text-sm">
-                    <div className="font-medium text-gray-900">
-                      {market.city || market.name}, {market.state || market.region}
+              <p className="text-gray-700 leading-relaxed mb-6">
+                Based on your target audiences, we've identified <strong>{report.results.geographic.topMarkets.length} high-opportunity markets</strong> ranked by concentration, population, and income levels. Focus on Tier 1 markets (top 5) for initial deployment.
+              </p>
+
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Recommended Markets</h3>
+              <div className="space-y-3">
+                {report.results.geographic.topMarkets.slice(0, 10).map((market: any, index) => {
+                  const tier = index < 5 ? 'Tier 1' : 'Tier 2';
+                  const tierColor = index < 5 ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800';
+                  
+                  return (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="font-semibold text-gray-900 text-lg">
+                              {index + 1}. {market.city}, {market.state}
+                            </span>
+                            <span className={`text-xs px-2 py-1 rounded-full font-medium ${tierColor}`}>
+                              {tier}
+                            </span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3 text-sm">
+                            {market.concentration && (
+                              <div>
+                                <div className="text-xs text-gray-500">Concentration</div>
+                                <div className="font-semibold text-purple-600">
+                                  {(market.concentration * 100).toFixed(1)}%
+                                </div>
+                              </div>
+                            )}
+                            
+                            {market.population && (
+                              <div>
+                                <div className="text-xs text-gray-500">Population</div>
+                                <div className="font-semibold text-gray-900">
+                                  {formatNumber(market.population)}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {market.medianIncome && (
+                              <div>
+                                <div className="text-xs text-gray-500">Median Income</div>
+                                <div className="font-semibold text-green-600">
+                                  ${formatNumber(market.medianIncome)}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {market.urbanRural && market.urbanRural !== 'Unknown' && (
+                              <div>
+                                <div className="text-xs text-gray-500">Environment</div>
+                                <div className="font-semibold text-gray-700">
+                                  {market.urbanRural}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {market.opportunityScore && (
+                              <div>
+                                <div className="text-xs text-gray-500">Opportunity Score</div>
+                                <div className="font-semibold text-indigo-600">
+                                  {market.opportunityScore.toFixed(2)}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-600">Market #{index + 1}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+
+              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-semibold text-blue-900 mb-2">Geographic Targeting Strategy</h4>
+                <ul className="space-y-2 text-sm text-blue-800">
+                  <li className="flex items-start gap-2">
+                    <span>•</span>
+                    <span>Focus initial campaign deployment on Tier 1 markets (top 5) for maximum efficiency</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span>•</span>
+                    <span>Scale to Tier 2 markets (6-10) based on early performance data</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span>•</span>
+                    <span>Use ZIP code-level targeting to exclude low-density areas and reduce waste</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span>•</span>
+                    <span>Customize messaging by market characteristics (urban vs suburban, income levels)</span>
+                  </li>
+                </ul>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-700 leading-relaxed mb-6">
+                Our platform provides <strong>ZIP code-level targeting</strong> capabilities to maximize campaign efficiency. For each campaign, we can:
+              </p>
+              <ul className="space-y-2 mb-6">
+                <li className="flex items-start gap-3">
+                  <span className="text-purple-600 font-bold">•</span>
+                  <span className="text-gray-700">Identify Top Markets: Pinpoint the highest-concentration ZIPs for each audience segment</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-purple-600 font-bold">•</span>
+                  <span className="text-gray-700">Optimize for Location: Align campaigns with proximity to physical locations</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-purple-600 font-bold">•</span>
+                  <span className="text-gray-700">Exclude Low-Performing Areas: Avoid waste by filtering out low-density markets</span>
+                </li>
+              </ul>
             </>
           )}
         </section>
@@ -218,26 +307,119 @@ export default function CampaignPlannerResults({ report }: CampaignPlannerResult
           <section className="mb-12">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Market Sizing & Opportunity</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div className="border border-gray-200 rounded-lg p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="border border-gray-200 rounded-lg p-6 bg-gradient-to-br from-purple-50 to-white">
                 <div className="text-sm text-gray-600 mb-2">Total Addressable Market</div>
-                <div className="text-4xl font-bold text-gray-900">
+                <div className="text-4xl font-bold text-purple-900">
                   {formatNumber(report.results.marketSizing.totalAddressableMarket)}
                 </div>
                 <div className="text-xs text-gray-500 mt-1">Potential consumers</div>
               </div>
-              <div className="border border-gray-200 rounded-lg p-6">
+              <div className="border border-gray-200 rounded-lg p-6 bg-gradient-to-br from-blue-50 to-white">
                 <div className="text-sm text-gray-600 mb-2">Estimated Reach</div>
-                <div className="text-4xl font-bold text-gray-900">
+                <div className="text-4xl font-bold text-blue-900">
                   {formatNumber(report.results.marketSizing.reachEstimate)}
                 </div>
                 <div className="text-xs text-gray-500 mt-1">Unique users (7-day scale)</div>
               </div>
+              <div className="border border-gray-200 rounded-lg p-6 bg-gradient-to-br from-green-50 to-white">
+                <div className="text-sm text-gray-600 mb-2">Market Penetration</div>
+                <div className="text-4xl font-bold text-green-900">
+                  {((report.results.marketSizing.reachEstimate / report.results.marketSizing.totalAddressableMarket) * 100).toFixed(1)}%
+                </div>
+                <div className="text-xs text-gray-500 mt-1">Of total addressable market</div>
+              </div>
             </div>
 
-            <p className="text-gray-700 leading-relaxed">
-              Our audience intelligence reveals key demographic characteristics that can inform targeting strategy, including age distribution, income levels, education attainment, and geographic concentration in high-value markets.
-            </p>
+            {/* Demographic Breakdown */}
+            {report.results.marketSizing.demographicBreakdown && (
+              <>
+                {(Object.keys(report.results.marketSizing.demographicBreakdown.ageDistribution || {}).length > 0 ||
+                  Object.keys(report.results.marketSizing.demographicBreakdown.incomeDistribution || {}).length > 0 ||
+                  Object.keys(report.results.marketSizing.demographicBreakdown.educationDistribution || {}).length > 0) && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Demographic Profile</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {/* Age Distribution */}
+                      {Object.keys(report.results.marketSizing.demographicBreakdown.ageDistribution || {}).length > 0 && (
+                        <div className="border border-gray-200 rounded-lg p-4">
+                          <h4 className="font-semibold text-gray-900 mb-3 text-sm">Age Distribution</h4>
+                          <div className="space-y-2">
+                            {Object.entries(report.results.marketSizing.demographicBreakdown.ageDistribution)
+                              .sort(([, a], [, b]) => (b as number) - (a as number))
+                              .slice(0, 3)
+                              .map(([range, percentage]) => (
+                                <div key={range} className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-700">{range}</span>
+                                  <span className="font-semibold text-purple-600">{(percentage as number).toFixed(1)}%</span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Income Distribution */}
+                      {Object.keys(report.results.marketSizing.demographicBreakdown.incomeDistribution || {}).length > 0 && (
+                        <div className="border border-gray-200 rounded-lg p-4">
+                          <h4 className="font-semibold text-gray-900 mb-3 text-sm">Income Distribution</h4>
+                          <div className="space-y-2">
+                            {Object.entries(report.results.marketSizing.demographicBreakdown.incomeDistribution)
+                              .sort(([, a], [, b]) => (b as number) - (a as number))
+                              .slice(0, 3)
+                              .map(([range, percentage]) => (
+                                <div key={range} className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-700">{range}</span>
+                                  <span className="font-semibold text-green-600">{(percentage as number).toFixed(1)}%</span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Education Distribution */}
+                      {Object.keys(report.results.marketSizing.demographicBreakdown.educationDistribution || {}).length > 0 && (
+                        <div className="border border-gray-200 rounded-lg p-4">
+                          <h4 className="font-semibold text-gray-900 mb-3 text-sm">Education Attainment</h4>
+                          <div className="space-y-2">
+                            {Object.entries(report.results.marketSizing.demographicBreakdown.educationDistribution)
+                              .sort(([, a], [, b]) => (b as number) - (a as number))
+                              .slice(0, 3)
+                              .map(([level, percentage]) => (
+                                <div key={level} className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-700">{level}</span>
+                                  <span className="font-semibold text-blue-600">{(percentage as number).toFixed(1)}%</span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <h4 className="font-semibold text-gray-900 mb-2">Strategic Implications</h4>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span>•</span>
+                  <span>Target messaging and creative to dominant demographic segments</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span>•</span>
+                  <span>Price positioning should align with income distribution</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span>•</span>
+                  <span>Media channel selection optimized for age and education profiles</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span>•</span>
+                  <span>Geographic targeting prioritizes high-concentration, high-value markets</span>
+                </li>
+              </ul>
+            </div>
           </section>
         )}
 
@@ -367,42 +549,6 @@ export default function CampaignPlannerResults({ report }: CampaignPlannerResult
             <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
               <p className="text-sm text-gray-700">
                 <strong>Rationale:</strong> {report.results.strategy.marketTiers.rationale}
-              </p>
-            </div>
-          </section>
-        )}
-
-        {/* Budget Pacing Strategy */}
-        {report.results.strategy?.budgetPacing && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Recommended Budget Pacing Strategy</h2>
-            <p className="text-gray-700 leading-relaxed mb-6">
-              Total Campaign Budget: <strong>{report.results.strategy.budgetPacing.totalBudget}</strong>
-            </p>
-            
-            <div className="space-y-4">
-              {report.results.strategy.budgetPacing.phases.map((phase, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-gray-900">{phase.name}</h3>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-gray-600">{(phase.percentage * 100).toFixed(0)}%</span>
-                      <span className="font-semibold text-purple-600">{phase.budget}</span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-2">
-                    <strong>Duration:</strong> {phase.duration}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <strong>Focus:</strong> {phase.focus}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-sm text-gray-700">
-                This phased approach allows for strategic budget allocation aligned with the customer journey, starting with awareness building and progressively moving toward conversion optimization.
               </p>
             </div>
           </section>

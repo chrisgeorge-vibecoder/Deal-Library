@@ -123,14 +123,11 @@ export class DealsController {
           cacheService.set(cacheKey, allDeals, 5 * 60 * 1000);
           console.log(`✅ Cached ${allDeals.length} deals for 5 minutes`);
         } catch (error) {
-          console.error('❌ Apps Script service unavailable:', error instanceof Error ? error.message : 'Unknown error');
-          // Don't fallback to sample deals - require real Apps Script integration
-          res.status(503).json({
-            error: 'Deals service unavailable',
-            message: 'Real deals require Apps Script configuration. Please configure GOOGLE_APPS_SCRIPT_URL.',
-            details: error instanceof Error ? error.message : 'Unknown error'
-          });
-          return;
+          console.warn('⚠️  Apps Script service unavailable:', error instanceof Error ? error.message : 'Unknown error');
+          console.warn('⚠️  Returning empty deals array - app will continue to work for other features');
+          // Return empty array instead of error to allow app to continue working
+          allDeals = [];
+          // Don't cache empty results - allow retry on next request
         }
       }
       
@@ -377,16 +374,10 @@ export class DealsController {
       try {
         allDeals = await this.appsScriptService.getAllDeals();
       } catch (error) {
-        console.error('❌ Apps Script service unavailable for search:', error instanceof Error ? error.message : 'Unknown error');
-        res.status(503).json({
-          error: 'Deals service unavailable',
-          message: 'Real deals require Apps Script configuration. Please configure GOOGLE_APPS_SCRIPT_URL.',
-          details: error instanceof Error ? error.message : 'Unknown error',
-          query: correctedQuery,
-          originalQuery: corrections.length > 0 ? query.trim() : undefined,
-          corrections: corrections.length > 0 ? corrections : undefined
-        });
-        return;
+        console.warn('⚠️  Apps Script service unavailable for search:', error instanceof Error ? error.message : 'Unknown error');
+        console.warn('⚠️  Returning empty deals array - app will continue to work for other features');
+        // Return empty array instead of error to allow app to continue working
+        allDeals = [];
       }
       
       if (allDeals.length === 0) {

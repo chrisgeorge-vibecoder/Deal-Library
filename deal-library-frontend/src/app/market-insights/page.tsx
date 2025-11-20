@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   MarketInsightsMetric,
@@ -20,7 +20,7 @@ import { TrendingUp, List, Map, GitCompare, Download, Share2 } from 'lucide-reac
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
-export default function MarketInsightsPage() {
+function MarketInsightsContent() {
   const searchParams = useSearchParams();
   const { onSaveCard, onUnsaveCard, isSaved } = useSaveCard();
 
@@ -669,6 +669,21 @@ export default function MarketInsightsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MarketInsightsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto mb-4"></div>
+          <p className="text-neutral-600">Loading market insights...</p>
+        </div>
+      </div>
+    }>
+      <MarketInsightsContent />
+    </Suspense>
   );
 }
 

@@ -4,18 +4,29 @@ frontend:
     preBuild:
       commands:
         - pwd
-        - ls -la
+        - ls -la | grep deal-library-frontend || echo "deal-library-frontend NOT FOUND in listing"
         - |
+          if [ ! -d "deal-library-frontend" ]; then
+            echo "ERROR: deal-library-frontend directory does not exist!"
+            echo "Current directory contents:"
+            ls -la
+            exit 1
+          fi
           cd deal-library-frontend
-          pwd
+          echo "Successfully changed to: $(pwd)"
           npm ci
     build:
       commands:
         - pwd
-        - ls -la
         - |
+          if [ ! -d "deal-library-frontend" ]; then
+            echo "ERROR: deal-library-frontend directory does not exist!"
+            echo "Current directory contents:"
+            ls -la
+            exit 1
+          fi
           cd deal-library-frontend
-          pwd
+          echo "Successfully changed to: $(pwd)"
           npm run build
   artifacts:
     baseDirectory: deal-library-frontend/.next

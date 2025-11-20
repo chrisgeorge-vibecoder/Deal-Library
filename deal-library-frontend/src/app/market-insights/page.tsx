@@ -446,7 +446,7 @@ export default function MarketInsightsPage() {
 
       const csvContent = [
         headers.join(','),
-        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ...rows.map((row: (string | number)[]) => row.map(cell => `"${cell}"`).join(','))
       ].join('\n');
 
       // Download CSV

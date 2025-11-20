@@ -144,6 +144,7 @@ export default function AudienceInsightsPage() {
 
 
   const [isPersonaSaved, setIsPersonaSaved] = useState(false);
+  const [savedDealIds, setSavedDealIds] = useState<Set<string>>(new Set());
   
   // Enable map after component mounts to avoid SSR/chunk issues
   useEffect(() => {

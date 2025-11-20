@@ -54,17 +54,17 @@ export default function AudienceBrowser({
 
   // Extract unique tier2 values for each segment type and sort alphabetically
   const demographicCategories = Array.from(new Set(
-    segmentsByType.demographic.map(s => s.tier2).filter(Boolean)
-  )).sort((a, b) => a.localeCompare(b)) as string[];
+    segmentsByType.demographic.map(s => s.tier2).filter((t): t is string => Boolean(t))
+  )).sort((a, b) => a.localeCompare(b));
   const interestCategories = Array.from(new Set(
-    segmentsByType.interest.map(s => s.tier2).filter(Boolean)
-  )).sort((a, b) => a.localeCompare(b)) as string[];
+    segmentsByType.interest.map(s => s.tier2).filter((t): t is string => Boolean(t))
+  )).sort((a, b) => a.localeCompare(b));
   const commerceCategories = Array.from(new Set(
-    segmentsByType.commerceAudience.map(s => s.tier2).filter(Boolean)
-  )).sort((a, b) => a.localeCompare(b)) as string[];
+    segmentsByType.commerceAudience.map(s => s.tier2).filter((t): t is string => Boolean(t))
+  )).sort((a, b) => a.localeCompare(b));
   const deviceCategories = Array.from(new Set(
-    segmentsByType.device.map(s => s.tier2).filter(Boolean)
-  )).sort((a, b) => a.localeCompare(b)) as string[];
+    segmentsByType.device.map(s => s.tier2).filter((t): t is string => Boolean(t))
+  )).sort((a, b) => a.localeCompare(b));
 
   // Load segments on mount
   useEffect(() => {

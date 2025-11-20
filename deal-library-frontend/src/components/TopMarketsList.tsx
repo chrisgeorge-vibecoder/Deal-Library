@@ -138,7 +138,7 @@ export default function TopMarketsList({
                     {/* Compact badges */}
                     <div className="flex items-center gap-1 ml-auto flex-shrink-0">
                       {market.hiddenGem && (
-                        <Gem className="w-3.5 h-3.5 text-purple-600" title="Hidden Gem" />
+                        <Gem className="w-3.5 h-3.5 text-purple-600" />
                       )}
                     </div>
                   </div>

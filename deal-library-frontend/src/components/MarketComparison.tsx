@@ -84,15 +84,15 @@ export default function MarketComparison({ profiles, onRemoveMarket }: MarketCom
             </div>
 
             {/* Opportunity Score */}
-            {profile.strategicSnapshot.topStrengths[0]?.opportunityScore && (
+            {(profile.strategicSnapshot.topStrengths[0] as any)?.opportunityScore && (
               <div className="flex items-center gap-2 mt-3 pt-3 border-t border-blue-200">
-                <Star className={`w-5 h-5 ${getTierColor(profile.strategicSnapshot.topStrengths[0]?.tier)}`} fill="currentColor" />
+                <Star className={`w-5 h-5 ${getTierColor((profile.strategicSnapshot.topStrengths[0] as any)?.tier)}`} fill="currentColor" />
                 <div>
                   <div className="text-sm font-semibold text-neutral-700">
-                    Score: {profile.strategicSnapshot.topStrengths[0]?.opportunityScore ? profile.strategicSnapshot.topStrengths[0].opportunityScore.toFixed(0) : 'N/A'}
+                    Score: {(profile.strategicSnapshot.topStrengths[0] as any)?.opportunityScore ? (profile.strategicSnapshot.topStrengths[0] as any).opportunityScore.toFixed(0) : 'N/A'}
                   </div>
                   <div className="text-xs text-neutral-600">
-                    {profile.strategicSnapshot.topStrengths[0]?.tier || 'N/A'} Tier
+                    {(profile.strategicSnapshot.topStrengths[0] as any)?.tier || 'N/A'} Tier
                   </div>
                 </div>
               </div>
@@ -135,7 +135,7 @@ export default function MarketComparison({ profiles, onRemoveMarket }: MarketCom
                         return <div key={idx} className="text-neutral-400 text-sm">N/A</div>;
                       }
 
-                      const diff = value.differenceFromNational;
+                      const diff = (value as any).differenceFromNational;
                       const isPositive = diff > 0;
                       
                       return (
@@ -193,7 +193,7 @@ export default function MarketComparison({ profiles, onRemoveMarket }: MarketCom
                   {profile.strategicSnapshot.topStrengths.slice(0, 3).map((strength, idx) => (
                     <li key={idx} className="text-xs text-neutral-700 flex items-start gap-1">
                       <span className="text-green-600 mt-0.5">•</span>
-                      <span>{strength.attribute}: {strength.differenceFromNational !== undefined && !isNaN(strength.differenceFromNational) ? `${strength.differenceFromNational > 0 ? '+' : ''}${strength.differenceFromNational.toFixed(1)}%` : 'N/A'}</span>
+                      <span>{strength.attribute}: {(strength as any).differenceFromNational !== undefined && !isNaN((strength as any).differenceFromNational) ? `${(strength as any).differenceFromNational > 0 ? '+' : ''}${(strength as any).differenceFromNational.toFixed(1)}%` : 'N/A'}</span>
                     </li>
                   ))}
                 </ul>
@@ -206,7 +206,7 @@ export default function MarketComparison({ profiles, onRemoveMarket }: MarketCom
                   {profile.strategicSnapshot.bottomConcerns.slice(0, 3).map((concern, idx) => (
                     <li key={idx} className="text-xs text-neutral-700 flex items-start gap-1">
                       <span className="text-orange-600 mt-0.5">•</span>
-                      <span>{concern.attribute}: {concern.differenceFromNational !== undefined && !isNaN(concern.differenceFromNational) ? `${concern.differenceFromNational > 0 ? '+' : ''}${concern.differenceFromNational.toFixed(1)}%` : 'N/A'}</span>
+                      <span>{concern.attribute}: {(concern as any).differenceFromNational !== undefined && !isNaN((concern as any).differenceFromNational) ? `${(concern as any).differenceFromNational > 0 ? '+' : ''}${(concern as any).differenceFromNational.toFixed(1)}%` : 'N/A'}</span>
                     </li>
                   ))}
                 </ul>

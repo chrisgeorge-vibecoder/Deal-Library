@@ -399,7 +399,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       const audiencesData = savedAudiences.map(card => ({
         segmentName: card.data.segmentName || card.data.segment?.segmentName,
         sovrnSegmentId: card.data.sovrnSegmentId || card.data.segment?.sovrnSegmentId,
-        id: card.id
+        id: getCardId(card)
       }));
 
       // Call the API

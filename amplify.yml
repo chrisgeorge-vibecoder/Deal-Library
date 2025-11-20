@@ -13,7 +13,7 @@ frontend:
             exit 1
           fi
           cd deal-library-frontend
-          echo "Successfully changed to: $(pwd)"
+          pwd
           npm ci
     build:
       commands:
@@ -26,7 +26,7 @@ frontend:
             exit 1
           fi
           cd deal-library-frontend
-          echo "Successfully changed to: $(pwd)"
+          pwd
           npm run build
   artifacts:
     baseDirectory: deal-library-frontend/.next

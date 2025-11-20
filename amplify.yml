@@ -3,22 +3,18 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "Current directory: $(pwd)"
-        - echo "Listing files:"
-        - ls -la
-        - echo "Changing to frontend directory..."
-        - cd deal-library-frontend
-        - echo "In frontend directory: $(pwd)"
-        - npm ci
+        - 'echo "Current directory:" && pwd'
+        - 'echo "Listing files:" && ls -la'
+        - 'echo "Changing to frontend directory..." && cd deal-library-frontend'
+        - 'echo "In frontend directory:" && pwd'
+        - cd deal-library-frontend && npm ci
     build:
       commands:
-        - echo "Current directory: $(pwd)"
-        - echo "Listing files:"
-        - ls -la
-        - echo "Changing to frontend directory..."
-        - cd deal-library-frontend
-        - echo "In frontend directory: $(pwd)"
-        - npm run build
+        - 'echo "Current directory:" && pwd'
+        - 'echo "Listing files:" && ls -la'
+        - 'echo "Changing to frontend directory..." && cd deal-library-frontend'
+        - 'echo "In frontend directory:" && pwd'
+        - cd deal-library-frontend && npm run build
   artifacts:
     baseDirectory: deal-library-frontend/.next
     files:

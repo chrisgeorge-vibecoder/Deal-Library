@@ -3,28 +3,22 @@ frontend:
   phases:
     preBuild:
       commands:
-        - |
-          if [ -d "deal-library-frontend" ]; then
-            cd deal-library-frontend
-            npm ci
-          else
-            echo "ERROR: deal-library-frontend directory not found"
-            ls -la
-            pwd
-            exit 1
-          fi
+        - echo "Current directory: $(pwd)"
+        - echo "Listing files:"
+        - ls -la
+        - echo "Changing to frontend directory..."
+        - cd deal-library-frontend
+        - echo "In frontend directory: $(pwd)"
+        - npm ci
     build:
       commands:
-        - |
-          if [ -d "deal-library-frontend" ]; then
-            cd deal-library-frontend
-            npm run build
-          else
-            echo "ERROR: deal-library-frontend directory not found"
-            ls -la
-            pwd
-            exit 1
-          fi
+        - echo "Current directory: $(pwd)"
+        - echo "Listing files:"
+        - ls -la
+        - echo "Changing to frontend directory..."
+        - cd deal-library-frontend
+        - echo "In frontend directory: $(pwd)"
+        - npm run build
   artifacts:
     baseDirectory: deal-library-frontend/.next
     files:

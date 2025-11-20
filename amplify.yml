@@ -3,9 +3,13 @@ frontend:
   phases:
     preBuild:
       commands:
+        - ls -la
+        - pwd
         - cd deal-library-frontend && npm ci
     build:
       commands:
+        - ls -la
+        - pwd
         - cd deal-library-frontend && npm run build
   artifacts:
     baseDirectory: deal-library-frontend/.next

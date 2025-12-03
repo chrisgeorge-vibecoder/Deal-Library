@@ -1,19 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-let dealsController: any = null;
-
-async function getDealsController() {
-  if (!dealsController) {
-    const { DealsController } = await import('@/lib/controllers/dealsController');
-    dealsController = new DealsController();
-  }
-  return dealsController;
-}
+import { getDealsController } from '@/lib/controllers/dealsControllerWrapper';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const controller = await getDealsController();
+    const controller = getDealsController();
     const result = await controller.generatePersonaCardDirect(body);
     return NextResponse.json(result);
   } catch (error) {
@@ -24,4 +15,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

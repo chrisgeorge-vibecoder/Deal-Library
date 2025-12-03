@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { SupabaseService } from './supabaseService';
+import { getDataPath } from './dataPath';
 
 export interface CommerceAudienceData {
   zipCode: string;
@@ -24,7 +25,7 @@ export class CommerceAudienceService {
   private useSupabase: boolean;
 
   constructor() {
-    this.dataFilePath = path.join(__dirname, '../../data/commerce_audience_segments.csv');
+    this.dataFilePath = getDataPath('commerce_audience_segments.csv');
     this.useSupabase = process.env.USE_SUPABASE === 'true';
     
     if (this.useSupabase) {

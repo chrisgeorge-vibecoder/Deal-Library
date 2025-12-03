@@ -6,6 +6,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { SupabaseService } from './supabaseService';
+import { getDataPath } from './dataPath';
 import { 
   CensusZipCodeData, 
   CensusInsights, 
@@ -141,7 +142,7 @@ export class CensusDataService {
   private useSupabase: boolean;
 
   constructor() {
-    this.dataPath = path.join(__dirname, '../../data/uszips.csv');
+    this.dataPath = getDataPath('uszips.csv');
     this.useSupabase = process.env.USE_SUPABASE === 'true';
     
     if (this.useSupabase) {

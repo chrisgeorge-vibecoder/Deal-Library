@@ -3,6 +3,7 @@ import { CensusDataService } from './censusDataService';
 import { GeminiService } from './geminiService';
 import { commerceBaselineService } from './commerceBaselineService';
 import { SupabaseService } from './supabaseService';
+import { getDataPath } from './dataPath';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -80,7 +81,7 @@ class AudienceInsightsService {
   constructor() {
     // Use singleton instance to share loaded census data across requests
     this.censusDataService = CensusDataService.getInstance();
-    this.overlapsFilePath = path.join(__dirname, '../../data/199_Audience_Overlap_Data.csv');
+    this.overlapsFilePath = getDataPath('199_Audience_Overlap_Data.csv');
     this.useSupabase = process.env.USE_SUPABASE === 'true';
     
     // Try to load pre-calculated overlaps from CSV

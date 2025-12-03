@@ -1,21 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-let dealsController: any = null;
-
-async function getDealsController() {
-  if (!dealsController) {
-    const { DealsController } = await import('@/lib/controllers/dealsController');
-    dealsController = new DealsController();
-  }
-  return dealsController;
-}
+import { getDealsController } from '@/lib/controllers/dealsControllerWrapper';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const controller = await getDealsController();
+    const controller = getDealsController();
     const deal = await controller.getDealByIdDirect(params.id);
     
     if (!deal) {
@@ -41,7 +32,7 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const controller = await getDealsController();
+    const controller = getDealsController();
     const result = await controller.updateDealDirect(params.id, body);
     return NextResponse.json(result);
   } catch (error) {
@@ -52,4 +43,3 @@ export async function PUT(
     );
   }
 }
-

@@ -1,19 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// Import will be from the integrated services
-let dealsController: any = null;
-
-async function getDealsController() {
-  if (!dealsController) {
-    const { DealsController } = await import('@/lib/controllers/dealsController');
-    dealsController = new DealsController();
-  }
-  return dealsController;
-}
+import { getDealsController } from '@/lib/controllers/dealsControllerWrapper';
 
 export async function GET(request: NextRequest) {
   try {
-    const controller = await getDealsController();
+    const controller = getDealsController();
     const deals = await controller.getAllDeals();
     return NextResponse.json(deals);
   } catch (error) {
@@ -28,7 +18,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const controller = await getDealsController();
+    const controller = getDealsController();
     const result = await controller.createDealFromBody(body);
     return NextResponse.json(result, { status: 201 });
   } catch (error) {

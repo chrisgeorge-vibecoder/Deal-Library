@@ -6,6 +6,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { SupabaseService } from './supabaseService';
+import { getDataPath } from './dataPath';
 import { 
   AudienceTaxonomySegment, 
   AudienceSearchFilters 
@@ -42,7 +43,7 @@ export class AudienceTaxonomyService {
   private useSupabase: boolean;
 
   constructor() {
-    this.dataPath = path.join(__dirname, '../../data/Sovrn Taxonomy (AI Project).csv');
+    this.dataPath = getDataPath('Sovrn Taxonomy (AI Project).csv');
     this.useSupabase = process.env.USE_SUPABASE === 'true';
     
     if (this.useSupabase) {

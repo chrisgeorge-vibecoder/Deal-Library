@@ -10,6 +10,7 @@
 
 import { commerceAudienceService } from './commerceAudienceService';
 import { CensusDataService } from './censusDataService';
+import { getDataPath } from './dataPath';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -42,7 +43,7 @@ export class CommerceBaselineService {
   
   constructor() {
     this.censusDataService = CensusDataService.getInstance();
-    this.cacheFilePath = path.join(__dirname, '../../data/commerce_baseline_cache.json');
+    this.cacheFilePath = getDataPath('commerce_baseline_cache.json');
     // Try to load from cache on initialization
     this.loadFromCache();
   }

@@ -1,0 +1,23 @@
+# Use this amplify.yml if your Amplify app has appRoot set to "deal-library-frontend"
+# This means Amplify starts the build INSIDE the deal-library-frontend folder
+
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - echo "PWD=$(pwd)"
+        - ls -la
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*
+

@@ -3,23 +3,44 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "Node version:"
-        - node --version
-        - echo "NPM version:"
-        - npm --version
-        - echo "Current directory:"
-        - pwd
+        - echo "=== Build Environment ==="
+        - echo "PWD=$(pwd)"
+        - echo "Contents:"
+        - ls -la
+        # Detect if we're already in deal-library-frontend or need to cd into it
+        - |
+          if [ -f "next.config.js" ]; then
+            echo "✓ Already in Next.js app directory (deal-library-frontend)"
+            APP_DIR="."
+          elif [ -d "deal-library-frontend" ]; then
+            echo "✓ Found deal-library-frontend, changing directory"
+            cd deal-library-frontend
+            APP_DIR="deal-library-frontend"
+          else
+            echo "✗ ERROR: Cannot find Next.js application!"
+            echo "Expected either:"
+            echo "  - next.config.js in current directory, or"
+            echo "  - deal-library-frontend subdirectory"
+            exit 1
+          fi
         - echo "Installing dependencies..."
-        - cd deal-library-frontend && npm ci
+        - npm ci
     build:
       commands:
-        - echo "Building application..."
-        - cd deal-library-frontend && npm run build
+        # Same detection logic for build phase (cd doesn't persist across phases)
+        - |
+          if [ -f "next.config.js" ]; then
+            echo "Building from current directory"
+          elif [ -d "deal-library-frontend" ]; then
+            cd deal-library-frontend
+          fi
+        - npm run build
   artifacts:
-    baseDirectory: deal-library-frontend/.next
+    # Use relative path - Amplify will figure out the right base
+    baseDirectory: .next
     files:
       - '**/*'
   cache:
     paths:
-      - deal-library-frontend/node_modules/**/*
-      - deal-library-frontend/.next/cache/**/*
+      - node_modules/**/*
+      - .next/cache/**/*

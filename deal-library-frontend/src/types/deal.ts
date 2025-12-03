@@ -1,24 +1,27 @@
+// Re-export census data types
+export type {
+  GeographicLevel,
+  MarketInsightsMetric,
+  TopMarket,
+  MarketAttribute,
+  StrategicInsight,
+  SimilarMarket,
+  MarketProfile,
+  CensusZipCodeData,
+  CensusDemographics,
+  CensusEconomics,
+  CensusGeography,
+  CommerceAudienceZipMapping,
+  CensusQueryFilters,
+  CensusInsights,
+  CensusDataImportResult
+} from './censusData';
+
 export interface PersonaInsights {
   segmentId: string;
   personaName: string;
   emoji: string;
-  coreInsight: string;
-  creativeHooks: string[];
-  mediaTargeting: string[];
-  audienceMotivation: string;
-  actionableStrategy: {
-    creativeHook: string;
-    mediaTargeting: string;
-  };
-}
-
-export interface Persona {
-  id: string;
-  name: string;
-  emoji: string;
   category: string;
-  dealCount: number;
-  segmentId: string;
   coreInsight: string;
   creativeHooks: string[];
   mediaTargeting: string[];
@@ -46,14 +49,16 @@ export interface Deal {
 }
 
 export interface DealFilters {
-  search: string;
-  targeting: string;
-  environment: string;
-  mediaType: string;
-  dateRange: {
-    start: string;
-    end: string;
+  search?: string;
+  targeting?: string;
+  environment?: string;
+  mediaType?: string;
+  dateRange?: {
+    start?: string;
+    end?: string;
   };
+  page?: number;
+  limit?: number;
 }
 
 export interface SearchResult {
@@ -61,321 +66,234 @@ export interface SearchResult {
   total: number;
   page: number;
   limit: number;
+  totalPages: number;
 }
 
-export interface AudienceInsights {
-  id: string;
-  audienceName: string;
-  demographics: {
-    ageRange: string;
-    incomeRange: string;
-    genderSplit: string;
-    topLocations: string[];
-  };
-  behavior: {
-    deviceUsage: {
-      mobile: number;
-      desktop: number;
-      tablet: number;
-    };
-    peakHours: string[];
-    purchaseFrequency: string;
-    avgOrderValue: string;
-  };
-  insights: {
-    keyCharacteristics: string[];
-    interests: string[];
-    painPoints: string[];
-  };
-  sampleData: boolean;
-}
-
-export interface MarketSizing {
-  id: string;
-  marketName: string;
-  totalMarketSize: {
-    value: string;
-    growth: string;
-    period: string;
-  };
-  addressableMarket: {
-    value: string;
-    percentage: number;
-  };
-  demographics: {
-    totalPopulation: string;
-    targetSegment: string;
-    penetration: string;
-  };
-  trends: {
-    growthRate: string;
-    keyDrivers: string[];
-    seasonality: string;
-  };
-  opportunities: {
-    untappedSegments: string[];
-    emergingPlatforms: string[];
-    geographicExpansion: string[];
-  };
-  sampleData: boolean;
-}
-
-export interface GeoCard {
-  id: string;
-  audienceName: string;
-  topMarkets: {
-    region: string;
-    percentage: string;
-  }[];
-  insights: string[];
-  totalAddressable: string;
-  sampleData: boolean;
-  demographics?: {
-    population: string;
-    medianAge: string;
-    medianIncome: string;
-    urbanRuralSplit: string;
-  };
-  marketCharacteristics?: {
-    economicProfile: string;
-    techAdoption: string;
-    mediaConsumption: string;
-    purchaseBehavior: string;
-  };
-  advertisingOpportunities?: {
-    optimalChannels: string[];
-    peakEngagement: string[];
-    creativeConsiderations: string[];
-    budgetRecommendations: string;
-  };
-  competitiveLandscape?: {
-    marketSaturation: string;
-    keyCompetitors: string[];
-    whiteSpaceOpportunities: string[];
-  };
-  sources?: {
-    title: string;
-    url: string;
-    note?: string;
-  }[];
-}
-
-export interface MarketingSWOT {
-  id: string;
+export interface CustomDealRequest {
   companyName: string;
-  swot: {
-    strengths: Array<{ title: string; description: string }>;
-    weaknesses: Array<{ title: string; description: string }>;
-    opportunities: Array<{ title: string; description: string }>;
-    threats: Array<{ title: string; description: string }>;
-  };
-  summary: string;
-  recommendedActions: string[];
-  sampleData?: boolean;
+  contactEmail: string;
+  campaignObjectives: string;
+  targetAudience: string;
+  budget?: string;
+  timeline?: string;
+  additionalNotes?: string;
 }
 
-export interface CompanyProfile {
+export interface GoogleSheetsRow {
+  [key: string]: string | number;
+}
+
+// Persona type
+export interface Persona {
   id: string;
-  stockSymbol: string;
-  companyInfo: {
+  name: string;
+  emoji: string;
+  segmentId: string;
+  category: string;
+  coreInsight: string;
+  creativeHooks: string[];
+  mediaTargeting: string[];
+  audienceMotivation: string;
+  actionableStrategy: {
+    creativeHook: string;
+    mediaTargeting: string;
+  };
+  dealCount?: number;
+}
+
+// Re-export AudienceInsights from its primary definition
+export type { AudienceInsights } from '@/components/AudienceInsightsCard';
+
+// Market Sizing type
+export interface MarketSizing {
+  market?: string;
+  marketName?: string;
+  totalAddressableMarket?: string;
+  serviceableAddressableMarket?: string;
+  serviceableObtainableMarket?: string;
+  growthRate?: string;
+  keySegments?: Array<{
     name: string;
-    sector: string;
-    marketCap: string;
-    recentPrice: string;
+    size: string;
+    percentage: number;
+  }>;
+  competitiveLandscape?: string;
+  opportunities?: string[];
+  challenges?: string[];
+  [key: string]: any;
+}
+
+// Geographic Card type
+export interface GeoCard {
+  location?: string;
+  locationName?: string;
+  population?: number;
+  demographics?: {
+    medianAge?: number;
+    medianIncome?: number;
+    educationLevel?: string;
   };
-  recentPerformance: {
-    earningsSummary: string;
-    keyMetrics: Array<{ metric: string; value: string; trend: 'positive' | 'negative' | 'neutral' }>;
-    executiveSummary: string;
-  };
-  competitiveAnalysis: {
-    mainCompetitors: Array<{ name: string; strength: string }>;
-    competitivePosition: string;
-    marketShare: string;
-  };
-  growthOpportunities: Array<{ opportunity: string; potential: string }>;
-  investmentOutlook: {
+  marketPotential?: string;
+  keyInsights?: string[];
+  recommendations?: string[];
+  [key: string]: any;
+}
+
+// Marketing SWOT type
+export interface MarketingSWOT {
+  id?: string;
+  company?: string;
+  companyName?: string;
+  strengths?: string[];
+  weaknesses?: string[];
+  opportunities?: string[];
+  threats?: string[];
+  recommendations?: string[];
+  swot?: {
     strengths: string[];
-    risks: string[];
-    recommendation: string;
+    weaknesses: string[];
+    opportunities: string[];
+    threats: string[];
   };
+  summary?: string;
+  recommendedActions?: string[];
   sampleData?: boolean;
 }
 
+// Company Profile type
+export interface CompanyProfile {
+  id?: string;
+  name?: string;
+  stockSymbol?: string;
+  industry?: string;
+  description?: string;
+  founded?: string;
+  headquarters?: string;
+  employees?: string;
+  revenue?: string;
+  keyProducts?: string[];
+  targetMarket?: string;
+  competitiveAdvantages?: string[];
+  challenges?: string[];
+  marketingStrategy?: string;
+  companyInfo?: any;
+  recentPerformance?: any;
+  competitiveAnalysis?: any;
+  growthOpportunities?: any;
+  investmentOutlook?: any;
+  sampleData?: boolean;
+  [key: string]: any;
+}
+
+// Marketing News type
 export interface MarketingNews {
-  id: string;
+  id?: string;
   headline: string;
+  summary?: string;
+  synopsis?: string;
   source: string;
-  synopsis: string;
-  url: string;
-  publishDate: string;
-  relevanceScore: number;
+  date?: string;
+  publishDate?: string;
+  relevance?: string;
+  relevanceScore?: number;
+  implications?: string[];
+  actionItems?: string[];
+  category?: string;
+  url?: string;
   companies?: string[];
   keyInsights?: string[];
 }
 
+// Competitive Intelligence type
 export interface CompetitiveIntelligence {
-  id: string;
-  competitorOrIndustry: string;
-  competitiveAnalysis: {
-    mainCompetitors: Array<{ name: string; positioning: string; keyStrengths: string[] }>;
-    marketPositioning: string;
-    differentiationOpportunities: string[];
-  };
-  messagingAnalysis: {
-    commonThemes: string[];
-    messagingGaps: string[];
-    toneAndVoice: string;
-  };
-  strategicRecommendations: {
-    positioning: string[];
-    messaging: string[];
-    channels: string[];
-  };
-  sources?: Array<{ title: string; url: string; note?: string }>;
-  sampleData?: boolean;
+  company?: string;
+  competitors?: Array<{
+    name: string;
+    marketShare?: string;
+    strengths?: string[];
+    weaknesses?: string[];
+    strategy?: string;
+  }>;
+  industryTrends?: string[];
+  competitiveAdvantages?: string[];
+  recommendations?: string[];
+  [key: string]: any;
 }
 
+// Content Strategy type
 export interface ContentStrategy {
-  id: string;
-  industryOrTopic: string;
-  trendingTopics: Array<{ topic: string; relevance: string; trend: string }>;
-  contentRecommendations: {
-    formats: Array<{ format: string; rationale: string; priority: string }>;
-    platforms: string[];
-    frequency: string;
-  };
-  seoOpportunities: {
-    keywords: string[];
-    contentGaps: string[];
-    competitorAnalysis: string;
-  };
-  editorialCalendar: Array<{
-    timeframe: string;
-    themes: string[];
-    contentIdeas: string[];
-  }>;
-  sources?: Array<{ title: string; url: string; note?: string }>;
-  sampleData?: boolean;
-}
-
-export interface BrandStrategy {
-  id: string;
-  brandOrCategory: string;
-  positioning: {
-    currentPerception: string;
-    targetPosition: string;
-    differentiators: string[];
-  };
-  messagingFramework: {
-    coreMessage: string;
-    supportingMessages: string[];
-    proofPoints: string[];
-  };
-  brandVoice: {
-    toneAttributes: string[];
-    voiceGuidelines: string;
-    dosDonts: { dos: string[]; donts: string[] };
-  };
-  strategicRecommendations: string[];
-  sources?: Array<{ title: string; url: string; note?: string }>;
-  sampleData?: boolean;
-}
-
-export interface CampaignBrief {
-  marketName: string;
-  marketGeoLevel: string;
-  marketPersonaSummary: string;
-  targetedHeadlines: string[];
-  valuePropositions: Array<{
+  brand?: string;
+  targetAudience?: string;
+  contentPillars?: Array<{
     theme: string;
-    rationale: string;
-    priority: number;
+    description?: string;
+    contentTypes?: string[];
+    frequency?: string;
   }>;
-  generatedAt: string;
+  channels?: string[];
+  tone?: string;
+  keyMessages?: string[];
+  kpis?: string[];
+  industryOrTopic?: string;
+  trendingTopics?: string[];
+  contentRecommendations?: any;
+  [key: string]: any;
 }
+
+// Brand Strategy type
+export interface BrandStrategy {
+  brandName?: string;
+  positioning?: any;
+  targetAudience?: string;
+  valueProposition?: string;
+  brandPersonality?: string[];
+  keyMessages?: string[];
+  visualIdentity?: any;
+  differentiators?: string[];
+  competitiveAdvantage?: string;
+  [key: string]: any;
+}
+
+// Campaign Brief type
+export interface CampaignBrief {
+  id?: string;
+  campaignName?: string;
+  client?: string;
+  objective?: string;
+  targetAudience?: string;
+  budget?: string;
+  timeline?: string;
+  channels?: string[];
+  keyMessages?: string[];
+  callToAction?: string;
+  successMetrics?: string[];
+  constraints?: string[];
+  creativeDirection?: string;
+  [key: string]: any;
+}
+
+// Saved Card type - union type for all saveable cards
+export type SavedCardType = 
+  | 'deal' 
+  | 'persona' 
+  | 'audience-insights' 
+  | 'market-sizing' 
+  | 'geo-cards' 
+  | 'marketing-swot' 
+  | 'company-profile' 
+  | 'marketing-news' 
+  | 'competitive-intelligence' 
+  | 'content-strategy' 
+  | 'brand-strategy' 
+  | 'campaign-brief' 
+  | 'audience-taxonomy' 
+  | 'strategic-snapshot' 
+  | 'research'
+  | 'market-profile'
+  | string;
 
 export interface SavedCard {
-  type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'research' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy' | 'market-profile' | 'campaign-brief' | 'audience-taxonomy';
-  data: Deal | Persona | AudienceInsights | MarketSizing | GeoCard | MarketingSWOT | CompanyProfile | MarketingNews | CompetitiveIntelligence | ContentStrategy | BrandStrategy | MarketProfile | CampaignBrief | any;
+  type: SavedCardType;
+  data: Deal | Persona | MarketSizing | GeoCard | MarketingSWOT | CompanyProfile | MarketingNews | CompetitiveIntelligence | ContentStrategy | BrandStrategy | CampaignBrief | any;
   savedAt: string;
-}
-
-// Market Insights Types
-export type GeographicLevel = 'region' | 'state' | 'cbsa' | 'county' | 'city' | 'zip';
-
-export interface MarketInsightsMetric {
-  id: string;
-  name: string;
-  category: 'Demographics' | 'Racial & Ethnic Diversity' | 'Socioeconomics' | 'Housing & Wealth' | 'Education & Social' | 'Work & Lifestyle';
-  column: string;
-  format: 'number' | 'percentage' | 'currency';
-  description: string;
-}
-
-export interface TopMarket {
-  rank: number;
-  name: string;
-  geoLevel: GeographicLevel;
-  value: number;
-  population: number;
-  formattedValue: string;
-  opportunityScore?: number;
-  tier?: string;
-  hiddenGem?: boolean;
-  saturationLevel?: 'Low' | 'Medium' | 'High';
-  consumerWealthIndex?: number;
-  communityCohesionScore?: number;
-  lifeStageSegment?: string;
-}
-
-export interface MarketAttribute {
-  name: string;
-  value: number;
-  formattedValue: string;
-  nationalAverage: number;
-  percentDifference: number;
-  category: string;
-  format: 'number' | 'percentage' | 'currency';
-}
-
-export interface StrategicInsight {
-  attribute: string;
-  value: number;
-  formattedValue: string;
-  comparison: string;
-  impact: 'positive' | 'negative' | 'neutral';
-}
-
-export interface SimilarMarket {
-  name: string;
-  similarityScore: number;
-  population: number;
-  keyAttributes: {
-    name: string;
-    value: number;
-    formattedValue: string;
-  }[];
-}
-
-export interface MarketProfile {
-  name: string;
-  geoLevel: GeographicLevel;
-  population: number;
-  geographicHierarchy: {
-    region?: string;
-    state?: string;
-    cbsa?: string;
-    county?: string;
-    city?: string;
-  };
-  attributes: MarketAttribute[];
-  strategicSnapshot: {
-    topStrengths: StrategicInsight[];
-    bottomConcerns: StrategicInsight[];
-    summary: string;
-    archetype?: string;
-    bestFor?: string[];
-  };
-  similarMarkets?: SimilarMarket[];
 }

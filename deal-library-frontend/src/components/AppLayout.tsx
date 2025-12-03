@@ -57,7 +57,8 @@ import { ContentStrategyDetailModal } from './ContentStrategyDetailModal';
 import { BrandStrategyDetailModal } from './BrandStrategyDetailModal';
 import CampaignBriefModal from './CampaignBriefModal';
 import CustomDealForm from './CustomDealForm';
-import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy, CampaignBrief } from '@/types/deal';
+import { Deal, Persona, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy, CampaignBrief } from '@/types/deal';
+import { AudienceInsights } from '@/components/AudienceInsightsCard';
 import { MarketSizing } from '@/components/MarketSizingCard';
 import { SavedCard } from '@/types/deal';
 

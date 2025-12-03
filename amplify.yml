@@ -3,38 +3,18 @@ frontend:
   phases:
     preBuild:
       commands:
+        - echo "Node version:"
+        - node --version
+        - echo "NPM version:"
+        - npm --version
+        - echo "Current directory:"
         - pwd
-        - ls -la | grep deal-library-frontend || echo "deal-library-frontend NOT FOUND in listing"
-        - |
-          if [ ! -d "deal-library-frontend" ]; then
-            echo "ERROR: deal-library-frontend directory does not exist!"
-            echo "Current directory contents:"
-            ls -la
-            exit 1
-          fi
-          cd deal-library-frontend
-          pwd
-          npm ci
+        - echo "Installing dependencies..."
+        - cd deal-library-frontend && npm ci
     build:
       commands:
-        - pwd
-        - |
-          # Check if we're already in deal-library-frontend or need to cd into it
-          if [ -f "package.json" ] && [ -d "src" ]; then
-            echo "Already in deal-library-frontend directory"
-            pwd
-          elif [ -d "deal-library-frontend" ]; then
-            echo "Changing to deal-library-frontend directory"
-            cd deal-library-frontend
-            pwd
-          else
-            echo "ERROR: deal-library-frontend directory not found!"
-            echo "Current directory: $(pwd)"
-            echo "Contents:"
-            ls -la
-            exit 1
-          fi
-          npm run build
+        - echo "Building application..."
+        - cd deal-library-frontend && npm run build
   artifacts:
     baseDirectory: deal-library-frontend/.next
     files:
@@ -43,4 +23,3 @@ frontend:
     paths:
       - deal-library-frontend/node_modules/**/*
       - deal-library-frontend/.next/cache/**/*
-

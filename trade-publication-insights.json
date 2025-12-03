@@ -1,0 +1,307 @@
+[
+  {
+    "title": "Passion Markets: The Hidden Power of Geographic Over-Indexing",
+    "insight": "Commerce Audiences reveal that certain product categories show strong geographic concentration—with some markets indexing 200-400% above national averages. These \"passion markets\" represent highly engaged, concentrated audiences that are dramatically more valuable than volume-based targeting suggests.",
+    "dataPoints": [
+      {
+        "segment": "Mobile Phones",
+        "metric": "Over-Index",
+        "value": "500% above national average in Washington, District of Columbia"
+      },
+      {
+        "segment": "Home & Garden",
+        "metric": "Over-Index",
+        "value": "500% above national average in Houston, Texas"
+      },
+      {
+        "segment": "Furniture",
+        "metric": "Over-Index",
+        "value": "500% above national average in Houston, Texas"
+      },
+      {
+        "segment": "Kitchen & Dining",
+        "metric": "Over-Index",
+        "value": "500% above national average in Houston, Texas"
+      },
+      {
+        "segment": "Health & Beauty",
+        "metric": "Over-Index",
+        "value": "500% above national average in Washington, District of Columbia"
+      }
+    ],
+    "actionableRecommendation": "Marketers should prioritize over-indexing markets (200%+) over volume markets. A city with 300% over-index represents a 3x more engaged audience than the national average, leading to higher conversion rates and lower acquisition costs. These geographic concentrations often indicate cultural fit, lifestyle alignment, or strong local brand presence.",
+    "category": "Geographic Targeting"
+  },
+  {
+    "title": "The Cross-Category Purchase Map: Where Audiences Really Overlap",
+    "insight": "Commerce Audiences reveal unexpected cross-category purchase patterns. Shoppers in certain categories show 40%+ overlap with seemingly unrelated categories, revealing lifestyle clusters and purchase journey patterns that traditional demographic targeting misses.",
+    "dataPoints": [
+      {
+        "segment": "Cosmetics ↔ Personal Care",
+        "metric": "Cross-Category Overlap",
+        "value": "91% of Cosmetics buyers also purchase Personal Care"
+      },
+      {
+        "segment": "Personal Care ↔ Cosmetics",
+        "metric": "Cross-Category Overlap",
+        "value": "91% of Personal Care buyers also purchase Cosmetics"
+      },
+      {
+        "segment": "Health & Beauty ↔ Cosmetics",
+        "metric": "Cross-Category Overlap",
+        "value": "90% of Health & Beauty buyers also purchase Cosmetics"
+      },
+      {
+        "segment": "Health & Beauty ↔ Personal Care",
+        "metric": "Cross-Category Overlap",
+        "value": "90% of Health & Beauty buyers also purchase Personal Care"
+      },
+      {
+        "segment": "Personal Care ↔ Health & Beauty",
+        "metric": "Cross-Category Overlap",
+        "value": "88% of Personal Care buyers also purchase Health & Beauty"
+      }
+    ],
+    "actionableRecommendation": "Build cross-category campaigns targeting high-overlap segments. If 45% of Baby & Toddler buyers also purchase Organic Food, create bundled offers or sequential campaigns that follow the natural purchase journey. This increases relevance and conversion rates.",
+    "category": "Behavioral Targeting"
+  },
+  {
+    "title": "Lifestyle Signals: Self-Employment and Dual-Income Patterns Reveal Purchase Motivations",
+    "insight": "Commerce Audiences show distinct lifestyle patterns that predict purchase behavior. Segments with 15%+ self-employment rates often purchase products that support business or side-hustle activities, while dual-income households (60%+ married, 50%+ dual income) prioritize time-saving and convenience features.",
+    "dataPoints": [
+      {
+        "segment": "Shoes",
+        "metric": "Self-Employment Rate",
+        "value": "13.7% self-employed"
+      },
+      {
+        "segment": "Toys & Games",
+        "metric": "Self-Employment Rate",
+        "value": "13.4% self-employed"
+      },
+      {
+        "segment": "Kitchen & Dining",
+        "metric": "Self-Employment Rate",
+        "value": "13.4% self-employed"
+      }
+    ],
+    "actionableRecommendation": "Target entrepreneurial segments with business-focused messaging and B2B-style benefits (ROI, efficiency, professional results). Target dual-income families with time-saving messaging, convenience features, and solutions that reduce household management burden.",
+    "category": "Lifestyle Targeting"
+  },
+  {
+    "title": "Age Concentration Patterns: Why Some Categories Are Generation-Defining",
+    "insight": "Commerce Audiences reveal that certain product categories show extreme age concentration—with 30%+ of buyers falling into a single 10-year age bracket. This generational clustering indicates life-stage-driven purchases that create predictable targeting opportunities.",
+    "dataPoints": [
+      {
+        "segment": "Mobile Phones",
+        "metric": "Top Age Bracket: 40-49",
+        "value": "18% of buyers"
+      },
+      {
+        "segment": "Home & Garden",
+        "metric": "Top Age Bracket: 40-49",
+        "value": "18% of buyers"
+      },
+      {
+        "segment": "Furniture",
+        "metric": "Top Age Bracket: 40-49",
+        "value": "18% of buyers"
+      }
+    ],
+    "actionableRecommendation": "Target age-concentrated categories with generation-specific messaging, cultural references, and channels. If 35% of a category's buyers are 30-39, create campaigns that speak to millennial life-stage challenges and use platforms where this generation is most active.",
+    "category": "Demographic Targeting"
+  },
+  {
+    "title": "Homeownership as a Wealth Proxy: Why Property Owners Are Premium Buyers",
+    "insight": "Commerce Audiences with 70%+ homeownership rates and median home values above $400K represent established, financially stable buyers with higher lifetime value. These segments show stronger brand loyalty and are more likely to make large-ticket purchases.",
+    "dataPoints": [
+      {
+        "segment": "Consumer Electronics",
+        "metric": "Homeownership & Wealth",
+        "value": "65% homeowners, $300K median home value"
+      },
+      {
+        "segment": "Computers & Accessories",
+        "metric": "Homeownership & Wealth",
+        "value": "65% homeowners, $300K median home value"
+      },
+      {
+        "segment": "Clothing & Accessories",
+        "metric": "Homeownership & Wealth",
+        "value": "65% homeowners, $300K median home value"
+      },
+      {
+        "segment": "Jewelry",
+        "metric": "Homeownership & Wealth",
+        "value": "65% homeowners, $300K median home value"
+      },
+      {
+        "segment": "Sports & Outdoors",
+        "metric": "Homeownership & Wealth",
+        "value": "65% homeowners, $300K median home value"
+      }
+    ],
+    "actionableRecommendation": "Target high-homeownership segments with premium positioning, quality messaging, and long-term value propositions. These buyers prioritize durability, warranty, and brand reputation over price. Consider subscription or loyalty programs to capture lifetime value.",
+    "category": "Wealth Targeting"
+  },
+  {
+    "title": "Urban vs Suburban: How Geography Shapes Purchase Behavior",
+    "insight": "Commerce Audiences reveal distinct urban vs suburban purchase patterns. Urban-dominant segments (50%+ in urban areas) prioritize convenience, delivery speed, and space-efficient products. Suburban-dominant segments (50%+ in suburbs) prioritize value, bulk purchases, and products that support home and family life.",
+    "dataPoints": [
+      {
+        "segment": "Mobile Phones",
+        "metric": "Urban Concentration",
+        "value": "66% urban, 34% suburban"
+      },
+      {
+        "segment": "Shoes",
+        "metric": "Urban Concentration",
+        "value": "56% urban, 44% suburban"
+      },
+      {
+        "segment": "Home & Garden",
+        "metric": "Urban Concentration",
+        "value": "53% urban, 47% suburban"
+      },
+      {
+        "segment": "Food & Beverage",
+        "metric": "Suburban Concentration",
+        "value": "46% urban, 54% suburban"
+      },
+      {
+        "segment": "Health & Beauty",
+        "metric": "Suburban Concentration",
+        "value": "46% urban, 54% suburban"
+      },
+      {
+        "segment": "Personal Care",
+        "metric": "Suburban Concentration",
+        "value": "47% urban, 53% suburban"
+      }
+    ],
+    "actionableRecommendation": "Tailor messaging and delivery options to urbanicity. Urban audiences: emphasize fast delivery, compact products, and convenience. Suburban audiences: emphasize value, bulk options, and home/family benefits. Adjust media mix—urban audiences are more mobile-first, suburban audiences more desktop and CTV.",
+    "category": "Geographic Targeting"
+  },
+  {
+    "title": "The Six-Figure Indicator: Income Distribution Reveals Premium Market Segments",
+    "insight": "Commerce Audiences show that income distribution (not just median income) reveals premium market opportunities. Segments with 35%+ of households earning six figures represent concentrated purchasing power, even when median income appears moderate. This distribution pattern indicates a bifurcated market with both value-conscious and premium buyers.",
+    "dataPoints": [
+      {
+        "segment": "Cosmetics",
+        "metric": "Six-Figure Households",
+        "value": "29.6% earn $100K+ (median: $83,136.729)"
+      },
+      {
+        "segment": "Personal Care",
+        "metric": "Six-Figure Households",
+        "value": "28.2% earn $100K+ (median: $82,981.112)"
+      },
+      {
+        "segment": "Health & Beauty",
+        "metric": "Six-Figure Households",
+        "value": "25.5% earn $100K+ (median: $81,406.63)"
+      }
+    ],
+    "actionableRecommendation": "Look beyond median income to distribution patterns. Segments with 35%+ six-figure households can support premium product tiers even if median income is lower. Create tiered product lines—entry-level for median earners, premium for six-figure households. Use income distribution data to optimize pricing strategies.",
+    "category": "Pricing Strategy"
+  },
+  {
+    "title": "Commute Time as a Targeting Signal: How Travel Patterns Predict Media Consumption",
+    "insight": "Commerce Audiences reveal that average commute times correlate with different product categories and media consumption patterns. Segments with 30+ minute commutes represent prime opportunities for podcast, audiobook, and mobile content consumption, while shorter commute segments favor different engagement patterns.",
+    "dataPoints": [
+      {
+        "segment": "Cosmetics",
+        "metric": "Average Commute Time",
+        "value": "30 minutes"
+      },
+      {
+        "segment": "Mobile Phones",
+        "metric": "Average Commute Time",
+        "value": "29 minutes"
+      },
+      {
+        "segment": "Baby & Toddler",
+        "metric": "Average Commute Time",
+        "value": "29 minutes"
+      },
+      {
+        "segment": "Health & Beauty",
+        "metric": "Average Commute Time",
+        "value": "29 minutes"
+      },
+      {
+        "segment": "Food & Beverage",
+        "metric": "Average Commute Time",
+        "value": "29 minutes"
+      }
+    ],
+    "actionableRecommendation": "Target long-commute segments (30+ minutes) with audio-first content: podcasts, streaming audio, mobile apps. These audiences have extended captive attention time. For short-commute segments, focus on visual platforms and quick-engagement content. Use commute time data to optimize media mix and timing.",
+    "category": "Media Strategy"
+  },
+  {
+    "title": "Home Values as Wealth Indicators: Property Assets Predict Purchasing Power",
+    "insight": "Commerce Audiences show that median home values often reveal purchasing power more accurately than income alone. Segments with $400K+ median home values represent established wealth and long-term financial stability, making them prime candidates for premium products, durable goods, and subscription services.",
+    "dataPoints": [
+      {
+        "segment": "Cosmetics",
+        "metric": "Home Value & Ownership",
+        "value": "$508K median home value, 47% homeowners"
+      },
+      {
+        "segment": "Personal Care",
+        "metric": "Home Value & Ownership",
+        "value": "$495K median home value, 48% homeowners"
+      },
+      {
+        "segment": "Health & Beauty",
+        "metric": "Home Value & Ownership",
+        "value": "$479K median home value, 48% homeowners"
+      },
+      {
+        "segment": "Shoes",
+        "metric": "Home Value & Ownership",
+        "value": "$461K median home value, 45% homeowners"
+      },
+      {
+        "segment": "Toys & Games",
+        "metric": "Home Value & Ownership",
+        "value": "$459K median home value, 44% homeowners"
+      }
+    ],
+    "actionableRecommendation": "Use home values alongside income data to identify premium markets. High home values indicate accumulated wealth and long-term purchasing power. Target these segments with durable goods, home improvement products, luxury items, and subscription services. Home value data is particularly valuable for B2C companies selling to homeowners.",
+    "category": "Wealth Targeting"
+  },
+  {
+    "title": "Charitable Giving Patterns: How Philanthropy Signals Values-Based Purchasing",
+    "insight": "Commerce Audiences reveal that segments with 15%+ charitable giving rates show distinct values-based purchasing behavior. These audiences prioritize brand purpose, sustainability, ethical sourcing, and social impact—making them ideal for cause-marketing campaigns and values-driven brand positioning.",
+    "dataPoints": [
+      {
+        "segment": "Personal Care",
+        "metric": "Charitable Giving Rate",
+        "value": "21.8% are charitable givers"
+      },
+      {
+        "segment": "Health & Beauty",
+        "metric": "Charitable Giving Rate",
+        "value": "21.6% are charitable givers"
+      },
+      {
+        "segment": "Cosmetics",
+        "metric": "Charitable Giving Rate",
+        "value": "21.3% are charitable givers"
+      },
+      {
+        "segment": "Mobile Phones",
+        "metric": "Charitable Giving Rate",
+        "value": "18.6% are charitable givers"
+      },
+      {
+        "segment": "Home & Garden",
+        "metric": "Charitable Giving Rate",
+        "value": "18.3% are charitable givers"
+      }
+    ],
+    "actionableRecommendation": "Target high-charitable segments with values-based messaging, sustainability claims, and social impact storytelling. These audiences respond to brand purpose and ethical positioning. Partner with nonprofits, highlight charitable components of purchases, and emphasize long-term impact over short-term savings.",
+    "category": "Brand Positioning"
+  }
+]

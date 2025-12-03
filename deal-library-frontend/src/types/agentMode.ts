@@ -1,74 +1,109 @@
 /**
- * Agent Mode Types - Frontend
+ * Agent Mode Types
  * Types for the comprehensive recommendation generation feature
  */
 
+import { Deal } from './deal';
+
 /**
- * Progress update from backend SSE stream
+ * Raw advertiser brief (free-text input from user)
  */
-export interface ProgressUpdate {
-  type: 'progress' | 'complete' | 'error';
-  step: number;
-  totalSteps: number;
-  stepName: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'error';
-  message?: string;
-  timestamp: string;
-  percentComplete: number;
+export interface AdvertiserBrief {
+  rawBrief: string; // The complete text pasted by the user
+  timestamp: Date;
 }
 
 /**
- * Analysis results from backend
+ * Parsed brief with extracted structured information
+ */
+export interface ParsedBrief {
+  advertiserName: string;
+  targetAudiences: string[]; // Array of audience descriptions
+  campaignObjectives: string[]; // Array of objectives
+  budgetRange?: string; // Optional budget if mentioned
+  budgetValue?: number; // Parsed numeric budget (midpoint or minimum)
+  budgetNotes?: string; // Additional context like "minimum" or "up to"
+  geographicFocus?: string; // Optional geographic targeting
+  keyProducts?: string[]; // Products/services mentioned
+  timeline?: string; // Campaign timeline if mentioned
+  additionalContext?: string; // Any other relevant info
+  industry?: string; // Optional industry classification
+}
+
+/**
+ * Progress update for streaming to frontend
+ */
+export interface ProgressUpdate {
+  type: 'progress' | 'complete' | 'error';
+  step: number; // Current step (1-10)
+  totalSteps: number; // Total steps (10)
+  stepName: string; // Human-readable step name
+  status: 'pending' | 'in_progress' | 'completed' | 'error';
+  message?: string; // Additional details
+  timestamp: Date;
+  percentComplete: number; // 0-100
+}
+
+/**
+ * Results from individual analysis components
  */
 export interface AnalysisResults {
-  parsedBrief: {
-    advertiserName: string;
-    targetAudiences: string[];
-    campaignObjectives: string[];
-    budgetRange?: string;
-    budgetValue?: number;
-    budgetNotes?: string;
-    geographicFocus?: string;
-    keyProducts?: string[];
-    timeline?: string;
-    additionalContext?: string;
-  };
+  // Parsed brief
+  parsedBrief: ParsedBrief;
+  
+  // Audience data
   audiences: {
-    segments: any[];
+    segments: any[]; // Audience taxonomy segments
     count: number;
   };
+  
+  // Deal recommendations
   deals: {
-    recommendations: any[];
+    recommendations: Deal[];
     count: number;
   };
+  
+  // Personas
   personas: {
     profiles: any[];
     count: number;
   };
+  
+  // Audience insights reports
   audienceInsights: {
     reports: any[];
     count: number;
   };
+  
+  // Market sizing data
   marketSizing: {
     totalAddressableMarket: number;
     reachEstimate: number;
     demographicBreakdown: any;
   };
+  
+  // Geographic analysis
   geographic: {
     topMarkets: any[];
     coverageMap: any;
   };
+  
+  // SWOT analysis
   swot: {
     strengths: string[];
     weaknesses: string[];
     opportunities: string[];
     threats: string[];
   };
+  
+  // Company/Advertiser profile
   companyProfile: {
     industry: string;
     competitiveLandscape: string;
     marketPosition: string;
   };
+  
+  // Strategic insights (NEW)
   strategy?: {
     competitors?: string[];
     differentiators?: string[];
@@ -82,6 +117,8 @@ export interface AnalysisResults {
       rationale: string;
     };
   };
+  
+  // Any errors encountered
   errors: {
     step: string;
     error: string;
@@ -89,13 +126,20 @@ export interface AnalysisResults {
 }
 
 /**
- * Comprehensive report response
+ * Complete comprehensive report
  */
 export interface ComprehensiveReport {
+  // Metadata
   advertiserName: string;
-  generatedDate: string;
-  markdownReport: string;
+  generatedDate: Date;
+  
+  // Analysis results
   results: AnalysisResults;
+  
+  // Formatted markdown report
+  markdownReport: string;
+  
+  // Summary statistics
   summary: {
     totalAudiences: number;
     totalDeals: number;
@@ -108,14 +152,14 @@ export interface ComprehensiveReport {
 }
 
 /**
- * Agent Mode state
+ * Analysis step configuration
  */
-export interface AgentModeState {
-  isEnabled: boolean;
-  isGenerating: boolean;
-  progress: ProgressUpdate | null;
-  report: ComprehensiveReport | null;
-  error: string | null;
+export interface AnalysisStep {
+  id: string;
+  name: string;
+  description: string;
+  order: number;
+  weight: number; // Contribution to overall progress (0-1)
 }
 
 

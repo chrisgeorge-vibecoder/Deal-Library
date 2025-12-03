@@ -1,0 +1,26 @@
+{
+  "name": "sovrn-launchpad",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sovrn Launchpad - Deal Library with AI-Enhanced Marketing Tools",
+  "scripts": {
+    "dev": "cd deal-library-frontend && npm run dev",
+    "build": "cd deal-library-frontend && npm run build",
+    "start": "cd deal-library-frontend && npm run start",
+    "lint": "cd deal-library-frontend && npm run lint",
+    "install:deps": "cd deal-library-frontend && npm install",
+    "postinstall": "cd deal-library-frontend && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "sovrn",
+    "launchpad",
+    "deals",
+    "marketing",
+    "ai"
+  ],
+  "author": "Sovrn",
+  "license": "MIT"
+}

@@ -36,11 +36,11 @@ frontend:
           fi
         - npm run build
   artifacts:
-    # Use relative path - Amplify will figure out the right base
-    baseDirectory: .next
+    # Path relative to repo root since build runs in deal-library-frontend
+    baseDirectory: deal-library-frontend/.next
     files:
       - '**/*'
   cache:
     paths:
-      - node_modules/**/*
-      - .next/cache/**/*
+      - deal-library-frontend/node_modules/**/*
+      - deal-library-frontend/.next/cache/**/*

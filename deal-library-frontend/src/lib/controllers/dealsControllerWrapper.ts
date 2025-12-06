@@ -15,9 +15,10 @@ export class DealsControllerWrapper extends DealsController {
     try {
       const { CensusDataService } = await import('../services/censusDataService');
       const censusService = CensusDataService.getInstance();
+      const status = censusService.getDataStatus();
       return {
-        loaded: censusService.isLoaded(),
-        recordCount: censusService.getRecordCount?.() || 0,
+        loaded: status.loaded,
+        recordCount: status.totalZipCodes,
         status: 'ok'
       };
     } catch (error) {
@@ -42,8 +43,9 @@ export class DealsControllerWrapper extends DealsController {
   async getCommerceAudienceStatusDirect(): Promise<any> {
     try {
       const { commerceAudienceService } = await import('../services/commerceAudienceService');
+      const status = commerceAudienceService.getStatus();
       return {
-        loaded: commerceAudienceService.isLoaded?.() || false,
+        loaded: status.isLoaded,
         status: 'ok'
       };
     } catch (error) {

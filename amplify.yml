@@ -1,29 +1,25 @@
 version: 1
+# NOTE: This config assumes App root is set to "deal-library-frontend" in Amplify Console
+# Go to: App settings > General > Edit > Set "App root" to "deal-library-frontend"
 frontend:
   phases:
     preBuild:
       commands:
         - echo "=== Build Environment ==="
-        - echo "PWD=$(pwd)"
-        - echo "Contents:"
-        - ls -la
-        # Always cd into deal-library-frontend for consistent paths
-        - cd deal-library-frontend
-        - echo "Installing dependencies in deal-library-frontend..."
+        - echo "Current directory:" && pwd
+        - echo "Contents:" && ls -la
         - npm ci
     build:
       commands:
-        - cd deal-library-frontend
-        - echo "Building Next.js application..."
+        - echo "Building Next.js app..."
         - npm run build
-        - echo "Build complete. Checking .next directory..."
+        - echo "Build complete. Contents of .next:"
         - ls -la .next
   artifacts:
-    # Path relative to repo root - must include the subdirectory
-    baseDirectory: deal-library-frontend/.next
+    baseDirectory: .next
     files:
       - '**/*'
   cache:
     paths:
-      - deal-library-frontend/node_modules/**/*
-      - deal-library-frontend/.next/cache/**/*
+      - node_modules/**/*
+      - .next/cache/**/*

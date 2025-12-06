@@ -1,19 +1,21 @@
 version: 1
+# App root is set to "deal-library-frontend" in Amplify Console
 frontend:
   phases:
     preBuild:
       commands:
         - echo "=== Build Environment ==="
-        - pwd && ls -la
-        - cd deal-library-frontend && npm ci
+        - echo "Current directory:" && pwd
+        - echo "Files:" && ls -la
+        - npm ci
     build:
       commands:
-        - cd deal-library-frontend && npm run build
+        - npm run build
   artifacts:
-    baseDirectory: deal-library-frontend/.next
+    baseDirectory: .next
     files:
       - '**/*'
   cache:
     paths:
-      - deal-library-frontend/node_modules/**/*
-      - deal-library-frontend/.next/cache/**/*
+      - node_modules/**/*
+      - .next/cache/**/*

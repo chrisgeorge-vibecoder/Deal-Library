@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   
+  // Required for Amplify SSR deployment
+  output: 'standalone',
+  
   // Skip type checking during build for faster deployments
   typescript: {
     ignoreBuildErrors: true,

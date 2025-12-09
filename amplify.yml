@@ -7,13 +7,13 @@ frontend:
         - echo "PWD=$(pwd)"
         - node -v
         - npm -v
-        - cd deal-library-frontend && npm ci
+        - cd deal-library-amplify-app && npm ci
     build:
       commands:
-        - cd deal-library-frontend && npm run build
+        - cd deal-library-amplify-app && npm run build
         # Create Amplify hosting structure for SSR deployment
         - |
-          cd deal-library-frontend
+          cd deal-library-amplify-app
           echo "Creating .amplify-hosting directory structure..."
           mkdir -p .amplify-hosting/compute/default
           mkdir -p .amplify-hosting/static/_next
@@ -150,10 +150,10 @@ frontend:
           ls -la .amplify-hosting/
           ls -la .amplify-hosting/compute/default/ | head -20
   artifacts:
-    baseDirectory: deal-library-frontend/.amplify-hosting
+    baseDirectory: deal-library-amplify-app/.amplify-hosting
     files:
       - '**/*'
   cache:
     paths:
-      - deal-library-frontend/node_modules/**/*
-      - deal-library-frontend/.next/cache/**/*
+      - deal-library-amplify-app/node_modules/**/*
+      - deal-library-amplify-app/.next/cache/**/*

@@ -1,45 +1,21 @@
 version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - echo "=== Build Environment ==="
-        - echo "PWD=$(pwd)"
-        - ls -la
-        # Detect directory and install dependencies (all in one block so cd persists)
-        - |
-          if [ -f "next.config.js" ]; then
-            echo "✓ Already in Next.js app directory"
-            npm ci
-          elif [ -d "deal-library-amplify-app" ]; then
-            echo "✓ Found deal-library-amplify-app, changing directory"
-            cd deal-library-amplify-app
-            npm ci
-          else
-            echo "✗ ERROR: Cannot find Next.js application!"
-            exit 1
-          fi
-    build:
-      commands:
-        # Build and copy static files for standalone deployment (all in one block so cd persists)
-        - |
-          if [ -f "next.config.js" ]; then
-            echo "Building from current directory"
-            npm run build
-            cp -r public .next/standalone/public
-            cp -r .next/static .next/standalone/.next/static
-          elif [ -d "deal-library-amplify-app" ]; then
-            cd deal-library-amplify-app
-            npm run build
-            cp -r public .next/standalone/public
-            cp -r .next/static .next/standalone/.next/static
-          fi
-  artifacts:
-    # For standalone output, deploy the standalone folder
-    baseDirectory: deal-library-amplify-app/.next/standalone
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - deal-library-amplify-app/node_modules/**/*
-      - deal-library-amplify-app/.next/cache/**/*
+applications:
+  - appRoot: deal-library-amplify-app
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - echo "=== Build Environment ==="
+            - echo "Root workspace: $AMPLIFY_MONOREPO_APP_ROOT"
+            - echo "PWD=$(pwd)"
+            - node -v
+            - npm -v
+            - npm ci
+        build:
+          commands:
+            - echo "Building Next.js app in $(pwd)"
+            - npm run build
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*

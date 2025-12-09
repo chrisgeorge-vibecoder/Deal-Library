@@ -1,0 +1,80 @@
+# Alternative amplify.yml without appRoot
+# Requires manual creation of .amplify-hosting structure
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - echo "=== Build Environment ==="
+        - echo "PWD=$(pwd)"
+        - node -v
+        - npm -v
+        - cd deal-library-amplify-app && npm ci
+    build:
+      commands:
+        - cd deal-library-amplify-app && npm run build
+        # Create Amplify hosting structure manually
+        - |
+          cd deal-library-amplify-app
+          mkdir -p .amplify-hosting/compute/default
+          mkdir -p .amplify-hosting/static
+          
+          # Copy static assets
+          cp -r public/* .amplify-hosting/static/ 2>/dev/null || true
+          cp -r .next/static .amplify-hosting/static/_next/
+          
+          # Copy server files
+          cp -r .next/standalone/* .amplify-hosting/compute/default/
+          cp -r .next/static .amplify-hosting/compute/default/.next/
+          
+          # Create deploy manifest
+          cat > .amplify-hosting/deploy-manifest.json << 'EOF'
+          {
+            "version": 1,
+            "routes": [
+              {
+                "path": "/_next/static/*",
+                "target": {
+                  "kind": "Static"
+                }
+              },
+              {
+                "path": "/*.*",
+                "target": {
+                  "kind": "Static"
+                },
+                "fallback": {
+                  "kind": "Compute",
+                  "src": "default"
+                }
+              },
+              {
+                "path": "/*",
+                "target": {
+                  "kind": "Compute",
+                  "src": "default"
+                }
+              }
+            ],
+            "computeResources": [
+              {
+                "name": "default",
+                "entrypoint": "server.js",
+                "runtime": "nodejs18.x"
+              }
+            ],
+            "framework": {
+              "name": "next",
+              "version": "14.2.7"
+            }
+          }
+          EOF
+  artifacts:
+    baseDirectory: deal-library-amplify-app/.amplify-hosting
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - deal-library-amplify-app/node_modules/**/*
+      - deal-library-amplify-app/.next/cache/**/*
+

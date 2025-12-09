@@ -2,9 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
   
-  // Standalone output for minimal deployment size (required for Amplify)
-  output: 'standalone',
-  
   // Skip type checking during build for faster deployments
   typescript: {
     ignoreBuildErrors: true,

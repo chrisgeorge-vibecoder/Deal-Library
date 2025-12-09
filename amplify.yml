@@ -1,74 +1,15 @@
 version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - echo "=== Build Environment ==="
-        - echo "PWD=$(pwd)"
-        - node -v
-        - npm -v
-        - |
-          echo "Installing dependencies..."
-          cd deal-library-amplify-app
-          npm ci
-    build:
-      commands:
-        - |
-          echo "=== Starting Build Phase ==="
-          cd deal-library-amplify-app
-          echo "Now in: $(pwd)"
-          
-          # Build the Next.js app (standalone mode creates minimal output)
-          echo "Building Next.js app in standalone mode..."
-          npm run build
-          
-          # Create Amplify hosting structure
-          echo "Creating .amplify-hosting directory structure..."
-          mkdir -p .amplify-hosting/compute/default
-          mkdir -p .amplify-hosting/static/_next
-          
-          # Copy static assets from public
-          if [ -d "public" ]; then
-            cp -r public/* .amplify-hosting/static/ 2>/dev/null || true
-            echo "Public assets copied"
-          fi
-          
-          # Copy Next.js static files
-          if [ -d ".next/static" ]; then
-            cp -r .next/static .amplify-hosting/static/_next/
-            echo "Next.js static files copied"
-          fi
-          
-          # Copy standalone output (includes minimal node_modules)
-          cp -r .next/standalone/* .amplify-hosting/compute/default/
-          echo "Standalone output copied"
-          
-          # Copy static files to standalone (required for standalone mode)
-          mkdir -p .amplify-hosting/compute/default/.next
-          cp -r .next/static .amplify-hosting/compute/default/.next/
-          echo "Static files copied to standalone"
-          
-          # Copy public folder to standalone
-          if [ -d "public" ]; then
-            cp -r public .amplify-hosting/compute/default/
-            echo "Public folder copied to standalone"
-          fi
-          
-          # Create deploy-manifest.json
-          echo '{"version":1,"routes":[{"path":"/_next/static/*","target":{"kind":"Static"}},{"path":"/favicon.ico","target":{"kind":"Static"}},{"path":"/*","target":{"kind":"Compute","src":"default"}}],"computeResources":[{"name":"default","entrypoint":"server.js","runtime":"nodejs22.x"}],"framework":{"name":"next","version":"14.2.7"}}' > .amplify-hosting/deploy-manifest.json
-          echo "deploy-manifest.json created"
-          
-          # Show sizes
-          echo "=== Build output sizes ==="
-          du -sh .amplify-hosting/
-          du -sh .amplify-hosting/compute/default/
-          
-          echo "Build complete!"
-  artifacts:
-    baseDirectory: deal-library-amplify-app/.amplify-hosting
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - deal-library-amplify-app/node_modules/**/*
-      - deal-library-amplify-app/.next/cache/**/*
+applications:
+  - appRoot: deal-library-amplify-app
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*

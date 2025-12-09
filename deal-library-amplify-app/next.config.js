@@ -63,7 +63,7 @@ const nextConfig = {
       "img-src 'self' data: https:",
       isDev
         ? "connect-src 'self' http://localhost:3001 http://localhost:3002 ws: http: https:"
-        : "connect-src 'self' https: http://localhost:3001 http://localhost:3002",
+        : "connect-src 'self' https:",
       "font-src 'self' data: https:",
       "frame-ancestors 'self'",
     ];

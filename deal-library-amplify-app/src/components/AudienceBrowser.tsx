@@ -72,7 +72,7 @@ export default function AudienceBrowser({
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch('http://localhost:3002/api/audiences/browse');
+        const response = await fetch('/api/audiences/browse');
         
         if (!response.ok) {
           throw new Error(`Failed to load audiences: ${response.statusText}`);
@@ -167,7 +167,7 @@ export default function AudienceBrowser({
     setSearchLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:3002/api/audiences/search', {
+      const response = await fetch('/api/audiences/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

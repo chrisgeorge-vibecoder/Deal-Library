@@ -30,7 +30,7 @@ interface ResearchLibraryProps {
   isSaved?: (cardId: string) => boolean;
 }
 
-export default function ResearchLibrary({ apiBaseUrl = 'http://localhost:3002', onSaveCard, onUnsaveCard, isSaved }: ResearchLibraryProps) {
+export default function ResearchLibrary({ apiBaseUrl = '', onSaveCard, onUnsaveCard, isSaved }: ResearchLibraryProps) {
   const [studies, setStudies] = useState<ResearchStudy[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

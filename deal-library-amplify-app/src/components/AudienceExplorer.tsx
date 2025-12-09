@@ -286,7 +286,7 @@ export default function AudienceExplorer({
           // Load all deals if not already loaded
           let dealsToFilter = allDeals;
           if (allDeals.length === 0) {
-            const dealsResponse = await fetch('http://localhost:3002/api/deals');
+            const dealsResponse = await fetch('/api/deals');
             if (dealsResponse.ok) {
               const dealsData = await dealsResponse.json();
               if (dealsData.deals && dealsData.deals.length > 0) {
@@ -307,7 +307,7 @@ export default function AudienceExplorer({
           
         case 'personas':
           try {
-            const personasResponse = await fetch('http://localhost:3002/api/personas');
+            const personasResponse = await fetch('/api/personas');
             if (personasResponse.ok) {
               const personasData = await personasResponse.json();
               console.log(`🎭 Loaded ${personasData.length} personas from API`);
@@ -393,7 +393,7 @@ export default function AudienceExplorer({
             const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
             
             const query = getQueryForSubcategory(subcategory, audienceFilter);
-            const insightsResponse = await fetch('http://localhost:3002/api/audience-insights', {
+            const insightsResponse = await fetch('/api/audience-insights', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -453,7 +453,7 @@ export default function AudienceExplorer({
             const query = getQueryForSubcategory(subcategory, audienceFilter);
             console.log(`📊 Market sizing query: "${query}"`);
             
-            const sizingResponse = await fetch('http://localhost:3002/api/market-sizing', {
+            const sizingResponse = await fetch('/api/market-sizing', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -508,7 +508,7 @@ export default function AudienceExplorer({
           try {
             // Generate AI-powered geographic insights
             const query = getQueryForSubcategory(subcategory, audienceFilter);
-            const geoResponse = await fetch('http://localhost:3002/api/geographic-insights', {
+            const geoResponse = await fetch('/api/geographic-insights', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -551,7 +551,7 @@ export default function AudienceExplorer({
           }
           try {
             const companyName = audienceFilter.trim();
-            const swotResponse = await fetch('http://localhost:3002/api/marketing-swot', {
+            const swotResponse = await fetch('/api/marketing-swot', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ companyName }),
@@ -601,7 +601,7 @@ export default function AudienceExplorer({
           }
           try {
             const stockSymbol = audienceFilter.trim();
-            const profileResponse = await fetch('http://localhost:3002/api/company-profile', {
+            const profileResponse = await fetch('/api/company-profile', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ stockSymbol }),
@@ -647,7 +647,7 @@ export default function AudienceExplorer({
         case 'marketing-news':
           try {
             console.log('📰 Attempting to fetch marketing news...');
-            const newsResponse = await fetch('http://localhost:3002/api/marketing-news', {
+            const newsResponse = await fetch('/api/marketing-news', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({}),
@@ -742,7 +742,7 @@ export default function AudienceExplorer({
           }
           try {
             const query = audienceFilter.trim();
-            const response = await fetch('http://localhost:3002/api/competitive-intelligence', {
+            const response = await fetch('/api/competitive-intelligence', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -774,7 +774,7 @@ export default function AudienceExplorer({
           }
           try {
             const query = audienceFilter.trim();
-            const response = await fetch('http://localhost:3002/api/content-strategy', {
+            const response = await fetch('/api/content-strategy', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
@@ -806,7 +806,7 @@ export default function AudienceExplorer({
           }
           try {
             const query = audienceFilter.trim();
-            const response = await fetch('http://localhost:3002/api/brand-strategy', {
+            const response = await fetch('/api/brand-strategy', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),

@@ -83,7 +83,7 @@ export default function DealBrowser({
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch('http://localhost:3002/api/deals');
+        const response = await fetch('/api/deals');
         
         if (!response.ok) {
           throw new Error(`Failed to load deals: ${response.statusText}`);

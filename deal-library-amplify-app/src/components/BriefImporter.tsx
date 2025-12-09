@@ -26,7 +26,7 @@ export default function BriefImporter({ onImport, onCancel }: BriefImporterProps
     setParsedData(null);
 
     try {
-      const response = await fetch('http://localhost:3002/api/campaign-planner/parse-brief', {
+      const response = await fetch('/api/campaign-planner/parse-brief', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

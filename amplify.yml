@@ -5,35 +5,29 @@ frontend:
       commands:
         - echo "=== Build Environment ==="
         - echo "PWD=$(pwd)"
-        - ls -la
         - node -v
         - npm -v
         - |
           echo "Installing dependencies..."
           cd deal-library-amplify-app
-          pwd
           npm ci
     build:
       commands:
         - |
           echo "=== Starting Build Phase ==="
-          echo "Current directory: $(pwd)"
-          ls -la
-          
-          # Navigate to app directory
           cd deal-library-amplify-app
           echo "Now in: $(pwd)"
           
-          # Build the Next.js app
-          echo "Building Next.js app..."
+          # Build the Next.js app (standalone mode creates minimal output)
+          echo "Building Next.js app in standalone mode..."
           npm run build
           
-          # Create Amplify hosting structure for SSR deployment
+          # Create Amplify hosting structure
           echo "Creating .amplify-hosting directory structure..."
           mkdir -p .amplify-hosting/compute/default
           mkdir -p .amplify-hosting/static/_next
           
-          # Copy static assets
+          # Copy static assets from public
           if [ -d "public" ]; then
             cp -r public/* .amplify-hosting/static/ 2>/dev/null || true
             echo "Public assets copied"
@@ -45,54 +39,30 @@ frontend:
             echo "Next.js static files copied"
           fi
           
-          # Copy the entire .next directory for SSR
-          cp -r .next .amplify-hosting/compute/default/
-          echo ".next directory copied"
+          # Copy standalone output (includes minimal node_modules)
+          cp -r .next/standalone/* .amplify-hosting/compute/default/
+          echo "Standalone output copied"
           
-          # Copy node_modules needed for runtime
-          cp -r node_modules .amplify-hosting/compute/default/
-          echo "node_modules copied"
+          # Copy static files to standalone (required for standalone mode)
+          mkdir -p .amplify-hosting/compute/default/.next
+          cp -r .next/static .amplify-hosting/compute/default/.next/
+          echo "Static files copied to standalone"
           
-          # Copy package.json for runtime
-          cp package.json .amplify-hosting/compute/default/
-          echo "package.json copied"
+          # Copy public folder to standalone
+          if [ -d "public" ]; then
+            cp -r public .amplify-hosting/compute/default/
+            echo "Public folder copied to standalone"
+          fi
           
-          # Create server.js using echo commands to avoid YAML parsing issues
-          echo "const { createServer } = require('http');" > .amplify-hosting/compute/default/server.js
-          echo "const { parse } = require('url');" >> .amplify-hosting/compute/default/server.js
-          echo "const next = require('next');" >> .amplify-hosting/compute/default/server.js
-          echo "" >> .amplify-hosting/compute/default/server.js
-          echo "const dev = false;" >> .amplify-hosting/compute/default/server.js
-          echo "const hostname = '0.0.0.0';" >> .amplify-hosting/compute/default/server.js
-          echo "const port = parseInt(process.env.PORT, 10) || 3000;" >> .amplify-hosting/compute/default/server.js
-          echo "" >> .amplify-hosting/compute/default/server.js
-          echo "const app = next({ dev, hostname, port, dir: __dirname });" >> .amplify-hosting/compute/default/server.js
-          echo "const handle = app.getRequestHandler();" >> .amplify-hosting/compute/default/server.js
-          echo "" >> .amplify-hosting/compute/default/server.js
-          echo "app.prepare().then(() => {" >> .amplify-hosting/compute/default/server.js
-          echo "  createServer(async (req, res) => {" >> .amplify-hosting/compute/default/server.js
-          echo "    try {" >> .amplify-hosting/compute/default/server.js
-          echo "      const parsedUrl = parse(req.url, true);" >> .amplify-hosting/compute/default/server.js
-          echo "      await handle(req, res, parsedUrl);" >> .amplify-hosting/compute/default/server.js
-          echo "    } catch (err) {" >> .amplify-hosting/compute/default/server.js
-          echo "      console.error('Error occurred handling', req.url, err);" >> .amplify-hosting/compute/default/server.js
-          echo "      res.statusCode = 500;" >> .amplify-hosting/compute/default/server.js
-          echo "      res.end('internal server error');" >> .amplify-hosting/compute/default/server.js
-          echo "    }" >> .amplify-hosting/compute/default/server.js
-          echo "  }).listen(port, (err) => {" >> .amplify-hosting/compute/default/server.js
-          echo "    if (err) throw err;" >> .amplify-hosting/compute/default/server.js
-          echo "    console.log('> Ready on http://' + hostname + ':' + port);" >> .amplify-hosting/compute/default/server.js
-          echo "  });" >> .amplify-hosting/compute/default/server.js
-          echo "});" >> .amplify-hosting/compute/default/server.js
-          echo "server.js created"
-          
-          # Create deploy-manifest.json with nodejs22.x runtime (nodejs18.x is no longer supported)
+          # Create deploy-manifest.json
           echo '{"version":1,"routes":[{"path":"/_next/static/*","target":{"kind":"Static"}},{"path":"/favicon.ico","target":{"kind":"Static"}},{"path":"/*","target":{"kind":"Compute","src":"default"}}],"computeResources":[{"name":"default","entrypoint":"server.js","runtime":"nodejs22.x"}],"framework":{"name":"next","version":"14.2.7"}}' > .amplify-hosting/deploy-manifest.json
           echo "deploy-manifest.json created"
           
-          echo "=== .amplify-hosting structure ==="
-          ls -la .amplify-hosting/
-          ls -la .amplify-hosting/compute/default/ | head -10
+          # Show sizes
+          echo "=== Build output sizes ==="
+          du -sh .amplify-hosting/
+          du -sh .amplify-hosting/compute/default/
+          
           echo "Build complete!"
   artifacts:
     baseDirectory: deal-library-amplify-app/.amplify-hosting

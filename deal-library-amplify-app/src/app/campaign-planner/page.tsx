@@ -7,7 +7,7 @@ import CampaignPlannerResults from '@/components/CampaignPlannerResults';
 import AgentProgressTracker from '@/components/AgentProgressTracker';
 import { ProgressUpdate, ComprehensiveReport } from '@/types/agentMode';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export default function CampaignPlannerPage() {
   const [isGenerating, setIsGenerating] = useState(false);

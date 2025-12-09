@@ -18,7 +18,7 @@ import MarketComparison from '@/components/MarketComparison';
 import MarketFiltersPanel, { MarketFilters } from '@/components/MarketFiltersPanel';
 import { TrendingUp, List, Map, GitCompare, Download, Share2 } from 'lucide-react';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 function MarketInsightsContent() {
   const searchParams = useSearchParams();

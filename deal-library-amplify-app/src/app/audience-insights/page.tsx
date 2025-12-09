@@ -128,7 +128,7 @@ export default function AudienceInsightsPage() {
     // Test backend connectivity
     const testBackendConnection = async () => {
       try {
-        const response = await fetch('http://localhost:3002/api/audience-geo-analysis/segments');
+        const response = await fetch('/api/audience-geo-analysis/segments');
         if (response.ok) {
           console.log('✅ Backend connection successful');
         } else {
@@ -392,14 +392,14 @@ export default function AudienceInsightsPage() {
         
         // First, ensure commerce data is loaded
         try {
-          const statusResponse = await fetch('http://localhost:3002/api/commerce-audiences/status');
+          const statusResponse = await fetch('/api/commerce-audiences/status');
           if (statusResponse.ok) {
             const statusData = await statusResponse.json();
             console.log('📊 Commerce data status:', statusData);
             
             if (!statusData.isLoaded || statusData.totalRecords === 0) {
               console.log('🔄 Commerce data not loaded, attempting to load...');
-              const loadResponse = await fetch('http://localhost:3002/api/commerce-audiences/load', {
+              const loadResponse = await fetch('/api/commerce-audiences/load', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
               });
@@ -420,7 +420,7 @@ export default function AudienceInsightsPage() {
         
         // Try the primary endpoint first
         try {
-          const response = await fetch('http://localhost:3002/api/audience-geo-analysis/segments');
+          const response = await fetch('/api/audience-geo-analysis/segments');
           
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -433,7 +433,7 @@ export default function AudienceInsightsPage() {
           
           // Try fallback endpoint
           try {
-            const fallbackResponse = await fetch('http://localhost:3002/api/commerce-audiences/segments');
+            const fallbackResponse = await fetch('/api/commerce-audiences/segments');
             if (fallbackResponse.ok) {
               data = await fallbackResponse.json();
               console.log('📡 Backend response (fallback endpoint):', data);
@@ -495,7 +495,7 @@ export default function AudienceInsightsPage() {
         
         // Fallback: try to get all segments from backend
         try {
-          const response = await fetch('http://localhost:3002/api/commerce-audiences/segments');
+          const response = await fetch('/api/commerce-audiences/segments');
           if (response.ok) {
             const data = await response.json();
             if (data.success && Array.isArray(data.segments)) {
@@ -644,7 +644,7 @@ export default function AudienceInsightsPage() {
     try {
       console.log('🔍 [DEBUG] Generating report for:', { selectedCategory, selectedSegment });
       
-      const response = await fetch('http://localhost:3002/api/audience-insights/generate', {
+      const response = await fetch('/api/audience-insights/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

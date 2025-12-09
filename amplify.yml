@@ -3,20 +3,154 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "Node version:"
-        - node --version
-        - echo "NPM version:"
-        - npm --version
-        - echo "Current directory:"
-        - pwd
-        - echo "Installing dependencies..."
+        - echo "=== Build Environment ==="
+        - echo "PWD=$(pwd)"
+        - node -v
+        - npm -v
         - cd deal-library-frontend && npm ci
     build:
       commands:
-        - echo "Building application..."
         - cd deal-library-frontend && npm run build
+        # Create Amplify hosting structure for SSR deployment
+        - |
+          cd deal-library-frontend
+          echo "Creating .amplify-hosting directory structure..."
+          mkdir -p .amplify-hosting/compute/default
+          mkdir -p .amplify-hosting/static/_next
+          
+          # Copy static assets
+          if [ -d "public" ]; then
+            cp -r public/* .amplify-hosting/static/ 2>/dev/null || true
+          fi
+          
+          # Copy Next.js static files
+          if [ -d ".next/static" ]; then
+            cp -r .next/static .amplify-hosting/static/_next/
+          fi
+          
+          # Copy the entire .next directory for SSR
+          cp -r .next .amplify-hosting/compute/default/
+          
+          # Copy node_modules needed for runtime
+          cp -r node_modules .amplify-hosting/compute/default/
+          
+          # Copy package.json for runtime
+          cp package.json .amplify-hosting/compute/default/
+          
+          # Create the server entry point
+          cat > .amplify-hosting/compute/default/server.js << 'SERVEREOF'
+          const { createServer } = require('http');
+          const { parse } = require('url');
+          const next = require('next');
+          
+          const dev = false;
+          const hostname = '0.0.0.0';
+          const port = parseInt(process.env.PORT, 10) || 3000;
+          
+          const app = next({ dev, hostname, port, dir: __dirname });
+          const handle = app.getRequestHandler();
+          
+          app.prepare().then(() => {
+            createServer(async (req, res) => {
+              try {
+                const parsedUrl = parse(req.url, true);
+                await handle(req, res, parsedUrl);
+              } catch (err) {
+                console.error('Error occurred handling', req.url, err);
+                res.statusCode = 500;
+                res.end('internal server error');
+              }
+            }).listen(port, (err) => {
+              if (err) throw err;
+              console.log(`> Ready on http://${hostname}:${port}`);
+            });
+          });
+          SERVEREOF
+          
+          # Create deploy manifest for Amplify
+          cat > .amplify-hosting/deploy-manifest.json << 'MANIFESTEOF'
+          {
+            "version": 1,
+            "routes": [
+              {
+                "path": "/_next/static/*",
+                "target": {
+                  "kind": "Static"
+                }
+              },
+              {
+                "path": "/favicon.ico",
+                "target": {
+                  "kind": "Static"
+                }
+              },
+              {
+                "path": "/*.ico",
+                "target": {
+                  "kind": "Static"
+                },
+                "fallback": {
+                  "kind": "Compute",
+                  "src": "default"
+                }
+              },
+              {
+                "path": "/*.svg",
+                "target": {
+                  "kind": "Static"
+                },
+                "fallback": {
+                  "kind": "Compute",
+                  "src": "default"
+                }
+              },
+              {
+                "path": "/*.jpg",
+                "target": {
+                  "kind": "Static"
+                },
+                "fallback": {
+                  "kind": "Compute",
+                  "src": "default"
+                }
+              },
+              {
+                "path": "/*.png",
+                "target": {
+                  "kind": "Static"
+                },
+                "fallback": {
+                  "kind": "Compute",
+                  "src": "default"
+                }
+              },
+              {
+                "path": "/*",
+                "target": {
+                  "kind": "Compute",
+                  "src": "default"
+                }
+              }
+            ],
+            "computeResources": [
+              {
+                "name": "default",
+                "entrypoint": "server.js",
+                "runtime": "nodejs18.x"
+              }
+            ],
+            "framework": {
+              "name": "next",
+              "version": "14.2.7"
+            }
+          }
+          MANIFESTEOF
+          
+          echo "✅ .amplify-hosting structure created successfully"
+          ls -la .amplify-hosting/
+          ls -la .amplify-hosting/compute/default/ | head -20
   artifacts:
-    baseDirectory: deal-library-frontend/.next
+    baseDirectory: deal-library-frontend/.amplify-hosting
     files:
       - '**/*'
   cache:

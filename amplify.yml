@@ -36,102 +36,64 @@ frontend:
           # Copy static assets
           if [ -d "public" ]; then
             cp -r public/* .amplify-hosting/static/ 2>/dev/null || true
-            echo "✓ Public assets copied"
+            echo "Public assets copied"
           fi
           
           # Copy Next.js static files
           if [ -d ".next/static" ]; then
             cp -r .next/static .amplify-hosting/static/_next/
-            echo "✓ Next.js static files copied"
+            echo "Next.js static files copied"
           fi
           
           # Copy the entire .next directory for SSR
           cp -r .next .amplify-hosting/compute/default/
-          echo "✓ .next directory copied"
+          echo ".next directory copied"
           
           # Copy node_modules needed for runtime
           cp -r node_modules .amplify-hosting/compute/default/
-          echo "✓ node_modules copied"
+          echo "node_modules copied"
           
           # Copy package.json for runtime
           cp package.json .amplify-hosting/compute/default/
-          echo "✓ package.json copied"
+          echo "package.json copied"
           
-          # Create the server entry point
-          cat > .amplify-hosting/compute/default/server.js << 'SERVEREOF'
-const { createServer } = require('http');
-const { parse } = require('url');
-const next = require('next');
-
-const dev = false;
-const hostname = '0.0.0.0';
-const port = parseInt(process.env.PORT, 10) || 3000;
-
-const app = next({ dev, hostname, port, dir: __dirname });
-const handle = app.getRequestHandler();
-
-app.prepare().then(() => {
-  createServer(async (req, res) => {
-    try {
-      const parsedUrl = parse(req.url, true);
-      await handle(req, res, parsedUrl);
-    } catch (err) {
-      console.error('Error occurred handling', req.url, err);
-      res.statusCode = 500;
-      res.end('internal server error');
-    }
-  }).listen(port, (err) => {
-    if (err) throw err;
-    console.log(`> Ready on http://${hostname}:${port}`);
-  });
-});
-SERVEREOF
-          echo "✓ server.js created"
+          # Create server.js using echo commands to avoid YAML parsing issues
+          echo "const { createServer } = require('http');" > .amplify-hosting/compute/default/server.js
+          echo "const { parse } = require('url');" >> .amplify-hosting/compute/default/server.js
+          echo "const next = require('next');" >> .amplify-hosting/compute/default/server.js
+          echo "" >> .amplify-hosting/compute/default/server.js
+          echo "const dev = false;" >> .amplify-hosting/compute/default/server.js
+          echo "const hostname = '0.0.0.0';" >> .amplify-hosting/compute/default/server.js
+          echo "const port = parseInt(process.env.PORT, 10) || 3000;" >> .amplify-hosting/compute/default/server.js
+          echo "" >> .amplify-hosting/compute/default/server.js
+          echo "const app = next({ dev, hostname, port, dir: __dirname });" >> .amplify-hosting/compute/default/server.js
+          echo "const handle = app.getRequestHandler();" >> .amplify-hosting/compute/default/server.js
+          echo "" >> .amplify-hosting/compute/default/server.js
+          echo "app.prepare().then(() => {" >> .amplify-hosting/compute/default/server.js
+          echo "  createServer(async (req, res) => {" >> .amplify-hosting/compute/default/server.js
+          echo "    try {" >> .amplify-hosting/compute/default/server.js
+          echo "      const parsedUrl = parse(req.url, true);" >> .amplify-hosting/compute/default/server.js
+          echo "      await handle(req, res, parsedUrl);" >> .amplify-hosting/compute/default/server.js
+          echo "    } catch (err) {" >> .amplify-hosting/compute/default/server.js
+          echo "      console.error('Error occurred handling', req.url, err);" >> .amplify-hosting/compute/default/server.js
+          echo "      res.statusCode = 500;" >> .amplify-hosting/compute/default/server.js
+          echo "      res.end('internal server error');" >> .amplify-hosting/compute/default/server.js
+          echo "    }" >> .amplify-hosting/compute/default/server.js
+          echo "  }).listen(port, (err) => {" >> .amplify-hosting/compute/default/server.js
+          echo "    if (err) throw err;" >> .amplify-hosting/compute/default/server.js
+          echo "    console.log('> Ready on http://' + hostname + ':' + port);" >> .amplify-hosting/compute/default/server.js
+          echo "  });" >> .amplify-hosting/compute/default/server.js
+          echo "});" >> .amplify-hosting/compute/default/server.js
+          echo "server.js created"
           
-          # Create deploy manifest for Amplify
-          cat > .amplify-hosting/deploy-manifest.json << 'MANIFESTEOF'
-{
-  "version": 1,
-  "routes": [
-    {
-      "path": "/_next/static/*",
-      "target": {
-        "kind": "Static"
-      }
-    },
-    {
-      "path": "/favicon.ico",
-      "target": {
-        "kind": "Static"
-      }
-    },
-    {
-      "path": "/*",
-      "target": {
-        "kind": "Compute",
-        "src": "default"
-      }
-    }
-  ],
-  "computeResources": [
-    {
-      "name": "default",
-      "entrypoint": "server.js",
-      "runtime": "nodejs18.x"
-    }
-  ],
-  "framework": {
-    "name": "next",
-    "version": "14.2.7"
-  }
-}
-MANIFESTEOF
-          echo "✓ deploy-manifest.json created"
+          # Create deploy-manifest.json
+          echo '{"version":1,"routes":[{"path":"/_next/static/*","target":{"kind":"Static"}},{"path":"/favicon.ico","target":{"kind":"Static"}},{"path":"/*","target":{"kind":"Compute","src":"default"}}],"computeResources":[{"name":"default","entrypoint":"server.js","runtime":"nodejs18.x"}],"framework":{"name":"next","version":"14.2.7"}}' > .amplify-hosting/deploy-manifest.json
+          echo "deploy-manifest.json created"
           
           echo "=== .amplify-hosting structure ==="
           ls -la .amplify-hosting/
           ls -la .amplify-hosting/compute/default/ | head -10
-          echo "✅ Build complete!"
+          echo "Build complete!"
   artifacts:
     baseDirectory: deal-library-amplify-app/.amplify-hosting
     files:

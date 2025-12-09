@@ -86,8 +86,8 @@ frontend:
           echo "});" >> .amplify-hosting/compute/default/server.js
           echo "server.js created"
           
-          # Create deploy-manifest.json
-          echo '{"version":1,"routes":[{"path":"/_next/static/*","target":{"kind":"Static"}},{"path":"/favicon.ico","target":{"kind":"Static"}},{"path":"/*","target":{"kind":"Compute","src":"default"}}],"computeResources":[{"name":"default","entrypoint":"server.js","runtime":"nodejs18.x"}],"framework":{"name":"next","version":"14.2.7"}}' > .amplify-hosting/deploy-manifest.json
+          # Create deploy-manifest.json with nodejs22.x runtime (nodejs18.x is no longer supported)
+          echo '{"version":1,"routes":[{"path":"/_next/static/*","target":{"kind":"Static"}},{"path":"/favicon.ico","target":{"kind":"Static"}},{"path":"/*","target":{"kind":"Compute","src":"default"}}],"computeResources":[{"name":"default","entrypoint":"server.js","runtime":"nodejs22.x"}],"framework":{"name":"next","version":"14.2.7"}}' > .amplify-hosting/deploy-manifest.json
           echo "deploy-manifest.json created"
           
           echo "=== .amplify-hosting structure ==="

@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { AppsScriptService } from '../services/appsScriptService';
 import { GeminiService, GeminiSearchResult } from '../services/geminiService';
-import { EmbeddingService } from '../services/embeddingService';
-import { HybridSearchService } from '../services/hybridSearchService';
+// NOTE: EmbeddingService uses native modules (faiss-node, @xenova/transformers) 
+// that may not work in serverless environments. Import dynamically instead.
+// import { EmbeddingService } from '../services/embeddingService';
+// import { HybridSearchService } from '../services/hybridSearchService';
 import { PersonaService } from '../services/personaService';
 import { CensusDataService } from '../services/censusDataService';
 import { commerceAudienceService } from '../services/commerceAudienceService';
@@ -19,11 +21,12 @@ import { cacheService } from '../services/cacheService';
 export class DealsController {
   private appsScriptService: AppsScriptService;
   private geminiService: GeminiService | null = null;
-  private embeddingService: EmbeddingService | null = null;
-  private hybridSearchService: HybridSearchService | null = null;
+  private embeddingService: any = null; // Dynamic import - may not be available in serverless
+  private hybridSearchService: any = null; // Dynamic import - may not be available in serverless
   private personaService: PersonaService;
   private censusDataService: CensusDataService;
   private agentModeService: AgentModeService | null = null;
+  private embeddingServiceInitialized: boolean = false;
 
   constructor() {
     this.appsScriptService = new AppsScriptService();
@@ -46,15 +49,35 @@ export class DealsController {
       this.agentModeService = null;
     }
 
-    // Initialize embedding service
+    // NOTE: Embedding service initialization moved to lazy loading
+    // Native modules (faiss-node, @xenova/transformers) don't work in serverless
+    console.log('ℹ️  Vector embeddings service will be initialized on-demand (if available)');
+  }
+
+  /**
+   * Lazily initialize embedding service (native modules may not work in serverless)
+   */
+  private async initializeEmbeddingService(): Promise<boolean> {
+    if (this.embeddingServiceInitialized) {
+      return this.embeddingService !== null;
+    }
+    
+    this.embeddingServiceInitialized = true;
+    
     try {
+      // Dynamic import to avoid loading native modules at startup
+      const { EmbeddingService } = await import('../services/embeddingService');
+      const { HybridSearchService } = await import('../services/hybridSearchService');
+      
       this.embeddingService = new EmbeddingService();
       this.hybridSearchService = new HybridSearchService(this.embeddingService, this.geminiService || undefined);
-      console.log('✅ Vector embeddings service initialized');
+      console.log('✅ Vector embeddings service initialized (lazy)');
+      return true;
     } catch (error) {
-      console.log('⚠️  Vector embeddings service not available:', error);
+      console.log('⚠️  Vector embeddings service not available (serverless environment):', error instanceof Error ? error.message : error);
       this.embeddingService = null;
       this.hybridSearchService = null;
+      return false;
     }
   }
 

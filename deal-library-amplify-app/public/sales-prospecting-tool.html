@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovrn Sales Prospecting Tool - 199 Audience Segments</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: transparent; /* Confluence-friendly: no background */
+            padding: 10px; /* Minimal padding for iframe embedding */
+            min-height: 100vh;
+            overflow-y: auto; /* Ensure scrolling works */
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #FFD42B 0%, #FF9A00 100%);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #282828;
+            margin-bottom: 8px;
+            font-size: 1.8em;
+        }
+        
+        .header p {
+            color: #282828;
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        
+        .tool-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .panel h2 {
+            color: #282828;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #FFD42B;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #282828;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .form-group select:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #FFD42B;
+        }
+        
+        #category-select {
+            font-weight: 600;
+            color: #282828;
+        }
+        
+        #segment-select {
+            min-height: 45px;
+        }
+        
+        .overlap-options {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .overlap-option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .overlap-option:hover {
+            border-color: #FFD42B;
+            background: #fffbf0;
+        }
+        
+        .overlap-option.selected {
+            border-color: #FF9A00;
+            background: linear-gradient(135deg, #fff7e6 0%, #ffe6cc 100%);
+            font-weight: 600;
+        }
+        
+        .overlap-name {
+            font-size: 15px;
+            color: #282828;
+        }
+        
+        .overlap-percent {
+            font-size: 18px;
+            font-weight: 700;
+            color: #FF9A00;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #FFD42B 0%, #FF9A00 100%);
+            color: #282828;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 154, 0, 0.4);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #preview-card {
+            text-align: center;
+            min-height: 450px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .placeholder {
+            color: #999;
+            font-size: 16px;
+        }
+        
+        .download-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #D45087 0%, #2F4A7C 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .email-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .email-tab {
+            flex: 1;
+            padding: 10px 15px;
+            background: #f0f0f0;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .email-tab:hover {
+            background: #fffbf0;
+            border-color: #FFD42B;
+        }
+        
+        .email-tab.active {
+            background: linear-gradient(135deg, #FFD42B 0%, #FF9A00 100%);
+            border-color: #FF9A00;
+            color: #282828;
+        }
+        
+        .email-template {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #FFD42B;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #282828;
+            white-space: pre-wrap;
+            margin-top: 15px;
+        }
+        
+        .copy-btn {
+            width: 100%;
+            padding: 12px;
+            background: #2F4A7C;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background: #1e3050;
+        }
+        
+        .brands-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .brands-list li {
+            padding: 12px 15px 12px 40px;
+            background: #f9f9f9;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 3px solid #FFD42B;
+            font-size: 14px;
+            color: #282828;
+            position: relative;
+            transition: background 0.2s;
+        }
+        
+        .brands-list li:hover {
+            background: #fff7e6;
+        }
+        
+        .brands-list li::before {
+            content: "☐";
+            position: absolute;
+            left: 15px;
+            font-size: 16px;
+            color: #FFD42B;
+            font-weight: bold;
+        }
+        
+        .deals-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .deals-list li {
+            padding: 15px;
+            background: #f9f9f9;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #2F4A7C;
+            transition: background 0.2s;
+        }
+        
+        .deals-list li:hover {
+            background: #e8f4f8;
+        }
+        
+        .deal-id {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2F4A7C;
+            margin-bottom: 5px;
+        }
+        
+        .deal-name {
+            font-size: 14px;
+            color: #282828;
+            margin-bottom: 5px;
+        }
+        
+        .deal-targeting {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .deal-cpm {
+            display: inline-block;
+            background: #d4e8d4;
+            color: #2d5016;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        
+        .info-badge {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 1024px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Sovrn Sales Prospecting Tool</h1>
+            <p>Generate custom audience infographics, email templates, and brand recommendations in seconds</p>
+        </div>
+        
+        <div class="tool-container">
+            <!-- Left Panel: Input -->
+            <div class="panel">
+                <h2>1. Select Your Audience</h2>
+                
+                <div class="form-group">
+                    <label for="category-select">Step 1: Select Category</label>
+                    <select id="category-select">
+                        <option value="">Choose a category...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="segment-select">Step 2: Select Audience Segment</label>
+                    <select id="segment-select" disabled>
+                        <option value="">Select a category first...</option>
+                    </select>
+                </div>
+                
+                <div id="overlap-section" class="hidden">
+                    <div class="form-group">
+                        <label>Top 5 Overlapping Products <span class="info-badge">Select One</span></label>
+                        <div id="overlap-options" class="overlap-options">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                    
+                    <button id="generate-btn" class="generate-btn" disabled>
+                        🎨 Generate Infographic & Email
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Preview -->
+            <div class="panel">
+                <h2>2. Your Infographic</h2>
+                <div id="preview-card">
+                    <p class="placeholder">👆 Select a segment and overlap product to generate your infographic</p>
+                </div>
+                <button id="download-btn" class="download-btn hidden">
+                    📥 Download as JPG
+                </button>
+            </div>
+        </div>
+        
+        <!-- Bottom Panels -->
+        <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <!-- Email Template -->
+            <div class="panel">
+                <h2>3. Your Prospecting Email</h2>
+                <div id="email-container" class="hidden">
+                    <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                        Choose your email style (A/B test these!)
+                    </p>
+                    <div class="email-selector">
+                        <div class="email-tab active" data-template="data-driven">📊 Data-Driven</div>
+                        <div class="email-tab" data-template="question">❓ Question Hook</div>
+                        <div class="email-tab" data-template="casual">💬 Casual</div>
+                    </div>
+                    <div id="email-template" class="email-template"></div>
+                    <button id="copy-email-btn" class="copy-btn">
+                        📋 Copy Email to Clipboard
+                    </button>
+                </div>
+                <p id="email-placeholder" class="placeholder">Generate an infographic to see your custom email templates</p>
+            </div>
+            
+            <!-- Brand Recommendations -->
+            <div class="panel">
+                <h2>4. Target Brand Ideas</h2>
+                <div id="brands-container" class="hidden">
+                    <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                        <strong>Top brands to contact:</strong> Research these companies and identify the right decision-maker
+                    </p>
+                    <ul id="brands-list" class="brands-list"></ul>
+                </div>
+                <p id="brands-placeholder" class="placeholder">Brand recommendations will appear here</p>
+            </div>
+        </div>
+        
+        <!-- Relevant Deals Section -->
+        <div style="margin-top: 30px;">
+            <div class="panel">
+                <h2>5. Relevant Deal IDs</h2>
+                <div id="deals-container" class="hidden">
+                    <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                        <strong>Active deals matching this audience:</strong> Use these Deal IDs in your campaigns or reach out to the deal owners for collaboration
+                    </p>
+                    <ul id="deals-list" class="deals-list"></ul>
+                </div>
+                <p id="deals-placeholder" class="placeholder">Relevant Deal IDs will appear here after generating an infographic</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Embedded audience data (all 199 segments)
+        let audienceData = {
+  "3D Printers": {"size": "19M", "overlaps": [{"name": "Oral Care", "percent": 24}, {"name": "Outerwear", "percent": 23}, {"name": "Pet Supplies", "percent": 20}, {"name": "Sofas", "percent": 19}, {"name": "Water", "percent": 19}]},
+  "Activewear": {"size": "9M", "overlaps": [{"name": "Outerwear", "percent": 66}, {"name": "3D Printers", "percent": 55}, {"name": "Cabinets & Storage", "percent": 54}, {"name": "Shorts", "percent": 53}, {"name": "Building Materials", "percent": 52}]},
+  "Advertising & Marketing": {"size": "4M", "overlaps": [{"name": "Sporting Goods", "percent": 60}, {"name": "Shaving & Grooming", "percent": 56}, {"name": "Exercise & Fitness", "percent": 55}, {"name": "Alcoholic Beverages", "percent": 55}, {"name": "Outdoor Furniture", "percent": 54}]},
+  "Agriculture": {"size": "4M", "overlaps": [{"name": "Lawn & Garden", "percent": 45}, {"name": "Sleeping Aids", "percent": 36}, {"name": "Coffee", "percent": 31}, {"name": "Food Storage Accessories", "percent": 29}, {"name": "Food & Beverage Carriers", "percent": 29}]},
+  "Alcoholic Beverages": {"size": "19M", "overlaps": [{"name": "Athletics", "percent": 50}, {"name": "Sporting Goods", "percent": 49}, {"name": "Laptops", "percent": 42}, {"name": "Vehicles & Parts", "percent": 42}, {"name": "Shoes", "percent": 38}]},
+  "Animals & Pet Supplies": {"size": "19M", "overlaps": [{"name": "Home & Garden", "percent": 17}, {"name": "Furniture", "percent": 17}, {"name": "Outerwear", "percent": 7}, {"name": "Oral Care", "percent": 6}, {"name": "Shorts", "percent": 6}]},
+  "Antivirus & Security Software": {"size": "4M", "overlaps": [{"name": "Indoor Games", "percent": 35}, {"name": "Fitness & Nutrition", "percent": 31}, {"name": "Household Appliances", "percent": 27}, {"name": "Vision Care", "percent": 24}, {"name": "Linens & Bedding", "percent": 24}]},
+  "Arcade Equipment": {"size": "19M", "overlaps": [{"name": "Electronics Accessories", "percent": 16}, {"name": "Networking", "percent": 15}, {"name": "Fitness & Nutrition", "percent": 14}, {"name": "Luggage & Bags", "percent": 14}, {"name": "Shaving & Grooming", "percent": 11}]},
+  "Arts & Entertainment": {"size": "19M", "overlaps": [{"name": "Event Tickets", "percent": 38}, {"name": "Baby & Toddler", "percent": 34}, {"name": "Food Items", "percent": 34}, {"name": "Food Service", "percent": 32}, {"name": "Baby & Toddler", "percent": 27}]},
+  "Athletics": {"size": "19M", "overlaps": [{"name": "Laptops", "percent": 65}, {"name": "Sporting Goods", "percent": 65}, {"name": "Outdoor Recreation", "percent": 62}, {"name": "Shoes", "percent": 61}, {"name": "Alcoholic Beverages", "percent": 60}]},
+  "Audio": {"size": "19M", "overlaps": [{"name": "Tablet Computers", "percent": 27}, {"name": "Magazines & Newspapers", "percent": 23}, {"name": "Cameras & Optics", "percent": 21}, {"name": "Baby & Toddler", "percent": 18}, {"name": "Pasta & Noodles", "percent": 17}]},
+  "Baby & Toddler": {"size": "19M", "overlaps": [{"name": "Arts & Entertainment", "percent": 27}, {"name": "Food Items", "percent": 26}, {"name": "Food Service", "percent": 24}, {"name": "Nursing & Feeding", "percent": 23}, {"name": "Tablet Computers", "percent": 21}]},
+  "Baby & Toddler Clothing": {"size": "9M", "overlaps": [{"name": "Books", "percent": 66}, {"name": "Media", "percent": 63}, {"name": "Toys", "percent": 61}, {"name": "Media", "percent": 53}, {"name": "Clothing Accessories", "percent": 51}]},
+  "Baby & Toddler Furniture": {"size": "9M", "overlaps": [{"name": "Home & Garden", "percent": 38}, {"name": "Toys", "percent": 36}, {"name": "Fitness & Nutrition", "percent": 30}, {"name": "Clothing Accessories", "percent": 27}, {"name": "Toys & Games", "percent": 27}]},
+  "Baby Bathing": {"size": "9M", "overlaps": [{"name": "Electronics Accessories", "percent": 49}, {"name": "Chairs", "percent": 46}, {"name": "Electronics Accessories", "percent": 45}, {"name": "Video Game Consoles", "percent": 40}, {"name": "Video Game Consoles", "percent": 37}]},
+  "Baby Gift Sets": {"size": "4M", "overlaps": [{"name": "Baby & Toddler", "percent": 50}, {"name": "Food Service", "percent": 45}, {"name": "Arts & Entertainment", "percent": 42}, {"name": "Nursing & Feeding", "percent": 40}, {"name": "Event Tickets", "percent": 39}]},
+  "Baby Health": {"size": "4M", "overlaps": [{"name": "Baby & Toddler", "percent": 47}, {"name": "Arts & Entertainment", "percent": 35}, {"name": "Food Items", "percent": 34}, {"name": "Food Service", "percent": 34}, {"name": "Nursing & Feeding", "percent": 33}]},
+  "Baby Safety": {"size": "4M", "overlaps": [{"name": "Cooking & Baking Ingredients", "percent": 49}, {"name": "Cookware & Bakeware", "percent": 42}, {"name": "Foot Care", "percent": 39}, {"name": "Camping & Hiking", "percent": 36}, {"name": "Fitness & Nutrition", "percent": 35}]},
+  "Baby Toys & Activity Equipment": {"size": "4M", "overlaps": [{"name": "Electronics Accessories", "percent": 79}, {"name": "Chairs", "percent": 72}, {"name": "Electronics", "percent": 69}, {"name": "Baby Transport", "percent": 62}, {"name": "Video Game Consoles", "percent": 60}]},
+  "Baby Transport": {"size": "4M", "overlaps": [{"name": "Electronics Accessories", "percent": 88}, {"name": "Networking", "percent": 76}, {"name": "Baby Bathing", "percent": 76}, {"name": "Storage Devices", "percent": 68}, {"name": "Chairs", "percent": 64}]},
+  "Baby Transport Accessories": {"size": "9M", "overlaps": [{"name": "Baby & Toddler", "percent": 30}, {"name": "Swaddling & Receiving Blankets", "percent": 20}, {"name": "Nursing & Feeding", "percent": 18}, {"name": "Food Service", "percent": 18}, {"name": "Arts & Entertainment", "percent": 16}]},
+  "Backpacks": {"size": "4M", "overlaps": [{"name": "Toys", "percent": 61}, {"name": "Media", "percent": 58}, {"name": "Shirts & Tops", "percent": 56}, {"name": "Vehicles & Parts", "percent": 56}, {"name": "Books", "percent": 55}]},
+  "Bathroom Accessories": {"size": "4M", "overlaps": [{"name": "Alcoholic Beverages", "percent": 68}, {"name": "Vehicles & Parts", "percent": 62}, {"name": "Entertainment Centers & TV Stands", "percent": 60}, {"name": "Sporting Goods", "percent": 55}, {"name": "Athletics", "percent": 54}]},
+  "Beds & Accessories": {"size": "19M", "overlaps": [{"name": "Athletics", "percent": 64}, {"name": "Laptops", "percent": 62}, {"name": "Household Supplies", "percent": 57}, {"name": "Shoes", "percent": 57}, {"name": "Computers", "percent": 57}]},
+  "Benches": {"size": "9M", "overlaps": [{"name": "Electronics Accessories", "percent": 34}, {"name": "Electronics", "percent": 28}, {"name": "Circuit Boards & Components", "percent": 25}, {"name": "Video Game Consoles", "percent": 22}, {"name": "Chairs", "percent": 21}]},
+  "Beverages": {"size": "9M", "overlaps": [{"name": "Outerwear", "percent": 80}, {"name": "Shorts", "percent": 63}, {"name": "Cabinets & Storage", "percent": 59}, {"name": "Home & Garden", "percent": 58}, {"name": "Pet Supplies", "percent": 58}]},
+  "Books": {"size": "9M", "overlaps": [{"name": "Media", "percent": 68}, {"name": "Fitness & Nutrition", "percent": 51}, {"name": "Media", "percent": 48}, {"name": "Clothing Accessories", "percent": 47}, {"name": "Toys", "percent": 47}]},
+  "Briefcases": {"size": "4M", "overlaps": [{"name": "Non-Dairy Milk", "percent": 78}, {"name": "Televisions", "percent": 73}, {"name": "Video", "percent": 68}, {"name": "Office Supplies", "percent": 43}, {"name": "Benches", "percent": 22}]},
+  "Building Materials": {"size": "9M", "overlaps": [{"name": "Tea & Infusions", "percent": 79}, {"name": "Sofas", "percent": 76}, {"name": "Shorts", "percent": 69}, {"name": "Cabinets & Storage", "percent": 66}, {"name": "Beverages", "percent": 56}]},
+  "Business & Home Security": {"size": "4M", "overlaps": [{"name": "Outerwear", "percent": 98}, {"name": "Shorts", "percent": 96}, {"name": "Cabinets & Storage", "percent": 94}, {"name": "Building Materials", "percent": 94}, {"name": "Sofas", "percent": 94}]},
+  "Business & Industrial": {"size": "19M", "overlaps": [{"name": "Shaving & Grooming", "percent": 43}, {"name": "Luggage & Bags", "percent": 43}, {"name": "Components", "percent": 43}, {"name": "Exercise & Fitness", "percent": 41}, {"name": "Household Supplies", "percent": 41}]},
+  "Business & Productivity Software": {"size": "4M", "overlaps": [{"name": "Televisions", "percent": 44}, {"name": "Books", "percent": 43}, {"name": "Video", "percent": 43}, {"name": "Cookware & Bakeware", "percent": 37}, {"name": "Cameras & Optics", "percent": 33}]},
+  "Cabinets & Storage": {"size": "9M", "overlaps": [{"name": "Shorts", "percent": 54}, {"name": "Oral Care", "percent": 48}, {"name": "Water", "percent": 43}, {"name": "Building Materials", "percent": 39}, {"name": "Outerwear", "percent": 35}]},
+  "Camera Lenses": {"size": "4M", "overlaps": [{"name": "Skirts", "percent": 40}, {"name": "Lawn & Garden", "percent": 36}, {"name": "Toys", "percent": 36}, {"name": "Shirts & Tops", "percent": 36}, {"name": "Books", "percent": 36}]},
+  "Camera Parts & Accessories": {"size": "4M", "overlaps": [{"name": "Cooking & Baking Ingredients", "percent": 33}, {"name": "Frozen Desserts & Novelties", "percent": 30}, {"name": "Soups & Broths", "percent": 19}, {"name": "Audio", "percent": 17}, {"name": "Food Items", "percent": 17}]},
+  "Cameras": {"size": "4M", "overlaps": [{"name": "Video", "percent": 34}, {"name": "Hardware Accessories", "percent": 33}, {"name": "Software", "percent": 33}, {"name": "Nuts & Seeds", "percent": 29}, {"name": "Electronics", "percent": 28}]},
+  "Cameras & Optics": {"size": "19M", "overlaps": [{"name": "Toys", "percent": 24}, {"name": "Vehicles", "percent": 24}, {"name": "Media", "percent": 23}, {"name": "Outerwear", "percent": 22}, {"name": "Televisions", "percent": 20}]},
+  "Camping & Hiking": {"size": "9M", "overlaps": [{"name": "Speakers", "percent": 55}, {"name": "Shaving & Grooming", "percent": 40}, {"name": "Exercise & Fitness", "percent": 39}, {"name": "Outdoor Furniture", "percent": 38}, {"name": "Outdoor Recreation", "percent": 38}]},
+  "Cat Supplies": {"size": "4M", "overlaps": [{"name": "Food Service", "percent": 26}, {"name": "Foot Care", "percent": 25}, {"name": "Food Items", "percent": 25}, {"name": "Shorts", "percent": 25}, {"name": "Baby & Toddler", "percent": 24}]},
+  "Chairs": {"size": "9M", "overlaps": [{"name": "Electronics Accessories", "percent": 85}, {"name": "Electronics", "percent": 63}, {"name": "Circuit Boards & Components", "percent": 61}, {"name": "Video Game Consoles", "percent": 56}, {"name": "Baby Bathing", "percent": 46}]},
+  "Circuit Boards & Components": {"size": "19M", "overlaps": [{"name": "Networking", "percent": 51}, {"name": "Electronics Accessories", "percent": 44}, {"name": "Cosmetics", "percent": 42}, {"name": "Personal Care", "percent": 42}, {"name": "Seasonings & Spices", "percent": 40}]},
+  "Clothing": {"size": "19M", "overlaps": [{"name": "Athletics", "percent": 33}, {"name": "Entertainment Centers & TV Stands", "percent": 31}, {"name": "Sleeping Aids", "percent": 30}, {"name": "Kitchen Appliances", "percent": 29}, {"name": "Alcoholic Beverages", "percent": 27}]},
+  "Clothing Accessories": {"size": "9M", "overlaps": [{"name": "Fitness & Nutrition", "percent": 74}, {"name": "Fitness & Nutrition", "percent": 66}, {"name": "Books", "percent": 56}, {"name": "Baby & Toddler Clothing", "percent": 51}, {"name": "Foot Care", "percent": 49}]},
+  "Coffee": {"size": "9M", "overlaps": [{"name": "Household Supplies", "percent": 52}, {"name": "Exercise & Fitness", "percent": 50}, {"name": "Alcoholic Beverages", "percent": 46}, {"name": "Laptops", "percent": 44}, {"name": "Shaving & Grooming", "percent": 44}]},
+  "Communications": {"size": "19M", "overlaps": [{"name": "Audio", "percent": 37}, {"name": "Computers", "percent": 35}, {"name": "Tablet Computers", "percent": 32}, {"name": "Electronics", "percent": 30}, {"name": "Alcoholic Beverages", "percent": 28}]},
+  "Components": {"size": "19M", "overlaps": [{"name": "Shaving & Grooming", "percent": 67}, {"name": "Shoes", "percent": 66}, {"name": "Household Supplies", "percent": 61}, {"name": "Outdoor Recreation", "percent": 57}, {"name": "Alcoholic Beverages", "percent": 57}]},
+  "Computer Software": {"size": "9M", "overlaps": [{"name": "Software", "percent": 49}, {"name": "Vehicles & Parts", "percent": 38}, {"name": "Video", "percent": 37}, {"name": "Software", "percent": 33}, {"name": "Entertainment Centers & TV Stands", "percent": 32}]},
+  "Computers": {"size": "19M", "overlaps": [{"name": "Communications", "percent": 35}, {"name": "Audio", "percent": 32}, {"name": "Electronics", "percent": 31}, {"name": "Tablet Computers", "percent": 31}, {"name": "Lawn & Garden", "percent": 31}]},
+  "Condiments & Sauces": {"size": "9M", "overlaps": [{"name": "Arts & Entertainment", "percent": 44}, {"name": "Arts & Entertainment", "percent": 39}, {"name": "Food Items", "percent": 38}, {"name": "Baby & Toddler", "percent": 36}, {"name": "Baby & Toddler", "percent": 35}]},
+  "Condoms": {"size": "9M", "overlaps": [{"name": "Household Supplies", "percent": 61}, {"name": "Alcoholic Beverages", "percent": 60}, {"name": "Shaving & Grooming", "percent": 53}, {"name": "Sporting Goods", "percent": 50}, {"name": "Exercise & Fitness", "percent": 50}]},
+  "Construction": {"size": "4M", "overlaps": [{"name": "Shoes", "percent": 80}, {"name": "Household Supplies", "percent": 79}, {"name": "Shaving & Grooming", "percent": 78}, {"name": "Components", "percent": 78}, {"name": "Luggage & Bags", "percent": 75}]},
+  "Cooking & Baking Ingredients": {"size": "9M", "overlaps": [{"name": "Tables", "percent": 31}, {"name": "Foot Care", "percent": 23}, {"name": "Arts & Entertainment", "percent": 21}, {"name": "Food Items", "percent": 20}, {"name": "Baby & Toddler", "percent": 20}]},
+  "Cookware & Bakeware": {"size": "9M", "overlaps": [{"name": "Toys", "percent": 61}, {"name": "Fitness & Nutrition", "percent": 51}, {"name": "Home & Garden", "percent": 51}, {"name": "Media", "percent": 51}, {"name": "Lawn & Garden", "percent": 49}]},
+  "Cosmetic & Toiletry Bags": {"size": "4M", "overlaps": [{"name": "Entertainment Centers & TV Stands", "percent": 36}, {"name": "Arcade Equipment", "percent": 30}, {"name": "Non-Dairy Milk", "percent": 22}, {"name": "Speakers", "percent": 19}, {"name": "Soups & Broths", "percent": 16}]},
+  "Cosmetics": {"size": "19M", "overlaps": [{"name": "Personal Care", "percent": 91}, {"name": "Health & Beauty", "percent": 85}, {"name": "Circuit Boards & Components", "percent": 42}, {"name": "Seasonings & Spices", "percent": 37}, {"name": "Networking", "percent": 27}]},
+  "Costumes & Accessories": {"size": "4M", "overlaps": [{"name": "Storage Devices", "percent": 51}, {"name": "Electronics", "percent": 50}, {"name": "Circuit Boards & Components", "percent": 50}, {"name": "Software", "percent": 49}, {"name": "Exercise & Fitness", "percent": 47}]},
+  "Cycling": {"size": "4M", "overlaps": [{"name": "Sporting Goods", "percent": 74}, {"name": "Outdoor Furniture", "percent": 72}, {"name": "Shaving & Grooming", "percent": 70}, {"name": "Outdoor Recreation", "percent": 66}, {"name": "Alcoholic Beverages", "percent": 65}]},
+  "DVDs & Videos": {"size": "9M", "overlaps": [{"name": "Entertainment Centers & TV Stands", "percent": 54}, {"name": "Entertainment Centers & TV Stands", "percent": 52}, {"name": "Laptops", "percent": 47}, {"name": "Athletics", "percent": 44}, {"name": "Communications", "percent": 42}]},
+  "Dairy Products": {"size": "9M", "overlaps": [{"name": "Skirts", "percent": 34}, {"name": "Exercise & Fitness", "percent": 33}, {"name": "Software", "percent": 30}, {"name": "Beds & Accessories", "percent": 29}, {"name": "Mattresses", "percent": 28}]},
+  "Decor": {"size": "4M", "overlaps": [{"name": "Fitness & Nutrition", "percent": 61}, {"name": "Fitness & Nutrition", "percent": 57}, {"name": "Cookware & Bakeware", "percent": 57}, {"name": "Toys", "percent": 56}, {"name": "Vehicles", "percent": 55}]},
+  "Diapering": {"size": "4M", "overlaps": [{"name": "Baby & Toddler", "percent": 54}, {"name": "Nursing & Feeding", "percent": 33}, {"name": "Arts & Entertainment", "percent": 32}, {"name": "Food Service", "percent": 27}, {"name": "Marine Electronics", "percent": 27}]},
+  "Dips & Spreads": {"size": "9M", "overlaps": [{"name": "Arts & Entertainment", "percent": 38}, {"name": "Food Items", "percent": 36}, {"name": "Baby & Toddler", "percent": 36}, {"name": "Food Service", "percent": 31}, {"name": "Nursing & Feeding", "percent": 24}]},
+  "Dog Supplies": {"size": "4M", "overlaps": [{"name": "Entertainment Centers & TV Stands", "percent": 60}, {"name": "Vehicles & Parts", "percent": 55}, {"name": "Beds & Accessories", "percent": 46}, {"name": "Laptops", "percent": 45}, {"name": "Network Software", "percent": 45}]},
+  "Dresses": {"size": "9M", "overlaps": [{"name": "Toys", "percent": 90}, {"name": "Media", "percent": 89}, {"name": "Books", "percent": 78}, {"name": "Outerwear", "percent": 69}, {"name": "Clothing Accessories", "percent": 66}]},
+  "Duffel Bags": {"size": "4M", "overlaps": [{"name": "Vehicles", "percent": 45}, {"name": "Plumbing", "percent": 43}, {"name": "Skirts", "percent": 39}, {"name": "Fitness & Nutrition", "percent": 36}, {"name": "Antivirus & Security Software", "percent": 33}]},
+  "Educational Software": {"size": "4M", "overlaps": [{"name": "Electronics Accessories", "percent": 82}, {"name": "Networking", "percent": 79}, {"name": "Electronics Accessories", "percent": 77}, {"name": "Toys & Games", "percent": 56}, {"name": "Networking", "percent": 53}]},
+  "Educational Toys": {"size": "9M", "overlaps": [{"name": "Media", "percent": 68}, {"name": "Toys", "percent": 42}, {"name": "Books", "percent": 37}, {"name": "Toys & Games", "percent": 35}, {"name": "Circuit Boards & Components", "percent": 35}]},
+  "Electronics": {"size": "19M", "overlaps": [{"name": "Electronics Accessories", "percent": 42}, {"name": "Video", "percent": 39}, {"name": "Networking", "percent": 38}, {"name": "Storage Devices", "percent": 31}, {"name": "Communications", "percent": 31}]},
+  "Electronics Accessories": {"size": "19M", "overlaps": [{"name": "Networking", "percent": 57}, {"name": "Electronics", "percent": 56}, {"name": "Circuit Boards & Components", "percent": 52}, {"name": "Networking", "percent": 45}, {"name": "Chairs", "percent": 43}]},
+  "Emergency Preparedness": {"size": "4M", "overlaps": [{"name": "Household Supplies", "percent": 64}, {"name": "Alcoholic Beverages", "percent": 64}, {"name": "Vehicles & Parts", "percent": 63}, {"name": "Kitchen Appliances", "percent": 62}, {"name": "Communications", "percent": 60}]},
+  "Entertainment Centers & TV Stands": {"size": "19M", "overlaps": [{"name": "Laptops", "percent": 62}, {"name": "Components", "percent": 56}, {"name": "Household Supplies", "percent": 56}, {"name": "Beds & Accessories", "percent": 54}, {"name": "Shoes", "percent": 53}]},
+  "Event Tickets": {"size": "9M", "overlaps": [{"name": "Arts & Entertainment", "percent": 48}, {"name": "Food Items", "percent": 47}, {"name": "Radar Detectors", "percent": 42}, {"name": "Baby & Toddler", "percent": 40}, {"name": "Food Service", "percent": 39}]},
+  "Exercise & Fitness": {"size": "19M", "overlaps": [{"name": "Laptops", "percent": 56}, {"name": "Shoes", "percent": 55}, {"name": "Outdoor Recreation", "percent": 52}, {"name": "Household Supplies", "percent": 50}, {"name": "Shaving & Grooming", "percent": 47}]},
+  "Feminine Sanitary Supplies": {"size": "9M", "overlaps": [{"name": "Shoes", "percent": 64}, {"name": "Circuit Boards & Components", "percent": 63}, {"name": "Shaving & Grooming", "percent": 60}, {"name": "Components", "percent": 58}, {"name": "Exercise & Fitness", "percent": 55}]},
+  "Fencing & Barriers": {"size": "9M", "overlaps": [{"name": "Components", "percent": 60}, {"name": "Laptops", "percent": 56}, {"name": "Entertainment Centers & TV Stands", "percent": 52}, {"name": "Beds & Accessories", "percent": 51}, {"name": "Shoes", "percent": 46}]},
+  "Film & Television": {"size": "4M", "overlaps": [{"name": "Lawn & Garden", "percent": 59}, {"name": "Household Appliances", "percent": 39}, {"name": "Luggage & Bags", "percent": 35}, {"name": "Shaving & Grooming", "percent": 32}, {"name": "Computers", "percent": 32}]},
+  "Finance & Insurance": {"size": "4M", "overlaps": [{"name": "Baby & Toddler Furniture", "percent": 26}, {"name": "Oral Care", "percent": 25}, {"name": "Office Supplies", "percent": 23}, {"name": "Business & Industrial", "percent": 19}, {"name": "Arts & Entertainment", "percent": 19}]},
+  "Fireplace & Wood Stove Accessories": {"size": "4M", "overlaps": [{"name": "Personal Care", "percent": 71}, {"name": "Media", "percent": 71}, {"name": "Health & Beauty", "percent": 69}, {"name": "Cosmetics", "percent": 68}, {"name": "Operating Systems", "percent": 56}]},
+  "Fireplaces": {"size": "4M", "overlaps": [{"name": "Electronics", "percent": 35}, {"name": "Vehicles & Parts", "percent": 34}, {"name": "Entertainment Centers & TV Stands", "percent": 34}, {"name": "Shelving", "percent": 33}, {"name": "Video", "percent": 32}]},
+  "Fitness & Nutrition": {"size": "19M", "overlaps": [{"name": "Vehicles", "percent": 34}, {"name": "Clothing Accessories", "percent": 33}, {"name": "Vision Care", "percent": 30}, {"name": "Toys", "percent": 30}, {"name": "Household Appliances", "percent": 29}]},
+  "Food & Beverage Carriers": {"size": "9M", "overlaps": [{"name": "Lawn & Garden", "percent": 31}, {"name": "Skirts", "percent": 27}, {"name": "Computers", "percent": 22}, {"name": "Shaving & Grooming", "percent": 22}, {"name": "Media", "percent": 22}]},
+  "Food Items": {"size": "19M", "overlaps": [{"name": "Food Service", "percent": 35}, {"name": "Arts & Entertainment", "percent": 33}, {"name": "Soups & Broths", "percent": 25}, {"name": "Pasta & Noodles", "percent": 25}, {"name": "Baby & Toddler", "percent": 24}]},
+  "Food Service": {"size": "19M", "overlaps": [{"name": "Food Items", "percent": 35}, {"name": "Arts & Entertainment", "percent": 26}, {"name": "Soups & Broths", "percent": 25}, {"name": "Baby & Toddler", "percent": 24}, {"name": "Condiments & Sauces", "percent": 22}]},
+  "Food Storage": {"size": "9M", "overlaps": [{"name": "Pasta & Noodles", "percent": 28}, {"name": "Baby & Toddler", "percent": 28}, {"name": "Soups & Broths", "percent": 24}, {"name": "Audio", "percent": 23}, {"name": "Cameras & Optics", "percent": 23}]},
+  "Food Storage Accessories": {"size": "4M", "overlaps": [{"name": "Cookware & Bakeware", "percent": 50}, {"name": "Toys", "percent": 48}, {"name": "Books", "percent": 46}, {"name": "Media", "percent": 45}, {"name": "Baby & Toddler Clothing", "percent": 43}]},
+  "Foot Care": {"size": "19M", "overlaps": [{"name": "Arts & Entertainment", "percent": 24}, {"name": "Food Service", "percent": 23}, {"name": "Arts & Entertainment", "percent": 22}, {"name": "Food Items", "percent": 22}, {"name": "Home & Garden", "percent": 21}]},
+  "Forestry & Logging": {"size": "4M", "overlaps": [{"name": "Arts & Entertainment", "percent": 66}, {"name": "Tablet Computers", "percent": 47}, {"name": "Baby & Toddler", "percent": 45}, {"name": "Nursing & Feeding", "percent": 44}, {"name": "Food Items", "percent": 44}]},
+  "Frozen Desserts & Novelties": {"size": "19M", "overlaps": [{"name": "Baby & Toddler", "percent": 22}, {"name": "Arts & Entertainment", "percent": 21}, {"name": "Pasta & Noodles", "percent": 21}, {"name": "Food Service", "percent": 17}, {"name": "Food Items", "percent": 17}]},
+  "Furniture": {"size": "19M", "overlaps": [{"name": "Animals & Pet Supplies", "percent": 17}, {"name": "Tea & Infusions", "percent": 16}, {"name": "Outerwear", "percent": 8}, {"name": "Shorts", "percent": 7}, {"name": "Oral Care", "percent": 7}]},
+  "Furniture Sets": {"size": "9M", "overlaps": [{"name": "Cosmetics", "percent": 36}, {"name": "Personal Care", "percent": 32}, {"name": "Shaving & Grooming", "percent": 27}, {"name": "Entertainment Centers & TV Stands", "percent": 26}, {"name": "Pasta & Noodles", "percent": 25}]},
+  "Futons": {"size": "9M", "overlaps": [{"name": "Shaving & Grooming", "percent": 9}, {"name": "Shoes", "percent": 9}, {"name": "Components", "percent": 9}, {"name": "Juice", "percent": 8}, {"name": "Circuit Boards & Components", "percent": 8}]},
+  "GPS Tracking Devices": {"size": "19M", "overlaps": [{"name": "Audio", "percent": 22}, {"name": "Tablet Computers", "percent": 22}, {"name": "Shelving", "percent": 21}, {"name": "Communications", "percent": 19}, {"name": "Electronics", "percent": 19}]},
+  "Games": {"size": "4M", "overlaps": [{"name": "Electronics Accessories", "percent": 70}, {"name": "Electronics", "percent": 62}, {"name": "Chairs", "percent": 59}, {"name": "Circuit Boards & Components", "percent": 52}, {"name": "Circuit Boards & Components", "percent": 46}]},
+  "Gardening": {"size": "4M", "overlaps": [{"name": "Lawn & Garden", "percent": 43}, {"name": "Shaving & Grooming", "percent": 37}, {"name": "Luggage & Bags", "percent": 36}, {"name": "Shoes", "percent": 36}, {"name": "Toys & Games", "percent": 35}]},
+  "General Office Supplies": {"size": "4M", "overlaps": [{"name": "Home & Garden", "percent": 53}, {"name": "Toys", "percent": 48}, {"name": "Cookware & Bakeware", "percent": 43}, {"name": "Fitness & Nutrition", "percent": 41}, {"name": "Media", "percent": 40}]},
+  "Gift Giving": {"size": "4M", "overlaps": [{"name": "Outdoor Recreation", "percent": 47}, {"name": "Lawn & Garden", "percent": 46}, {"name": "Outdoor Furniture", "percent": 40}, {"name": "Luggage & Bags", "percent": 40}, {"name": "Exercise & Fitness", "percent": 39}]},
+  "Golf": {"size": "4M", "overlaps": [{"name": "DVDs & Videos", "percent": 26}, {"name": "Electronics", "percent": 23}, {"name": "Communications", "percent": 22}, {"name": "Microphones", "percent": 21}, {"name": "Vehicles & Parts", "percent": 20}]},
+  "Hairdressing & Cosmetology": {"size": "4M", "overlaps": [{"name": "Network Software", "percent": 73}, {"name": "Laptops", "percent": 72}, {"name": "Alcoholic Beverages", "percent": 71}, {"name": "Entertainment Centers & TV Stands", "percent": 70}, {"name": "Communications", "percent": 66}]},
+  "Hardware": {"size": "19M", "overlaps": [{"name": "Furniture", "percent": 22}, {"name": "Animals & Pet Supplies", "percent": 13}, {"name": "Oral Care", "percent": 9}, {"name": "Shorts", "percent": 8}, {"name": "Shorts", "percent": 7}]},
+  "Hardware Accessories": {"size": "9M", "overlaps": [{"name": "Software", "percent": 26}, {"name": "Nuts & Seeds", "percent": 26}, {"name": "Electronics", "percent": 24}, {"name": "Video", "percent": 23}, {"name": "Skirts", "percent": 21}]},
+  "Health & Beauty": {"size": "19M", "overlaps": [{"name": "Cosmetics", "percent": 90}, {"name": "Personal Care", "percent": 90}, {"name": "Sleeping Aids", "percent": 26}, {"name": "Operating Systems", "percent": 19}, {"name": "Microphones", "percent": 18}]},
+  "Hobbies & Creative Arts": {"size": "4M", "overlaps": [{"name": "Shorts", "percent": 65}, {"name": "Outerwear", "percent": 59}, {"name": "Water", "percent": 43}, {"name": "Kitchen Tools & Utensils", "percent": 40}, {"name": "Clothing Accessories", "percent": 38}]},
+  "Home & Garden": {"size": "19M", "overlaps": [{"name": "Toys", "percent": 53}, {"name": "Outerwear", "percent": 40}, {"name": "Fitness & Nutrition", "percent": 38}, {"name": "Media", "percent": 37}, {"name": "Clothing Accessories", "percent": 35}]},
+  "Hotel & Hospitality": {"size": "4M", "overlaps": [{"name": "Food Items", "percent": 43}, {"name": "Baby & Toddler", "percent": 38}, {"name": "Swaddling & Receiving Blankets", "percent": 38}, {"name": "Arts & Entertainment", "percent": 37}, {"name": "Radar Detectors", "percent": 35}]},
+  "Household Appliance Accessories": {"size": "4M", "overlaps": [{"name": "Fitness & Nutrition", "percent": 31}, {"name": "Vision Care", "percent": 24}, {"name": "Vehicles & Parts", "percent": 23}, {"name": "Communications", "percent": 22}, {"name": "Frozen Desserts & Novelties", "percent": 21}]},
+  "Household Appliances": {"size": "19M", "overlaps": [{"name": "Home & Garden", "percent": 26}, {"name": "Media", "percent": 25}, {"name": "Toys", "percent": 22}, {"name": "Vision Care", "percent": 20}, {"name": "Fitness & Nutrition", "percent": 18}]},
+  "Household Cleaning Supplies": {"size": "4M", "overlaps": [{"name": "Seasonings & Spices", "percent": 42}, {"name": "Marine Electronics", "percent": 27}, {"name": "Non-Dairy Milk", "percent": 25}, {"name": "Baby & Toddler", "percent": 21}, {"name": "Nursing & Feeding", "percent": 20}]},
+  "Household Paper Products": {"size": "4M", "overlaps": [{"name": "Toys", "percent": 43}, {"name": "Fitness & Nutrition", "percent": 39}, {"name": "Household Appliances", "percent": 31}, {"name": "Plumbing", "percent": 31}, {"name": "Clothing Accessories", "percent": 30}]},
+  "Household Supplies": {"size": "19M", "overlaps": [{"name": "Shoes", "percent": 70}, {"name": "Shaving & Grooming", "percent": 70}, {"name": "Laptops", "percent": 66}, {"name": "Outdoor Recreation", "percent": 64}, {"name": "Sporting Goods", "percent": 62}]},
+  "Indoor Games": {"size": "19M", "overlaps": [{"name": "Entertainment Centers & TV Stands", "percent": 45}, {"name": "Components", "percent": 45}, {"name": "Laptops", "percent": 45}, {"name": "Household Supplies", "percent": 40}, {"name": "Outdoor Recreation", "percent": 39}]},
+  "Juice": {"size": "19M", "overlaps": [{"name": "Office Supplies", "percent": 37}, {"name": "Entertainment Centers & TV Stands", "percent": 32}, {"name": "Shaving & Grooming", "percent": 26}, {"name": "Beds & Accessories", "percent": 25}, {"name": "Software", "percent": 24}]},
+  "Kitchen & Dining": {"size": "4M", "overlaps": [{"name": "Media", "percent": 54}, {"name": "Clothing Accessories", "percent": 47}, {"name": "Fitness & Nutrition", "percent": 43}, {"name": "Household Appliances", "percent": 40}, {"name": "Toys", "percent": 40}]},
+  "Kitchen Appliance Accessories": {"size": "4M", "overlaps": [{"name": "Communications", "percent": 45}, {"name": "Speakers", "percent": 41}, {"name": "Alcoholic Beverages", "percent": 39}, {"name": "Frozen Desserts & Novelties", "percent": 37}, {"name": "Software", "percent": 36}]},
+  "Kitchen Appliances": {"size": "9M", "overlaps": [{"name": "Vehicles & Parts", "percent": 68}, {"name": "Alcoholic Beverages", "percent": 67}, {"name": "Sporting Goods", "percent": 61}, {"name": "Computers", "percent": 59}, {"name": "Clothing", "percent": 58}]},
+  "Kitchen Tools & Utensils": {"size": "9M", "overlaps": [{"name": "Tea & Infusions", "percent": 73}, {"name": "Shorts", "percent": 57}, {"name": "Building Materials", "percent": 55}, {"name": "Cabinets & Storage", "percent": 53}, {"name": "Sofas", "percent": 50}]},
+  "Laptops": {"size": "19M", "overlaps": [{"name": "Athletics", "percent": 72}, {"name": "Sporting Goods", "percent": 69}, {"name": "Shoes", "percent": 68}, {"name": "Sporting Goods", "percent": 68}, {"name": "Household Supplies", "percent": 67}]},
+  "Laundry Supplies": {"size": "4M", "overlaps": [{"name": "Network Software", "percent": 74}, {"name": "Entertainment Centers & TV Stands", "percent": 70}, {"name": "Sporting Goods", "percent": 67}, {"name": "Laptops", "percent": 65}, {"name": "Household Supplies", "percent": 65}]},
+  "Lawn & Garden": {"size": "19M", "overlaps": [{"name": "Household Supplies", "percent": 49}, {"name": "Shoes", "percent": 49}, {"name": "Alcoholic Beverages", "percent": 46}, {"name": "Outdoor Recreation", "percent": 44}, {"name": "Sporting Goods", "percent": 43}]},
+  "Lighting": {"size": "4M", "overlaps": [{"name": "Household Supplies", "percent": 43}, {"name": "Vehicles & Parts", "percent": 41}, {"name": "Audio", "percent": 38}, {"name": "Entertainment Centers & TV Stands", "percent": 36}, {"name": "Alcoholic Beverages", "percent": 35}]},
+  "Linens & Bedding": {"size": "4M", "overlaps": [{"name": "Toys", "percent": 40}, {"name": "Shaving & Grooming", "percent": 36}, {"name": "Outerwear", "percent": 35}, {"name": "Computers", "percent": 33}, {"name": "Plants", "percent": 33}]},
+  "Live Animals": {"size": "4M", "overlaps": [{"name": "Video Game Consoles", "percent": 41}, {"name": "Cameras & Optics", "percent": 37}, {"name": "Marine Electronics", "percent": 27}, {"name": "Non-Dairy Milk", "percent": 27}, {"name": "Seasonings & Spices", "percent": 23}]},
+  "Locks & Keys": {"size": "9M", "overlaps": [{"name": "Tablet Computers", "percent": 35}, {"name": "Food Items", "percent": 33}, {"name": "Food Service", "percent": 27}, {"name": "Audio", "percent": 25}, {"name": "Vehicle Parts & Accessories", "percent": 19}]},
+  "Luggage & Bags": {"size": "19M", "overlaps": [{"name": "Household Supplies", "percent": 37}, {"name": "Components", "percent": 37}, {"name": "Laptops", "percent": 36}, {"name": "Outdoor Recreation", "percent": 35}, {"name": "Sporting Goods", "percent": 35}]},
+  "Magazines & Newspapers": {"size": "9M", "overlaps": [{"name": "Tablet Computers", "percent": 39}, {"name": "Communications", "percent": 37}, {"name": "Computers", "percent": 31}, {"name": "Audio", "percent": 28}, {"name": "GPS Tracking Devices", "percent": 23}]},
+  "Manufacturing": {"size": "4M", "overlaps": [{"name": "Entertainment Centers & TV Stands", "percent": 75}, {"name": "Shaving & Grooming", "percent": 57}, {"name": "Exercise & Fitness", "percent": 55}, {"name": "Circuit Boards & Components", "percent": 53}, {"name": "Household Supplies", "percent": 52}]},
+  "Marine Electronics": {"size": "19M", "overlaps": [{"name": "Vision Care", "percent": 23}, {"name": "Food Items", "percent": 14}, {"name": "Food Service", "percent": 13}, {"name": "Arts & Entertainment", "percent": 13}, {"name": "Baby & Toddler", "percent": 12}]},
+  "Mattresses": {"size": "9M", "overlaps": [{"name": "Beds & Accessories", "percent": 72}, {"name": "Laptops", "percent": 65}, {"name": "Shoes", "percent": 63}, {"name": "Luggage & Bags", "percent": 57}, {"name": "Household Supplies", "percent": 54}]},
+  "Media": {"size": "19M", "overlaps": [{"name": "Toys", "percent": 52}, {"name": "Home & Garden", "percent": 37}, {"name": "Books", "percent": 36}, {"name": "Dresses", "percent": 34}, {"name": "Educational Toys", "percent": 34}]},
+  "Medical": {"size": "4M", "overlaps": [{"name": "Lawn & Garden", "percent": 37}, {"name": "Cameras & Optics", "percent": 32}, {"name": "Video", "percent": 31}, {"name": "Office Supplies", "percent": 27}, {"name": "Televisions", "percent": 26}]},
+  "Messenger Bags": {"size": "4M", "overlaps": [{"name": "Household Paper Products", "percent": 38}, {"name": "Cookware & Bakeware", "percent": 37}, {"name": "Puzzles", "percent": 27}, {"name": "Nuts & Seeds", "percent": 27}, {"name": "Sleeping Aids", "percent": 26}]},
+  "Microphones": {"size": "19M", "overlaps": [{"name": "Arts & Entertainment", "percent": 21}, {"name": "Nuts & Seeds", "percent": 15}, {"name": "Food Service", "percent": 15}, {"name": "Food Items", "percent": 15}, {"name": "Baby & Toddler", "percent": 15}]},
+  "Mobile Phones": {"size": "19M", "overlaps": [{"name": "Soups & Broths", "percent": 25}, {"name": "Vehicle Parts & Accessories", "percent": 11}, {"name": "Food Service", "percent": 10}, {"name": "Arts & Entertainment", "percent": 9}, {"name": "Optics", "percent": 8}]},
+  "Music & Sound Recordings": {"size": "9M", "overlaps": [{"name": "Electronics", "percent": 54}, {"name": "Electronics Accessories", "percent": 53}, {"name": "Networking", "percent": 46}, {"name": "Toys & Games", "percent": 45}, {"name": "Luggage & Bags", "percent": 41}]},
+  "Network Software": {"size": "9M", "overlaps": [{"name": "Laptops", "percent": 73}, {"name": "Sporting Goods", "percent": 72}, {"name": "Shoes", "percent": 67}, {"name": "Components", "percent": 66}, {"name": "Athletics", "percent": 65}]},
+  "Networking": {"size": "19M", "overlaps": [{"name": "Electronics Accessories", "percent": 57}, {"name": "Circuit Boards & Components", "percent": 48}, {"name": "Toys & Games", "percent": 47}, {"name": "Electronics", "percent": 38}, {"name": "Exercise & Fitness", "percent": 32}]},
+  "Non-Dairy Milk": {"size": "19M", "overlaps": [{"name": "Televisions", "percent": 37}, {"name": "Video", "percent": 34}, {"name": "Office Supplies", "percent": 30}, {"name": "Office Supplies", "percent": 21}, {"name": "Briefcases", "percent": 20}]},
+  "Nursing & Feeding": {"size": "9M", "overlaps": [{"name": "Baby & Toddler", "percent": 49}, {"name": "Arts & Entertainment", "percent": 40}, {"name": "Food Items", "percent": 37}, {"name": "Food Service", "percent": 36}, {"name": "Event Tickets", "percent": 34}]},
+  "Nuts & Seeds": {"size": "19M", "overlaps": [{"name": "Household Supplies", "percent": 30}, {"name": "Outdoor Recreation", "percent": 28}, {"name": "Alcoholic Beverages", "percent": 28}, {"name": "Shaving & Grooming", "percent": 28}, {"name": "Athletics", "percent": 28}]},
+  "Office Equipment": {"size": "4M", "overlaps": [{"name": "Fitness & Nutrition", "percent": 29}, {"name": "Microphones", "percent": 27}, {"name": "Arts & Entertainment", "percent": 25}, {"name": "Home & Garden", "percent": 25}, {"name": "Vision Care", "percent": 25}]},
+  "Office Furniture": {"size": "9M", "overlaps": [{"name": "Laptops", "percent": 76}, {"name": "Shoes", "percent": 74}, {"name": "Outdoor Recreation", "percent": 71}, {"name": "Household Supplies", "percent": 70}, {"name": "Exercise & Fitness", "percent": 65}]},
+  "Office Supplies": {"size": "19M", "overlaps": [{"name": "Sleeping Aids", "percent": 42}, {"name": "Non-Dairy Milk", "percent": 38}, {"name": "Juice", "percent": 37}, {"name": "Vehicles", "percent": 30}, {"name": "Televisions", "percent": 27}]},
+  "Operating Systems": {"size": "9M", "overlaps": [{"name": "Beds & Accessories", "percent": 29}, {"name": "Tables", "percent": 29}, {"name": "Laptops", "percent": 27}, {"name": "Kitchen Appliances", "percent": 26}, {"name": "Components", "percent": 26}]},
+  "Optics": {"size": "4M", "overlaps": [{"name": "Food Service", "percent": 35}, {"name": "Food Service", "percent": 35}, {"name": "Mobile Phones", "percent": 34}, {"name": "Condiments & Sauces", "percent": 29}, {"name": "Food Items", "percent": 29}]},
+  "Oral Care": {"size": "19M", "overlaps": [{"name": "Outerwear", "percent": 39}, {"name": "Water", "percent": 35}, {"name": "Building Materials", "percent": 30}, {"name": "Shorts", "percent": 30}, {"name": "Pet Supplies", "percent": 29}]},
+  "Outdoor Furniture": {"size": "9M", "overlaps": [{"name": "Laptops", "percent": 63}, {"name": "Athletics", "percent": 59}, {"name": "Entertainment Centers & TV Stands", "percent": 55}, {"name": "Indoor Games", "percent": 35}, {"name": "Storage Devices", "percent": 35}]},
+  "Outdoor Play Equipment": {"size": "4M", "overlaps": [{"name": "Beds & Accessories", "percent": 48}, {"name": "Components", "percent": 45}, {"name": "Entertainment Centers & TV Stands", "percent": 42}, {"name": "Vehicles & Parts", "percent": 41}, {"name": "Household Supplies", "percent": 40}]},
+  "Outdoor Recreation": {"size": "19M", "overlaps": [{"name": "Shoes", "percent": 72}, {"name": "Laptops", "percent": 72}, {"name": "Household Supplies", "percent": 66}, {"name": "Luggage & Bags", "percent": 65}, {"name": "Shaving & Grooming", "percent": 62}]},
+  "Outerwear": {"size": "19M", "overlaps": [{"name": "Shorts", "percent": 48}, {"name": "Home & Garden", "percent": 45}, {"name": "Oral Care", "percent": 39}, {"name": "Shorts", "percent": 35}, {"name": "Water", "percent": 29}]},
+  "Party & Celebration": {"size": "4M", "overlaps": [{"name": "Baby & Toddler Furniture", "percent": 50}, {"name": "Fitness & Nutrition", "percent": 43}, {"name": "Food & Beverage Carriers", "percent": 39}, {"name": "Vehicles", "percent": 38}, {"name": "Oral Care", "percent": 30}]},
+  "Pasta & Noodles": {"size": "19M", "overlaps": [{"name": "Tablet Computers", "percent": 17}, {"name": "Audio", "percent": 15}, {"name": "Communications", "percent": 11}, {"name": "Nuts & Seeds", "percent": 11}, {"name": "Vehicle Parts & Accessories", "percent": 11}]},
+  "Personal Care": {"size": "19M", "overlaps": [{"name": "Cosmetics", "percent": 91}, {"name": "Health & Beauty", "percent": 88}, {"name": "Circuit Boards & Components", "percent": 42}, {"name": "Seasonings & Spices", "percent": 38}, {"name": "Networking", "percent": 28}]},
+  "Pet Supplies": {"size": "9M", "overlaps": [{"name": "Outerwear", "percent": 74}, {"name": "Home & Garden", "percent": 62}, {"name": "Cabinets & Storage", "percent": 62}, {"name": "3D Printers", "percent": 62}, {"name": "Building Materials", "percent": 60}]},
+  "Photography": {"size": "4M", "overlaps": [{"name": "Toys", "percent": 50}, {"name": "Tables", "percent": 44}, {"name": "Lawn & Garden", "percent": 39}, {"name": "Books", "percent": 39}, {"name": "Shirts & Tops", "percent": 39}]},
+  "Piercing & Tattooing": {"size": "4M", "overlaps": [{"name": "Speakers", "percent": 63}, {"name": "Shaving & Grooming", "percent": 55}, {"name": "Sporting Goods", "percent": 54}, {"name": "Laptops", "percent": 50}, {"name": "Shoes", "percent": 50}]},
+  "Plants": {"size": "4M", "overlaps": [{"name": "Storage Devices", "percent": 60}, {"name": "Vehicles & Parts", "percent": 58}, {"name": "Audio", "percent": 57}, {"name": "Sunglasses", "percent": 54}, {"name": "Nuts & Seeds", "percent": 54}]},
+  "Plumbing": {"size": "9M", "overlaps": [{"name": "Laptops", "percent": 52}, {"name": "Household Supplies", "percent": 49}, {"name": "Shoes", "percent": 48}, {"name": "Shaving & Grooming", "percent": 44}, {"name": "Exercise & Fitness", "percent": 43}]},
+  "Pool & Spa": {"size": "4M", "overlaps": [{"name": "Arts & Entertainment", "percent": 28}, {"name": "Arts & Entertainment", "percent": 27}, {"name": "Food Items", "percent": 26}, {"name": "Dips & Spreads", "percent": 26}, {"name": "Food Service", "percent": 25}]},
+  "Potty Training": {"size": "9M", "overlaps": [{"name": "Vision Care", "percent": 14}, {"name": "Baby & Toddler", "percent": 13}, {"name": "Frozen Desserts & Novelties", "percent": 11}, {"name": "Non-Dairy Milk", "percent": 11}, {"name": "Forestry & Logging", "percent": 10}]},
+  "Puzzles": {"size": "4M", "overlaps": [{"name": "Toys", "percent": 85}, {"name": "Media", "percent": 67}, {"name": "Outerwear", "percent": 66}, {"name": "Cookware & Bakeware", "percent": 65}, {"name": "Toys & Games", "percent": 59}]},
+  "Radar Detectors": {"size": "19M", "overlaps": [{"name": "Mobile Phones", "percent": 5}, {"name": "Electronics Accessories", "percent": 4}, {"name": "Soups & Broths", "percent": 4}, {"name": "Electronics", "percent": 4}, {"name": "Baby & Toddler", "percent": 4}]},
+  "Retail": {"size": "4M", "overlaps": [{"name": "Kitchen Appliances", "percent": 76}, {"name": "Household Supplies", "percent": 75}, {"name": "Alcoholic Beverages", "percent": 75}, {"name": "Network Software", "percent": 73}, {"name": "Vehicles & Parts", "percent": 71}]},
+  "Science & Laboratory": {"size": "4M", "overlaps": [{"name": "Beds & Accessories", "percent": 60}, {"name": "Components", "percent": 59}, {"name": "Entertainment Centers & TV Stands", "percent": 54}, {"name": "Laptops", "percent": 48}, {"name": "DVDs & Videos", "percent": 48}]},
+  "Seasonings & Spices": {"size": "19M", "overlaps": [{"name": "Household Supplies", "percent": 40}, {"name": "Circuit Boards & Components", "percent": 40}, {"name": "Personal Care", "percent": 38}, {"name": "Cosmetics", "percent": 37}, {"name": "Laptops", "percent": 34}]},
+  "Shaving & Grooming": {"size": "19M", "overlaps": [{"name": "Shoes", "percent": 24}, {"name": "Entertainment Centers & TV Stands", "percent": 22}, {"name": "Clothing", "percent": 22}, {"name": "Outdoor Recreation", "percent": 22}, {"name": "Animals & Pet Supplies", "percent": 22}]},
+  "Shelving": {"size": "9M", "overlaps": [{"name": "Juice", "percent": 49}, {"name": "Household Supplies", "percent": 43}, {"name": "Exercise & Fitness", "percent": 40}, {"name": "Athletics", "percent": 40}, {"name": "Beds & Accessories", "percent": 40}]},
+  "Shirts & Tops": {"size": "9M", "overlaps": [{"name": "Shaving & Grooming", "percent": 80}, {"name": "Household Supplies", "percent": 74}, {"name": "Shoes", "percent": 73}, {"name": "Laptops", "percent": 70}, {"name": "Outdoor Recreation", "percent": 68}]},
+  "Shoes": {"size": "19M", "overlaps": [{"name": "Household Supplies", "percent": 65}, {"name": "Laptops", "percent": 64}, {"name": "Laptops", "percent": 63}, {"name": "Alcoholic Beverages", "percent": 62}, {"name": "Athletics", "percent": 61}]},
+  "Shorts": {"size": "19M", "overlaps": [{"name": "Tea & Infusions", "percent": 40}, {"name": "Oral Care", "percent": 40}, {"name": "3D Printers", "percent": 36}, {"name": "Building Materials", "percent": 34}, {"name": "Sofas", "percent": 34}]},
+  "Signage": {"size": "4M", "overlaps": [{"name": "Shaving & Grooming", "percent": 81}, {"name": "Shoes", "percent": 80}, {"name": "Components", "percent": 75}, {"name": "Exercise & Fitness", "percent": 73}, {"name": "Outdoor Recreation", "percent": 69}]},
+  "Skirts": {"size": "19M", "overlaps": [{"name": "Vehicles", "percent": 24}, {"name": "Fitness & Nutrition", "percent": 18}, {"name": "Yoga & Pilates", "percent": 14}, {"name": "Household Appliances", "percent": 14}, {"name": "Water", "percent": 14}]},
+  "Sleeping Aids": {"size": "19M", "overlaps": [{"name": "Electronics Accessories", "percent": 31}, {"name": "Health & Beauty", "percent": 26}, {"name": "Personal Care", "percent": 26}, {"name": "Cosmetics", "percent": 26}, {"name": "Networking", "percent": 25}]},
+  "Sofas": {"size": "9M", "overlaps": [{"name": "Shorts", "percent": 91}, {"name": "Outerwear", "percent": 87}, {"name": "Cabinets & Storage", "percent": 81}, {"name": "Building Materials", "percent": 80}, {"name": "3D Printers", "percent": 79}]},
+  "Software": {"size": "19M", "overlaps": [{"name": "Shoes", "percent": 37}, {"name": "Laptops", "percent": 37}, {"name": "Household Supplies", "percent": 37}, {"name": "Athletics", "percent": 37}, {"name": "Components", "percent": 36}]},
+  "Soups & Broths": {"size": "19M", "overlaps": [{"name": "Radar Detectors", "percent": 32}, {"name": "Food Service", "percent": 25}, {"name": "Food Items", "percent": 25}, {"name": "Arts & Entertainment", "percent": 21}, {"name": "Baby & Toddler", "percent": 21}]},
+  "Speakers": {"size": "19M", "overlaps": [{"name": "Arcade Equipment", "percent": 33}, {"name": "Video", "percent": 31}, {"name": "Camping & Hiking", "percent": 28}, {"name": "Shaving & Grooming", "percent": 27}, {"name": "Alcoholic Beverages", "percent": 27}]},
+  "Sporting Goods": {"size": "19M", "overlaps": [{"name": "Shoes", "percent": 69}, {"name": "Laptops", "percent": 68}, {"name": "Shaving & Grooming", "percent": 65}, {"name": "Alcoholic Beverages", "percent": 63}, {"name": "Household Supplies", "percent": 62}]},
+  "Sports & Energy Drinks": {"size": "9M", "overlaps": [{"name": "Alcoholic Beverages", "percent": 48}, {"name": "Exercise & Fitness", "percent": 46}, {"name": "Household Supplies", "percent": 44}, {"name": "Shoes", "percent": 41}, {"name": "Indoor Games", "percent": 39}]},
+  "Sports Toys": {"size": "4M", "overlaps": [{"name": "Speakers", "percent": 43}, {"name": "Shaving & Grooming", "percent": 43}, {"name": "Sporting Goods", "percent": 42}, {"name": "Outdoor Furniture", "percent": 42}, {"name": "Software", "percent": 42}]},
+  "Storage Devices": {"size": "19M", "overlaps": [{"name": "Office Supplies", "percent": 40}, {"name": "Indoor Games", "percent": 38}, {"name": "Electronics Accessories", "percent": 31}, {"name": "Electronics", "percent": 31}, {"name": "Networking", "percent": 29}]},
+  "Suitcases": {"size": "4M", "overlaps": [{"name": "Toys & Games", "percent": 46}, {"name": "Beds & Accessories", "percent": 33}, {"name": "Animals & Pet Supplies", "percent": 32}, {"name": "Toys", "percent": 29}, {"name": "Clothing", "percent": 28}]},
+  "Sunglasses": {"size": "9M", "overlaps": [{"name": "Laptops", "percent": 71}, {"name": "Shoes", "percent": 68}, {"name": "Household Supplies", "percent": 66}, {"name": "Outdoor Recreation", "percent": 66}, {"name": "Athletics", "percent": 60}]},
+  "Swaddling & Receiving Blankets": {"size": "9M", "overlaps": [{"name": "Food Items", "percent": 44}, {"name": "Arts & Entertainment", "percent": 42}, {"name": "Baby & Toddler", "percent": 37}, {"name": "Food Service", "percent": 35}, {"name": "Radar Detectors", "percent": 31}]},
+  "Tables": {"size": "9M", "overlaps": [{"name": "3D Printers", "percent": 40}, {"name": "Sports & Energy Drinks", "percent": 33}, {"name": "Operating Systems", "percent": 29}, {"name": "Plumbing", "percent": 23}, {"name": "Baby Gift Sets", "percent": 22}]},
+  "Tablet Computers": {"size": "19M", "overlaps": [{"name": "Audio", "percent": 38}, {"name": "Communications", "percent": 32}, {"name": "Computers", "percent": 31}, {"name": "Food Items", "percent": 23}, {"name": "Soups & Broths", "percent": 23}]},
+  "Tea & Infusions": {"size": "19M", "overlaps": [{"name": "Shorts", "percent": 41}, {"name": "Building Materials", "percent": 39}, {"name": "Sofas", "percent": 36}, {"name": "Kitchen Tools & Utensils", "percent": 36}, {"name": "Beverages", "percent": 25}]},
+  "Televisions": {"size": "19M", "overlaps": [{"name": "Non-Dairy Milk", "percent": 33}, {"name": "Vehicles", "percent": 28}, {"name": "Video", "percent": 28}, {"name": "Office Supplies", "percent": 27}, {"name": "Sleeping Aids", "percent": 24}]},
+  "Tools": {"size": "9M", "overlaps": [{"name": "Shaving & Grooming", "percent": 81}, {"name": "Shoes", "percent": 80}, {"name": "Components", "percent": 77}, {"name": "Exercise & Fitness", "percent": 75}, {"name": "Sporting Goods", "percent": 71}]},
+  "Toys": {"size": "19M", "overlaps": [{"name": "Media", "percent": 44}, {"name": "Sleeping Aids", "percent": 40}, {"name": "Toys & Games", "percent": 33}, {"name": "Circuit Boards & Components", "percent": 32}, {"name": "Toys & Games", "percent": 31}]},
+  "Toys & Games": {"size": "19M", "overlaps": [{"name": "Circuit Boards & Components", "percent": 52}, {"name": "Networking", "percent": 47}, {"name": "Exercise & Fitness", "percent": 43}, {"name": "Shaving & Grooming", "percent": 39}, {"name": "Electronics Accessories", "percent": 39}]},
+  "Vehicle Parts & Accessories": {"size": "19M", "overlaps": [{"name": "Shorts", "percent": 41}, {"name": "Outerwear", "percent": 41}, {"name": "3D Printers", "percent": 39}, {"name": "Sofas", "percent": 36}, {"name": "Cabinets & Storage", "percent": 32}]},
+  "Vehicles": {"size": "19M", "overlaps": [{"name": "Fitness & Nutrition", "percent": 33}, {"name": "Home & Garden", "percent": 31}, {"name": "Office Supplies", "percent": 30}, {"name": "Televisions", "percent": 28}, {"name": "Vision Care", "percent": 24}]},
+  "Vehicles & Parts": {"size": "19M", "overlaps": [{"name": "Shoes", "percent": 41}, {"name": "Laptops", "percent": 39}, {"name": "Components", "percent": 36}, {"name": "Outdoor Recreation", "percent": 35}, {"name": "Beds & Accessories", "percent": 35}]},
+  "Video": {"size": "19M", "overlaps": [{"name": "Televisions", "percent": 28}, {"name": "Electronics", "percent": 24}, {"name": "Business & Industrial", "percent": 19}, {"name": "Computer Software", "percent": 18}, {"name": "Software", "percent": 18}]},
+  "Video Game Consoles": {"size": "9M", "overlaps": [{"name": "Electronics Accessories", "percent": 68}, {"name": "Chairs", "percent": 56}, {"name": "Circuit Boards & Components", "percent": 48}, {"name": "Electronics", "percent": 44}, {"name": "Baby Bathing", "percent": 40}]},
+  "Vision Care": {"size": "19M", "overlaps": [{"name": "Fitness & Nutrition", "percent": 45}, {"name": "Household Appliances", "percent": 41}, {"name": "Fitness & Nutrition", "percent": 30}, {"name": "Media", "percent": 28}, {"name": "Foot Care", "percent": 24}]},
+  "Water": {"size": "19M", "overlaps": [{"name": "Oral Care", "percent": 35}, {"name": "Shorts", "percent": 32}, {"name": "Outerwear", "percent": 29}, {"name": "Kitchen Tools & Utensils", "percent": 23}, {"name": "Cabinets & Storage", "percent": 21}]},
+  "Winter Sports & Activities": {"size": "4M", "overlaps": [{"name": "Arts & Entertainment", "percent": 45}, {"name": "Baby & Toddler", "percent": 44}, {"name": "Food Items", "percent": 37}, {"name": "Swaddling & Receiving Blankets", "percent": 31}, {"name": "Food Service", "percent": 30}]},
+  "Wood Stoves": {"size": "4M", "overlaps": [{"name": "Vehicles & Parts", "percent": 49}, {"name": "Communications", "percent": 45}, {"name": "Entertainment Centers & TV Stands", "percent": 38}, {"name": "Electronics", "percent": 34}, {"name": "Alcoholic Beverages", "percent": 34}]},
+  "Yoga & Pilates": {"size": "9M", "overlaps": [{"name": "Household Supplies", "percent": 68}, {"name": "Laptops", "percent": 66}, {"name": "Alcoholic Beverages", "percent": 61}, {"name": "Sporting Goods", "percent": 55}, {"name": "Indoor Games", "percent": 55}]}
+};
+
+        // ==========================================
+        // EMBEDDED COMMERCE AUDIENCE DEALS DATA
+        // Last updated: 2025-10-13T21:02:01Z
+        // Total: 300 deals across 75 segments
+        // ==========================================
+        
+        const EMBEDDED_DEALS_JSON = '{"Activewear": [{"segment": "Activewear", "dealId": "SVN_355571455", "dealName": "Activewear Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Activewear", "dealId": "SVN_744295785", "dealName": "Activewear Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Activewear", "dealId": "SVN_537410997", "dealName": "Activewear Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Activewear", "dealId": "SVN_296954612", "dealName": "Activewear Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Animals & Pet Supplies": [{"segment": "Animals & Pet Supplies", "dealId": "SVN_2175981", "dealName": "Animals & Pet Supplies Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Animals & Pet Supplies", "dealId": "SVN_2327912", "dealName": "Animals & Pet Supplies Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Animals & Pet Supplies", "dealId": "SVN_5743783", "dealName": "Animals & Pet Supplies Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Animals & Pet Supplies", "dealId": "SVN_4862627", "dealName": "Animals & Pet Supplies Purchase Intender-(CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Antivirus & Security Software": [{"segment": "Antivirus & Security Software", "dealId": "SVN_183947250", "dealName": "Antivirus & Security Software Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Antivirus & Security Software", "dealId": "SVN_284756193", "dealName": "Antivirus & Security Software Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Antivirus & Security Software", "dealId": "SVN_907123486", "dealName": "Antivirus & Security Software Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Antivirus & Security Software", "dealId": "SVN_304958712", "dealName": "Antivirus & Security Software Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Arts & Entertainment": [{"segment": "Arts & Entertainment", "dealId": "SVN_955653564", "dealName": "Arts & Entertainment Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Arts & Entertainment", "dealId": "SVN_219249778", "dealName": "Arts & Entertainment Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Arts & Entertainment", "dealId": "SVN_368516540", "dealName": "Arts & Entertainment Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Arts & Entertainment", "dealId": "SVN_165598004", "dealName": "Arts & Entertainment Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Athletics": [{"segment": "Athletics", "dealId": "SVN_492038571", "dealName": "Athletics Purchase Intender  (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Athletics", "dealId": "SVN_583920174", "dealName": "Athletics Purchase Intender  (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Athletics", "dealId": "SVN_182947305", "dealName": "Athletics Purchase Intender  (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Athletics", "dealId": "SVN_492083745", "dealName": "Athletics Purchase Intender  (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Baby & Toddler": [{"segment": "Baby & Toddler", "dealId": "SVN_3541842", "dealName": "Baby & Toddler Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Baby & Toddler", "dealId": "SVN_1611636", "dealName": "Baby & Toddler Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Baby & Toddler", "dealId": "SVN_6211619", "dealName": "Baby & Toddler Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Baby & Toddler", "dealId": "SVN_1416822", "dealName": "Baby & Toddler Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Baby & Toddler Clothing": [{"segment": "Baby & Toddler Clothing", "dealId": "SVN_605884854", "dealName": "Baby & Toddler Clothing Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Baby & Toddler Clothing", "dealId": "SVN_375529423", "dealName": "Baby & Toddler Clothing Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Baby & Toddler Clothing", "dealId": "SVN_588332248", "dealName": "Baby & Toddler Clothing Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Baby & Toddler Clothing", "dealId": "SVN_490669008", "dealName": "Baby & Toddler Clothing Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Baby Gift Sets": [{"segment": "Baby Gift Sets", "dealId": "SVN_373025704", "dealName": "Baby Gift Sets Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Baby Gift Sets", "dealId": "SVN_857448612", "dealName": "Baby Gift Sets Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Baby Gift Sets", "dealId": "SVN_737964755", "dealName": "Baby Gift Sets Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Baby Gift Sets", "dealId": "SVN_102594277", "dealName": "Baby Gift Sets Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Baby Health": [{"segment": "Baby Health", "dealId": "SVN_549542561", "dealName": "Baby Health Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Baby Health", "dealId": "SVN_120519401", "dealName": "Baby Health Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Baby Health", "dealId": "SVN_538872875", "dealName": "Baby Health Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Baby Health", "dealId": "SVN_511598334", "dealName": "Baby Health Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Baby Safety": [{"segment": "Baby Safety", "dealId": "SVN_673026280", "dealName": "Baby Safety Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Baby Safety", "dealId": "SVN_436401095", "dealName": "Baby Safety Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Baby Safety", "dealId": "SVN_137366320", "dealName": "Baby Safety Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Baby Safety", "dealId": "SVN_248127435", "dealName": "Baby Safety Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Baby Toys & Activity Equipment": [{"segment": "Baby Toys & Activity Equipment", "dealId": "SVN_978869462", "dealName": "Baby Toys & Activity Equipment Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Baby Toys & Activity Equipment", "dealId": "SVN_174461994", "dealName": "Baby Toys & Activity Equipment Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Baby Toys & Activity Equipment", "dealId": "SVN_319111485", "dealName": "Baby Toys & Activity Equipment Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Baby Toys & Activity Equipment", "dealId": "SVN_547231735", "dealName": "Baby Toys & Activity Equipment Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Baby Transport": [{"segment": "Baby Transport", "dealId": "SVN_670698074", "dealName": "Baby Transport Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Baby Transport", "dealId": "SVN_140420888", "dealName": "Baby Transport Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Baby Transport", "dealId": "SVN_343570301", "dealName": "Baby Transport Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Baby Transport", "dealId": "SVN_698939534", "dealName": "Baby Transport Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Beds & Accessories": [{"segment": "Beds & Accessories", "dealId": "SVN_901827364", "dealName": "Beds & Accessories Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Beds & Accessories", "dealId": "SVN_174920385", "dealName": "Beds & Accessories Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Beds & Accessories", "dealId": "SVN_672380194", "dealName": "Beds & Accessories Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Beds & Accessories", "dealId": "SVN_432871650", "dealName": "Beds & Accessories Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Beverages": [{"segment": "Beverages", "dealId": "SVN_562198304", "dealName": "Beverages Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Beverages", "dealId": "SVN_807134256", "dealName": "Beverages Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Beverages", "dealId": "SVN_298374105", "dealName": "Beverages Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Beverages", "dealId": "SVN_620194837", "dealName": "Beverages Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Boating & Fishing": [{"segment": "Boating & Fishing", "dealId": "SVN_183947206", "dealName": "Boating & Fishing Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Boating & Fishing", "dealId": "SVN_384756200", "dealName": "Boating & Fishing Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Boating & Fishing", "dealId": "SVN_284756192", "dealName": "Boating & Fishing Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Boating & Fishing", "dealId": "SVN_849230172", "dealName": "Boating & Fishing Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Business & Industrial": [{"segment": "Business & Industrial", "dealId": "SVN_9292894", "dealName": "Business & Industrial Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Business & Industrial", "dealId": "SVN_4452198", "dealName": "Business & Industrial Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Business & Industrial", "dealId": "SVN_1796135", "dealName": "Business & Industrial Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Business & Industrial", "dealId": "SVN_1281246", "dealName": "Business & Industrial Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Business & Productivity Software": [{"segment": "Business & Productivity Software", "dealId": "SVN_758204193", "dealName": "Business & Productivity Software Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Business & Productivity Software", "dealId": "SVN_928374615", "dealName": "Business & Productivity Software Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Business & Productivity Software", "dealId": "SVN_918203746", "dealName": "Business & Productivity Software Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Business & Productivity Software", "dealId": "SVN_374920185", "dealName": "Business & Productivity Software Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Cameras & Optics": [{"segment": "Cameras & Optics", "dealId": "SVN_6664853", "dealName": "Cameras & Optics Purchase Intender (Multi-format)s", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Cameras & Optics", "dealId": "SVN_6624518", "dealName": "Cameras & Optics Purchase Intender Mobile App Display", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Cameras & Optics", "dealId": "SVN_9768824", "dealName": "Cameras & Optics Purchase Intender Mobile App Video ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Cameras & Optics", "dealId": "SVN_1121757", "dealName": "Cameras & Optics Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Camping & Hiking": [{"segment": "Camping & Hiking", "dealId": "SVN_612847390", "dealName": "Camping & Hiking Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Camping & Hiking", "dealId": "SVN_384756208", "dealName": "Camping & Hiking Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Camping & Hiking", "dealId": "SVN_109283745", "dealName": "Camping & Hiking Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Camping & Hiking", "dealId": "SVN_384120975", "dealName": "Camping & Hiking Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Cat Supplies": [{"segment": "Cat Supplies", "dealId": "SVN_291311222", "dealName": "Cat Supplies Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Cat Supplies", "dealId": "SVN_847317775", "dealName": "Cat Supplies Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Cat Supplies", "dealId": "SVN_900424593", "dealName": "Cat Supplies Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Cat Supplies", "dealId": "SVN_648092430", "dealName": "Cat Supplies Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Clothing & Accessories": [{"segment": "Clothing & Accessories", "dealId": "SVN_755261068", "dealName": "Clothing & Accessories Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Clothing & Accessories", "dealId": "SVN_958600576", "dealName": "Clothing & Accessories Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Clothing & Accessories", "dealId": "SVN_818744760", "dealName": "Clothing & Accessories Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Clothing & Accessories", "dealId": "SVN_310183974", "dealName": "Clothing & Accessories Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Clothing Accessories": [{"segment": "Clothing Accessories", "dealId": "SVN_192683788", "dealName": "Clothing Accessories Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Clothing Accessories", "dealId": "SVN_535635430", "dealName": "Clothing Accessories Purchase Intenders (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Clothing Accessories", "dealId": "SVN_781775200", "dealName": "Clothing Accessories Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Clothing Accessories", "dealId": "SVN_284406418", "dealName": "Clothing Accessories Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Coffee": [{"segment": "Coffee", "dealId": "SVN_136331100", "dealName": "Coffee Purchase Intender  (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Coffee", "dealId": "SVN_173979909", "dealName": "Coffee Purchase Intender  (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Coffee", "dealId": "SVN_988719320", "dealName": "Coffee Purchase Intender  (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Coffee", "dealId": "SVN_580023180", "dealName": "Coffee Purchase Intender  (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}], "Computer Software": [{"segment": "Computer Software", "dealId": "SVN_564738291", "dealName": "Computer Software Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Computer Software", "dealId": "SVN_847362910", "dealName": "Computer Software Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Computer Software", "dealId": "SVN_390128475", "dealName": "Computer Software Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Computer Software", "dealId": "SVN_203948716", "dealName": "Computer Software Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Computers": [{"segment": "Computers", "dealId": "SVN_510744785", "dealName": "Computers Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Computers", "dealId": "SVN_768294531", "dealName": "Computers Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Computers", "dealId": "SVN_984302175", "dealName": "Computers Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Computers", "dealId": "SVN_102983745", "dealName": "Computers Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Condiments & Sauces": [{"segment": "Condiments & Sauces", "dealId": "SVN_304958271", "dealName": "Condiments & Sauces Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Condiments & Sauces", "dealId": "SVN_875203194", "dealName": "Condiments & Sauces Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Condiments & Sauces", "dealId": "SVN_193847205", "dealName": "Condiments & Sauces Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Condiments & Sauces", "dealId": "SVN_607382194", "dealName": "Condiments & Sauces Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Cooking & Baking Ingredients": [{"segment": "Cooking & Baking Ingredients", "dealId": "SVN_820374156", "dealName": "Cooking & Baking Ingredients Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Cooking & Baking Ingredients", "dealId": "SVN_340198275", "dealName": "Cooking & Baking Ingredients Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Cooking & Baking Ingredients", "dealId": "SVN_965302817", "dealName": "Cooking & Baking Ingredients Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Cooking & Baking Ingredients", "dealId": "SVN_578320194", "dealName": "Cooking & Baking Ingredients Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Cookware & Bakeware": [{"segment": "Cookware & Bakeware", "dealId": "SVN_837402195", "dealName": "Cookware & Bakeware Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Cookware & Bakeware", "dealId": "SVN_198374650", "dealName": "Cookware & Bakeware Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Cookware & Bakeware", "dealId": "SVN_375918204", "dealName": "Cookware & Bakeware Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Cookware & Bakeware", "dealId": "SVN_410293857", "dealName": "Cookware & Bakeware Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Cosmetics": [{"segment": "Cosmetics", "dealId": "SVN_820394175", "dealName": "Cosmetics Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Cosmetics", "dealId": "SVN_918204763", "dealName": "Cosmetics Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Cosmetics", "dealId": "SVN_109238475", "dealName": "Cosmetics Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Cosmetics", "dealId": "SVN_302874519", "dealName": "Cosmetics Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Dairy Products": [{"segment": "Dairy Products", "dealId": "SVN_382047510", "dealName": "Dairy Products Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Dairy Products", "dealId": "SVN_493820175", "dealName": "Dairy Products Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Dairy Products", "dealId": "SVN_108237456", "dealName": "Dairy Products Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Dairy Products", "dealId": "SVN_284756193", "dealName": "Dairy Products Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Diapering": [{"segment": "Diapering", "dealId": "SVN_673953258", "dealName": "Diapering Purchase Intender(Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Diapering", "dealId": "SVN_740055947", "dealName": "Diapering Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Diapering", "dealId": "SVN_225966891", "dealName": "Diapering Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Diapering", "dealId": "SVN_804655841", "dealName": "Diapering Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Dog Supplies": [{"segment": "Dog Supplies", "dealId": "SVN_775417176", "dealName": "Dog Supplies Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Dog Supplies", "dealId": "SVN_198228780", "dealName": "Dog Supplies Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Dog Supplies", "dealId": "SVN_213373891", "dealName": "Dog Supplies Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Dog Supplies", "dealId": "SVN_144482213", "dealName": "Dog Supplies Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Dresses": [{"segment": "Dresses", "dealId": "SVN_760602601", "dealName": "Dresses Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Dresses", "dealId": "SVN_198635045", "dealName": "Dresses Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Dresses", "dealId": "SVN_150445335", "dealName": "Dresses Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Dresses", "dealId": "SVN_145220244", "dealName": "Dresses Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Educational Software": [{"segment": "Educational Software", "dealId": "SVN_582073194", "dealName": "Educational Software Purchase Intender(Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Educational Software", "dealId": "SVN_612847390", "dealName": "Educational Software Purchase Intender(CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Educational Software", "dealId": "SVN_784029135", "dealName": "Educational Software Purchase Intender(Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Educational Software", "dealId": "SVN_982374051", "dealName": "Educational Software Purchase Intender(Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Educational Toys": [{"segment": "Educational Toys", "dealId": "SVN_374829105", "dealName": "Educational Toys Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Educational Toys", "dealId": "SVN_918203745", "dealName": "Educational Toys Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Educational Toys", "dealId": "SVN_918204763", "dealName": "Educational Toys Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Educational Toys", "dealId": "SVN_204958176", "dealName": "Educational Toys Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Electronics": [{"segment": "Electronics", "dealId": "SVN_746826319", "dealName": "Electronics Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Electronics", "dealId": "SVN_226517641", "dealName": "Electronics Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Electronics", "dealId": "SVN_478905558", "dealName": "Electronics Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Electronics", "dealId": "SVN_148688501", "dealName": "Electronics Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Event Tickets": [{"segment": "Event Tickets", "dealId": "SVN_181127689", "dealName": "Event Tickets Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Event Tickets", "dealId": "SVN_386130358", "dealName": "Event Tickets Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Event Tickets", "dealId": "SVN_232947753", "dealName": "Event Tickets Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Event Tickets", "dealId": "SVN_471731631", "dealName": "Event Tickets Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Exercise & Fitness": [{"segment": "Exercise & Fitness", "dealId": "SVN_602938471", "dealName": "Exercise & Fitness Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Exercise & Fitness", "dealId": "SVN_803920174", "dealName": "Exercise & Fitness Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Exercise & Fitness", "dealId": "SVN_928374105", "dealName": "Exercise & Fitness Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Exercise & Fitness", "dealId": "SVN_748230156", "dealName": "Exercise & Fitness Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Fitness & Nutrition": [{"segment": "Fitness & Nutrition", "dealId": "SVN_783209145", "dealName": "Fitness & Nutrition Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Fitness & Nutrition", "dealId": "SVN_829347510", "dealName": "Fitness & Nutrition Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Fitness & Nutrition", "dealId": "SVN_120384765", "dealName": "Fitness & Nutrition Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Fitness & Nutrition", "dealId": "SVN_509182347", "dealName": "Fitness & Nutrition Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Fitness Enthusiasts": [{"segment": "Fitness Enthusiasts", "dealId": "SVN_679310577", "dealName": "Fitness Enthusiasts Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Fitness Enthusiasts", "dealId": "SVN_583129226", "dealName": "Fitness Enthusiasts Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Fitness Enthusiasts", "dealId": "SVN_542177894", "dealName": "Fitness Enthusiasts Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Fitness Enthusiasts", "dealId": "SVN_611172335", "dealName": "Fitness Enthusiasts Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Food & Beverage Carriers": [{"segment": "Food & Beverage Carriers", "dealId": "SVN_582739104", "dealName": "Food & Beverage Carriers Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Food & Beverage Carriers", "dealId": "SVN_643820194", "dealName": "Food & Beverage Carriers Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Food & Beverage Carriers", "dealId": "SVN_182374509", "dealName": "Food & Beverage Carriers Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Food & Beverage Carriers", "dealId": "SVN_290384715", "dealName": "Food & Beverage Carriers Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Food & Beverages": [{"segment": "Food & Beverages", "dealId": "SVN_7846599", "dealName": "Food & Beverages Purchase Intender  (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Food & Beverages", "dealId": "SVN_5997534", "dealName": "Food & Beverages Purchase Intender  (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Food & Beverages", "dealId": "SVN_7585916", "dealName": "Food & Beverages Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Food & Beverages", "dealId": "SVN_9211927", "dealName": "Food & Beverages Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Food Items": [{"segment": "Food Items", "dealId": "SVN_572903184", "dealName": "Food Items Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Food Items", "dealId": "SVN_128374659", "dealName": "Food Items Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Food Items", "dealId": "SVN_239874610", "dealName": "Food Items Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Food Items", "dealId": "SVN_764820395", "dealName": "Food Items Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Food Storage": [{"segment": "Food Storage", "dealId": "SVN_781203496", "dealName": "Food Storage Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Food Storage", "dealId": "SVN_384756129", "dealName": "Food Storage Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Food Storage", "dealId": "SVN_910283745", "dealName": "Food Storage Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Food Storage", "dealId": "SVN_748230196", "dealName": "Food Storage Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Food Storage Accessories": [{"segment": "Food Storage Accessories", "dealId": "SVN_289374650", "dealName": "Food Storage Accessories Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Food Storage Accessories", "dealId": "SVN_670293184", "dealName": "Food Storage Accessories Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Food Storage Accessories", "dealId": "SVN_839471205", "dealName": "Food Storage Accessories Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Food Storage Accessories", "dealId": "SVN_928374516", "dealName": "Food Storage Accessories Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Furniture": [{"segment": "Furniture", "dealId": "SVN_1644446", "dealName": "Furniture Purchase Intender  (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Furniture", "dealId": "SVN_6662459", "dealName": "Furniture Purchase Intender  Mobile App Display", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Furniture", "dealId": "SVN_3346945", "dealName": "Furniture Purchase Intender  Mobile App Video ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Furniture", "dealId": "SVN_6743169", "dealName": "Furniture Purchase Intender  (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Hardware": [{"segment": "Hardware", "dealId": "SVN_4614392", "dealName": "Hardware Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Hardware", "dealId": "SVN_2959778", "dealName": "Hardware Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Hardware", "dealId": "SVN_9419538", "dealName": "Hardware Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Hardware", "dealId": "SVN_8433753", "dealName": "Hardware Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Health & Beauty": [{"segment": "Health & Beauty", "dealId": "SVN_215209864", "dealName": "Health & Beauty Purchase Intender  (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Health & Beauty", "dealId": "SVN_337987055", "dealName": "Health & Beauty Purchase Intender  (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Health & Beauty", "dealId": "SVN_527110744", "dealName": "Health & Beauty Purchase Intender  (Mobile App - Video )", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Health & Beauty", "dealId": "SVN_822101186", "dealName": "Health & Beauty Purchase Intender  (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Home & Garden": [{"segment": "Home & Garden", "dealId": "SVN_966432910", "dealName": "Home & Garden Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Home & Garden", "dealId": "SVN_111186780", "dealName": "Home & Garden Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Home & Garden", "dealId": "SVN_966006225", "dealName": "Home & Garden Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Home & Garden", "dealId": "SVN_482004387", "dealName": "Home & Garden Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Household Mobile Appliances": [{"segment": "Household Mobile Appliances", "dealId": "SVN_384120957", "dealName": "Household Mobile Appliances Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Household Mobile Appliances", "dealId": "SVN_502938471", "dealName": "Household Mobile Appliances Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Household Mobile Appliances", "dealId": "SVN_281947603", "dealName": "Household Mobile Appliances Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Household Mobile Appliances", "dealId": "SVN_938472015", "dealName": "Household Mobile Appliances Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Household Supplies": [{"segment": "Household Supplies", "dealId": "SVN_374820156", "dealName": "Household Supplies Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Household Supplies", "dealId": "SVN_298374165", "dealName": "Household Supplies Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Household Supplies", "dealId": "SVN_401928374", "dealName": "Household Supplies Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Household Supplies", "dealId": "SVN_928374610", "dealName": "Household Supplies Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Indoor Games": [{"segment": "Indoor Games", "dealId": "SVN_290384716", "dealName": "Indoor Games Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Indoor Games", "dealId": "SVN_182374509", "dealName": "Indoor Games Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Indoor Games", "dealId": "SVN_748230198", "dealName": "Indoor Games Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Indoor Games", "dealId": "SVN_928374506", "dealName": "Indoor Games Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Kitchen Mobile Appliances": [{"segment": "Kitchen Mobile Appliances", "dealId": "SVN_123984760", "dealName": "Kitchen Mobile Appliances Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Kitchen Mobile Appliances", "dealId": "SVN_849230175", "dealName": "Kitchen Mobile Appliances Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Kitchen Mobile Appliances", "dealId": "SVN_709384210", "dealName": "Kitchen Mobile Appliances Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Kitchen Mobile Appliances", "dealId": "SVN_193847205", "dealName": "Kitchen Mobile Appliances Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Lawn & Garden": [{"segment": "Lawn & Garden", "dealId": "SVN_489302174", "dealName": "Lawn & Garden Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Lawn & Garden", "dealId": "SVN_702938416", "dealName": "Lawn & Garden Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Lawn & Garden", "dealId": "SVN_903847215", "dealName": "Lawn & Garden Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Lawn & Garden", "dealId": "SVN_102938471", "dealName": "Lawn & Garden Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Luggage & Bags": [{"segment": "Luggage & Bags", "dealId": "SVN_5735814", "dealName": "Luggage & Bags Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Luggage & Bags", "dealId": "SVN_6138355", "dealName": "Luggage & Bags Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Luggage & Bags", "dealId": "SVN_6167811", "dealName": "Luggage & Bags Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Luggage & Bags", "dealId": "SVN_8426147", "dealName": "Luggage & Bags Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Media": [{"segment": "Media", "dealId": "SVN_197745454", "dealName": "Media Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Media", "dealId": "SVN_417934471", "dealName": "Media Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Media", "dealId": "SVN_963052309", "dealName": "Media Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Media", "dealId": "SVN_754634192", "dealName": "Media Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "New Parents": [{"segment": "New Parents", "dealId": "SVN_928374165", "dealName": "New Parents Purchase Intender  (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "New Parents", "dealId": "SVN_849230178", "dealName": "New Parents Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "New Parents", "dealId": "SVN_384756203", "dealName": "New Parents Purchase Intender  (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "New Parents", "dealId": "SVN_293847615", "dealName": "New Parents Purchase Intender  (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Office Supplies": [{"segment": "Office Supplies", "dealId": "SVN_7851559", "dealName": "Office Supplies Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Office Supplies", "dealId": "SVN_1152792", "dealName": "Office Supplies Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Office Supplies", "dealId": "SVN_9221489", "dealName": "Office Supplies Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Office Supplies", "dealId": "SVN_6392693", "dealName": "Office Supplies Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Outdoor Recreation": [{"segment": "Outdoor Recreation", "dealId": "SVN_847362901", "dealName": "Outdoor Recreation Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Outdoor Recreation", "dealId": "SVN_583920145", "dealName": "Outdoor Recreation Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Outdoor Recreation", "dealId": "SVN_492083715", "dealName": "Outdoor Recreation Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Outdoor Recreation", "dealId": "SVN_820374165", "dealName": "Outdoor Recreation Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Party & Celebration": [{"segment": "Party & Celebration", "dealId": "SVN_420429664", "dealName": "Party & Celebration Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Party & Celebration", "dealId": "SVN_315339898", "dealName": "Party & Celebration Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Party & Celebration", "dealId": "SVN_883222248", "dealName": "Party & Celebration Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Party & Celebration", "dealId": "SVN_926326069", "dealName": "Party & Celebration Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Personal Care": [{"segment": "Personal Care", "dealId": "SVN_748230195", "dealName": "Personal Care Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Personal Care", "dealId": "SVN_813294756", "dealName": "Personal Care Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Personal Care", "dealId": "SVN_294875103", "dealName": "Personal Care Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Personal Care", "dealId": "SVN_478302195", "dealName": "Personal Care Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Pet Owners": [{"segment": "Pet Owners", "dealId": "SVN_102938471", "dealName": "Pet Owners Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Pet Owners", "dealId": "SVN_394820571", "dealName": "Pet Owners Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Pet Owners", "dealId": "SVN_203948712", "dealName": "Pet Owners Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Pet Owners", "dealId": "SVN_102938475", "dealName": "Pet Owners Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Pet Supplies": [{"segment": "Pet Supplies", "dealId": "SVN_717141060", "dealName": "Pet Supplies Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Pet Supplies", "dealId": "SVN_691935077", "dealName": "Pet Supplies Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Pet Supplies", "dealId": "SVN_749714215", "dealName": "Pet Supplies Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Pet Supplies", "dealId": "SVN_426285879", "dealName": "Pet Supplies Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Shirts & Tops": [{"segment": "Shirts & Tops", "dealId": "SVN_510816621", "dealName": "Shirts & Tops Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Shirts & Tops", "dealId": "SVN_132102510", "dealName": "Shirts & Tops Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Shirts & Tops", "dealId": "SVN_646064712", "dealName": "Shirts & Tops Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Shirts & Tops", "dealId": "SVN_592909663", "dealName": "Shirts & Tops Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Shoes": [{"segment": "Shoes", "dealId": "SVN_647146706", "dealName": "Shoes Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Shoes", "dealId": "SVN_165598004", "dealName": "Shoes Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Shoes", "dealId": "SVN_257333764", "dealName": "Shoes Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Shoes", "dealId": "SVN_326959539", "dealName": "Shoes Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Software": [{"segment": "Software", "dealId": "SVN_469427658", "dealName": "Software Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Software", "dealId": "SVN_552314219", "dealName": "Software Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Software", "dealId": "SVN_700640523", "dealName": "Software Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Software", "dealId": "SVN_894667269", "dealName": "Software Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Sporting Goods": [{"segment": "Sporting Goods", "dealId": "SVN_685527238", "dealName": "Sporting Goods Purchase Intender (Multi-format)s", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Sporting Goods", "dealId": "SVN_297809553", "dealName": "Sporting Goods Purchase Intender Mobile App Display", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Sporting Goods", "dealId": "SVN_971872520", "dealName": "Sporting Goods Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Sporting Goods", "dealId": "SVN_118387116", "dealName": "Sporting Goods Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Sports & Energy Drinks": [{"segment": "Sports & Energy Drinks", "dealId": "SVN_109283746", "dealName": "Sports & Energy Drinks Purchase Intender  (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Sports & Energy Drinks", "dealId": "SVN_498271035", "dealName": "Sports & Energy Drinks Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Sports & Energy Drinks", "dealId": "SVN_832745690", "dealName": "Sports & Energy Drinks Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Sports & Energy Drinks", "dealId": "SVN_749820163", "dealName": "Sports & Energy Drinks Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Sunglasses": [{"segment": "Sunglasses", "dealId": "SVN_924273938", "dealName": "Sunglasses Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Sunglasses", "dealId": "SVN_843319712", "dealName": "Sunglasses Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Sunglasses", "dealId": "SVN_599183091", "dealName": "Sunglasses Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Sunglasses", "dealId": "SVN_187945606", "dealName": "Sunglasses Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Toys": [{"segment": "Toys", "dealId": "SVN_928374160", "dealName": "Toys Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Toys", "dealId": "SVN_849230185", "dealName": "Toys Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Toys", "dealId": "SVN_784920135", "dealName": "Toys Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Toys", "dealId": "SVN_203948751", "dealName": "Toys Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Toys & Games": [{"segment": "Toys & Games", "dealId": "SVN_2667216", "dealName": "Toys & Games Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Toys & Games", "dealId": "SVN_9727681", "dealName": "Toys & Games Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Toys & Games", "dealId": "SVN_9675996", "dealName": "Toys & Games Purchase Intender (Mobile App Video)", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Toys & Games", "dealId": "SVN_6449787", "dealName": "Toys & Games Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Vehicles": [{"segment": "Vehicles", "dealId": "SVN_820374195", "dealName": "Vehicles Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Vehicles", "dealId": "SVN_109283740", "dealName": "Vehicles Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Vehicles", "dealId": "SVN_928374180", "dealName": "Vehicles Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Vehicles", "dealId": "SVN_748230192", "dealName": "Vehicles Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Vehicles & Parts": [{"segment": "Vehicles & Parts", "dealId": "SVN_3637122", "dealName": "Vehicles & Parts Purchase Intender(Multi-format)", "bidGuidance": 15.5, "mediaType": "All", "environment": "All"}, {"segment": "Vehicles & Parts", "dealId": "SVN_7528854", "dealName": "Vehicles & Parts Purchase Intender (Mobile App - Display)", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Vehicles & Parts", "dealId": "SVN_8179555", "dealName": "Vehicles & Parts Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}, {"segment": "Vehicles & Parts", "dealId": "SVN_2294825", "dealName": "Vehicles & Parts Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}], "Video Game Consoles": [{"segment": "Video Game Consoles", "dealId": "SVN_582037416", "dealName": "Video Game Consoles Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Video Game Consoles", "dealId": "SVN_948210365", "dealName": "Video Game Consoles Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Video Game Consoles", "dealId": "SVN_736201984", "dealName": "Video Game Consoles Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Video Game Consoles", "dealId": "SVN_193847526", "dealName": "Video Game Consoles Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}], "Yoga & Pilates": [{"segment": "Yoga & Pilates", "dealId": "SVN_384756209", "dealName": "Yoga & Pilates Purchase Intender (Multi-format)", "bidGuidance": 15.5, "mediaType": "All Format", "environment": "CTV / Mobile App"}, {"segment": "Yoga & Pilates", "dealId": "SVN_193847520", "dealName": "Yoga & Pilates Purchase Intender (CTV)", "bidGuidance": 21, "mediaType": "CTV", "environment": "CTV"}, {"segment": "Yoga & Pilates", "dealId": "SVN_204958173", "dealName": "Yoga & Pilates Purchase Intender (Mobile App - Display) ", "bidGuidance": 1.5, "mediaType": "App Display", "environment": "Mobile App"}, {"segment": "Yoga & Pilates", "dealId": "SVN_843920571", "dealName": "Yoga & Pilates Purchase Intender (Mobile App - Video) ", "bidGuidance": 5, "mediaType": "App Video", "environment": "Mobile App"}]}';
+        
+        // Parse embedded deals
+        let apiDeals = [];
+        try {
+            const embeddedDeals = JSON.parse(EMBEDDED_DEALS_JSON);
+            Object.keys(embeddedDeals).forEach(segment => {
+                embeddedDeals[segment].forEach(deal => {
+                    apiDeals.push({
+                        ...deal,
+                        targeting: 'Commerce Audiences'
+                    });
+                });
+            });
+            console.log(`✅ Loaded ${apiDeals.length} embedded Commerce Audience deals`);
+            console.log(`📊 Available segments: ${Object.keys(embeddedDeals).length}`);
+        } catch (error) {
+            console.error('❌ Error loading embedded deals:', error);
+        }
+        
+        let selectedSegment = null;
+        let selectedOverlap = null;
+        let currentEmailTemplate = 'data-driven';
+        
+        // Category organization - Google Product Taxonomy Level 1
+        // Source: https://www.google.com/basepages/producttype/taxonomy.en-US.txt
+        // Matches Commerce Audience Insights tool for consistency
+        const categories = {
+            "Animals & Pet Supplies": ["Animals & Pet Supplies", "Cat Supplies", "Dog Supplies", "Live Animals", "Pet Supplies"],
+            "Apparel & Accessories": ["Activewear", "Backpacks", "Briefcases", "Clothing", "Clothing Accessories", "Cosmetic & Toiletry Bags", "Costumes & Accessories", "Dresses", "Duffel Bags", "Messenger Bags", "Outerwear", "Shirts & Tops", "Shoes", "Shorts", "Skirts", "Suitcases", "Sunglasses"],
+            "Arts & Entertainment": ["Arts & Entertainment", "Books", "DVDs & Videos", "Event Tickets", "Film & Television", "Hobbies & Creative Arts", "Indoor Games", "Music & Sound Recordings", "Party & Celebration", "Photography", "Puzzles"],
+            "Baby & Toddler": ["Baby & Toddler", "Baby & Toddler Clothing", "Baby & Toddler Furniture", "Baby Bathing", "Baby Gift Sets", "Baby Health", "Baby Safety", "Baby Toys & Activity Equipment", "Baby Transport", "Baby Transport Accessories", "Diapering", "Nursing & Feeding", "Potty Training", "Swaddling & Receiving Blankets"],
+            "Business & Industrial": ["Advertising & Marketing", "Business & Home Security", "Business & Industrial", "Construction", "Emergency Preparedness", "Finance & Insurance", "General Office Supplies", "Manufacturing", "Retail", "Science & Laboratory", "Signage"],
+            "Cameras & Optics": ["Camera Lenses", "Camera Parts & Accessories", "Cameras", "Cameras & Optics", "Optics"],
+            "Electronics": ["3D Printers", "Antivirus & Security Software", "Arcade Equipment", "Audio", "Business & Productivity Software", "Circuit Boards & Components", "Communications", "Computer Software", "Computers", "Educational Software", "Electronics", "Electronics Accessories", "Games", "GPS Tracking Devices", "Hardware Accessories", "Laptops", "Marine Electronics", "Microphones", "Mobile Phones", "Network Software", "Networking", "Operating Systems", "Radar Detectors", "Speakers", "Storage Devices", "Tablet Computers", "Televisions", "Video", "Video Game Consoles"],
+            "Food, Beverages & Tobacco": ["Agriculture", "Alcoholic Beverages", "Beverages", "Coffee", "Condiments & Sauces", "Cooking & Baking Ingredients", "Dairy Products", "Dips & Spreads", "Food & Beverage Carriers", "Food Items", "Food Service", "Food Storage", "Food Storage Accessories", "Frozen Desserts & Novelties", "Juice", "Non-Dairy Milk", "Nuts & Seeds", "Pasta & Noodles", "Seasonings & Spices", "Soups & Broths", "Sports & Energy Drinks", "Tea & Infusions", "Water"],
+            "Furniture": ["Bathroom Accessories", "Beds & Accessories", "Benches", "Chairs", "Entertainment Centers & TV Stands", "Furniture", "Furniture Sets", "Futons", "Mattresses", "Shelving", "Sofas", "Tables"],
+            "Hardware": ["Building Materials", "Cabinets & Storage", "Fencing & Barriers", "Fireplaces", "Fireplace & Wood Stove Accessories", "Hardware", "Locks & Keys", "Plumbing", "Tools", "Wood Stoves"],
+            "Health & Beauty": ["Condoms", "Cosmetics", "Feminine Sanitary Supplies", "Foot Care", "Hairdressing & Cosmetology", "Health & Beauty", "Medical", "Oral Care", "Personal Care", "Piercing & Tattooing", "Shaving & Grooming", "Sleeping Aids", "Vision Care"],
+            "Home & Garden": ["Decor", "Forestry & Logging", "Gardening", "Home & Garden", "Hotel & Hospitality", "Household Appliances", "Household Appliance Accessories", "Household Cleaning Supplies", "Household Paper Products", "Household Supplies", "Kitchen & Dining", "Kitchen Appliance Accessories", "Kitchen Appliances", "Kitchen Tools & Utensils", "Laundry Supplies", "Lawn & Garden", "Lighting", "Linens & Bedding", "Plants", "Pool & Spa"],
+            "Luggage & Bags": ["Backpacks", "Briefcases", "Cosmetic & Toiletry Bags", "Duffel Bags", "Luggage & Bags", "Messenger Bags", "Suitcases"],
+            "Media": ["Books", "DVDs & Videos", "Media", "Magazines & Newspapers", "Music & Sound Recordings"],
+            "Office Supplies": ["General Office Supplies", "Office Equipment", "Office Furniture", "Office Supplies"],
+            "Software": ["Antivirus & Security Software", "Business & Productivity Software", "Computer Software", "Educational Software", "Network Software", "Operating Systems", "Software"],
+            "Sporting Goods": ["Athletics", "Camping & Hiking", "Cycling", "Exercise & Fitness", "Fitness & Nutrition", "Gift Giving", "Golf", "Outdoor Furniture", "Outdoor Play Equipment", "Outdoor Recreation", "Sporting Goods", "Sports Toys", "Winter Sports & Activities", "Yoga & Pilates"],
+            "Toys & Games": ["Educational Toys", "Games", "Indoor Games", "Puzzles", "Sports Toys", "Toys", "Toys & Games", "Video Game Consoles"],
+            "Vehicles & Parts": ["Vehicle Parts & Accessories", "Vehicles", "Vehicles & Parts"]
+        };
+        
+        // Initialize tool immediately with embedded data
+        initializeTool();
+        
+        function initializeTool() {
+            populateCategories();
+            setupEventListeners();
+        }
+        
+        function populateCategories() {
+            const categorySelect = document.getElementById('category-select');
+            categorySelect.innerHTML = '<option value="">Choose a category...</option>';
+            
+            Object.keys(categories).sort().forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = `${category} (${categories[category].length} segments)`;
+                categorySelect.appendChild(option);
+            });
+        }
+        
+        function populateSegments(category) {
+            const segmentSelect = document.getElementById('segment-select');
+            segmentSelect.innerHTML = '<option value="">Select a segment...</option>';
+            segmentSelect.disabled = false;
+            
+            if (!category) {
+                segmentSelect.innerHTML = '<option value="">Select a category first...</option>';
+                segmentSelect.disabled = true;
+                return;
+            }
+            
+            const segments = categories[category] || [];
+            segments.sort().forEach(segment => {
+                if (audienceData[segment]) {
+                    const option = document.createElement('option');
+                    option.value = segment;
+                    option.textContent = `${segment} (${audienceData[segment].size} buyers)`;
+                    segmentSelect.appendChild(option);
+                }
+            });
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('category-select').addEventListener('change', handleCategoryChange);
+            document.getElementById('segment-select').addEventListener('change', handleSegmentChange);
+            document.getElementById('generate-btn').addEventListener('click', generateInfographic);
+            document.getElementById('download-btn').addEventListener('click', downloadCard);
+            document.getElementById('copy-email-btn').addEventListener('click', copyEmail);
+            
+            document.querySelectorAll('.email-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.email-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentEmailTemplate = this.dataset.template;
+                    if (selectedSegment && selectedOverlap !== null) {
+                        updateEmail();
+                    }
+                });
+            });
+        }
+        
+        function handleCategoryChange(e) {
+            const category = e.target.value;
+            populateSegments(category);
+            
+            // Reset segment selection
+            selectedSegment = null;
+            selectedOverlap = null;
+            document.getElementById('overlap-section').classList.add('hidden');
+            document.getElementById('generate-btn').disabled = true;
+        }
+        
+        function handleSegmentChange(e) {
+            selectedSegment = e.target.value;
+            selectedOverlap = null;
+            
+            if (selectedSegment) {
+                showOverlaps();
+            } else {
+                document.getElementById('overlap-section').classList.add('hidden');
+            }
+            
+            document.getElementById('generate-btn').disabled = true;
+        }
+        
+        function showOverlaps() {
+            const section = document.getElementById('overlap-section');
+            const container = document.getElementById('overlap-options');
+            container.innerHTML = '';
+            
+            const data = audienceData[selectedSegment];
+            data.overlaps.forEach((overlap, index) => {
+                const div = document.createElement('div');
+                div.className = 'overlap-option';
+                div.dataset.index = index;
+                div.innerHTML = `
+                    <span class="overlap-name">${overlap.name}</span>
+                    <span class="overlap-percent">${overlap.percent}%</span>
+                `;
+                div.addEventListener('click', () => selectOverlap(index));
+                container.appendChild(div);
+            });
+            
+            section.classList.remove('hidden');
+        }
+        
+        function selectOverlap(index) {
+            document.querySelectorAll('.overlap-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelector(`[data-index="${index}"]`).classList.add('selected');
+            
+            selectedOverlap = index;
+            document.getElementById('generate-btn').disabled = false;
+        }
+        
+        function generateInfographic() {
+            const data = audienceData[selectedSegment];
+            const overlap = data.overlaps[selectedOverlap];
+            
+            // Generate card
+            const card = createCard(selectedSegment, data.size, overlap);
+            document.getElementById('preview-card').innerHTML = card;
+            document.getElementById('download-btn').classList.remove('hidden');
+            
+            // Generate email
+            updateEmail();
+            document.getElementById('email-container').classList.remove('hidden');
+            document.getElementById('email-placeholder').classList.add('hidden');
+            
+            // Show brands
+            showBrands(selectedSegment, overlap.name);
+            
+            // Show relevant deals
+            showDeals(selectedSegment, overlap.name);
+        }
+        
+        function createCard(segment, size, overlap) {
+            const segmentEmoji = getSegmentEmoji(segment);
+            const insight = generateInsight(segment, overlap.name);
+            
+            return `
+                <svg id="generated-card" width="350" height="450" viewBox="0 0 350 450" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD42B;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#FF9A00;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <rect width="350" height="120" fill="url(#cardGrad)"/>
+                    
+                    <text x="175" y="40" font-family="system-ui, sans-serif" font-size="32" font-weight="bold" fill="#282828" text-anchor="middle">
+                        ${segmentEmoji}
+                    </text>
+                    
+                    <text x="175" y="70" font-family="system-ui, sans-serif" font-size="20" font-weight="bold" fill="#282828" text-anchor="middle">
+                        ${segment}
+                    </text>
+                    
+                    <text x="175" y="95" font-family="system-ui, sans-serif" font-size="14" fill="#282828" text-anchor="middle" opacity="0.8">
+                        ${size} Commerce Buyers
+                    </text>
+                    
+                    <rect y="120" width="350" height="330" fill="#ffffff"/>
+                    
+                    <text x="175" y="160" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#666" text-anchor="middle">
+                        TOP OVERLAP
+                    </text>
+                    
+                    <text x="175" y="210" font-family="system-ui, sans-serif" font-size="52" font-weight="bold" fill="#FF9A00" text-anchor="middle">
+                        ${overlap.percent}%
+                    </text>
+                    
+                    <text x="175" y="240" font-family="system-ui, sans-serif" font-size="18" font-weight="600" fill="#282828" text-anchor="middle">
+                        ${overlap.name}
+                    </text>
+                    
+                    <line x1="30" y1="270" x2="320" y2="270" stroke="#e0e0e0" stroke-width="1"/>
+                    
+                    <text x="175" y="300" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#666" text-anchor="middle">
+                        WHY IT MATTERS
+                    </text>
+                    
+                    ${wrapText(insight, 175, 325, 12, 20, 290)}
+                    
+                    <rect y="400" width="350" height="50" fill="#f9f9f9"/>
+                    <text x="175" y="430" font-family="system-ui, sans-serif" font-size="10" fill="#666" text-anchor="middle">
+                        Powered by the Sovrn Data Collective
+                    </text>
+                </svg>
+            `;
+        }
+        
+        function wrapText(text, x, startY, fontSize, lineHeight, maxWidth) {
+            const words = text.split(' ');
+            let lines = [];
+            let currentLine = [];
+            
+            words.forEach(word => {
+                currentLine.push(word);
+                const testLine = currentLine.join(' ');
+                if (testLine.length > 50) {
+                    currentLine.pop();
+                    lines.push(currentLine.join(' '));
+                    currentLine = [word];
+                }
+            });
+            if (currentLine.length > 0) {
+                lines.push(currentLine.join(' '));
+            }
+            
+            return lines.map((line, i) => 
+                `<text x="${x}" y="${startY + (i * lineHeight)}" font-family="system-ui, sans-serif" font-size="${fontSize}" fill="#282828" text-anchor="middle">${line}</text>`
+            ).join('\n');
+        }
+        
+        function generateInsight(segment, overlapProduct) {
+            // Generate concise insights that connect the two products (max ~200 chars for card)
+            const lowerSegment = segment.toLowerCase();
+            const lowerProduct = overlapProduct.toLowerCase();
+            
+            // Create connecting insights based on the overlap
+            let insight = '';
+            
+            // Tech + Lifestyle patterns
+            if (lowerProduct.includes('laptop') || lowerProduct.includes('computer')) {
+                insight = `${segment} buyers also invest in tech to track, organize, or enhance their lifestyle. Target with productivity and data-driven appeals.`;
+            }
+            // Household supplies connections
+            else if (lowerProduct.includes('household') || lowerProduct.includes('supplies')) {
+                insight = `${segment} shoppers value quality home essentials. They're organized buyers who invest across categories for their complete lifestyle.`;
+            }
+            // Apparel/Athletic connections
+            else if (lowerProduct.includes('shoe') || lowerProduct.includes('athletic') || lowerProduct.includes('outerwear')) {
+                insight = `Active ${segment} consumers also prioritize performance apparel. They're complete lifestyle buyers seeking quality across all gear.`;
+            }
+            // Sporting goods connections
+            else if (lowerProduct.includes('sport') || lowerProduct.includes('recreation')) {
+                insight = `${segment} buyers pursue active lifestyles. The overlap shows they're building complete gear collections for their adventures.`;
+            }
+            // Alcohol/Beverage connections
+            else if (lowerProduct.includes('alcohol') || lowerProduct.includes('beverage')) {
+                insight = `${segment} shoppers enjoy premium experiences. They invest in quality beverages as part of their lifestyle enjoyment rituals.`;
+            }
+            // Furniture/Home connections
+            else if (lowerProduct.includes('furniture') || lowerProduct.includes('bed') || lowerProduct.includes('sofa')) {
+                insight = `${segment} buyers are in home investment mode. They're making multiple purchases to create complete, cohesive living spaces.`;
+            }
+            // Food connections
+            else if (lowerProduct.includes('food') || lowerProduct.includes('baby')) {
+                insight = `${segment} shoppers prioritize nutrition and safety. They're careful buyers researching quality across all their purchases.`;
+            }
+            // Electronics/Accessories
+            else if (lowerProduct.includes('electronic') || lowerProduct.includes('accessories')) {
+                insight = `Tech-savvy ${segment} buyers build complete ecosystems. They research extensively and value compatible, quality products.`;
+            }
+            // Entertainment/Media
+            else if (lowerProduct.includes('entertainment') || lowerProduct.includes('media') || lowerProduct.includes('toy')) {
+                insight = `${segment} buyers invest in experiences and enjoyment. They value quality entertainment as part of their lifestyle.`;
+            }
+            // Office/Business
+            else if (lowerProduct.includes('office')) {
+                insight = `${segment} shoppers are productivity-focused. They invest in quality tools across work and personal life for efficiency.`;
+            }
+            // Default connection
+            else {
+                insight = `${segment} buyers also purchase ${overlapProduct}. These complementary behaviors reveal lifestyle alignment—target with bundled campaigns.`;
+            }
+            
+            // Ensure it's under 200 characters
+            if (insight.length > 200) {
+                insight = insight.substring(0, 197) + '...';
+            }
+            
+            return insight;
+        }
+        
+        function getSegmentEmoji(segment) {
+            const emojiMap = {
+                "Camping & Hiking": "🏕️", "Coffee": "☕", "Dog Supplies": "🐕",
+                "Activewear": "👟", "Exercise & Fitness": "💪", "Laptops": "💻",
+                "Pet Supplies": "🐾", "Sporting Goods": "⚽", "3D Printers": "🖨️",
+                "Alcoholic Beverages": "🍷", "Agriculture": "🌾"
+            };
+            return emojiMap[segment] || "📊";
+        }
+        
+        function updateEmail() {
+            const data = audienceData[selectedSegment];
+            const overlap = data.overlaps[selectedOverlap];
+            const email = createEmail(selectedSegment, data.size, overlap, currentEmailTemplate);
+            document.getElementById('email-template').textContent = email;
+        }
+        
+        function createEmail(segment, size, overlap, template) {
+            const firstName = "[First Name]";
+            const brandName = "[Brand Name]";
+            
+            if (template === 'data-driven') {
+                return `Subject: ${overlap.percent}% of ${segment} buyers are also shopping for ${overlap.name}
+
+Hi ${firstName},
+
+I came across something in our Sovrn Data Collective that immediately made me think of ${brandName}.
+
+[Insert Infographic Image Here]
+
+${size} consumers are actively shopping for ${segment.toLowerCase()}, and ${overlap.percent}% of them are also purchasing ${overlap.name.toLowerCase()}.
+
+That's a highly qualified audience with proven purchase intent across both categories.
+
+Our segments are modeled from seed data based on real commerce transactions—giving you access to verified shopping behaviors, not just demographics.
+
+Are you free for a quick call this week to explore how we could activate this audience for your campaigns?
+
+Best,
+[Your Name]
+[Your Title]
+Sovrn
+
+P.S. This data includes ZIP-level targeting, demographic overlays, and cross-purchase insights. Happy to share more specifics.`;
+            } else if (template === 'question') {
+                return `Subject: Quick question about ${brandName}'s ${segment.toLowerCase()} strategy
+
+Hi ${firstName},
+
+Quick question: Is ${brandName} currently targeting the ${segment.toLowerCase()} audience?
+
+[Insert Infographic Image Here]
+
+I ask because we're seeing a ${overlap.percent}% overlap between ${segment.toLowerCase()} buyers and ${overlap.name.toLowerCase()} purchases in our Sovrn Data Collective (${size} total buyers).
+
+This suggests a cross-category opportunity that most brands miss.
+
+Our data is modeled from real commerce transactions, so these are actual shopping behaviors—not just lookalikes or demographics.
+
+Worth a quick conversation? I have some specific activation ideas for ${brandName}.
+
+Best,
+[Your Name]
+[Your Title]
+Sovrn`;
+            } else { // casual
+                return `Subject: Saw this and thought of ${brandName}...
+
+Hey ${firstName},
+
+Not sure if you're looking at ${segment.toLowerCase()} buyers right now, but I spotted something interesting you might want to know about.
+
+[Insert Infographic Image Here]
+
+${overlap.percent}% of people buying ${segment.toLowerCase()} are also shopping for ${overlap.name.toLowerCase()}. That's ${size} people showing strong cross-category purchase intent.
+
+This data comes from our Sovrn Data Collective—modeled from real transaction data, not just demographic guesses.
+
+Might be worth exploring for ${brandName}. Quick call this week?
+
+Thanks,
+[Your Name]
+[Your Title]
+Sovrn
+
+P.S. We can get really specific with this—ZIP codes, demographics, timing, all of it.`;
+            }
+        }
+        
+        function showBrands(segment, overlapProduct) {
+            const brands = generateBrandList(segment, overlapProduct);
+            const list = document.getElementById('brands-list');
+            list.innerHTML = '';
+            
+            brands.forEach(brand => {
+                const li = document.createElement('li');
+                li.textContent = brand;
+                list.appendChild(li);
+            });
+            
+            document.getElementById('brands-container').classList.remove('hidden');
+            document.getElementById('brands-placeholder').classList.add('hidden');
+        }
+        
+        function generateBrandList(segment, overlapProduct) {
+            // Comprehensive brand suggestions based on segment
+            const brandDatabase = {
+                // Food & Beverage
+                "Coffee": ["Starbucks", "Blue Bottle Coffee", "Nespresso", "Peet's Coffee", "Lavazza", "Illy", "Trade Coffee", "Atlas Coffee Club", "Bulletproof", "Intelligentsia"],
+                "Tea & Infusions": ["Teavana", "Harney & Sons", "DAVIDsTEA", "Tazo", "Celestial Seasonings", "Twinings", "The Republic of Tea", "Yogi Tea", "Bigelow", "Lipton"],
+                "Alcoholic Beverages": ["Total Wine", "BevMo", "Drizly", "Wine.com", "Vivino", "Constellation Brands", "Diageo", "Brown-Forman", "Pernod Ricard", "Beam Suntory"],
+                "Beverages": ["Coca-Cola", "PepsiCo", "Red Bull", "Monster Energy", "Gatorade", "Vitaminwater", "Hint Water", "LaCroix", "Spindrift", "Liquid Death"],
+                "Food Items": ["HelloFresh", "Blue Apron", "Factor", "Freshly", "Home Chef", "Thrive Market", "Whole Foods", "Trader Joe's", "Instacart", "Amazon Fresh"],
+                
+                // Baby & Kids
+                "Baby & Toddler": ["BuyBuy Baby", "Target", "Amazon", "Babylist", "The Honest Company", "Hatch Baby", "Lovevery", "Nanit", "Owlet", "4moms"],
+                "Baby & Toddler Clothing": ["Carter's", "OshKosh B'gosh", "Gap Kids", "Old Navy", "Primary", "Hanna Andersson", "Tea Collection", "Boden", "Janie and Jack", "Gymboree"],
+                "Baby Toys & Activity Equipment": ["Fisher-Price", "VTech", "Melissa & Doug", "Baby Einstein", "Skip Hop", "Infantino", "Bright Starts", "Manhattan Toy", "Sassy", "Lamaze"],
+                "Diapering": ["Huggies", "Pampers", "Coterie", "Dyper", "Hello Bello", "Honest Company", "Seventh Generation", "Babyganics", "Earth's Best", "Andy Pandy"],
+                
+                // Electronics & Technology
+                "Laptops": ["Apple", "Dell", "HP", "Lenovo", "Microsoft Surface", "ASUS", "Acer", "Razer", "MSI", "System76"],
+                "Electronics": ["Best Buy", "B&H Photo", "Newegg", "Micro Center", "Amazon", "Samsung", "Sony", "LG", "Panasonic", "Bose"],
+                "Electronics Accessories": ["Anker", "Belkin", "Cable Matters", "Logitech", "Apple", "Samsung", "Spigen", "OtterBox", "Mophie", "RAVPower"],
+                "Tablet Computers": ["Apple iPad", "Samsung Galaxy Tab", "Microsoft Surface", "Amazon Fire", "Lenovo Tab", "Google Pixel Tablet", "Huawei MatePad", "ASUS ZenPad", "Wacom", "reMarkable"],
+                "Speakers": ["Sonos", "Bose", "JBL", "Sony", "Bang & Olufsen", "KEF", "Klipsch", "Polk Audio", "Marshall", "Ultimate Ears"],
+                "Cameras & Optics": ["Canon", "Nikon", "Sony", "Fujifilm", "Panasonic", "GoPro", "DJI", "Leica", "Olympus", "Zeiss"],
+                
+                // Sports & Outdoors
+                "Exercise & Fitness": ["Peloton", "Apple Fitness+", "Mirror", "Tonal", "Whoop", "Oura Ring", "Theragun", "TRX", "Rogue Fitness", "NordicTrack"],
+                "Camping & Hiking": ["REI", "Patagonia", "The North Face", "Columbia", "Bass Pro Shops", "Cabela's", "Arc'teryx", "Osprey", "Black Diamond", "Mountain Hardwear"],
+                "Sporting Goods": ["Dick's Sporting Goods", "Academy Sports", "REI", "Nike", "Adidas", "Wilson", "Spalding", "Easton", "Rawlings", "Under Armour"],
+                "Athletics": ["Nike", "Adidas", "Under Armour", "Lululemon", "Reebok", "New Balance", "ASICS", "Puma", "Saucony", "Brooks"],
+                "Outdoor Recreation": ["REI", "Bass Pro Shops", "Cabela's", "Scheels", "L.L.Bean", "Orvis", "Sportsman's Warehouse", "Backcountry", "Moosejaw", "Gander Outdoors"],
+                "Yoga & Pilates": ["Lululemon", "Alo Yoga", "Manduka", "Gaiam", "prAna", "Beyond Yoga", "Spiritual Gangster", "Outdoor Voices", "Sweaty Betty", "Athleta"],
+                
+                // Home & Garden
+                "Pet Supplies": ["Chewy", "PetSmart", "Petco", "Purina", "Blue Buffalo", "Hill's Pet", "Royal Canin", "Iams", "Freshpet", "Stella & Chewy's"],
+                "Dog Supplies": ["Chewy", "BarkBox", "The Farmer's Dog", "Ollie", "Nom Nom", "Petco", "PetSmart", "PetPlate", "Spot & Tango", "JustFoodForDogs"],
+                "Cat Supplies": ["Chewy", "KitNipBox", "Smalls", "Nom Nom", "PrettyLitter", "Petco", "PetSmart", "Meow Mix", "Purina", "Royal Canin"],
+                "Home & Garden": ["Home Depot", "Lowe's", "Wayfair", "Overstock", "West Elm", "Pottery Barn", "Crate & Barrel", "Williams Sonoma", "Terrain", "Anthropologie Home"],
+                "Lawn & Garden": ["Home Depot", "Lowe's", "Ace Hardware", "True Value", "Tractor Supply Co", "Nature Hills", "Burpee", "Gardener's Supply", "Park Seed", "Johnny's Seeds"],
+                "Kitchen Appliances": ["KitchenAid", "Cuisinart", "Breville", "Vitamix", "Ninja", "Instant Pot", "All-Clad", "Le Creuset", "Lodge", "Anova"],
+                
+                // Furniture & Decor
+                "Furniture": ["IKEA", "Wayfair", "Article", "West Elm", "CB2", "Room & Board", "Pottery Barn", "Crate & Barrel", "Ashley Furniture", "Bob's Furniture"],
+                "Beds & Accessories": ["Casper", "Purple", "Tempur-Pedic", "Saatva", "Leesa", "Tuft & Needle", "Nectar", "Helix", "Avocado", "Brooklyn Bedding"],
+                "Mattresses": ["Casper", "Purple", "Tempur-Pedic", "Saatva", "Leesa", "Tuft & Needle", "Nectar", "Helix", "Avocado", "Brooklyn Bedding"],
+                "Sofas": ["Article", "Burrow", "Interior Define", "Joybird", "Albany Park", "Floyd", "West Elm", "Pottery Barn", "Room & Board", "Crate & Barrel"],
+                
+                // Clothing & Accessories
+                "Activewear": ["Lululemon", "Nike", "Adidas", "Under Armour", "Athleta", "Gymshark", "Alo Yoga", "Outdoor Voices", "Rhone", "Vuori"],
+                "Shoes": ["Nike", "Adidas", "Allbirds", "Veja", "On Running", "Hoka", "Brooks", "New Balance", "Saucony", "Zappos"],
+                "Outerwear": ["Patagonia", "The North Face", "Arc'teryx", "Canada Goose", "Columbia", "Marmot", "Mountain Hardwear", "Outdoor Research", "Fjällräven", "Eddie Bauer"],
+                "Clothing": ["Nordstrom", "Macy's", "Gap", "Banana Republic", "J.Crew", "Everlane", "Reformation", "Stitch Fix", "Trunk Club", "Revolve"],
+                
+                // Health & Beauty
+                "Cosmetics": ["Sephora", "Ulta", "MAC", "Fenty Beauty", "Glossier", "Rare Beauty", "Charlotte Tilbury", "Anastasia Beverly Hills", "NARS", "Urban Decay"],
+                "Personal Care": ["The Ordinary", "CeraVe", "Neutrogena", "Cetaphil", "La Roche-Posay", "Drunk Elephant", "Paula's Choice", "Kiehl's", "First Aid Beauty", "Aveeno"],
+                "Shaving & Grooming": ["Harry's", "Dollar Shave Club", "Gillette", "Schick", "Philips Norelco", "Braun", "Manscaped", "Bevel", "Art of Shaving", "Edwin Jagger"],
+                "Oral Care": ["Quip", "Philips Sonicare", "Oral-B", "Waterpik", "Burst", "Colgate", "Crest", "hello", "Tom's of Maine", "Arm & Hammer"],
+                
+                // Business & Office
+                "Office Supplies": ["Staples", "Office Depot", "Quill", "Amazon Business", "Uline", "Poppin", "Fully", "Herman Miller", "Steelcase", "Knoll"],
+                "Office Furniture": ["Herman Miller", "Steelcase", "Knoll", "Haworth", "HON", "Humanscale", "Autonomous", "Branch", "Uplift Desk", "Fully"],
+                
+                // Automotive
+                "Vehicles & Parts": ["AutoZone", "O'Reilly Auto Parts", "Advance Auto Parts", "NAPA", "CarParts.com", "RockAuto", "Summit Racing", "Tire Rack", "Discount Tire", "Pep Boys"]
+            };
+            
+            // Return brands for the segment
+            if (brandDatabase[segment]) {
+                return brandDatabase[segment];
+            }
+            
+            // Try to find related categories by keyword matching
+            const lowerSegment = segment.toLowerCase();
+            
+            // Try matching first word
+            for (const [key, brands] of Object.entries(brandDatabase)) {
+                if (lowerSegment.includes(key.toLowerCase().split(' ')[0])) {
+                    return brands;
+                }
+            }
+            
+            // Try partial matches for common terms
+            if (lowerSegment.includes('food') || lowerSegment.includes('cooking')) {
+                return brandDatabase["Food Items"];
+            }
+            if (lowerSegment.includes('cloth')) {
+                return brandDatabase["Clothing"];
+            }
+            if (lowerSegment.includes('tech') || lowerSegment.includes('software')) {
+                return brandDatabase["Electronics"];
+            }
+            if (lowerSegment.includes('furniture')) {
+                return brandDatabase["Furniture"];
+            }
+            if (lowerSegment.includes('toy')) {
+                return ["Mattel", "Hasbro", "LEGO", "Fisher-Price", "Melissa & Doug", "VTech", "Spin Master", "MGA Entertainment", "Jazwares", "TOMY"];
+            }
+            if (lowerSegment.includes('game')) {
+                return ["GameStop", "Best Buy", "Target", "Walmart", "Amazon", "Microsoft Xbox", "Sony PlayStation", "Nintendo", "Steam", "Epic Games"];
+            }
+            if (lowerSegment.includes('book') || lowerSegment.includes('media')) {
+                return ["Amazon", "Barnes & Noble", "Books-A-Million", "Powell's", "Bookshop.org", "ThriftBooks", "Better World Books", "Alibris", "Half Price Books", "Strand"];
+            }
+            if (lowerSegment.includes('tool')) {
+                return ["Home Depot", "Lowe's", "Harbor Freight", "DeWalt", "Milwaukee", "Makita", "Bosch", "Stanley", "Craftsman", "Ryobi"];
+            }
+            if (lowerSegment.includes('garden') || lowerSegment.includes('plant')) {
+                return brandDatabase["Lawn & Garden"];
+            }
+            
+            // Generic but specific retail brands as fallback
+            return [
+                "Amazon",
+                "Target",
+                "Walmart",
+                "Costco",
+                "Best Buy",
+                "Home Depot",
+                "Wayfair",
+                "Overstock",
+                "Etsy",
+                "eBay"
+            ];
+        }
+        
+        function showDeals(segment, overlapProduct) {
+            const deals = findRelevantDeals(segment, overlapProduct);
+            const list = document.getElementById('deals-list');
+            list.innerHTML = '';
+            
+            if (deals.length === 0) {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="deal-id">No specific deals found</div>
+                    <div class="deal-name">Contact your Sovrn account manager to create a custom deal for this audience segment.</div>
+                `;
+                list.appendChild(li);
+            } else {
+                deals.forEach(deal => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div class="deal-id">${deal.dealId}</div>
+                        <div class="deal-name">${deal.dealName}</div>
+                        <div class="deal-targeting">Targets: ${deal.targeting}</div>
+                        <span class="deal-cpm">${deal.bidGuidance}</span>
+                    `;
+                    list.appendChild(li);
+                });
+            }
+            
+            document.getElementById('deals-container').classList.remove('hidden');
+            document.getElementById('deals-placeholder').classList.add('hidden');
+        }
+        
+        function findRelevantDeals(segment, overlapProduct) {
+            console.log(`\n🔍 Finding deals for: "${segment}" + "${overlapProduct}"`);
+            
+            if (!apiDeals || apiDeals.length === 0) {
+                console.warn('⚠️  No API deals loaded');
+                return [];
+            }
+
+            console.log(`📦 Total API deals: ${apiDeals.length}`);
+
+            // Filter for Commerce Audience deals
+            const commerceDeals = apiDeals.filter(deal => 
+                deal.targeting && deal.targeting.includes('Commerce Audiences')
+            );
+
+            console.log(`🛒 Commerce Audience deals: ${commerceDeals.length}`);
+
+            // Extract segment name from deal name
+            // e.g., "Pet Supplies Purchase Intender (Mobile App - Video)" -> "Pet Supplies"
+            function extractSegmentFromDealName(dealName) {
+                const match = dealName.match(/^(.+?)\s+Purchase Intender/);
+                return match ? match[1].trim() : '';
+            }
+
+            // Fuzzy match segment names
+            function matchesSegment(dealSegmentName, targetSegment) {
+                if (!dealSegmentName || !targetSegment) return false;
+                
+                const dealLower = dealSegmentName.toLowerCase();
+                const targetLower = targetSegment.toLowerCase();
+                
+                // Exact match
+                if (dealLower === targetLower) return true;
+                
+                // Plural/singular variations
+                if (dealLower === targetLower + 's' || dealLower + 's' === targetLower) return true;
+                
+                // Contains match (for multi-word segments)
+                if (dealLower.includes(targetLower) || targetLower.includes(dealLower)) return true;
+                
+                // Handle "Pet Owners" vs "Pet Supplies"
+                if (dealLower.includes('pet') && targetLower.includes('pet')) return true;
+                if (dealLower.includes('baby') && targetLower.includes('baby')) return true;
+                
+                return false;
+            }
+
+            const relevantDeals = [];
+            const seen = new Set();
+
+            // Find deals matching primary segment or overlap product
+            commerceDeals.forEach(deal => {
+                const dealSegment = extractSegmentFromDealName(deal.dealName);
+                const matchesPrimary = matchesSegment(dealSegment, segment);
+                const matchesOverlap = matchesSegment(dealSegment, overlapProduct);
+                
+                if (matchesPrimary || matchesOverlap) {
+                    console.log(`  ✓ Match: ${dealSegment} → ${deal.dealId}`);
+                }
+                
+                if ((matchesPrimary || matchesOverlap) && !seen.has(deal.dealId)) {
+                    relevantDeals.push({
+                        dealId: deal.dealId,
+                        dealName: deal.dealName.replace(' Purchase Intender', ''),
+                        targeting: dealSegment,
+                        bidGuidance: deal.bidGuidance || 'Contact for pricing',
+                        matchScore: matchesPrimary && matchesOverlap ? 3 : (matchesPrimary ? 2 : 1)
+                    });
+                    seen.add(deal.dealId);
+                }
+            });
+
+            // Sort by match score (highest first) and return top 5
+            relevantDeals.sort((a, b) => b.matchScore - a.matchScore);
+            const topDeals = relevantDeals.slice(0, 5);
+            
+            console.log(`✅ Found ${relevantDeals.length} relevant deals, showing top ${topDeals.length}`);
+            
+            return topDeals;
+        }
+        
+        function downloadCard() {
+            const svg = document.getElementById('generated-card');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 350;
+            canvas.height = 450;
+            const ctx = canvas.getContext('2d');
+            
+            const img = new Image();
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+            
+            img.onload = function() {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 350, 450);
+                ctx.drawImage(img, 0, 0);
+                
+                canvas.toBlob(function(blob) {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    const filename = `${selectedSegment.replace(/\s+/g, '-')}-${audienceData[selectedSegment].overlaps[selectedOverlap].name.replace(/\s+/g, '-')}-Audience.jpg`;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                }, 'image/jpeg', 0.95);
+                
+                URL.revokeObjectURL(url);
+            };
+            
+            img.src = url;
+        }
+        
+        function copyEmail() {
+            const email = document.getElementById('email-template').textContent;
+            navigator.clipboard.writeText(email).then(() => {
+                const btn = document.getElementById('copy-email-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied to Clipboard!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
+

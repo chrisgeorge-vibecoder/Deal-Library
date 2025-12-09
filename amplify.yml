@@ -11,9 +11,9 @@ frontend:
           if [ -f "next.config.js" ]; then
             echo "✓ Already in Next.js app directory"
             npm ci
-          elif [ -d "deal-library-frontend" ]; then
-            echo "✓ Found deal-library-frontend, changing directory"
-            cd deal-library-frontend
+          elif [ -d "deal-library-amplify-app" ]; then
+            echo "✓ Found deal-library-amplify-app, changing directory"
+            cd deal-library-amplify-app
             npm ci
           else
             echo "✗ ERROR: Cannot find Next.js application!"
@@ -28,18 +28,18 @@ frontend:
             npm run build
             cp -r public .next/standalone/public
             cp -r .next/static .next/standalone/.next/static
-          elif [ -d "deal-library-frontend" ]; then
-            cd deal-library-frontend
+          elif [ -d "deal-library-amplify-app" ]; then
+            cd deal-library-amplify-app
             npm run build
             cp -r public .next/standalone/public
             cp -r .next/static .next/standalone/.next/static
           fi
   artifacts:
     # For standalone output, deploy the standalone folder
-    baseDirectory: deal-library-frontend/.next/standalone
+    baseDirectory: deal-library-amplify-app/.next/standalone
     files:
       - '**/*'
   cache:
     paths:
-      - deal-library-frontend/node_modules/**/*
-      - deal-library-frontend/.next/cache/**/*
+      - deal-library-amplify-app/node_modules/**/*
+      - deal-library-amplify-app/.next/cache/**/*

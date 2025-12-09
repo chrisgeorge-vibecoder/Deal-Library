@@ -25,22 +25,42 @@ An AI-powered marketing intelligence platform that helps media professionals dis
 
 ## 🏗️ Architecture
 
-### **Frontend** (`deal-library-frontend/`)
-- **Framework**: Next.js 14 (React 18)
-- **Styling**: Tailwind CSS with Sovrn brand colors
+This is a **single application** combining frontend and backend:
+
+```
+Deal-Library/
+├── deal-library-amplify-app/     # Full-stack Next.js application
+│   ├── src/
+│   │   ├── app/                  # Pages (Next.js App Router)
+│   │   │   ├── api/              # API routes (backend endpoints)
+│   │   │   │   ├── deals/        # Deal search APIs
+│   │   │   │   ├── audience-insights/
+│   │   │   │   ├── unified-search/
+│   │   │   │   └── ...           # Other API endpoints
+│   │   │   ├── page.tsx          # Main chat interface
+│   │   │   ├── audience-insights/
+│   │   │   ├── strategy-cards/
+│   │   │   └── ...               # Other pages
+│   │   ├── components/           # React components
+│   │   ├── lib/
+│   │   │   ├── services/         # Backend services
+│   │   │   ├── controllers/      # API controllers
+│   │   │   └── middleware/       # Express middleware
+│   │   └── types/                # TypeScript interfaces
+│   ├── public/
+│   │   └── data/                 # CSV data files
+│   └── package.json
+├── amplify.yml                   # AWS Amplify build configuration
+└── README.md
+```
+
+### **Tech Stack**
+- **Framework**: Next.js 14 (React 18) with App Router
+- **Styling**: Tailwind CSS with brand colors
 - **Charts**: Recharts for data visualization
 - **Maps**: Leaflet.js for geographic visualizations
 - **PDF Export**: jsPDF + html2canvas
-
-### **Backend** (`deal-library-backend/`)
-- **Framework**: Express.js + TypeScript
 - **AI**: Google Gemini 2.5 Flash API
-- **Data Sources**:
-  - Google Sheets (via Apps Script)
-  - US Census Data (41K+ ZIP codes)
-  - Commerce Audience Data (2M+ records, 199 segments)
-  - User-Level Overlap Data (970 relationships)
-- **Caching**: In-memory + file-based for performance
 
 ## 📊 Data Sources
 
@@ -52,98 +72,89 @@ An AI-powered marketing intelligence platform that helps media professionals dis
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 20+
-- npm or yarn
+- Node.js 18+
+- npm
 - Google Cloud API key (Gemini API)
-- Google Apps Script deployment
 
-### Installation
+### Local Development
 
 1. **Clone the repository**
 ```bash
 git clone <your-repo-url>
-cd Deal\ Library
+cd Deal-Library
 ```
 
-2. **Install Frontend Dependencies**
+2. **Install Dependencies**
 ```bash
-cd deal-library-frontend
+cd deal-library-amplify-app
 npm install
 ```
 
-3. **Install Backend Dependencies**
-```bash
-cd ../deal-library-backend
-npm install
-```
+3. **Configure Environment Variables**
 
-4. **Configure Environment Variables**
-
-Create `.env` in `deal-library-backend/`:
+Create `.env.local` in `deal-library-amplify-app/`:
 ```bash
 GEMINI_API_KEY=your_gemini_api_key_here
 APPS_SCRIPT_URL=your_apps_script_deployment_url
-PORT=3002
 ```
 
-See `deal-library-backend/env.example` for full configuration options.
-
-5. **Build Backend**
+4. **Start Development Server**
 ```bash
-cd deal-library-backend
-npm run build
-```
-
-6. **Start Backend**
-```bash
-npm start
-```
-
-7. **Start Frontend** (in a new terminal)
-```bash
-cd deal-library-frontend
 npm run dev
 ```
 
-8. **Open the app**
+5. **Open the app**
 ```
 http://localhost:3000
 ```
 
-## 📁 Project Structure
+## ☁️ AWS Amplify Deployment
 
-```
-Deal Library/
-├── deal-library-frontend/          # Next.js frontend
-│   ├── src/
-│   │   ├── app/                    # Pages (Next.js App Router)
-│   │   │   ├── page.tsx            # Main chat interface
-│   │   │   ├── audience-insights/  # Commerce Audience Insights tool
-│   │   │   └── strategy-cards/ # Strategy Cards browser
-│   │   ├── components/             # React components
-│   │   ├── types/                  # TypeScript interfaces
-│   │   └── lib/                    # Utilities
-│   └── public/                     # Static assets
-│
-├── deal-library-backend/           # Express.js backend
-│   ├── src/
-│   │   ├── controllers/            # API controllers
-│   │   ├── services/               # Business logic
-│   │   │   ├── geminiService.ts    # AI integration
-│   │   │   ├── audienceInsightsService.ts
-│   │   │   ├── censusDataService.ts
-│   │   │   ├── commerceBaselineService.ts
-│   │   │   └── personaService.ts
-│   │   ├── middleware/             # Express middleware
-│   │   └── types/                  # TypeScript interfaces
-│   └── data/                       # CSV data files
-│
-└── README.md                       # This file
+### Option 1: Deploy from Repository Root
+
+Use the main `amplify.yml` file at the repository root. Amplify will automatically detect and build from `deal-library-amplify-app/`.
+
+### Option 2: Set App Root
+
+Configure Amplify with `appRoot: deal-library-amplify-app` and use `amplify-for-approot.yml` instead.
+
+### Environment Variables in Amplify
+
+Set these environment variables in the Amplify Console:
+- `GEMINI_API_KEY` - Your Google Gemini API key
+- `APPS_SCRIPT_URL` - Your Google Apps Script deployment URL
+- `RESEND_API_KEY` - (Optional) For email functionality
+
+## 📝 API Endpoints
+
+All API routes are handled by Next.js API routes in `src/app/api/`:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/deals/search` | POST | AI-powered deal search |
+| `/api/unified-search` | POST | Search across all card types |
+| `/api/audience-insights/generate` | POST | Generate audience insights report |
+| `/api/personas` | GET | Get all personas |
+| `/api/health` | GET | Health check endpoint |
+
+## 🛠️ Development Commands
+
+```bash
+# From repository root
+npm run dev      # Start development server
+npm run build    # Build for production
+npm run start    # Start production server
+npm run lint     # Run ESLint
+
+# Or from deal-library-amplify-app/
+cd deal-library-amplify-app
+npm run dev
+npm run build
 ```
 
 ## 🎨 Brand Colors
 
-Sovrn brand colors are defined in `tailwind.config.js`:
+Defined in `tailwind.config.js`:
 - **Gold**: #FFD42B (Primary)
 - **Orange**: #FF9A00 (Secondary)
 - **Coral**: #FF7B43
@@ -151,66 +162,17 @@ Sovrn brand colors are defined in `tailwind.config.js`:
 - **Purple**: #D45087
 - **Navy**: #2F4A7C
 
-## 🔧 Key Technologies
-
-- **Frontend**: Next.js, React, TypeScript, Tailwind CSS, Recharts, Leaflet
-- **Backend**: Node.js, Express, TypeScript
-- **AI**: Google Gemini 2.5 Flash
-- **Data**: CSV parsing, vector embeddings, semantic search
-- **PDF**: jsPDF, html2canvas
-
 ## 📈 Performance Optimizations
 
-- **Commerce Baseline Caching** - 7-day cache (saves 2-3 minutes per request)
-- **Audience Insights Report Caching** - 1-hour TTL
-- **Gemini Response Caching** - Deduplication of repeated queries
-- **Lazy Loading** - Dynamic imports for heavy components (maps, charts)
-- **Request Timeouts** - 45-second frontend, 30-second backend
-
-## 🛠️ Development
-
-### Frontend Development
-```bash
-cd deal-library-frontend
-npm run dev      # Start dev server
-npm run build    # Build for production
-npm run lint     # Run ESLint
-```
-
-### Backend Development
-```bash
-cd deal-library-backend
-npm run build    # Compile TypeScript
-npm start        # Run compiled code
-```
-
-## 📝 API Documentation
-
-See `deal-library-backend/README.md` for detailed API documentation.
-
-Key endpoints:
-- `POST /api/deals/search` - AI-powered deal search
-- `POST /api/audience-insights/generate` - Generate audience insights report
-- `POST /api/unified-search` - Search across all card types
-- `GET /api/personas` - Get all personas
-
-## 🤝 Contributing
-
-This is a Sovrn internal project. For questions or contributions, please contact the development team.
+- **Standalone Output** - Optimized for serverless deployment
+- **Response Caching** - In-memory and file-based caching
+- **Lazy Loading** - Dynamic imports for heavy components
+- **Request Timeouts** - Configurable timeout handling
 
 ## 📄 License
 
 Proprietary - Sovrn Holdings, Inc.
 
-## 🙏 Acknowledgments
-
-- **Google Gemini API** - AI-powered insights
-- **US Census Bureau** - Demographic data
-- **Sovrn Data Collective** - Commerce audience data
-
 ---
 
 **Built with ❤️ by the Sovrn team**
-
-
-

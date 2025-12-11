@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { Deal } from '@/types/deal';
-import { Search, Filter, ShoppingCart, Trash2, Plus, Monitor, Video, Smartphone, Radio, Square, Globe, Tv } from 'lucide-react';
+import { Search, Filter, Plus } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
+import DealCard from './DealCard';
 
 interface DealBrowserProps {
   onDealClick: (deal: Deal) => void;
@@ -625,72 +627,17 @@ export default function DealBrowser({
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 max-w-4xl">
                 {filteredDeals.map((deal, index) => (
-                  <div 
-                    key={`deal-${deal.id}-${index}-${deal.dealName?.replace(/\s+/g, '-').toLowerCase() || 'unknown'}-${deal.environment || 'unknown'}-${deal.mediaType || 'unknown'}-${deal.bidGuidance || 'unknown'}`}
-                    className="card p-4 cursor-pointer hover:shadow-sovrn-lg transition-all duration-200 group"
+                  <DealCard
+                    key={`deal-${deal.id}-${index}`}
+                    deal={deal}
                     onClick={() => handleDealClick(deal)}
-                  >
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-3">
-                      <h4 className="font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors">
-                        {deal.dealName}
-                      </h4>
-                    </div>
-
-                    {/* Description */}
-                    <p className="text-sm text-neutral-600 mb-3 leading-relaxed">
-                      {deal.description}
-                    </p>
-
-                    {/* Environment and Media Type */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="inline-flex items-center px-2 py-1 bg-primary-100 text-primary-800 text-xs font-medium rounded-full">
-                        {deal.environment}
-                      </span>
-                      <span className="inline-flex items-center px-2 py-1 bg-secondary-100 text-secondary-800 text-xs font-medium rounded-full">
-                        {deal.mediaType}
-                      </span>
-                    </div>
-
-                    {/* Bid Guidance */}
-                    {deal.bidGuidance && (
-                      <div className="mb-3">
-                        <span className="text-xs text-neutral-500 font-medium">Bid Guidance:</span>
-                        <span className="text-xs text-neutral-600 ml-1">{deal.bidGuidance}</span>
-                      </div>
-                    )}
-
-                    {/* Add to Selections Button */}
-                    <div className="pt-3 border-t border-neutral-200">
-                        {isInCart(deal.id) ? (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onRemoveFromCart(deal.id);
-                          }}
-                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-xs font-medium"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                          Remove from Cart
-                        </button>
-                      ) : (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onAddToCart(deal);
-                          }}
-                          className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors text-xs font-medium ${
-                            isInCart(deal.id)
-                              ? 'bg-gradient-to-r from-brand-gold to-brand-orange text-white hover:from-brand-gold/90 hover:to-brand-orange/90' 
-                              : 'bg-brand-gold/10 text-brand-charcoal hover:bg-brand-gold/20'
-                          }`}
-                        >
-                          <ShoppingCart className="w-3 h-3" />
-                          Add to Cart
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                    onAddToCart={() => onAddToCart(deal)}
+                    onRemoveFromCart={() => onRemoveFromCart(deal.id)}
+                    isInCart={isInCart(deal.id)}
+                    showBidGuidance={true}
+                    showMediaType={true}
+                    compact={true}
+                  />
                 ))}
               </div>
             )}

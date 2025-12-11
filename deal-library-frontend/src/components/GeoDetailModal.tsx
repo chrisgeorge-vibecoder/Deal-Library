@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { GeoCard } from '@/types/deal';
-import { X, MapPin, Users, TrendingUp, Download, ExternalLink, Target, BarChart3, FileText, Bookmark, BookmarkCheck } from 'lucide-react';
+import { X, MapPin, Users, TrendingUp, Download, ExternalLink, Target, BarChart3, FileText, Bookmark, BookmarkCheck, Presentation } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { SlideView, SlideRenderer } from '@/components/slides';
+import { generateGeoInsightsSlides } from '@/lib/slideConfigs';
 
 // Dynamically import InteractiveMap to avoid SSR issues
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
@@ -33,7 +35,11 @@ export default function GeoDetailModal({
   onUnsaveCard,
   isSaved
 }: GeoDetailModalProps) {
+  const [viewMode, setViewMode] = useState<'detail' | 'slides'>('detail');
+  
   if (!isOpen || !geo) return null;
+  
+  const slides = generateGeoInsightsSlides(geo);
 
   return (
     <div 
@@ -61,7 +67,33 @@ export default function GeoDetailModal({
               <p className="text-sm text-gray-600">Detailed geographic distribution analysis</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* View Mode Toggle */}
+            <div className="flex items-center bg-neutral-100 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('detail')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  viewMode === 'detail' 
+                    ? 'bg-white text-neutral-900 shadow-sm' 
+                    : 'text-neutral-500 hover:text-neutral-700'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Detail</span>
+              </button>
+              <button
+                onClick={() => setViewMode('slides')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  viewMode === 'slides' 
+                    ? 'bg-white text-neutral-900 shadow-sm' 
+                    : 'text-neutral-500 hover:text-neutral-700'
+                }`}
+              >
+                <Presentation className="w-3.5 h-3.5" />
+                <span>Slides</span>
+              </button>
+            </div>
+            
             {onSaveCard && onUnsaveCard && isSaved && (
               <button
                 onClick={(e) => {
@@ -98,7 +130,19 @@ export default function GeoDetailModal({
           </div>
         </div>
 
-        {/* Content */}
+        {/* Slideshow View */}
+        {viewMode === 'slides' ? (
+          <div className="flex-1 min-h-[500px]">
+            <SlideView
+              slides={slides}
+              cardType="geo-cards"
+              cardTitle={geo.audienceName || 'Geo Insights'}
+            >
+              {(slide) => <SlideRenderer slide={slide} slideIndex={slides.indexOf(slide)} />}
+            </SlideView>
+          </div>
+        ) : (
+        /* Detail View Content */
         <div className="p-6 overflow-y-auto max-h-[calc(95vh-200px)]">
           {/* Interactive Map */}
           <div className="mb-6">
@@ -197,19 +241,19 @@ export default function GeoDetailModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-0 sm:p-4">
                 <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Population</h4>
-                  <p className="text-sm text-gray-600">{geo.demographics.population}</p>
+                  <p className="text-sm text-gray-600">{(geo as any).demographics?.population || 'N/A'}</p>
                 </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Median Age</h4>
-                  <p className="text-sm text-gray-600">{geo.demographics.medianAge}</p>
+                  <p className="text-sm text-gray-600">{geo.demographics?.medianAge || 'N/A'}</p>
                 </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Median Income</h4>
-                  <p className="text-sm text-gray-600">{geo.demographics.medianIncome}</p>
+                  <p className="text-sm text-gray-600">{geo.demographics?.medianIncome || 'N/A'}</p>
                 </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-0 sm:p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Urban/Rural Split</h4>
-                  <p className="text-sm text-gray-600">{geo.demographics.urbanRuralSplit}</p>
+                  <p className="text-sm text-gray-600">{(geo as any).demographics?.urbanRuralSplit || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -384,6 +428,7 @@ export default function GeoDetailModal({
             </div>
           )}
         </div>
+        )}
 
         {/* Footer Actions */}
         <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">

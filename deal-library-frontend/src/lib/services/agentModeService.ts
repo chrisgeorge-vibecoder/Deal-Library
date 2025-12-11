@@ -385,7 +385,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
             bestFit: result.bestFit?.length || 0,
             highValue: result.highValue?.length || 0,
             related: result.related?.length || 0,
-            bestFitNames: result.bestFit?.slice(0, 3).map((s: any) => s.segmentName || s.name) || []
+            bestFitNames: result.bestFit?.slice(0, 3).map((s: any) => s.segment?.segmentName || s.segmentName || s.segment?.name || s.name || 'unnamed') || []
           });
           
           // Include best-fit AND high-value segments for richer results (LabCorp quality)
@@ -457,9 +457,18 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
     
     // Filter segments
     const filtered = segments.filter(seg => {
-      const segmentName = (seg.segmentName || seg.name || '').toLowerCase();
-      const segmentDesc = (seg.segmentDescription || seg.description || '').toLowerCase();
-      const searchText = `${segmentName} ${segmentDesc}`;
+      // Get segment name from various possible locations
+      const rawSeg = seg.segment || seg;
+      const segmentName = (rawSeg.segmentName || rawSeg.name || seg.segmentName || seg.name || '').toLowerCase();
+      const segmentDesc = (rawSeg.segmentDescription || rawSeg.description || seg.segmentDescription || seg.description || '').toLowerCase();
+      const fullPath = (rawSeg.fullPath || seg.fullPath || '').toLowerCase();
+      const searchText = `${segmentName} ${segmentDesc} ${fullPath}`;
+      
+      // If the segment has no identifiable name, skip filtering - keep it for now
+      if (!segmentName && !segmentDesc && !fullPath) {
+        console.log(`   ⚠️ Segment with no name/desc found, keeping anyway`);
+        return true;
+      }
       
       // Check if segment relates to any core keyword
       const hasKeywordMatch = Array.from(coreKeywords).some(keyword => 
@@ -472,8 +481,8 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       // Keep segment if it matches keywords OR themes
       const isRelevant = hasKeywordMatch || hasThemeMatch;
       
-      if (!isRelevant) {
-        console.log(`   ❌ Filtering out irrelevant: ${seg.segmentName || seg.name}`);
+      if (!isRelevant && segmentName) {
+        console.log(`   ❌ Filtering out irrelevant: ${segmentName}`);
       }
       
       return isRelevant;
@@ -1494,17 +1503,46 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
   }
 
   /**
-   * Step 6: Calculate market sizing from actual audience data
+   * Step 6: Calculate market sizing using Gemini AI (matching Strategy Card format)
    */
   private async calculateMarketSizing(
     parsedBrief: ParsedBrief,
     audiences: { segments: any[]; count: number },
     progressCallback: (update: ProgressUpdate) => void
-  ): Promise<{ totalAddressableMarket: number; reachEstimate: number; demographicBreakdown: any }> {
-    this.emitProgress(progressCallback, 6, 'sizing', 'in_progress', 'Calculating market size from audience data...');
-    console.log('📈 Calculating market sizing from actual audience segments...');
+  ): Promise<{ 
+    totalAddressableMarket: number; 
+    reachEstimate: number; 
+    demographicBreakdown: any;
+    aiGenerated?: boolean;
+    aiSummary?: string;
+    totalMarketSize?: string;
+    growthRate?: string;
+    addressableMarket?: string;
+    addressableValue?: string;
+    growthTrends?: any;
+    marketInsights?: any;
+  }> {
+    this.emitProgress(progressCallback, 6, 'sizing', 'in_progress', 'Generating market sizing analysis...');
+    console.log('📈 Generating AI-enhanced market sizing (Strategy Card format)...');
 
     try {
+      // First, try to get AI-generated market sizing (matching Strategy Card format)
+      let aiMarketSizing: any = null;
+      const targetAudience = parsedBrief.targetAudiences.join(' and ') || parsedBrief.advertiserName;
+      const marketSizingQuery = `What is the market size of ${targetAudience}?`;
+      
+      console.log(`   📊 Generating AI market sizing for: "${marketSizingQuery}"`);
+      
+      try {
+        const geminiResult = await this.geminiService.generateMarketSizing(marketSizingQuery, []);
+        if (geminiResult && geminiResult.marketSizing && geminiResult.marketSizing.length > 0) {
+          aiMarketSizing = geminiResult.marketSizing[0];
+          console.log(`   ✅ AI market sizing generated: ${aiMarketSizing.marketName}`);
+        }
+      } catch (geminiError) {
+        console.warn('   ⚠️ Gemini market sizing failed, using audience-based calculation:', geminiError);
+      }
+      
       // Ensure commerce data is loaded for demographic analysis
       if (!commerceAudienceService['isLoaded']) {
         console.log('   Loading commerce data for demographic analysis...');
@@ -1718,20 +1756,36 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       console.log(`   Reach: ${(totalReach / 1000000).toFixed(1)}M (from ${segmentCount} segments)`);
       console.log(`   TAM: ${(tam / 1000000).toFixed(1)}M`);
       
-      const sizing = {
+      // Build comprehensive sizing result including AI data
+      const sizing: any = {
         totalAddressableMarket: tam,
         reachEstimate: totalReach,
         demographicBreakdown: demographicData
       };
       
-      this.emitProgress(progressCallback, 6, 'sizing', 'completed', `Market sizing: ${(totalReach / 1000000).toFixed(1)}M reach`, 72);
+      // Merge AI-generated market sizing data if available
+      if (aiMarketSizing) {
+        sizing.aiGenerated = true;
+        sizing.aiSummary = aiMarketSizing.aiResponse || `The ${aiMarketSizing.marketName || targetAudience} market represents a significant opportunity with ${aiMarketSizing.totalMarketSize || 'substantial'} total market size.`;
+        sizing.totalMarketSize = aiMarketSizing.totalMarketSize;
+        sizing.growthRate = aiMarketSizing.growthRate;
+        sizing.addressableMarket = aiMarketSizing.addressableMarket;
+        sizing.addressableValue = aiMarketSizing.addressableValue;
+        sizing.growthTrends = aiMarketSizing.growthTrends;
+        sizing.marketInsights = aiMarketSizing.marketInsights;
+        sizing.advertisingImplications = aiMarketSizing.advertisingImplications;
+        
+        console.log(`   ✨ Enhanced with AI insights: ${sizing.totalMarketSize || 'N/A'} market, ${sizing.growthRate || 'N/A'} growth`);
+      }
+      
+      this.emitProgress(progressCallback, 6, 'sizing', 'completed', `Market sizing: ${sizing.totalMarketSize || (totalReach / 1000000).toFixed(1) + 'M reach'}`, 72);
       return sizing;
     } catch (error) {
       console.error('❌ Market sizing failed:', error);
       // Return fallback values
       return {
         totalAddressableMarket: 50000000,
-        reachEstimate: 30000000,
+        reachEstimate: 0, // Don't use 30M default
         demographicBreakdown: {}
       };
     }
@@ -2128,9 +2182,10 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
     try {
       // Try to fetch Marketing SWOT card for this company first
       let swotFromCard: any = null;
+      let swotResult: any = null;
       try {
         console.log(`   🔍 Searching for Marketing SWOT card for "${parsedBrief.advertiserName}"...`);
-        const swotResult = await this.geminiService.generateMarketingSWOT(parsedBrief.advertiserName);
+        swotResult = await this.geminiService.generateMarketingSWOT(parsedBrief.advertiserName);
         
         if (swotResult && swotResult.swot) {
           swotFromCard = swotResult.swot;
@@ -2140,21 +2195,16 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
         console.log(`   ⚠️ Could not fetch Marketing SWOT card:`, error);
       }
       
-      // If we have SWOT card data, use it as the primary source
+      // If we have SWOT card data, use it as the primary source - preserve full structure
       if (swotFromCard) {
-        const swot = {
-          strengths: swotFromCard.strengths?.map((s: any) => 
-            typeof s === 'string' ? s : `${s.title}: ${s.description}`
-          ).slice(0, 5) || [],
-          weaknesses: swotFromCard.weaknesses?.map((w: any) => 
-            typeof w === 'string' ? w : `${w.title}: ${w.description}`
-          ).slice(0, 5) || [],
-          opportunities: swotFromCard.opportunities?.map((o: any) => 
-            typeof o === 'string' ? o : `${o.title}: ${o.description}`
-          ).slice(0, 5) || [],
-          threats: swotFromCard.threats?.map((t: any) => 
-            typeof t === 'string' ? t : `${t.title}: ${t.description}`
-          ).slice(0, 5) || []
+        // Preserve the full SWOT structure with titles and descriptions
+        const swot: any = {
+          strengths: swotFromCard.strengths?.slice(0, 5) || [],
+          weaknesses: swotFromCard.weaknesses?.slice(0, 5) || [],
+          opportunities: swotFromCard.opportunities?.slice(0, 5) || [],
+          threats: swotFromCard.threats?.slice(0, 5) || [],
+          summary: swotResult?.summary || undefined,
+          recommendedActions: swotResult?.recommendedActions || undefined
         };
         
         // Augment with strategy insights if available
@@ -2164,16 +2214,29 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
           // Add top differentiator to Opportunities if not already present
           if (strategy.differentiators && strategy.differentiators.length > 0) {
             const topDiff = strategy.differentiators[0]?.split(':')[0]?.trim();
-            if (topDiff && !swot.opportunities.some((o: string) => o.includes(topDiff))) {
-              swot.opportunities.push(`Market differentiation: ${topDiff}`);
+            const diffExists = swot.opportunities.some((o: any) => {
+              const text = typeof o === 'string' ? o : (o.title || '');
+              return text.includes(topDiff);
+            });
+            if (topDiff && !diffExists) {
+              swot.opportunities.push({
+                title: 'Market Differentiation',
+                description: topDiff
+              });
             }
           }
           
           // Add top competitor as threat if not already present
           if (strategy.competitors && strategy.competitors.length > 0) {
-            const topCompetitor = strategy.competitors[0]?.split(' - ')[0];
-            if (topCompetitor && !swot.threats.some((t: string) => t.includes(topCompetitor))) {
-              swot.threats.push(`Intense competitive pressure from both established brands and new entrants`);
+            const threatExists = swot.threats.some((t: any) => {
+              const text = typeof t === 'string' ? t : (t.title || '');
+              return text.includes('competitive pressure');
+            });
+            if (!threatExists) {
+              swot.threats.push({
+                title: 'Competitive Pressure',
+                description: 'Intense competition from both established brands and new market entrants'
+              });
             }
           }
         }

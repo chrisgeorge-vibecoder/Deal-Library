@@ -1,7 +1,7 @@
 import { Deal } from '@/types/deal';
 import { ShoppingCart, Trash2, Bookmark, BookmarkCheck } from 'lucide-react';
 
-// Deal card component for chat interface - simplified design
+// Unified Deal card component - single source of truth for all deal card styling
 
 interface DealCardProps {
   deal: Deal;
@@ -12,31 +12,51 @@ interface DealCardProps {
   onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards', data: any }) => void;
   onUnsaveCard?: (cardId: string) => void;
   isSaved?: (cardId: string) => boolean;
+  // Optional: show additional details like bid guidance and media type
+  showBidGuidance?: boolean;
+  showMediaType?: boolean;
+  // Optional: compact mode for chat interface (smaller padding/text)
+  compact?: boolean;
 }
 
-export default function DealCard({ deal, onClick, onAddToCart, onRemoveFromCart, isInCart = false, onSaveCard, onUnsaveCard, isSaved }: DealCardProps) {
-  const isCommerceAudience = (deal.dealName || '').toLowerCase().includes('purchase intender');
+export default function DealCard({ 
+  deal, 
+  onClick, 
+  onAddToCart, 
+  onRemoveFromCart, 
+  isInCart = false, 
+  onSaveCard, 
+  onUnsaveCard, 
+  isSaved,
+  showBidGuidance = false,
+  showMediaType = false,
+  compact = false
+}: DealCardProps) {
   const cardId = `deal-${deal.id}`;
   const saved = isSaved ? isSaved(cardId) : false;
   
+  // Dynamic classes based on compact mode
+  const cardPadding = compact ? 'p-4' : 'p-6';
+  const titleSize = compact ? 'text-base' : 'text-lg';
+  const buttonPadding = compact ? 'px-3 py-2' : 'px-4 py-2';
+  const buttonTextSize = compact ? 'text-xs' : 'text-sm';
+  const iconSize = compact ? 'w-3 h-3' : 'w-4 h-4';
+  const tagPadding = compact ? 'px-2 py-1' : 'px-3 py-1';
+  const tagTextSize = compact ? 'text-xs' : 'text-sm';
+  const borderSpacing = compact ? 'pt-3' : 'pt-4';
+  const sectionSpacing = compact ? 'mb-3' : 'mb-4';
+  
   return (
     <div 
-      className={`card p-6 hover:shadow-sovrn-lg transition-all duration-200 cursor-pointer group ${
-        isCommerceAudience 
-          ? 'border-l-4 border-brand-gold bg-gradient-to-r from-brand-gold/5 to-transparent' 
-          : ''
-      }`}
+      className={`card ${cardPadding} hover:shadow-sovrn-lg transition-all duration-200 cursor-pointer group`}
       onClick={onClick}
     >
       {/* Deal Name with Bookmark */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2 flex-1">
-          <h3 className="text-lg font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors">
+          <h3 className={`${titleSize} font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors`}>
             {deal.dealName}
           </h3>
-          {isCommerceAudience && (
-            <span className="text-lg">🛍️</span>
-          )}
         </div>
         {onSaveCard && onUnsaveCard && isSaved && (
           <button
@@ -65,47 +85,41 @@ export default function DealCard({ deal, onClick, onAddToCart, onRemoveFromCart,
       </div>
 
       {/* Description */}
-      <p className="text-neutral-600 text-sm leading-relaxed mb-4">
+      <p className={`text-neutral-600 ${buttonTextSize} leading-relaxed ${sectionSpacing}`}>
         {deal.description}
       </p>
 
-      {/* Environment */}
-      <div className="mb-4">
-        <span className="inline-flex items-center px-3 py-1 bg-primary-100 text-primary-800 text-sm font-medium rounded-full">
+      {/* Environment and optional Media Type tags */}
+      <div className={`flex items-center gap-2 ${sectionSpacing}`}>
+        <span className={`inline-flex items-center ${tagPadding} bg-primary-100 text-primary-800 ${tagTextSize} font-medium rounded-full`}>
           {deal.environment}
         </span>
+        {showMediaType && deal.mediaType && (
+          <span className={`inline-flex items-center ${tagPadding} bg-secondary-100 text-secondary-800 ${tagTextSize} font-medium rounded-full`}>
+            {deal.mediaType}
+          </span>
+        )}
       </div>
 
-      {/* Persona Insights */}
-      {deal.personaInsights && (
-        <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-2xl">{deal.personaInsights.emoji}</span>
-            <h4 className="font-semibold text-blue-900">{deal.personaInsights.personaName}</h4>
-          </div>
-          <p className="text-sm text-blue-800 mb-2 font-medium">{deal.personaInsights.coreInsight}</p>
-          <div className="space-y-1">
-            <div className="text-xs text-blue-700">
-              <span className="font-medium">Creative Hook:</span> {deal.personaInsights.actionableStrategy.creativeHook}
-            </div>
-            <div className="text-xs text-blue-700">
-              <span className="font-medium">Media Strategy:</span> {deal.personaInsights.actionableStrategy.mediaTargeting}
-            </div>
-          </div>
+      {/* Optional Bid Guidance */}
+      {showBidGuidance && deal.bidGuidance && (
+        <div className={sectionSpacing}>
+          <span className="text-xs text-neutral-500 font-medium">Bid Guidance:</span>
+          <span className="text-xs text-neutral-600 ml-1">{deal.bidGuidance}</span>
         </div>
       )}
 
       {/* Add to Cart Button */}
-      <div className="pt-4 border-t border-neutral-200">
+      <div className={`${borderSpacing} border-t border-neutral-200`}>
         {isInCart ? (
           <button
             onClick={(e) => {
               e.stopPropagation();
               onRemoveFromCart?.();
             }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
+            className={`w-full flex items-center justify-center gap-2 ${buttonPadding} bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors ${buttonTextSize} font-medium`}
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className={iconSize} />
             Remove from Cart
           </button>
         ) : (
@@ -114,13 +128,9 @@ export default function DealCard({ deal, onClick, onAddToCart, onRemoveFromCart,
               e.stopPropagation();
               onAddToCart?.();
             }}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-              isCommerceAudience
-                ? 'bg-gradient-to-r from-brand-gold to-brand-orange text-brand-charcoal hover:shadow-sovrn-lg hover:scale-105'
-                : 'bg-brand-gold/10 text-brand-charcoal hover:bg-brand-gold/20'
-            }`}
+            className={`w-full flex items-center justify-center gap-2 ${buttonPadding} rounded-lg transition-colors ${buttonTextSize} font-medium bg-brand-gold/10 text-brand-charcoal hover:bg-brand-gold/20`}
           >
-            <ShoppingCart className="w-4 h-4" />
+            <ShoppingCart className={iconSize} />
             Add to Cart
           </button>
         )}

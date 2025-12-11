@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import { commerceAudienceService } from './commerceAudienceService';
 import { CensusDataService } from './censusDataService';
 import { GeminiService } from './geminiService';
@@ -74,7 +77,8 @@ class AudienceInsightsService {
   private aiResponseCache: Map<string, any> = new Map(); // Cache for AI responses
   private overlapsFilePath: string;
   private reportCache: Map<string, { report: AudienceInsightsReport; timestamp: number }> = new Map(); // Cache for generated reports
-  private reportCacheTimeout: number = 1000 * 60 * 60; // 1 hour cache
+  private reportCacheTimeout: number = 1000 * 60 * 60; // 1 hour cache for dynamic requests
+  private pregeneratedCacheTimeout: number = 1000 * 60 * 60 * 24 * 30; // 30 days for pre-generated content
   private useSupabase: boolean;
   
   constructor() {
@@ -207,9 +211,34 @@ class AudienceInsightsService {
   }
   
   /**
+   * Pre-generate a report with 30-day cache TTL for instant retrieval
+   * Use this for batch pre-generation of all segments
+   */
+  async pregenerateReport(segment: string, category?: string): Promise<AudienceInsightsReport> {
+    console.log(`🔄 Pre-generating report for "${segment}" with 30-day TTL...`);
+    
+    // Generate the report (skip cache check since we want to regenerate)
+    const report = await this.generateReportInternal(segment, category, false, true);
+    
+    return report;
+  }
+
+  /**
    * Generate comprehensive audience insights report
    */
   async generateReport(segment: string, category?: string, includeCommercialZips: boolean = false): Promise<AudienceInsightsReport> {
+    return this.generateReportInternal(segment, category, includeCommercialZips, false);
+  }
+
+  /**
+   * Internal report generation with configurable TTL
+   */
+  private async generateReportInternal(
+    segment: string, 
+    category?: string, 
+    includeCommercialZips: boolean = false,
+    isPregenerated: boolean = false
+  ): Promise<AudienceInsightsReport> {
     const startTime = Date.now();
     
     // Check cache first (Supabase or in-memory)
@@ -357,11 +386,11 @@ class AudienceInsightsService {
 
     // Cache the report (Supabase or in-memory)
     if (this.useSupabase) {
-      await this.saveToSupabaseCache(cacheKey, segment, category || 'General', report);
+      await this.saveToSupabaseCache(cacheKey, segment, category || 'General', report, isPregenerated);
     } else {
       this.reportCache.set(cacheKey, { report, timestamp: Date.now() });
     }
-    console.log(`💾 Report cached for "${segment}"`);
+    console.log(`💾 Report cached for "${segment}"${isPregenerated ? ' (pre-generated, 30-day TTL)' : ''}`);
     console.log(`⏱️  TOTAL REPORT GENERATION TIME: ${((Date.now() - startTime) / 1000).toFixed(2)}s\n`);
 
     return report;
@@ -2826,17 +2855,20 @@ Write 3-4 analytical sentences that connect data points to reveal purchasing mot
 
   /**
    * Save report to Supabase cache
+   * @param isPregenerated - If true, uses 30-day TTL for pre-generated content; otherwise 1-hour TTL
    */
   private async saveToSupabaseCache(
     cacheKey: string, 
     segment: string, 
     category: string, 
-    report: AudienceInsightsReport
+    report: AudienceInsightsReport,
+    isPregenerated: boolean = false
   ): Promise<void> {
     try {
       const supabase = SupabaseService.getClient();
       
-      const expiresAt = new Date(Date.now() + this.reportCacheTimeout);
+      const ttl = isPregenerated ? this.pregeneratedCacheTimeout : this.reportCacheTimeout;
+      const expiresAt = new Date(Date.now() + ttl);
       
       const { error } = await supabase
         .from('audience_reports_cache')
@@ -2853,7 +2885,8 @@ Write 3-4 analytical sentences that connect data points to reveal purchasing mot
         // Fallback to in-memory cache
         this.reportCache.set(cacheKey, { report, timestamp: Date.now() });
       } else {
-        console.log(`💾 Report cached in Supabase (expires: ${expiresAt.toLocaleTimeString()})`);
+        const ttlDays = Math.round(ttl / (1000 * 60 * 60 * 24));
+        console.log(`💾 Report cached in Supabase (TTL: ${ttlDays} days, expires: ${expiresAt.toLocaleDateString()})`);
       }
       
     } catch (error) {

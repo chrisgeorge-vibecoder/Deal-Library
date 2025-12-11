@@ -28,7 +28,8 @@ export interface GeminiSearchResult {
 
 export class GeminiService {
   private genAI: GoogleGenerativeAI;
-  private model: any;
+  private model: any;           // Flash model for speed-critical operations (search, chat)
+  private proModel: any;        // Pro model for quality-critical operations (insights, analysis)
   private responseCache: Map<string, { result: GeminiSearchResult, timestamp: number }>;
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache TTL
   private ragService: RAGService | null = null;
@@ -41,14 +42,31 @@ export class GeminiService {
     }
     
     this.genAI = new GoogleGenerativeAI(apiKey);
+    
+    // Flash model: Fast responses for search, chat, and real-time interactions
     this.model = this.genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash",
       generationConfig: {
         temperature: 0.1, // Lower temperature for more consistent results
         topP: 0.8, // Focus on most likely tokens
-        maxOutputTokens: 8192, // Increased for complex Audience Insights responses
+        maxOutputTokens: 8192,
       }
     });
+    
+    // Pro model: Higher quality for strategic analysis, insights, and business-critical outputs
+    this.proModel = this.genAI.getGenerativeModel({ 
+      model: "gemini-2.5-pro",
+      generationConfig: {
+        temperature: 0.2, // Slightly higher for nuanced reasoning
+        topP: 0.9, // More diverse token selection for creative insights
+        maxOutputTokens: 16384, // Larger output for comprehensive analysis
+      }
+    });
+    
+    console.log('🚀 Gemini Hybrid Models initialized:');
+    console.log('   ⚡ Flash (gemini-2.5-flash): Search, chat, quick lookups');
+    console.log('   🎯 Pro (gemini-2.5-pro): Insights, SWOT, market sizing, strategy');
+    
     this.responseCache = new Map();
 
     // Initialize RAG service if Supabase is available
@@ -559,21 +577,62 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
           extractedDeals = [];
         }
         
-        // Extract aiResponse if it exists
-        const aiResponseMatch = responseText.match(/"aiResponse":\s*"([^"]*(?:\\.[^"]*)*)"/);
+        // Extract aiResponse if it exists - use multiple strategies
         let extractedResponse = '';
+        
+        // Strategy 1: Try regex match for aiResponse field
+        const aiResponseMatch = responseText.match(/"aiResponse":\s*"([^"]*(?:\\.[^"]*)*)"/);
         if (aiResponseMatch && aiResponseMatch[1]) {
           extractedResponse = aiResponseMatch[1]
             .replace(/\\n/g, '\n') // Convert escaped newlines to actual newlines
             .replace(/\\"/g, '"') // Fix escaped quotes
             .replace(/\\t/g, '\t') // Convert escaped tabs
             .trim();
-        } else {
-          // Fallback: clean up the response text by removing any JSON artifacts
-          extractedResponse = responseText
-            .replace(/```json[\s\S]*?```/g, '') // Remove JSON code blocks
-            .replace(/^\s*\{[\s\S]*?\}\s*$/m, '') // Remove any remaining JSON objects
+        }
+        
+        // Strategy 2: Try to extract aiResponse using bracket matching (for complex/multiline responses)
+        if (!extractedResponse || extractedResponse.length < 10) {
+          const aiResponseStart = responseText.indexOf('"aiResponse":');
+          if (aiResponseStart !== -1) {
+            const valueStart = responseText.indexOf('"', aiResponseStart + 13);
+            if (valueStart !== -1) {
+              let escaped = false;
+              let valueEnd = valueStart + 1;
+              for (let i = valueStart + 1; i < responseText.length; i++) {
+                if (escaped) {
+                  escaped = false;
+                  continue;
+                }
+                if (responseText[i] === '\\') {
+                  escaped = true;
+                  continue;
+                }
+                if (responseText[i] === '"') {
+                  valueEnd = i;
+                  break;
+                }
+              }
+              if (valueEnd > valueStart + 1) {
+                extractedResponse = responseText.substring(valueStart + 1, valueEnd)
+                  .replace(/\\n/g, '\n')
+                  .replace(/\\"/g, '"')
+                  .replace(/\\t/g, '\t')
             .trim();
+              }
+            }
+          }
+        }
+        
+        // Strategy 3: Generate a sensible fallback message instead of returning raw JSON
+        // NEVER return raw JSON as the aiResponse - it creates a terrible user experience
+        if (!extractedResponse || extractedResponse.length < 10 || extractedResponse.startsWith('{')) {
+          console.log('⚠️ Could not extract aiResponse, generating fallback message');
+          if (extractedDeals.length > 0) {
+            const dealNames = extractedDeals.slice(0, 3).map((d: any) => d.dealName || d.id).join(', ');
+            extractedResponse = `I found ${extractedDeals.length} relevant deals for your query: ${dealNames}${extractedDeals.length > 3 ? ', and more' : ''}. These deals should help you reach your target audience effectively.`;
+          } else {
+            extractedResponse = `I found some deals that match your query. Please review the options below to find the best fit for your campaign.`;
+          }
         }
         
         return {
@@ -597,22 +656,21 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
           .replace(/\\t/g, '\t') // Convert escaped tabs
           .trim();
         
+        // Validate that cleanResponse is not raw JSON
+        if (!cleanResponse.startsWith('{') && cleanResponse.length > 10) {
         return {
           topDeals: [],
           aiResponse: cleanResponse,
           isGeneralQuestion: true
         };
+        }
       }
       
-      // Fallback: clean up the response text by removing any JSON artifacts
-      let cleanResponse = responseText
-        .replace(/```json[\s\S]*?```/g, '') // Remove JSON code blocks
-        .replace(/^\s*\{[\s\S]*?\}\s*$/m, '') // Remove any remaining JSON objects
-        .trim();
-      
+      // Generate sensible fallback instead of returning raw JSON
+      console.log('⚠️ Could not extract clean aiResponse for general question, using fallback');
       return {
         topDeals: [],
-        aiResponse: cleanResponse,
+        aiResponse: "I understand your question. Let me help you with information about media and marketing strategies. Could you please provide more details about what specific aspect you'd like to explore?",
         isGeneralQuestion: true
       };
     }
@@ -622,25 +680,28 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
 
   /**
    * Extract clean response text when JSON parsing fails
+   * NEVER returns raw JSON - always provides human-readable text
    */
   private extractCleanResponse(responseText: string): string {
     // Try to extract aiResponse from nested JSON structure
     const aiResponseMatch = responseText.match(/"aiResponse":\s*"([^"]*(?:\\.[^"]*)*)"/);
     if (aiResponseMatch && aiResponseMatch[1]) {
-      return aiResponseMatch[1]
+      const cleaned = aiResponseMatch[1]
         .replace(/\\n/g, '\n')
         .replace(/\\"/g, '"')
         .replace(/\\t/g, '\t')
         .replace(/\\r/g, '\r');
+      
+      // Validate the extracted response is not raw JSON
+      if (!cleaned.startsWith('{') && !cleaned.startsWith('[') && cleaned.length > 10) {
+        return cleaned;
+      }
     }
     
-    // Fallback: clean up the response text by removing JSON artifacts
-    return responseText
-      .replace(/```json[\s\S]*?```/g, '') // Remove JSON code blocks
-      .replace(/\{[^}]*"topDeals"[^}]*\}/g, '') // Remove JSON objects
-      .replace(/\{[^}]*"aiResponse"[^}]*\}/g, '') // Remove JSON objects
-      .replace(/\{[^}]*"isGeneralQuestion"[^}]*\}/g, '') // Remove JSON objects
-      .trim();
+    // If we can't extract a clean response, return a sensible fallback
+    // NEVER return raw JSON to the user
+    console.log('⚠️ extractCleanResponse: Could not extract clean text, returning fallback');
+    return "I'm here to help with your question. Could you provide more details about what you're looking for?";
   }
 
   /**
@@ -1992,10 +2053,11 @@ EXAMPLES OF AUDIENCES TO ANALYZE:
 Return ONLY valid JSON. No other text.`;
 
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical audience insights
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
       
-      console.log('🎯 Gemini audience insights response:', responseText);
+      console.log('🎯 Gemini Pro audience insights response:', responseText);
       
       // Parse the JSON response with more robust error handling
       let parsed;
@@ -2268,10 +2330,11 @@ Return your response as JSON in this exact format:
 }`;
 
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical market sizing analysis
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
       
-      console.log('📊 Gemini market sizing response:', responseText);
+      console.log('📊 Gemini Pro market sizing response:', responseText);
       
       // Parse the JSON response
       let parsed;
@@ -2474,7 +2537,8 @@ EXAMPLES OF GEOGRAPHIC QUERIES TO ANALYZE:
 Return ONLY valid JSON. No other text.`;
 
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical geographic insights
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
       
       // Clean the response text to extract JSON
@@ -2482,7 +2546,7 @@ Return ONLY valid JSON. No other text.`;
       
       const result = JSON.parse(cleanedResponse);
       
-      console.log(`✅ Generated ${result.geoCards?.length || 0} geographic insights for query: "${query}"`);
+      console.log(`✅ Generated geographic insights (Pro) for query: "${query}"`);
       
       return {
         geoCards: result.geoCards || [],
@@ -2571,7 +2635,8 @@ Return ONLY valid JSON in this exact format:
 }`;
 
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical SWOT analysis
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
       
       // Clean the response text to extract JSON
@@ -2677,7 +2742,8 @@ Return ONLY valid JSON in this exact format:
 }`;
 
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical company analysis
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
       
       // Clean the response text to extract JSON
@@ -2975,7 +3041,8 @@ Return ONLY valid JSON in this exact format:
 }`;
 
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical competitive analysis
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
       
       const cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -2984,7 +3051,7 @@ Return ONLY valid JSON in this exact format:
       
       const result = JSON.parse(jsonText);
       
-      console.log(`✅ Generated competitive intelligence for: ${query}`);
+      console.log(`✅ Generated competitive intelligence (Pro) for: ${query}`);
       return result;
       
     } catch (error) {
@@ -3050,7 +3117,8 @@ Return ONLY valid JSON in this exact format:
 }`;
 
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical content strategy
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
       
       const cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -3059,7 +3127,7 @@ Return ONLY valid JSON in this exact format:
       
       const result = JSON.parse(jsonText);
       
-      console.log(`✅ Generated content strategy for: ${query}`);
+      console.log(`✅ Generated content strategy (Pro) for: ${query}`);
       return result;
       
     } catch (error) {
@@ -3118,7 +3186,8 @@ Return ONLY valid JSON in this exact format:
 }`;
 
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical brand strategy
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
       
       const cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -3176,13 +3245,13 @@ Return ONLY valid JSON in this exact format:
       });
     }
     
-    // Create model with grounding tools
+    // Create grounded model using Pro for quality-critical market intelligence
     const groundedModel = this.genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-pro",
       generationConfig: {
-        temperature: 0.1,
-        topP: 0.8,
-        maxOutputTokens: 8192,
+        temperature: 0.2,
+        topP: 0.9,
+        maxOutputTokens: 16384,
       },
       tools: tools.length > 0 ? tools : undefined
     });

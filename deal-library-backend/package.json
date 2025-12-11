@@ -9,6 +9,7 @@
     "start": "node --max-old-space-size=4096 dist/index.js",
     "test": "jest",
     "precalculate-overlaps": "ts-node scripts/precalculate-overlaps.ts",
+    "pregenerate-insights": "cross-env NODE_OPTIONS='--max-old-space-size=4096' ts-node scripts/pregenerate-audience-insights.ts",
     "migrate:supabase": "ts-node scripts/migrateToSupabase.ts",
     "migrate:personas": "ts-node scripts/migratePersonasOnly.ts",
     "test:supabase": "ts-node scripts/testSupabaseIntegration.ts",

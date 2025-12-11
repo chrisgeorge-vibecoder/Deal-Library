@@ -385,7 +385,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
             bestFit: result.bestFit?.length || 0,
             highValue: result.highValue?.length || 0,
             related: result.related?.length || 0,
-            bestFitNames: result.bestFit?.slice(0, 3).map((s: any) => s.segmentName || s.name) || []
+            bestFitNames: result.bestFit?.slice(0, 3).map((s: any) => s.segment?.segmentName || s.segmentName || s.segment?.name || s.name || 'unnamed') || []
           });
           
           // Include best-fit AND high-value segments for richer results (LabCorp quality)
@@ -414,9 +414,13 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
         console.log(`📦 After fallback: ${allSegments.length} total segments`);
       }
 
-      // Deduplicate by segment ID
+      // Deduplicate by segment ID - handle both enriched and raw segments
       const dedupedSegments = Array.from(
-        new Map(allSegments.map(seg => [seg.sovrnSegmentId || seg.id, seg])).values()
+        new Map(allSegments.map(seg => {
+          const rawSeg = seg.segment || seg;
+          const id = rawSeg.sovrnSegmentId || rawSeg.id || seg.sovrnSegmentId || seg.id;
+          return [id, seg];
+        })).values()
       );
       
       console.log(`📦 After deduplication: ${dedupedSegments.length} segments`);
@@ -457,9 +461,18 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
     
     // Filter segments
     const filtered = segments.filter(seg => {
-      const segmentName = (seg.segmentName || seg.name || '').toLowerCase();
-      const segmentDesc = (seg.segmentDescription || seg.description || '').toLowerCase();
-      const searchText = `${segmentName} ${segmentDesc}`;
+      // Handle enriched segment structure (segment nested inside)
+      const rawSeg = seg.segment || seg;
+      const segmentName = (rawSeg.segmentName || rawSeg.name || seg.segmentName || seg.name || '').toLowerCase();
+      const segmentDesc = (rawSeg.segmentDescription || rawSeg.description || seg.segmentDescription || seg.description || '').toLowerCase();
+      const fullPath = (rawSeg.fullPath || seg.fullPath || '').toLowerCase();
+      const searchText = `${segmentName} ${segmentDesc} ${fullPath}`;
+      
+      // If the segment has no identifiable name, skip filtering - keep it for now
+      if (!segmentName && !segmentDesc && !fullPath) {
+        console.log(`   ⚠️ Segment with no name/desc found, keeping anyway`);
+        return true;
+      }
       
       // Check if segment relates to any core keyword
       const hasKeywordMatch = Array.from(coreKeywords).some(keyword => 
@@ -472,8 +485,8 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       // Keep segment if it matches keywords OR themes
       const isRelevant = hasKeywordMatch || hasThemeMatch;
       
-      if (!isRelevant) {
-        console.log(`   ❌ Filtering out irrelevant: ${seg.segmentName || seg.name}`);
+      if (!isRelevant && segmentName) {
+        console.log(`   ❌ Filtering out irrelevant: ${segmentName}`);
       }
       
       return isRelevant;

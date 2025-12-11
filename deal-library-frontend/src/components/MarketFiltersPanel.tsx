@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Filter, X, Save, ChevronDown, ChevronUp } from 'lucide-react';
+import { Filter, X, Save, ChevronDown, ChevronUp, Search, Loader2 } from 'lucide-react';
 
 export interface MarketFilters {
   includeCommercialZips?: boolean;
@@ -24,6 +24,8 @@ export interface FilterPreset {
 interface MarketFiltersPanelProps {
   onFiltersChange: (filters: MarketFilters) => void;
   activeFilters: MarketFilters;
+  onApplyFilters?: () => void;
+  isLoading?: boolean;
 }
 
 const DEFAULT_PRESETS: FilterPreset[] = [
@@ -40,10 +42,10 @@ const DEFAULT_PRESETS: FilterPreset[] = [
     id: 'emerging-markets',
     name: 'Emerging Markets',
     filters: {
-      populationMin: 50000,
-      populationMax: 250000,
-      incomeMin: 45000,
-      incomeMax: 65000
+      // Middle-income markets with growth potential - no population limits for universal compatibility
+      incomeMin: 50000,
+      incomeMax: 75000,
+      homeOwnershipMin: 50
     }
   },
   {
@@ -60,15 +62,14 @@ const DEFAULT_PRESETS: FilterPreset[] = [
     id: 'family-oriented',
     name: 'Family-Oriented Markets',
     filters: {
-      ageMedianMin: 30,
-      ageMedianMax: 50,
-      homeOwnershipMin: 65,
-      populationMin: 100000
+      ageMedianMin: 32,
+      ageMedianMax: 48,
+      homeOwnershipMin: 65
     }
   }
 ];
 
-export default function MarketFiltersPanel({ onFiltersChange, activeFilters }: MarketFiltersPanelProps) {
+export default function MarketFiltersPanel({ onFiltersChange, activeFilters, onApplyFilters, isLoading }: MarketFiltersPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [filters, setFilters] = useState<MarketFilters>(activeFilters);
   const [customPresets, setCustomPresets] = useState<FilterPreset[]>([]);
@@ -317,44 +318,61 @@ export default function MarketFiltersPanel({ onFiltersChange, activeFilters }: M
               Clear All
             </button>
 
-            {hasActiveFilters && !showSavePreset && (
-              <button
-                onClick={() => setShowSavePreset(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-brand-gold text-white rounded text-sm font-medium hover:bg-brand-gold/90 transition-colors"
-              >
-                <Save className="w-4 h-4" />
-                Save Preset
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {hasActiveFilters && !showSavePreset && (
+                <button
+                  onClick={() => setShowSavePreset(true)}
+                  className="flex items-center gap-2 px-3 py-2 bg-neutral-100 text-neutral-700 rounded text-sm font-medium hover:bg-neutral-200 transition-colors"
+                >
+                  <Save className="w-4 h-4" />
+                  Save Preset
+                </button>
+              )}
 
-            {showSavePreset && (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={presetName}
-                  onChange={(e) => setPresetName(e.target.value)}
-                  placeholder="Preset name..."
-                  className="px-3 py-2 border border-neutral-300 rounded text-sm focus:ring-2 focus:ring-brand-gold focus:border-brand-gold"
-                  onKeyPress={(e) => e.key === 'Enter' && saveCustomPreset()}
-                />
+              {showSavePreset && (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={presetName}
+                    onChange={(e) => setPresetName(e.target.value)}
+                    placeholder="Preset name..."
+                    className="px-3 py-2 border border-neutral-300 rounded text-sm focus:ring-2 focus:ring-brand-gold focus:border-brand-gold"
+                    onKeyPress={(e) => e.key === 'Enter' && saveCustomPreset()}
+                  />
+                  <button
+                    onClick={saveCustomPreset}
+                    disabled={!presetName.trim()}
+                    className="px-3 py-2 bg-brand-gold text-white rounded text-sm font-medium hover:bg-brand-gold/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowSavePreset(false);
+                      setPresetName('');
+                    }}
+                    className="px-3 py-2 text-neutral-600 hover:text-neutral-900 text-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              {onApplyFilters && (
                 <button
-                  onClick={saveCustomPreset}
-                  disabled={!presetName.trim()}
-                  className="px-3 py-2 bg-brand-gold text-white rounded text-sm font-medium hover:bg-brand-gold/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={onApplyFilters}
+                  disabled={isLoading}
+                  className="flex items-center gap-2 px-4 py-2 bg-brand-gold text-white rounded-lg text-sm font-semibold hover:bg-brand-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
-                  Save
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Search className="w-4 h-4" />
+                  )}
+                  Find Markets
                 </button>
-                <button
-                  onClick={() => {
-                    setShowSavePreset(false);
-                    setPresetName('');
-                  }}
-                  className="px-3 py-2 text-neutral-600 hover:text-neutral-900 text-sm"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}

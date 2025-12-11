@@ -1,6 +1,8 @@
-import React from 'react';
-import { X, Newspaper, ExternalLink, Calendar, Bookmark, BookmarkCheck, Building2, Lightbulb } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Newspaper, ExternalLink, Calendar, Bookmark, BookmarkCheck, Building2, Lightbulb, Presentation, FileText } from 'lucide-react';
 import { MarketingNews } from '@/types/deal';
+import { SlideView, SlideRenderer } from '@/components/slides';
+import { generateMarketingNewsSlides } from '@/lib/slideConfigs';
 
 interface MarketingNewsDetailModalProps {
   news: MarketingNews | null;
@@ -19,7 +21,11 @@ export function MarketingNewsDetailModal({
   onUnsaveCard, 
   isSaved 
 }: MarketingNewsDetailModalProps) {
+  const [viewMode, setViewMode] = useState<'detail' | 'slides'>('detail');
+  
   if (!isOpen || !news) return null;
+  
+  const slides = generateMarketingNewsSlides(news);
 
   const cardId = `marketing-news-${news.id}`;
   const saved = isSaved ? isSaved(cardId) : false;
@@ -99,8 +105,34 @@ export function MarketingNewsDetailModal({
             </div>
           </div>
           
-          {/* Close and Save buttons */}
-          <div className="flex items-center gap-2 ml-4">
+          {/* View Mode Toggle, Save and Close buttons */}
+          <div className="flex items-center gap-3 ml-4">
+            {/* View Mode Toggle */}
+            <div className="flex items-center bg-neutral-100 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('detail')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  viewMode === 'detail' 
+                    ? 'bg-white text-neutral-900 shadow-sm' 
+                    : 'text-neutral-500 hover:text-neutral-700'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Detail</span>
+              </button>
+              <button
+                onClick={() => setViewMode('slides')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  viewMode === 'slides' 
+                    ? 'bg-white text-neutral-900 shadow-sm' 
+                    : 'text-neutral-500 hover:text-neutral-700'
+                }`}
+              >
+                <Presentation className="w-3.5 h-3.5" />
+                <span>Slides</span>
+              </button>
+            </div>
+            
             {onSaveCard && onUnsaveCard && (
               <button
                 onClick={handleSaveToggle}
@@ -127,7 +159,19 @@ export function MarketingNewsDetailModal({
           </div>
         </div>
 
-        {/* Content */}
+        {/* Slideshow View */}
+        {viewMode === 'slides' ? (
+          <div className="flex-1 min-h-[400px]">
+            <SlideView
+              slides={slides}
+              cardType="marketing-news"
+              cardTitle={news.headline || 'Marketing News'}
+            >
+              {(slide) => <SlideRenderer slide={slide} slideIndex={slides.indexOf(slide)} />}
+            </SlideView>
+          </div>
+        ) : (
+        /* Detail View Content */
         <div className="p-4 sm:p-6">
           {/* Synopsis */}
           <div className="mb-6">
@@ -188,6 +232,7 @@ export function MarketingNewsDetailModal({
             </button>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

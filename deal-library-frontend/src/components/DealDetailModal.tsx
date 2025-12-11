@@ -20,8 +20,6 @@ export default function DealDetailModal({
 }: DealDetailModalProps) {
   if (!isOpen || !deal) return null;
 
-  const isCommerceAudience = (deal.dealName || '').toLowerCase().includes('purchase intender');
-
   return (
     <div 
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-0 sm:p-4"
@@ -32,21 +30,14 @@ export default function DealDetailModal({
       }}
     >
       <div 
-        className={`bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-sovrn-lg sm:max-w-4xl sm:max-h-[90vh] overflow-y-auto ${
-          isCommerceAudience ? 'border-l-4 border-brand-gold' : ''
-        }`}
+        className="bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-sovrn-lg sm:max-w-4xl sm:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className={`flex justify-between items-start p-4 sm:p-6 border-b border-neutral-200 ${
-          isCommerceAudience ? 'bg-gradient-to-r from-brand-gold/5 to-transparent' : ''
-        }`}>
+        <div className="flex justify-between items-start p-4 sm:p-6 border-b border-neutral-200">
           <div className="flex-1">
             <div className="flex items-center gap-2 sm:gap-3 mb-2">
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">{deal.dealName}</h2>
-              {isCommerceAudience && (
-                <span className="text-2xl">🛍️</span>
-              )}
             </div>
             <p className="text-xs sm:text-sm text-neutral-500 mb-3 sm:mb-4">ID: {deal.dealId}</p>
             <div className="flex gap-2 flex-wrap">
@@ -197,11 +188,7 @@ export default function DealDetailModal({
             ) : (
               <button
                 onClick={() => onAddToCart(deal)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                  isCommerceAudience
-                    ? 'bg-gradient-to-r from-brand-gold to-brand-orange text-brand-charcoal hover:shadow-sovrn-lg hover:scale-105'
-                    : 'bg-brand-gold/10 text-brand-charcoal hover:bg-brand-gold/20'
-                }`}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors bg-brand-gold/10 text-brand-charcoal hover:bg-brand-gold/20"
               >
                 <ShoppingCart className="w-4 h-4" />
                 Add to Cart

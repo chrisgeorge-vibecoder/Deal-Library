@@ -1,7 +1,9 @@
-import React from 'react';
-import { X, Building2, TrendingUp, TrendingDown, Minus, DollarSign, Users, BarChart3, Target, AlertTriangle, Bookmark, BookmarkCheck, Copy, Download, Printer, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Building2, TrendingUp, TrendingDown, Minus, DollarSign, Users, BarChart3, Target, AlertTriangle, Bookmark, BookmarkCheck, Copy, Download, Printer, CheckCircle2, Presentation, FileText } from 'lucide-react';
 import { CompanyProfile } from '@/types/deal';
 import { useCardExport } from '@/hooks/useCardExport';
+import { SlideView, SlideRenderer } from '@/components/slides';
+import { generateCompanyProfileSlides } from '@/lib/slideConfigs';
 
 interface CompanyProfileDetailModalProps {
   profile: CompanyProfile | null;
@@ -14,11 +16,13 @@ interface CompanyProfileDetailModalProps {
 
 export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard, onUnsaveCard, isSaved }: CompanyProfileDetailModalProps) {
   const { handleCopyAsHTML, handleDownloadAsImage, handlePrint, isExporting, exportSuccess } = useCardExport();
+  const [viewMode, setViewMode] = useState<'detail' | 'slides'>('detail');
 
   if (!isOpen || !profile) return null;
 
   const modalId = 'company-profile-modal-content';
   const filename = `company-profile-${profile.stockSymbol?.replace(/[^a-zA-Z0-9]/g, '-')}`;
+  const slides = generateCompanyProfileSlides(profile);
 
   const getTrendIcon = (trend: 'positive' | 'negative' | 'neutral') => {
     switch (trend) {
@@ -101,39 +105,81 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
           </div>
           </div>
 
-          {/* Export Toolbar */}
-          <div className="flex items-center gap-2 px-2">
-            <span className="text-xs text-neutral-500 font-medium mr-2">Export:</span>
-            <button
-              onClick={() => handleCopyAsHTML(`#${modalId}`)}
-              disabled={isExporting}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors disabled:opacity-50"
-              title="Copy formatted content for PowerPoint/Google Slides"
-            >
-              {exportSuccess ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              <span className="hidden sm:inline">{exportSuccess ? 'Copied!' : 'Copy'}</span>
-            </button>
-            <button
-              onClick={() => handleDownloadAsImage(`#${modalId}`, filename)}
-              disabled={isExporting}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors disabled:opacity-50"
-              title="Download as high-quality image"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Image</span>
-            </button>
-            <button
-              onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
-              title="Print or save as PDF"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Print</span>
-            </button>
+          {/* View Mode Toggle & Export Toolbar */}
+          <div className="flex items-center justify-between px-2">
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-1 p-1 bg-neutral-100 rounded-lg">
+              <button
+                onClick={() => setViewMode('detail')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  viewMode === 'detail' 
+                    ? 'bg-white text-neutral-900 shadow-sm' 
+                    : 'text-neutral-500 hover:text-neutral-700'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Detail</span>
+              </button>
+              <button
+                onClick={() => setViewMode('slides')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  viewMode === 'slides' 
+                    ? 'bg-white text-neutral-900 shadow-sm' 
+                    : 'text-neutral-500 hover:text-neutral-700'
+                }`}
+              >
+                <Presentation className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Slides</span>
+              </button>
+            </div>
+
+            {/* Export Buttons (only show in detail view) */}
+            {viewMode === 'detail' && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-neutral-500 font-medium mr-2">Export:</span>
+                <button
+                  onClick={() => handleCopyAsHTML(`#${modalId}`)}
+                  disabled={isExporting}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors disabled:opacity-50"
+                  title="Copy formatted content for PowerPoint/Google Slides"
+                >
+                  {exportSuccess ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline">{exportSuccess ? 'Copied!' : 'Copy'}</span>
+                </button>
+                <button
+                  onClick={() => handleDownloadAsImage(`#${modalId}`, filename)}
+                  disabled={isExporting}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors disabled:opacity-50"
+                  title="Download as high-quality image"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Image</span>
+                </button>
+                <button
+                  onClick={handlePrint}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
+                  title="Print or save as PDF"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Print</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Modal Content */}
+        {viewMode === 'slides' ? (
+          <div className="flex-1 min-h-[500px]">
+            <SlideView
+              slides={slides}
+              cardType="company-profile"
+              cardTitle={`${profile.companyInfo?.name || 'Company'} (${profile.stockSymbol || 'N/A'})`}
+            >
+              {(slide) => <SlideRenderer slide={slide} slideIndex={slides.indexOf(slide)} />}
+            </SlideView>
+          </div>
+        ) : (
         <div id={modalId} className="p-8 space-y-10">
           {/* Company Overview */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -307,6 +353,7 @@ export function CompanyProfileDetailModal({ profile, isOpen, onClose, onSaveCard
             </div>
           </div>
         </div>
+        )}
 
         {/* Modal Footer */}
         <div className="p-6 border-t border-neutral-200 bg-neutral-50 rounded-b-lg">

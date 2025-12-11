@@ -185,6 +185,7 @@ app.post('/api/marketing-swot', (req, res) => dealsController.generateMarketingS
 app.post('/api/company-profile', (req, res) => dealsController.generateCompanyProfile(req, res));
 app.post('/api/marketing-news', (req, res) => dealsController.generateMarketingNews(req, res));
 app.post('/api/competitive-intelligence', (req, res) => dealsController.generateCompetitiveIntelligence(req, res));
+app.get('/api/model-stats', (req, res) => dealsController.getModelStats(req, res));
 app.post('/api/content-strategy', (req, res) => dealsController.generateContentStrategy(req, res));
 app.post('/api/brand-strategy', (req, res) => dealsController.generateBrandStrategy(req, res));
 

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews } from '@/types/deal';
 import { useSidebar } from './AppLayout';
 import DealGrid from './DealGrid';
+import DealCard from './DealCard';
 import AudienceInsightsCard from './AudienceInsightsCard';
 import MarketSizingCard, { MarketSizing } from './MarketSizingCard';
 import { GeoCard as GeoCardComponent } from './GeoCard';
@@ -543,75 +544,18 @@ export default function ChatInterface({
                   <div className="mt-4">
                     <p className="text-xs font-medium text-neutral-600 mb-3">Relevant deals:</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {message.deals.map((deal, index) => {
-                        const isCommerceAudience = (deal.dealName || '').toLowerCase().includes('purchase intender');
-                        return (
-                        <div 
+                      {message.deals.map((deal, index) => (
+                        <DealCard
                           key={`${deal.id}-${index}`}
-                          className={`card p-4 cursor-pointer hover:shadow-sovrn-lg transition-all duration-200 group ${
-                            isCommerceAudience 
-                              ? 'border-l-4 border-brand-gold bg-gradient-to-r from-brand-gold/5 to-transparent' 
-                              : ''
-                          }`}
+                          deal={deal}
                           onClick={() => onDealClick(deal)}
-                        >
-                          {/* Deal Name */}
-                          <div className="flex items-center gap-2 mb-2">
-                            <h4 className="font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors">
-                              {deal.dealName}
-                            </h4>
-                            {isCommerceAudience && (
-                              <span className="text-lg">🛍️</span>
-                            )}
-                          </div>
-
-                          {/* Description */}
-                          <p className="text-sm text-neutral-600 mb-3 leading-relaxed">
-                            {deal.description}
-                          </p>
-
-                          {/* Environment */}
-                          <div className="mb-3">
-                            <span className="inline-flex items-center px-2 py-1 bg-primary-100 text-primary-800 text-xs font-medium rounded-full">
-                              {deal.environment}
-                            </span>
-                          </div>
-
-                          {/* Add to Selections Button */}
-                          <div className="pt-3 border-t border-neutral-200">
-                            {isInCart(deal.id) ? (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onRemoveFromCart(deal.id);
-                                }}
-                                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-xs font-medium"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                                Remove from Cart
-</button>
-                            ) : (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onAddToCart(deal);
-                                }}
-                                className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors text-xs font-medium ${
-                                  isCommerceAudience 
-                                    ? 'bg-gradient-to-r from-brand-gold to-brand-orange text-white hover:from-brand-gold/90 hover:to-brand-orange/90' 
-                                    : 'bg-brand-gold/10 text-brand-charcoal hover:bg-brand-gold/20'
-                                }`}
-                              >
-                                <ShoppingCart className="w-3 h-3" />
-                                Add to Cart
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                        );
-                      })}
+                          onAddToCart={() => onAddToCart(deal)}
+                          onRemoveFromCart={() => onRemoveFromCart(deal.id)}
+                          isInCart={isInCart(deal.id)}
+                          compact={true}
+                        />
+                      ))}
                     </div>
-                    
                   </div>
                 )}
                 
@@ -903,7 +847,7 @@ export default function ChatInterface({
                             <h4 className="font-semibold text-neutral-900">{strategy.brandOrCategory}</h4>
                           </div>
                           <p className="text-sm text-neutral-600 line-clamp-2">
-                            {strategy.positioning || 'Brand positioning strategy available'}
+                            {strategy.positioning?.targetPosition || strategy.positioning?.currentPerception || strategy.valueProposition || 'Brand positioning strategy available'}
                           </p>
                         </div>
                       ))}

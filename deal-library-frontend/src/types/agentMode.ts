@@ -75,11 +75,37 @@ export interface AnalysisResults {
     count: number;
   };
   
-  // Market sizing data
+  // Market sizing data (enhanced with Strategy Card format)
   marketSizing: {
     totalAddressableMarket: number;
     reachEstimate: number;
     demographicBreakdown: any;
+    aiGenerated?: boolean;
+    aiSummary?: string;
+    totalMarketSize?: string;
+    growthRate?: string;
+    addressableMarket?: string;
+    addressableValue?: string;
+    growthTrends?: {
+      growthRate?: string;
+      seasonality?: string;
+      keyOpportunities?: string[];
+      forecastPeriod?: string;
+      emergingTrends?: string[];
+    };
+    marketInsights?: {
+      keyDrivers?: string[];
+      barriers?: string[];
+      opportunities?: string[];
+      competitiveDensity?: string;
+      marketMaturity?: string;
+    };
+    advertisingImplications?: {
+      recommendedChannels?: string[];
+      optimalSpend?: string;
+      targetingStrategy?: string;
+      seasonalityRecommendations?: string;
+    };
   };
   
   // Geographic analysis
@@ -88,12 +114,14 @@ export interface AnalysisResults {
     coverageMap: any;
   };
   
-  // SWOT analysis
+  // SWOT analysis (enhanced to support Strategy Card format with titles/descriptions)
   swot: {
-    strengths: string[];
-    weaknesses: string[];
-    opportunities: string[];
-    threats: string[];
+    strengths: Array<string | { title: string; description: string }>;
+    weaknesses: Array<string | { title: string; description: string }>;
+    opportunities: Array<string | { title: string; description: string }>;
+    threats: Array<string | { title: string; description: string }>;
+    summary?: string;
+    recommendedActions?: string[];
   };
   
   // Company/Advertiser profile

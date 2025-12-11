@@ -234,12 +234,62 @@ export class MarketInsightsService {
           formattedValue: this.formatValue(market.value, metric.format),
           opportunityScore: market.opportunityScore,
           tier: market.tier,
+          // Include coordinates for map display
+          latitude: market.market.latitude,
+          longitude: market.market.longitude,
+          // Include additional fields for client-side filtering
+          medianHouseholdIncome: market.market.householdIncomeMedian,
+          collegeEducated: market.market.collegeEducated,
+          homeownershipRate: market.market.homeownershipRate,
+          medianAge: market.market.ageMedian,
           ...competitiveIntel
         };
       });
 
     console.log(`✅ Found ${rankedMarkets.length} top markets`);
     return rankedMarkets;
+  }
+
+  /**
+   * Search all markets by name (case-insensitive partial match)
+   */
+  public async searchMarkets(
+    query: string,
+    geoLevel: GeographicLevel,
+    limit: number = 20,
+    includeCommercialZips: boolean = false
+  ): Promise<TopMarket[]> {
+    console.log(`🔍 Searching markets for "${query}" at ${geoLevel} level`);
+
+    // Get all aggregated markets for this geo level
+    const markets = await this.getAggregatedMarkets(geoLevel, includeCommercialZips);
+    
+    // Search by name (case-insensitive)
+    const searchLower = query.toLowerCase();
+    const matchingMarkets = markets
+      .filter(market => market.name.toLowerCase().includes(searchLower))
+      .slice(0, limit)
+      .map((market, index) => {
+        const oppScore = this.calculateOpportunityScore(market);
+        return {
+          rank: index + 1,
+          name: market.name,
+          geoLevel: market.geoLevel,
+          value: market.population, // Use population as default value for search results
+          population: market.population,
+          formattedValue: market.population.toLocaleString(),
+          opportunityScore: oppScore.score,
+          tier: oppScore.tier,
+          // Include additional fields for client-side filtering
+          medianHouseholdIncome: market.householdIncomeMedian,
+          collegeEducated: market.collegeEducated,
+          homeownershipRate: market.homeownershipRate,
+          medianAge: market.ageMedian
+        };
+      });
+
+    console.log(`✅ Found ${matchingMarkets.length} markets matching "${query}"`);
+    return matchingMarkets;
   }
 
   /**
@@ -293,7 +343,7 @@ export class MarketInsightsService {
     const geographicHierarchy = this.generateGeographicHierarchy(market);
 
     // Find similar markets
-    const similarMarkets = await this.findSimilarMarkets(market, geoLevel, includeCommercialZips, 5);
+    const similarMarkets = await this.findSimilarMarkets(market, geoLevel, includeCommercialZips, 6);
 
     // Calculate Poverty Ratio
     const povertyRatio = this.nationalBenchmark && this.nationalBenchmark.povertyRate > 0
@@ -317,6 +367,25 @@ export class MarketInsightsService {
       },
       similarMarkets
     };
+  }
+
+  /**
+   * Get the list of ZIP codes for a specific market
+   * Used for fetching market-specific commerce data
+   */
+  public async getMarketZipCodes(
+    geoLevel: GeographicLevel,
+    marketName: string,
+    includeCommercialZips: boolean = false
+  ): Promise<string[]> {
+    const markets = await this.getAggregatedMarkets(geoLevel, includeCommercialZips);
+    const market = markets.find(m => m.name === marketName);
+    
+    if (!market) {
+      return [];
+    }
+    
+    return market.zipCodes.map(z => z.zipCode);
   }
 
   /**
@@ -528,11 +597,21 @@ export class MarketInsightsService {
       return sum / totalPopulation;
     };
 
+    // For ZIP-level, use the ZIP's coordinates; for other levels, use centroid of ZIPs
+    const latitude = zips.length === 1 && zips[0]
+      ? zips[0].latitude 
+      : zips.length > 0 ? zips.reduce((sum, z) => sum + (z.latitude || 0), 0) / zips.length : 0;
+    const longitude = zips.length === 1 && zips[0]
+      ? zips[0].longitude 
+      : zips.length > 0 ? zips.reduce((sum, z) => sum + (z.longitude || 0), 0) / zips.length : 0;
+
     return {
       name,
       geoLevel,
       population: totalPopulation,
       zipCodes: zips,
+      latitude,
+      longitude,
       
       // Demographics
       ageMedian: weightedAvg(z => z.demographics.ageMedian),
@@ -643,9 +722,9 @@ export class MarketInsightsService {
       .filter(attr => !isNaN(attr.percentDifference))
       .sort((a, b) => Math.abs(b.percentDifference) - Math.abs(a.percentDifference));
 
-    // Top 3 strengths (positive differences)
+    // Top 3 strengths (positive differences) - exclude Total Population as it's not a meaningful comparison
     const topStrengths: StrategicInsight[] = sortedByDiff
-      .filter(attr => attr.percentDifference > 0)
+      .filter(attr => attr.percentDifference > 0 && attr.name !== 'Total Population')
       .slice(0, 3)
       .map(attr => ({
         attribute: attr.name,
@@ -655,9 +734,9 @@ export class MarketInsightsService {
         impact: 'positive' as const
       }));
 
-    // Bottom 3 concerns (negative differences)
+    // Bottom 3 concerns (negative differences) - exclude Total Population as it's not a meaningful comparison
     const bottomConcerns: StrategicInsight[] = sortedByDiff
-      .filter(attr => attr.percentDifference < 0)
+      .filter(attr => attr.percentDifference < 0 && attr.name !== 'Total Population')
       .slice(0, 3)
       .map(attr => ({
         attribute: attr.name,

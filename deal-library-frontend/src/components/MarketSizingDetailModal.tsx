@@ -1,6 +1,8 @@
-import React from 'react';
-import { X, BarChart3, TrendingUp, Users, Target, Globe, DollarSign, Calendar, Lightbulb, ShoppingCart, Bookmark, BookmarkCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, BarChart3, TrendingUp, Users, Target, Globe, DollarSign, Calendar, Lightbulb, ShoppingCart, Bookmark, BookmarkCheck, Presentation, FileText } from 'lucide-react';
 import { MarketSizing } from './MarketSizingCard';
+import { SlideView, SlideRenderer } from '@/components/slides';
+import { generateMarketSizingSlides } from '@/lib/slideConfigs';
 
 interface MarketSizingDetailModalProps {
   sizing: MarketSizing | null;
@@ -13,6 +15,8 @@ interface MarketSizingDetailModalProps {
 }
 
 export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, onSaveCard, onUnsaveCard, isSaved }: MarketSizingDetailModalProps) {
+  const [viewMode, setViewMode] = useState<'detail' | 'slides'>('detail');
+  
   if (!isOpen) {
     return null;
   }
@@ -20,6 +24,8 @@ export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, 
   if (!sizing) {
     return null;
   }
+  
+  const slides = generateMarketSizingSlides(sizing);
 
   return (
     <div 
@@ -35,48 +41,87 @@ export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-neutral-200 flex items-center justify-between z-10">
-          <div className="flex items-center gap-3">
-            <BarChart3 className="w-6 h-6 text-primary-600" />
-            <h3 className="text-xl font-semibold text-neutral-900">
-              Market Analysis: {sizing.marketName}
-            </h3>
-          </div>
-          <div className="flex items-center gap-2">
-            {onSaveCard && onUnsaveCard && isSaved && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (isSaved(`market-sizing-${sizing.marketName}`)) {
-                    onUnsaveCard(`market-sizing-${sizing.marketName}`);
-                  } else {
-                    onSaveCard({ type: 'market-sizing', data: sizing });
-                  }
-                }}
-                className={`p-2 rounded-lg transition-colors ${
-                  isSaved(`market-sizing-${sizing.marketName}`)
-                    ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
-                    : 'text-neutral-500 hover:text-blue-600 hover:bg-blue-50'
-                }`}
-                title={isSaved(`market-sizing-${sizing.marketName}`) ? 'Remove from saved' : 'Save card'}
-              >
-                {isSaved(`market-sizing-${sizing.marketName}`) ? (
-                  <BookmarkCheck className="w-5 h-5" />
-                ) : (
-                  <Bookmark className="w-5 h-5" />
-                )}
+        <div className="sticky top-0 bg-white p-4 sm:p-6 border-b border-neutral-200 z-10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <BarChart3 className="w-6 h-6 text-primary-600" />
+              <h3 className="text-xl font-semibold text-neutral-900">
+                Market Analysis: {sizing.marketName}
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              {onSaveCard && onUnsaveCard && isSaved && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isSaved(`market-sizing-${sizing.marketName}`)) {
+                      onUnsaveCard(`market-sizing-${sizing.marketName}`);
+                    } else {
+                      onSaveCard({ type: 'market-sizing', data: sizing });
+                    }
+                  }}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isSaved(`market-sizing-${sizing.marketName}`)
+                      ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+                      : 'text-neutral-500 hover:text-blue-600 hover:bg-blue-50'
+                  }`}
+                  title={isSaved(`market-sizing-${sizing.marketName}`) ? 'Remove from saved' : 'Save card'}
+                >
+                  {isSaved(`market-sizing-${sizing.marketName}`) ? (
+                    <BookmarkCheck className="w-5 h-5" />
+                  ) : (
+                    <Bookmark className="w-5 h-5" />
+                  )}
+                </button>
+              )}
+              <button onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }} className="p-2 rounded-full hover:bg-neutral-100 transition-colors">
+                <X className="w-5 h-5 text-neutral-600" />
               </button>
-            )}
-            <button onClick={(e) => {
-              e.stopPropagation();
-              onClose();
-            }} className="p-2 rounded-full hover:bg-neutral-100 transition-colors">
-              <X className="w-5 h-5 text-neutral-600" />
+            </div>
+          </div>
+          
+          {/* View Mode Toggle */}
+          <div className="flex items-center gap-1 p-1 bg-neutral-100 rounded-lg mt-3 w-fit">
+            <button
+              onClick={() => setViewMode('detail')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                viewMode === 'detail' 
+                  ? 'bg-white text-neutral-900 shadow-sm' 
+                  : 'text-neutral-500 hover:text-neutral-700'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Detail</span>
+            </button>
+            <button
+              onClick={() => setViewMode('slides')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                viewMode === 'slides' 
+                  ? 'bg-white text-neutral-900 shadow-sm' 
+                  : 'text-neutral-500 hover:text-neutral-700'
+              }`}
+            >
+              <Presentation className="w-3.5 h-3.5" />
+              <span>Slides</span>
             </button>
           </div>
         </div>
 
         {/* Modal Content */}
+        {viewMode === 'slides' ? (
+          <div className="flex-1 min-h-[500px]">
+            <SlideView
+              slides={slides}
+              cardType="market-sizing"
+              cardTitle={sizing.marketName || 'Market Intelligence'}
+            >
+              {(slide) => <SlideRenderer slide={slide} slideIndex={slides.indexOf(slide)} />}
+            </SlideView>
+          </div>
+        ) : (
         <div className="p-6 space-y-6">
           {/* Disclaimer */}
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-0 sm:p-4">
@@ -212,6 +257,7 @@ export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, 
             </div>
           </div>
         </div>
+        )}
         {/* Sources */}
         {sizing.sources && sizing.sources.length > 0 && (
           <div className="px-6 pb-2">

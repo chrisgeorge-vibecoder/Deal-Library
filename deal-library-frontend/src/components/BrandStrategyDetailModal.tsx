@@ -1,7 +1,26 @@
-import React from 'react';
-import { X, Award, Target, MessageSquare, Volume2, Bookmark, BookmarkCheck, CheckCircle, XCircle, Copy, Download, Printer, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Award, Target, MessageSquare, Volume2, Bookmark, BookmarkCheck, CheckCircle, XCircle, Copy, Download, Printer, CheckCircle2, Presentation, FileText } from 'lucide-react';
 import { BrandStrategy } from '@/types/deal';
 import { useCardExport } from '@/hooks/useCardExport';
+import { SlideView, SlideRenderer } from '@/components/slides';
+import { generateBrandStrategySlides } from '@/lib/slideConfigs';
+
+// Helper function to render markdown bold syntax as actual bold text
+const renderBoldText = (text: string): React.ReactNode => {
+  if (!text) return text;
+  
+  // Split by **text** pattern and render bold parts
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      // Remove the ** markers and wrap in strong tag
+      const boldText = part.slice(2, -2);
+      return <strong key={index} className="font-semibold">{boldText}</strong>;
+    }
+    return part;
+  });
+};
 
 interface BrandStrategyDetailModalProps {
   brandStrategy: BrandStrategy | null;
@@ -21,6 +40,7 @@ export function BrandStrategyDetailModal({
   isSaved 
 }: BrandStrategyDetailModalProps) {
   const { handleCopyAsHTML, handleDownloadAsImage, handlePrint, isExporting, exportSuccess } = useCardExport();
+  const [viewMode, setViewMode] = useState<'detail' | 'slides'>('detail');
 
   // Enhanced validation to ensure brandStrategy has all required properties
   if (!isOpen || !brandStrategy || 
@@ -35,6 +55,7 @@ export function BrandStrategyDetailModal({
 
   const modalId = 'brand-strategy-modal-content';
   const filename = `brand-strategy-${brandStrategy.brandOrCategory?.replace(/[^a-zA-Z0-9]/g, '-')}`;
+  const slides = generateBrandStrategySlides(brandStrategy);
 
   return (
     <div 
@@ -92,39 +113,82 @@ export function BrandStrategyDetailModal({
           </div>
           </div>
 
-          {/* Export Toolbar */}
-          <div className="flex items-center gap-2 px-2">
-            <span className="text-xs text-neutral-500 font-medium mr-2">Export:</span>
-            <button
-              onClick={() => handleCopyAsHTML(`#${modalId}`)}
-              disabled={isExporting}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors disabled:opacity-50"
-              title="Copy formatted content for PowerPoint/Google Slides"
-            >
-              {exportSuccess ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              <span className="hidden sm:inline">{exportSuccess ? 'Copied!' : 'Copy'}</span>
-            </button>
-            <button
-              onClick={() => handleDownloadAsImage(`#${modalId}`, filename)}
-              disabled={isExporting}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors disabled:opacity-50"
-              title="Download as high-quality image"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Image</span>
-            </button>
-            <button
-              onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
-              title="Print or save as PDF"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Print</span>
-            </button>
+          {/* View Mode Toggle & Export Toolbar */}
+          <div className="flex items-center justify-between px-2">
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-1 p-1 bg-neutral-100 rounded-lg">
+              <button
+                onClick={() => setViewMode('detail')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  viewMode === 'detail' 
+                    ? 'bg-white text-neutral-900 shadow-sm' 
+                    : 'text-neutral-500 hover:text-neutral-700'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Detail View</span>
+              </button>
+              <button
+                onClick={() => setViewMode('slides')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  viewMode === 'slides' 
+                    ? 'bg-white text-neutral-900 shadow-sm' 
+                    : 'text-neutral-500 hover:text-neutral-700'
+                }`}
+              >
+                <Presentation className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Slideshow</span>
+              </button>
+            </div>
+
+            {/* Export Buttons (only show in detail view) */}
+            {viewMode === 'detail' && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-neutral-500 font-medium mr-2">Export:</span>
+                <button
+                  onClick={() => handleCopyAsHTML(`#${modalId}`)}
+                  disabled={isExporting}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors disabled:opacity-50"
+                  title="Copy formatted content for PowerPoint/Google Slides"
+                >
+                  {exportSuccess ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline">{exportSuccess ? 'Copied!' : 'Copy'}</span>
+                </button>
+                <button
+                  onClick={() => handleDownloadAsImage(`#${modalId}`, filename)}
+                  disabled={isExporting}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors disabled:opacity-50"
+                  title="Download as high-quality image"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Image</span>
+                </button>
+                <button
+                  onClick={handlePrint}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
+                  title="Print or save as PDF"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Print</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Modal Content */}
+        {/* Modal Content - Slideshow View */}
+        {viewMode === 'slides' ? (
+          <div className="flex-1 min-h-[500px]">
+            <SlideView
+              slides={slides}
+              cardType="brand-strategy"
+              cardTitle={brandStrategy.brandOrCategory || 'Brand Strategy'}
+            >
+              {(slide) => <SlideRenderer slide={slide} slideIndex={slides.indexOf(slide)} />}
+            </SlideView>
+          </div>
+        ) : (
+        /* Modal Content - Detail View */
         <div id={modalId} className="p-8 space-y-10">
           {/* Positioning */}
           <div>
@@ -151,7 +215,7 @@ export function BrandStrategyDetailModal({
                 {(brandStrategy.positioning?.differentiators || []).map((differentiator, index) => (
                   <div key={index} className="flex items-start gap-3 bg-purple-50 p-5 rounded-xl border border-purple-200 hover:shadow-lg transition-shadow">
                     <Target className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-neutral-700 leading-relaxed">{differentiator || 'Untitled differentiator'}</span>
+                    <span className="text-neutral-700 leading-relaxed">{renderBoldText(differentiator || 'Untitled differentiator')}</span>
                   </div>
                 ))}
               </div>
@@ -178,7 +242,7 @@ export function BrandStrategyDetailModal({
                 <div className="space-y-3">
                   {(brandStrategy.messagingFramework?.supportingMessages || []).map((message, index) => (
                     <div key={index} className="bg-neutral-50 p-5 rounded-xl border border-neutral-200 hover:shadow-lg transition-shadow">
-                      <span className="text-neutral-700 leading-relaxed">{message || 'No message available'}</span>
+                      <span className="text-neutral-700 leading-relaxed">{renderBoldText(message || 'No message available')}</span>
                     </div>
                   ))}
                 </div>
@@ -211,7 +275,7 @@ export function BrandStrategyDetailModal({
                 <div className="flex flex-wrap gap-2">
                   {(brandStrategy.brandVoice?.toneAttributes || []).map((attribute, index) => (
                     <span key={index} className="px-3 py-1.5 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-                      {attribute || 'Unknown'}
+                      {renderBoldText(attribute || 'Unknown')}
                     </span>
                   ))}
                 </div>
@@ -267,7 +331,7 @@ export function BrandStrategyDetailModal({
                   <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-base font-bold flex-shrink-0">
                     {index + 1}
                   </div>
-                  <span className="text-neutral-700 leading-relaxed">{recommendation || 'No recommendation available'}</span>
+                  <span className="text-neutral-700 leading-relaxed">{renderBoldText(recommendation || 'No recommendation available')}</span>
                 </div>
               ))}
             </div>
@@ -298,6 +362,7 @@ export function BrandStrategyDetailModal({
             </div>
           )}
         </div>
+        )}
       </div>
     </div>
   );

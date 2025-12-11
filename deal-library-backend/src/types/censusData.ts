@@ -228,6 +228,11 @@ export interface TopMarket {
   tier?: string;
   hiddenGem?: boolean;
   saturationLevel?: 'Low' | 'Medium' | 'High';
+  // Additional fields for client-side filtering
+  medianHouseholdIncome?: number;
+  collegeEducated?: number;
+  homeownershipRate?: number;
+  medianAge?: number;
 }
 
 export interface MarketAttribute {

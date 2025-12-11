@@ -641,6 +641,10 @@ export default function AudienceInsightsPage() {
     setReport(null);
     setRecommendedDeals([]);
 
+    // Create an AbortController for timeout - report generation can take 60-90 seconds
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout
+
     try {
       console.log('🔍 [DEBUG] Generating report for:', { selectedCategory, selectedSegment });
       
@@ -652,8 +656,10 @@ export default function AudienceInsightsPage() {
           category: selectedCategory,
           includeCommercialZips  // NEW: Pass filter preference to backend
         }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
       console.log('📡 [DEBUG] API Response status:', response.status);
       const data = await response.json();
       console.log('📦 [DEBUG] Full API Response:', JSON.stringify(data, null, 2));
@@ -690,8 +696,19 @@ export default function AudienceInsightsPage() {
         setError(data.message || 'Failed to generate report');
       }
     } catch (error) {
+      clearTimeout(timeoutId);
       console.error('❌ [DEBUG] Error generating report:', error);
-      setError('Failed to generate report. Please try again.');
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          setError('Request timed out. The AI service may be slow to respond. Please try again.');
+        } else if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
+          setError('Backend server is not available. Please ensure the backend is running on port 3002.');
+        } else {
+          setError('Failed to generate report. Please try again.');
+        }
+      } else {
+        setError('Failed to generate report. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

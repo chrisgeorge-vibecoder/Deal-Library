@@ -231,6 +231,14 @@ export interface TopMarket {
   consumerWealthIndex?: number;
   communityCohesionScore?: number;
   lifeStageSegment?: string;
+  // Coordinates for map display
+  latitude?: number;
+  longitude?: number;
+  // Additional fields for client-side filtering
+  medianHouseholdIncome?: number;
+  collegeEducated?: number;
+  homeownershipRate?: number;
+  medianAge?: number;
 }
 
 export interface MarketAttribute {

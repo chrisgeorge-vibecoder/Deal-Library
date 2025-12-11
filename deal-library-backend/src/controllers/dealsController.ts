@@ -470,18 +470,59 @@ export class DealsController {
           // If forceDeals is true but no deals were returned, try to find some relevant deals
           if (forceDeals && geminiResult.deals.length === 0) {
             console.log('🔧 Force deals mode: Finding relevant deals despite empty Gemini result');
-            // Find deals that match common keywords in the query
-            const queryWords = correctedQuery.toLowerCase().split(' ').filter(word => word.length > 2);
-            const relevantDeals = allDeals.filter(deal => {
-              const dealText = `${deal.dealName} ${deal.description} ${deal.targeting}`.toLowerCase();
-              return queryWords.some(word => dealText.includes(word));
-            }).slice(0, 4);
             
-            if (relevantDeals.length > 0) {
-              console.log(`🔧 Found ${relevantDeals.length} relevant deals for force mode`);
+            // Define important keywords that should be prioritized (not generic words)
+            const genericWords = new Set(['show', 'me', 'deals', 'for', 'the', 'and', 'with', 'find', 'get', 'looking', 'want', 'need']);
+            const queryLower = correctedQuery.toLowerCase();
+            
+            // Extract important keywords (non-generic, length > 2)
+            const importantKeywords = correctedQuery.toLowerCase()
+              .split(/\s+/)
+              .filter(word => word.length > 2 && !genericWords.has(word));
+            
+            console.log(`🔧 Important keywords for fallback search: ${importantKeywords.join(', ')}`);
+            
+            // Score deals based on matching important keywords
+            const scoredDeals = allDeals.map(deal => {
+              const dealText = `${deal.dealName} ${deal.description} ${deal.targeting}`.toLowerCase();
+              let score = 0;
+              
+              // Higher weight for deal name matches
+              for (const keyword of importantKeywords) {
+                if (deal.dealName?.toLowerCase().includes(keyword)) {
+                  score += 10;
+                }
+                if (deal.description?.toLowerCase().includes(keyword)) {
+                  score += 3;
+                }
+                if (deal.targeting?.toLowerCase().includes(keyword)) {
+                  score += 2;
+                }
+              }
+              
+              // Environment matching (CTV, Web, etc.)
+              if (queryLower.includes('ctv') && deal.environment?.toLowerCase().includes('ctv')) {
+                score += 15;
+              }
+              if (queryLower.includes('mobile') && deal.environment?.toLowerCase().includes('mobile')) {
+                score += 15;
+              }
+              if (queryLower.includes('web') && deal.environment?.toLowerCase() === 'web') {
+                score += 15;
+              }
+              
+              return { deal, score };
+            })
+            .filter(item => item.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 6)
+            .map(item => item.deal);
+            
+            if (scoredDeals.length > 0) {
+              console.log(`🔧 Found ${scoredDeals.length} relevant deals for force mode (scored matching)`);
               res.json({
-                deals: relevantDeals,
-                aiResponse: geminiResult.aiResponse || `Here are ${relevantDeals.length} relevant deals for your query.`,
+                deals: scoredDeals,
+                aiResponse: geminiResult.aiResponse || `Here are ${scoredDeals.length} relevant deals for your query.`,
                 searchMethod: 'gemini-direct-forced',
                 confidence: 0.6,
                 query: correctedQuery,
@@ -1320,13 +1361,57 @@ export class DealsController {
         try {
           const deals = await this.appsScriptService.getAllDeals();
           if (deals && deals.length > 0) {
-            // Simple keyword matching for now
-            const filteredDeals = deals.filter(deal => 
-              deal.dealName.toLowerCase().includes(query.toLowerCase()) ||
-              deal.description.toLowerCase().includes(query.toLowerCase()) ||
-              deal.environment.toLowerCase().includes(query.toLowerCase())
-            );
-            results.deals = filteredDeals.slice(0, 10); // Limit to 10 results
+            // Extract important keywords from query (filter out stop words)
+            const stopWords = new Set(['find', 'show', 'me', 'relevant', 'deals', 'deal', 'for', 'the', 'and', 'with', 'get', 'looking', 'want', 'need', 'some', 'any', 'all', 'audience', 'market', 'general', 'a', 'an', 'in', 'on', 'to', 'of']);
+            const queryLower = query.toLowerCase();
+            const keywords = queryLower
+              .split(/[\s,()]+/)
+              .filter(word => word.length > 2 && !stopWords.has(word));
+            
+            console.log(`🔍 Unified search deal keywords extracted: ${keywords.join(', ')}`);
+            
+            // Score deals based on keyword matches
+            const scoredDeals = deals.map(deal => {
+              const dealName = (deal.dealName || '').toLowerCase();
+              const dealDesc = (deal.description || '').toLowerCase();
+              const dealTarget = (deal.targeting || '').toLowerCase();
+              const dealEnv = (deal.environment || '').toLowerCase();
+              
+              let score = 0;
+              
+              // Check each keyword
+              for (const keyword of keywords) {
+                // High score for deal name match
+                if (dealName.includes(keyword)) {
+                  score += 20;
+                }
+                // Medium score for description match
+                if (dealDesc.includes(keyword)) {
+                  score += 10;
+                }
+                // Medium score for targeting match
+                if (dealTarget.includes(keyword)) {
+                  score += 8;
+                }
+                // Lower score for environment match
+                if (dealEnv.includes(keyword)) {
+                  score += 5;
+                }
+              }
+              
+              // Also check for exact phrase matches (e.g., "Coffee Drinkers")
+              if (dealName.includes(queryLower) || dealDesc.includes(queryLower)) {
+                score += 50;
+              }
+              
+              return { deal, score };
+            })
+            .filter(item => item.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10);
+            
+            results.deals = scoredDeals.map(item => item.deal);
+            console.log(`🔍 Unified search found ${results.deals.length} deals with scores`);
           }
         } catch (error) {
           console.error('Error searching deals:', error);
@@ -2036,14 +2121,15 @@ export class DealsController {
    */
   async getCommerceAudienceSegments(req: Request, res: Response): Promise<void> {
     try {
-      const segments = commerceAudienceService.getAudienceSegments();
-      
+      // Use async version which supports lazy loading
+      const segments = await commerceAudienceService.getAudienceSegmentsAsync();
+
       res.json({
         success: true,
         segments,
         total: segments.length
       });
-      
+
     } catch (error) {
       console.error('Error getting audience segments:', error);
       res.status(500).json({
@@ -2781,6 +2867,36 @@ export class DealsController {
         success: false,
         error: 'Failed to parse brief',
         message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Get Gemini model performance stats
+   */
+  getModelStats = async (req: Request, res: Response): Promise<void> => {
+    if (!this.geminiService) {
+      res.status(503).json({
+        success: false,
+        error: 'Gemini service not available'
+      });
+      return;
+    }
+
+    try {
+      const stats = this.geminiService.getModelStats();
+      res.json({
+        success: true,
+        stats,
+        explanation: {
+          flash: 'Used for speed-critical operations (deal search, chat)',
+          pro: 'Used for quality-critical operations (insights, SWOT, market sizing)'
+        }
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get model stats'
       });
     }
   }

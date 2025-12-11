@@ -28,7 +28,8 @@ export interface GeminiSearchResult {
 
 export class GeminiService {
   private genAI: GoogleGenerativeAI;
-  private model: any;
+  private model: any;           // Flash model for speed-critical operations (search, chat)
+  private proModel: any;        // Pro model for quality-critical operations (insights, analysis)
   private responseCache: Map<string, { result: GeminiSearchResult, timestamp: number }>;
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache TTL
   private ragService: RAGService | null = null;
@@ -41,14 +42,31 @@ export class GeminiService {
     }
     
     this.genAI = new GoogleGenerativeAI(apiKey);
+    
+    // Flash model: Fast responses for search, chat, and real-time interactions
     this.model = this.genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash",
       generationConfig: {
         temperature: 0.1, // Lower temperature for more consistent results
         topP: 0.8, // Focus on most likely tokens
-        maxOutputTokens: 8192, // Increased for complex Audience Insights responses
+        maxOutputTokens: 8192,
       }
     });
+    
+    // Pro model: Higher quality for strategic analysis, insights, and business-critical outputs
+    this.proModel = this.genAI.getGenerativeModel({ 
+      model: "gemini-2.5-pro",
+      generationConfig: {
+        temperature: 0.2, // Slightly higher for nuanced reasoning
+        topP: 0.9, // More diverse token selection for creative insights
+        maxOutputTokens: 16384, // Larger output for comprehensive analysis
+      }
+    });
+    
+    console.log('🚀 Gemini Hybrid Models initialized:');
+    console.log('   ⚡ Flash (gemini-2.5-flash): Search, chat, quick lookups');
+    console.log('   🎯 Pro (gemini-2.5-pro): Insights, SWOT, market sizing, strategy');
+    
     this.responseCache = new Map();
 
     // Initialize RAG service if Supabase is available
@@ -61,6 +79,48 @@ export class GeminiService {
         console.warn('⚠️  RAG disabled:', error);
       }
     }
+  }
+
+  // Performance tracking for hybrid model usage
+  private modelStats = {
+    flash: { calls: 0, totalTime: 0, errors: 0 },
+    pro: { calls: 0, totalTime: 0, errors: 0 }
+  };
+
+  /**
+   * Log model performance and track stats
+   */
+  private logModelPerformance(model: 'flash' | 'pro', operation: string, startTime: number, success: boolean = true): void {
+    const duration = Date.now() - startTime;
+    const stats = this.modelStats[model];
+    
+    stats.calls++;
+    stats.totalTime += duration;
+    if (!success) stats.errors++;
+    
+    const avgTime = stats.calls > 0 ? Math.round(stats.totalTime / stats.calls) : 0;
+    const emoji = model === 'flash' ? '⚡' : '🎯';
+    const status = success ? '✅' : '❌';
+    
+    console.log(`${emoji} [${model.toUpperCase()}] ${status} ${operation} | ${duration}ms | Avg: ${avgTime}ms | Total calls: ${stats.calls}`);
+  }
+
+  /**
+   * Get performance stats for both models
+   */
+  getModelStats(): { flash: { calls: number; avgTime: number; errors: number }; pro: { calls: number; avgTime: number; errors: number } } {
+    return {
+      flash: {
+        calls: this.modelStats.flash.calls,
+        avgTime: this.modelStats.flash.calls > 0 ? Math.round(this.modelStats.flash.totalTime / this.modelStats.flash.calls) : 0,
+        errors: this.modelStats.flash.errors
+      },
+      pro: {
+        calls: this.modelStats.pro.calls,
+        avgTime: this.modelStats.pro.calls > 0 ? Math.round(this.modelStats.pro.totalTime / this.modelStats.pro.calls) : 0,
+        errors: this.modelStats.pro.errors
+      }
+    };
   }
 
   /**
@@ -320,6 +380,7 @@ EXAMPLE FOR DEAL REQUEST:
 
 MANDATORY: Only return deals if the query is actually requesting deals. For general questions, return an empty topDeals array.`;
 
+    const startTime = Date.now();
     try {
       // Add timeout to prevent hanging (increased to 60 seconds for complex queries)
       const timeoutPromise = new Promise<never>((_, reject) => {
@@ -329,6 +390,7 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
       const apiPromise = this.model.generateContent(prompt);
       
       const response = await Promise.race([apiPromise, timeoutPromise]);
+      this.logModelPerformance('flash', 'Deal Analysis', startTime);
       console.log('📦 Raw response object:', JSON.stringify(response.response, null, 2).substring(0, 500));
       const responseText = response.response.text();
       
@@ -569,11 +631,30 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
             .replace(/\\t/g, '\t') // Convert escaped tabs
             .trim();
         } else {
-          // Fallback: clean up the response text by removing any JSON artifacts
-          extractedResponse = responseText
-            .replace(/```json[\s\S]*?```/g, '') // Remove JSON code blocks
-            .replace(/^\s*\{[\s\S]*?\}\s*$/m, '') // Remove any remaining JSON objects
-            .trim();
+          // Check if the response looks like truncated JSON (contains topDeals or starts with {)
+          const looksLikeJson = responseText.trim().startsWith('{') || 
+                                responseText.includes('"topDeals"') || 
+                                responseText.includes('"id":') ||
+                                responseText.includes('"dealName":');
+          
+          if (looksLikeJson) {
+            // The response is truncated JSON - don't display it as text
+            // Generate a helpful fallback message based on extracted deals
+            if (extractedDeals.length > 0) {
+              const dealNames = extractedDeals.slice(0, 3).map((d: any) => d.dealName || d.id).filter(Boolean);
+              extractedResponse = `I found ${extractedDeals.length} relevant deals for your query, including ${dealNames.join(', ')}. These deals match your targeting criteria.`;
+              console.log('✅ Generated fallback response for truncated JSON with deals');
+            } else {
+              extractedResponse = 'I found some relevant deals for your query. Please review the results below.';
+              console.log('⚠️  Generated generic fallback response for truncated JSON without extracted deals');
+            }
+          } else {
+            // Fallback: clean up the response text by removing any JSON artifacts
+            extractedResponse = responseText
+              .replace(/```json[\s\S]*?```/g, '') // Remove JSON code blocks
+              .replace(/^\s*\{[\s\S]*?\}\s*$/m, '') // Remove any remaining JSON objects
+              .trim();
+          }
         }
         
         return {
@@ -604,6 +685,20 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
         };
       }
       
+      // Check if the response looks like truncated JSON
+      const looksLikeJson = responseText.trim().startsWith('{') || 
+                            responseText.includes('"topDeals"') || 
+                            responseText.includes('"aiResponse"');
+      
+      if (looksLikeJson) {
+        // The response is truncated JSON - provide a helpful fallback
+        return {
+          topDeals: [],
+          aiResponse: 'I can help answer your question. Please try rephrasing or asking a more specific question.',
+          isGeneralQuestion: true
+        };
+      }
+      
       // Fallback: clean up the response text by removing any JSON artifacts
       let cleanResponse = responseText
         .replace(/```json[\s\S]*?```/g, '') // Remove JSON code blocks
@@ -612,7 +707,7 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
       
       return {
         topDeals: [],
-        aiResponse: cleanResponse,
+        aiResponse: cleanResponse || 'I encountered an issue processing your request. Please try again.',
         isGeneralQuestion: true
       };
     }
@@ -672,6 +767,7 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
       const prompt = this.createAnalysisPrompt(query, deals, conversationHistory, ragContext);
       
       // Add timeout to prevent hanging (60s for complex prompts with deal analysis and coaching)
+      const startTime = Date.now();
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Gemini API timeout after 60 seconds')), 60000);
       });
@@ -681,6 +777,7 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
       const result = await Promise.race([apiPromise, timeoutPromise]);
       const response = await result.response;
       const text = response.text();
+      this.logModelPerformance('flash', 'Query Analysis', startTime);
       
       console.log(`🤖 Gemini response: ${text.substring(0, 200)}...`);
       
@@ -1991,11 +2088,14 @@ EXAMPLES OF AUDIENCES TO ANALYZE:
 
 Return ONLY valid JSON. No other text.`;
 
+    const startTime = Date.now();
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical audience insights
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
+      this.logModelPerformance('pro', 'Audience Insights', startTime);
       
-      console.log('🎯 Gemini audience insights response:', responseText);
+      console.log('🎯 Gemini Pro audience insights response:', responseText);
       
       // Parse the JSON response with more robust error handling
       let parsed;
@@ -2267,11 +2367,14 @@ Return your response as JSON in this exact format:
   }
 }`;
 
+    const startTime = Date.now();
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical market sizing analysis
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
+      this.logModelPerformance('pro', 'Market Sizing', startTime);
       
-      console.log('📊 Gemini market sizing response:', responseText);
+      console.log('📊 Gemini Pro market sizing response:', responseText);
       
       // Parse the JSON response
       let parsed;
@@ -2473,9 +2576,12 @@ EXAMPLES OF GEOGRAPHIC QUERIES TO ANALYZE:
 
 Return ONLY valid JSON. No other text.`;
 
+    const startTime = Date.now();
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical geographic insights
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
+      this.logModelPerformance('pro', 'Geographic Insights', startTime);
       
       // Clean the response text to extract JSON
       const cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -2570,9 +2676,12 @@ Return ONLY valid JSON in this exact format:
   ]
 }`;
 
+    const startTime = Date.now();
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical SWOT analysis
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
+      this.logModelPerformance('pro', 'SWOT Analysis', startTime);
       
       // Clean the response text to extract JSON
       let cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -2676,9 +2785,12 @@ Return ONLY valid JSON in this exact format:
   }
 }`;
 
+    const startTime = Date.now();
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical company analysis
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
+      this.logModelPerformance('pro', 'Company Profile', startTime);
       
       // Clean the response text to extract JSON
       let cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -2974,9 +3086,12 @@ Return ONLY valid JSON in this exact format:
   }
 }`;
 
+    const startTime = Date.now();
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical competitive analysis
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
+      this.logModelPerformance('pro', 'Competitive Intel', startTime);
       
       const cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
@@ -2984,7 +3099,7 @@ Return ONLY valid JSON in this exact format:
       
       const result = JSON.parse(jsonText);
       
-      console.log(`✅ Generated competitive intelligence for: ${query}`);
+      console.log(`✅ Generated competitive intelligence (Pro) for: ${query}`);
       return result;
       
     } catch (error) {
@@ -3049,9 +3164,12 @@ Return ONLY valid JSON in this exact format:
   }
 }`;
 
+    const startTime = Date.now();
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical content strategy
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
+      this.logModelPerformance('pro', 'Content Strategy', startTime);
       
       const cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
@@ -3059,7 +3177,7 @@ Return ONLY valid JSON in this exact format:
       
       const result = JSON.parse(jsonText);
       
-      console.log(`✅ Generated content strategy for: ${query}`);
+      console.log(`✅ Generated content strategy (Pro) for: ${query}`);
       return result;
       
     } catch (error) {
@@ -3117,9 +3235,12 @@ Return ONLY valid JSON in this exact format:
   }
 }`;
 
+    const startTime = Date.now();
     try {
-      const response = await this.model.generateContent(prompt);
+      // Use Pro model for quality-critical brand strategy
+      const response = await this.proModel.generateContent(prompt);
       const responseText = response.response.text();
+      this.logModelPerformance('pro', 'Brand Strategy', startTime);
       
       const cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
@@ -3127,7 +3248,7 @@ Return ONLY valid JSON in this exact format:
       
       const result = JSON.parse(jsonText);
       
-      console.log(`✅ Generated brand strategy for: ${query}`);
+      console.log(`✅ Generated brand strategy (Pro) for: ${query}`);
       return result;
       
     } catch (error) {
@@ -3176,13 +3297,13 @@ Return ONLY valid JSON in this exact format:
       });
     }
     
-    // Create model with grounding tools
+    // Create grounded model using Pro for quality-critical market intelligence
     const groundedModel = this.genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-pro",
       generationConfig: {
-        temperature: 0.1,
-        topP: 0.8,
-        maxOutputTokens: 8192,
+        temperature: 0.2,
+        topP: 0.9,
+        maxOutputTokens: 16384,
       },
       tools: tools.length > 0 ? tools : undefined
     });

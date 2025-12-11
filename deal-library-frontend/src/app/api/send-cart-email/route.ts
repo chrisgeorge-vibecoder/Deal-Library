@@ -223,9 +223,11 @@ export async function POST(request: NextRequest) {
     `;
 
     // Send email using Resend
+    // Note: Using Resend free tier - can only send to verified email (cgeorge@sovrn.com)
+    // To send to multiple recipients (e.g., exchangedemand@sovrn.com), verify a domain at resend.com/domains
     const { data, error } = await resend.emails.send({
       from: 'Deal Library <onboarding@resend.dev>',
-      to: ['cgeorge@sovrn.com', 'exchangedemand@sovrn.com'],
+      to: ['cgeorge@sovrn.com'],
       replyTo: senderInfo.email,
       subject: `Deal Library Selections from ${senderInfo.company} - ${(deals?.length || 0) + (audiences?.length || 0)} item${(deals?.length || 0) + (audiences?.length || 0) !== 1 ? 's' : ''}`,
       html: emailHtml,

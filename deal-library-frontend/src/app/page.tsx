@@ -25,9 +25,17 @@ function calculateDealRelevanceScore(deal: Deal, query: string): DealScore {
   const queryLower = query.toLowerCase();
   const dealNameLower = (deal.dealName || '').toLowerCase();
   const descriptionLower = (deal.description || '').toLowerCase();
+  const environmentLower = (deal.environment || '').toLowerCase();
+  const targetingLower = (deal.targeting || '').toLowerCase();
   
   let score = 0;
   const reasons: string[] = [];
+  
+  // Define stop words to ignore
+  const stopWords = new Set(['show', 'me', 'deals', 'deal', 'for', 'the', 'and', 'with', 'find', 'get', 'looking', 'want', 'need', 'some', 'any', 'all']);
+  
+  // Get important keywords from query (filter out stop words)
+  const importantWords = queryLower.split(/\s+/).filter(word => word.length > 2 && !stopWords.has(word));
   
   // Exact name match (highest priority)
   if (dealNameLower.includes(queryLower)) {
@@ -35,25 +43,43 @@ function calculateDealRelevanceScore(deal: Deal, query: string): DealScore {
     reasons.push('Exact deal name match');
   }
   
-  // Partial name match
-  const nameWords = queryLower.split(' ');
-  const dealNameWords = dealNameLower.split(' ');
-  const matchingWords = nameWords.filter(word => 
-    dealNameWords.some(dealWord => dealWord.includes(word) || word.includes(dealWord))
-  );
-  
-  if (matchingWords.length > 0) {
-    score += matchingWords.length * 20;
-    reasons.push(`${matchingWords.length} word(s) match in deal name`);
+  // Environment/channel matching (very high priority)
+  if (queryLower.includes('ctv') && environmentLower.includes('ctv')) {
+    score += 50;
+    reasons.push('CTV environment match');
+  }
+  if (queryLower.includes('mobile') && environmentLower.includes('mobile')) {
+    score += 50;
+    reasons.push('Mobile environment match');
+  }
+  if (queryLower.includes('web') && environmentLower === 'web') {
+    score += 50;
+    reasons.push('Web environment match');
   }
   
-  // Description match
-  if (descriptionLower.includes(queryLower)) {
-    score += 30;
-    reasons.push('Description contains search terms');
+  // Important keyword matching in deal name (high priority)
+  for (const word of importantWords) {
+    if (dealNameLower.includes(word)) {
+      score += 30;
+      reasons.push(`"${word}" found in deal name`);
+    }
   }
   
-  // Category field no longer exists on Deal; skip
+  // Important keyword matching in description
+  for (const word of importantWords) {
+    if (descriptionLower.includes(word)) {
+      score += 15;
+      reasons.push(`"${word}" found in description`);
+    }
+  }
+  
+  // Important keyword matching in targeting
+  for (const word of importantWords) {
+    if (targetingLower.includes(word)) {
+      score += 10;
+      reasons.push(`"${word}" found in targeting`);
+    }
+  }
   
   // Media type match
   if ((deal.mediaType || '').toLowerCase().includes(queryLower)) {

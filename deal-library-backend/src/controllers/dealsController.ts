@@ -393,6 +393,97 @@ export class DealsController {
         return;
       }
 
+      // PERSONA-BASED DEAL SEARCH: Check if query is asking for deals for a specific persona
+      const queryLower = correctedQuery.toLowerCase();
+      const isPersonaDealRequest = (queryLower.includes('deals for') || queryLower.includes('request deals')) && 
+                                   queryLower.includes('persona');
+      
+      if (isPersonaDealRequest) {
+        console.log(`🎯 Detected persona-based deal request: "${correctedQuery}"`);
+        
+        // Get all personas to find matching persona name
+        const allPersonas = this.personaService.getAllPersonas();
+        let matchedPersona: any = null;
+        
+        // Find persona that matches the query
+        for (const persona of allPersonas) {
+          const personaNameLower = (persona.personaName || '').toLowerCase();
+          if (queryLower.includes(personaNameLower)) {
+            matchedPersona = persona;
+            console.log(`✅ Matched persona: ${persona.personaName} (${persona.segmentId})`);
+            break;
+          }
+        }
+        
+        if (matchedPersona) {
+          // Find deals that match this persona using matchDealToPersona
+          const matchingDeals = allDeals.filter(deal => {
+            const personaInsights = this.personaService.matchDealToPersona(deal.dealName);
+            return personaInsights && personaInsights.segmentId === matchedPersona.segmentId;
+          });
+          
+          if (matchingDeals.length > 0) {
+            console.log(`🎯 Found ${matchingDeals.length} deals for persona: ${matchedPersona.personaName}`);
+            
+            // Generate coaching for the persona-matched deals
+            const coaching = await coachingService.generateCoaching(matchingDeals, correctedQuery);
+            
+            res.json({
+              deals: matchingDeals.slice(0, 10),
+              aiResponse: `Found ${matchingDeals.length} deals for ${matchedPersona.emoji} **${matchedPersona.personaName}**.\n\n**Core Insight:** ${matchedPersona.coreInsight}\n\n**Creative Hooks:** ${Array.isArray(matchedPersona.creativeHooks) ? matchedPersona.creativeHooks.join(', ') : matchedPersona.creativeHooks}\n\nThese deals are specifically matched to this persona's interests and behaviors.`,
+              searchMethod: 'persona-match',
+              confidence: 0.95,
+              query: correctedQuery,
+              originalQuery: corrections.length > 0 ? query.trim() : undefined,
+              corrections: corrections.length > 0 ? corrections : undefined,
+              coaching: coaching,
+              matchedPersona: {
+                name: matchedPersona.personaName,
+                emoji: matchedPersona.emoji,
+                category: matchedPersona.category,
+                segmentId: matchedPersona.segmentId
+              }
+            });
+            return;
+          } else {
+            // Fallback: find deals by category/keywords from persona
+            console.log(`⚠️ No exact persona deal matches, trying category-based search for: ${matchedPersona.category}`);
+            const categoryKeywords = (matchedPersona.category || '').toLowerCase().split(/[\s&]+/);
+            
+            const categoryDeals = allDeals.filter(deal => {
+              const dealName = (deal.dealName || '').toLowerCase();
+              const dealDesc = (deal.description || '').toLowerCase();
+              return categoryKeywords.some(kw => kw.length > 2 && (dealName.includes(kw) || dealDesc.includes(kw)));
+            });
+            
+            if (categoryDeals.length > 0) {
+              console.log(`📂 Found ${categoryDeals.length} deals by category keywords`);
+              const coaching = await coachingService.generateCoaching(categoryDeals, correctedQuery);
+              
+              res.json({
+                deals: categoryDeals.slice(0, 10),
+                aiResponse: `Found ${categoryDeals.length} deals related to ${matchedPersona.emoji} **${matchedPersona.personaName}**'s category: ${matchedPersona.category}.\n\n**Core Insight:** ${matchedPersona.coreInsight}\n\nThese deals target audiences in the ${matchedPersona.category} space.`,
+                searchMethod: 'persona-category-match',
+                confidence: 0.8,
+                query: correctedQuery,
+                originalQuery: corrections.length > 0 ? query.trim() : undefined,
+                corrections: corrections.length > 0 ? corrections : undefined,
+                coaching: coaching,
+                matchedPersona: {
+                  name: matchedPersona.personaName,
+                  emoji: matchedPersona.emoji,
+                  category: matchedPersona.category,
+                  segmentId: matchedPersona.segmentId
+                }
+              });
+              return;
+            }
+          }
+        } else {
+          console.log(`⚠️ No matching persona found for query: "${correctedQuery}"`);
+        }
+      }
+
       // Use Gemini to directly analyze and score all deals
       if (this.geminiService) {
         try {
@@ -1356,62 +1447,115 @@ export class DealsController {
         geoCards: []
       };
 
+      // Check if query is asking for deals for a specific persona
+      const queryLower = query.toLowerCase();
+      const isPersonaDealRequest = (queryLower.includes('deals for') || queryLower.includes('request deals')) && 
+                                   queryLower.includes('persona');
+
       // Search deals if requested
       if (requestedTypes.includes('deals')) {
         try {
           const deals = await this.appsScriptService.getAllDeals();
           if (deals && deals.length > 0) {
-            // Extract important keywords from query (filter out stop words)
-            const stopWords = new Set(['find', 'show', 'me', 'relevant', 'deals', 'deal', 'for', 'the', 'and', 'with', 'get', 'looking', 'want', 'need', 'some', 'any', 'all', 'audience', 'market', 'general', 'a', 'an', 'in', 'on', 'to', 'of']);
-            const queryLower = query.toLowerCase();
-            const keywords = queryLower
-              .split(/[\s,()]+/)
-              .filter(word => word.length > 2 && !stopWords.has(word));
             
-            console.log(`🔍 Unified search deal keywords extracted: ${keywords.join(', ')}`);
-            
-            // Score deals based on keyword matches
-            const scoredDeals = deals.map(deal => {
-              const dealName = (deal.dealName || '').toLowerCase();
-              const dealDesc = (deal.description || '').toLowerCase();
-              const dealTarget = (deal.targeting || '').toLowerCase();
-              const dealEnv = (deal.environment || '').toLowerCase();
+            // PERSONA-BASED DEAL SEARCH: If asking for deals for a specific persona
+            if (isPersonaDealRequest) {
+              console.log(`🎯 Detected persona-based deal request: "${query}"`);
               
-              let score = 0;
+              // Get all personas to find matching persona name
+              const allPersonas = this.personaService.getAllPersonas();
+              let matchedPersona: any = null;
               
-              // Check each keyword
-              for (const keyword of keywords) {
-                // High score for deal name match
-                if (dealName.includes(keyword)) {
-                  score += 20;
-                }
-                // Medium score for description match
-                if (dealDesc.includes(keyword)) {
-                  score += 10;
-                }
-                // Medium score for targeting match
-                if (dealTarget.includes(keyword)) {
-                  score += 8;
-                }
-                // Lower score for environment match
-                if (dealEnv.includes(keyword)) {
-                  score += 5;
+              // Find persona that matches the query
+              for (const persona of allPersonas) {
+                const personaNameLower = (persona.personaName || '').toLowerCase();
+                if (queryLower.includes(personaNameLower)) {
+                  matchedPersona = persona;
+                  console.log(`✅ Matched persona: ${persona.personaName} (${persona.segmentId})`);
+                  break;
                 }
               }
               
-              // Also check for exact phrase matches (e.g., "Coffee Drinkers")
-              if (dealName.includes(queryLower) || dealDesc.includes(queryLower)) {
-                score += 50;
+              if (matchedPersona) {
+                // Find deals that match this persona using matchDealToPersona
+                const matchingDeals = deals.filter(deal => {
+                  const personaInsights = this.personaService.matchDealToPersona(deal.dealName);
+                  return personaInsights && personaInsights.segmentId === matchedPersona.segmentId;
+                });
+                
+                if (matchingDeals.length > 0) {
+                  results.deals = matchingDeals.slice(0, 10);
+                  console.log(`🎯 Found ${results.deals.length} deals for persona: ${matchedPersona.personaName}`);
+                } else {
+                  // Fallback: find deals by category/keywords from persona
+                  console.log(`⚠️ No exact persona matches, trying category-based search for: ${matchedPersona.category}`);
+                  const categoryKeywords = (matchedPersona.category || '').toLowerCase().split(/[\s&]+/);
+                  
+                  const categoryDeals = deals.filter(deal => {
+                    const dealName = (deal.dealName || '').toLowerCase();
+                    const dealDesc = (deal.description || '').toLowerCase();
+                    return categoryKeywords.some(kw => kw.length > 2 && (dealName.includes(kw) || dealDesc.includes(kw)));
+                  });
+                  
+                  results.deals = categoryDeals.slice(0, 10);
+                  console.log(`📂 Found ${results.deals.length} deals by category keywords`);
+                }
+              } else {
+                console.log(`⚠️ No matching persona found for query: "${query}"`);
               }
+            } else {
+              // STANDARD KEYWORD-BASED DEAL SEARCH
+              // Extract important keywords from query (filter out stop words)
+              const stopWords = new Set(['find', 'show', 'me', 'relevant', 'deals', 'deal', 'for', 'the', 'and', 'with', 'get', 'looking', 'want', 'need', 'some', 'any', 'all', 'audience', 'market', 'general', 'a', 'an', 'in', 'on', 'to', 'of']);
+              const keywords = queryLower
+                .split(/[\s,()]+/)
+                .filter(word => word.length > 2 && !stopWords.has(word));
               
-              return { deal, score };
-            })
-            .filter(item => item.score > 0)
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 10);
-            
-            results.deals = scoredDeals.map(item => item.deal);
-            console.log(`🔍 Unified search found ${results.deals.length} deals with scores`);
+              console.log(`🔍 Unified search deal keywords extracted: ${keywords.join(', ')}`);
+              
+              // Score deals based on keyword matches
+              const scoredDeals = deals.map(deal => {
+                const dealName = (deal.dealName || '').toLowerCase();
+                const dealDesc = (deal.description || '').toLowerCase();
+                const dealTarget = (deal.targeting || '').toLowerCase();
+                const dealEnv = (deal.environment || '').toLowerCase();
+                
+                let score = 0;
+                
+                // Check each keyword
+                for (const keyword of keywords) {
+                  // High score for deal name match
+                  if (dealName.includes(keyword)) {
+                    score += 20;
+                  }
+                  // Medium score for description match
+                  if (dealDesc.includes(keyword)) {
+                    score += 10;
+                  }
+                  // Medium score for targeting match
+                  if (dealTarget.includes(keyword)) {
+                    score += 8;
+                  }
+                  // Lower score for environment match
+                  if (dealEnv.includes(keyword)) {
+                    score += 5;
+                  }
+                }
+                
+                // Also check for exact phrase matches (e.g., "Coffee Drinkers")
+                if (dealName.includes(queryLower) || dealDesc.includes(queryLower)) {
+                  score += 50;
+                }
+                
+                return { deal, score };
+              })
+              .filter(item => item.score > 0)
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 10);
+              
+              results.deals = scoredDeals.map(item => item.deal);
+              console.log(`🔍 Unified search found ${results.deals.length} deals with scores`);
+            }
           }
         } catch (error) {
           console.error('Error searching deals:', error);

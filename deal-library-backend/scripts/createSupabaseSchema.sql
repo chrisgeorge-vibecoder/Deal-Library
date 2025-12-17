@@ -223,22 +223,55 @@ CREATE INDEX IF NOT EXISTS idx_search_cache_created ON audience_search_cache(cre
 
 -- ============================================================================
 -- Row Level Security (RLS) Policies
--- Note: For production, you should enable RLS and create appropriate policies
--- For now, we'll leave it disabled for simplicity
+-- All tables use public read-only access pattern:
+-- - SELECT allowed for anon and authenticated roles
+-- - INSERT/UPDATE/DELETE blocked (only service role can write)
 -- ============================================================================
 
--- Enable RLS (uncomment when ready to implement auth)
--- ALTER TABLE census_data ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE commerce_audience_segments ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE audience_overlaps ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE generated_personas ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE audience_reports_cache ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE commerce_baseline ENABLE ROW LEVEL SECURITY;
+-- Enable RLS on all tables
+ALTER TABLE census_data ENABLE ROW LEVEL SECURITY;
+ALTER TABLE commerce_audience_segments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audience_overlaps ENABLE ROW LEVEL SECURITY;
+ALTER TABLE generated_personas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audience_reports_cache ENABLE ROW LEVEL SECURITY;
+ALTER TABLE commerce_baseline ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audience_taxonomy ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audience_search_cache ENABLE ROW LEVEL SECURITY;
 
--- Example policy (allow all for authenticated users)
--- CREATE POLICY "Allow all for authenticated users" ON census_data
---   FOR ALL
---   USING (auth.role() = 'authenticated');
+-- Create read-only policies (SELECT only, no write access for anon/authenticated)
+-- Service role automatically bypasses RLS for migrations and admin operations
+
+CREATE POLICY "public_read" ON census_data 
+  FOR SELECT TO anon, authenticated 
+  USING (true);
+
+CREATE POLICY "public_read" ON commerce_audience_segments 
+  FOR SELECT TO anon, authenticated 
+  USING (true);
+
+CREATE POLICY "public_read" ON audience_overlaps 
+  FOR SELECT TO anon, authenticated 
+  USING (true);
+
+CREATE POLICY "public_read" ON generated_personas 
+  FOR SELECT TO anon, authenticated 
+  USING (true);
+
+CREATE POLICY "public_read" ON audience_reports_cache 
+  FOR SELECT TO anon, authenticated 
+  USING (true);
+
+CREATE POLICY "public_read" ON commerce_baseline 
+  FOR SELECT TO anon, authenticated 
+  USING (true);
+
+CREATE POLICY "public_read" ON audience_taxonomy 
+  FOR SELECT TO anon, authenticated 
+  USING (true);
+
+CREATE POLICY "public_read" ON audience_search_cache 
+  FOR SELECT TO anon, authenticated 
+  USING (true);
 
 -- ============================================================================
 -- Functions & Triggers

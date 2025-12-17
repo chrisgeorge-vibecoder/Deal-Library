@@ -4,11 +4,9 @@ import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-import multer from 'multer';
 import dotenv from 'dotenv';
 
 import { DealsController } from './controllers/dealsController';
-import { ResearchLibraryController } from './controllers/researchLibraryController';
 import { MarketInsightsController } from './controllers/marketInsightsController';
 import { CampaignContentController } from './controllers/campaignContentController';
 import { AudienceTaxonomyController } from './controllers/audienceTaxonomyController';
@@ -74,17 +72,6 @@ try {
   console.warn('⚠️  Audience Taxonomy Search disabled (Gemini AI not available)');
 }
 
-// Initialize Research Library Controller (requires Supabase)
-let researchLibraryController: ResearchLibraryController | null = null;
-if (process.env.USE_SUPABASE === 'true') {
-  try {
-    const supabase = SupabaseService.getClient();
-    researchLibraryController = new ResearchLibraryController(supabase);
-    console.log('✅ Research Library initialized');
-  } catch (error) {
-    console.warn('⚠️  Research Library disabled (Supabase not available)');
-  }
-}
 
 // Security middleware
 app.use(helmet({
@@ -130,22 +117,6 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '30mb' }));
 app.use(express.urlencoded({ extended: true, limit: '30mb' }));
 
-// Multer configuration for file uploads
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 30 * 1024 * 1024, // 30MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
-      cb(null, true);
-    } else {
-      const error = new Error('Only PDF files are allowed') as any;
-      error.statusCode = 400;
-      cb(error);
-    }
-  },
-});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -304,70 +275,6 @@ app.get('/api/commerce-baseline', async (req, res) => {
   }
 });
 
-// Research Library API Routes
-if (researchLibraryController) {
-  app.get('/api/research', (req, res) => researchLibraryController!.getAllStudies(req, res));
-  app.get('/api/research/categories', (req, res) => researchLibraryController!.getCategories(req, res));
-  app.get('/api/research/sources', (req, res) => researchLibraryController!.getSources(req, res));
-  app.get('/api/research/stats', (req, res) => researchLibraryController!.getLibraryStats(req, res));
-  app.get('/api/research/:id', (req, res) => researchLibraryController!.getStudyById(req, res));
-  app.post('/api/research/:id/download', (req, res) => researchLibraryController!.downloadStudy(req, res));
-  
-  // File upload endpoint (must come before /api/research to avoid conflicts)
-  app.post('/api/research/upload', upload.single('file'), (req: any, res: any) => {
-    researchLibraryController!.uploadPDF(req, res);
-  }, (err: any, req: any, res: any, next: any) => {
-    // Handle multer errors specifically for this route
-    if (err) {
-      console.error('❌ Multer error in upload route:', err);
-      if (err.message === 'Only PDF files are allowed') {
-        return res.status(400).json({ error: 'Only PDF files are allowed.' });
-      }
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({ error: 'File too large. Maximum size is 30MB.' });
-      }
-      if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-        return res.status(400).json({ error: 'Unexpected file field.' });
-      }
-      return res.status(400).json({ error: err.message || 'File upload error' });
-    }
-    next();
-  });
-  
-  // Admin endpoints for research library
-  app.post('/api/research', (req, res) => researchLibraryController!.createStudy(req, res));
-  app.put('/api/research/:id', (req, res) => researchLibraryController!.updateStudy(req, res));
-  app.delete('/api/research/:id', (req, res) => researchLibraryController!.deleteStudy(req, res));
-  app.post('/api/research/:id/process', (req, res) => researchLibraryController!.processStudy(req, res));
-  app.post('/api/research/:id/process-text', (req, res) => researchLibraryController!.processText(req, res));
-  
-  console.log('✅ Research Library routes registered');
-} else {
-  // Fallback routes when research library is not available
-  app.get('/api/research', (req, res) => {
-    res.status(503).json({
-      error: 'Research Library Service Unavailable',
-      message: 'The research library service is not configured. Please ensure Supabase is properly configured and USE_SUPABASE=true is set in environment variables.',
-      studies: []
-    });
-  });
-  
-  app.get('/api/research/categories', (req, res) => {
-    res.status(503).json({
-      error: 'Research Library Service Unavailable',
-      categories: []
-    });
-  });
-  
-  app.get('/api/research/sources', (req, res) => {
-    res.status(503).json({
-      error: 'Research Library Service Unavailable',
-      sources: []
-    });
-  });
-  
-  console.log('⚠️  Research Library fallback routes registered (service unavailable)');
-}
 
 
 // Admin endpoints for Supabase data management
@@ -564,22 +471,6 @@ app.use((err: any, req: any, res: any, next: NextFunction) => {
   console.error('Error type:', typeof err);
   console.error('Error message:', err?.message);
   console.error('Error code:', err?.code);
-  
-  // Handle multer errors specifically
-  if (err.code === 'LIMIT_FILE_SIZE') {
-    return res.status(400).json({ error: 'File too large. Maximum size is 30MB.' });
-  }
-  if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-    return res.status(400).json({ error: 'Unexpected file field.' });
-  }
-  if (err.message === 'Only PDF files are allowed') {
-    return res.status(400).json({ error: 'Only PDF files are allowed.' });
-  }
-  
-  // Handle any other multer validation errors
-  if (err.message && err.message.includes('Only PDF files are allowed')) {
-    return res.status(400).json({ error: 'Only PDF files are allowed.' });
-  }
   
   res.status(500).json({ error: 'Internal server error' });
 });

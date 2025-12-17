@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { Persona } from '@/types/deal';
-import { X, Users, Target, MessageSquare, Eye, Bookmark, BookmarkCheck } from 'lucide-react';
+import { X, Users, Target, MessageSquare, Eye, Bookmark, BookmarkCheck, Presentation, FileText } from 'lucide-react';
+import { SlideView, SlideRenderer } from '@/components/slides';
+import { generatePersonaSlides } from '@/lib/slideConfigs';
 
 interface PersonaDetailModalProps {
   persona: Persona | null;
@@ -20,7 +23,11 @@ export default function PersonaDetailModal({
   onUnsaveCard,
   isSaved
 }: PersonaDetailModalProps) {
+  const [viewMode, setViewMode] = useState<'detail' | 'slides'>('detail');
+  
   if (!isOpen || !persona) return null;
+  
+  const slides = generatePersonaSlides(persona);
 
   return (
     <div 
@@ -88,45 +95,83 @@ export default function PersonaDetailModal({
               </button>
             </div>
           </div>
+          
+          {/* View Mode Toggle */}
+          <div className="flex items-center gap-1 p-1 bg-neutral-100 rounded-lg mt-3 w-fit">
+            <button
+              onClick={() => setViewMode('detail')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                viewMode === 'detail' 
+                  ? 'bg-white text-neutral-900 shadow-sm' 
+                  : 'text-neutral-500 hover:text-neutral-700'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Detail</span>
+            </button>
+            <button
+              onClick={() => setViewMode('slides')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                viewMode === 'slides' 
+                  ? 'bg-white text-neutral-900 shadow-sm' 
+                  : 'text-neutral-500 hover:text-neutral-700'
+              }`}
+            >
+              <Presentation className="w-3.5 h-3.5" />
+              <span>Slides</span>
+            </button>
+          </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Core Insight */}
-          <div>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-3 flex items-center gap-2">
-              <Eye className="w-5 h-5 text-primary-600" />
-              Core Insight
-            </h3>
-            <p className="text-neutral-700 leading-relaxed">
-              {persona.coreInsight}
-            </p>
+        {viewMode === 'slides' ? (
+          <div className="flex-1 min-h-[400px]">
+            <SlideView
+              slides={slides}
+              cardType="persona"
+              cardTitle={persona.name || 'Persona'}
+            >
+              {(slide) => <SlideRenderer slide={slide} slideIndex={slides.indexOf(slide)} />}
+            </SlideView>
           </div>
+        ) : (
+          <div className="p-6 space-y-6">
+            {/* Core Insight */}
+            <div>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-3 flex items-center gap-2">
+                <Eye className="w-5 h-5 text-primary-600" />
+                Core Insight
+              </h3>
+              <p className="text-neutral-700 leading-relaxed">
+                {persona.coreInsight}
+              </p>
+            </div>
 
-          {/* Creative Hook */}
-          <div>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-3 flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-primary-600" />
-              Creative Hook
-            </h3>
-            <div className="bg-primary-50 border border-primary-200 rounded-lg p-0 sm:p-4">
-              <p className="text-primary-800 italic font-medium">
-                "{persona.creativeHooks?.[0] || 'No creative hook available'}"
+            {/* Creative Hook */}
+            <div>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-3 flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-primary-600" />
+                Creative Hook
+              </h3>
+              <div className="bg-primary-50 border border-primary-200 rounded-lg p-0 sm:p-4">
+                <p className="text-primary-800 italic font-medium">
+                  "{persona.creativeHooks?.[0] || 'No creative hook available'}"
+                </p>
+              </div>
+            </div>
+
+            {/* Media Targeting */}
+            <div>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-3 flex items-center gap-2">
+                <Target className="w-5 h-5 text-primary-600" />
+                Media Targeting
+              </h3>
+              <p className="text-neutral-700 leading-relaxed">
+                {persona.mediaTargeting}
               </p>
             </div>
           </div>
-
-          {/* Media Targeting */}
-          <div>
-            <h3 className="text-lg font-semibold text-neutral-900 mb-3 flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary-600" />
-              Media Targeting
-            </h3>
-            <p className="text-neutral-700 leading-relaxed">
-              {persona.mediaTargeting}
-            </p>
-          </div>
-        </div>
+        )}
 
         {/* Footer */}
         <div className="sticky bottom-0 bg-white border-t border-neutral-200 px-6 py-4 rounded-b-xl">

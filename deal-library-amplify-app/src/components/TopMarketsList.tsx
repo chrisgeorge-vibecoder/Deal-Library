@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TopMarket, GeographicLevel } from '@/types/deal';
-import { MapPin, Star, GitCompare, Gem } from 'lucide-react';
+import { MapPin, Star, GitCompare, Gem, Search, Loader2 } from 'lucide-react';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
 interface TopMarketsListProps {
   markets: TopMarket[];
@@ -11,6 +13,7 @@ interface TopMarketsListProps {
   onMarketClick: (market: TopMarket) => void;
   onAddToComparison?: (market: TopMarket) => void;
   loading: boolean;
+  includeCommercialZips?: boolean;
 }
 
 export default function TopMarketsList({
@@ -19,9 +22,13 @@ export default function TopMarketsList({
   onGeoLevelChange,
   onMarketClick,
   onAddToComparison,
-  loading
+  loading,
+  includeCommercialZips = false
 }: TopMarketsListProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<TopMarket[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSearchMode, setIsSearchMode] = useState(false);
 
   const geoLevels: { value: GeographicLevel; label: string }[] = [
     { value: 'region', label: 'Region' },
@@ -41,9 +48,63 @@ export default function TopMarketsList({
     }
   };
 
-  const filteredMarkets = markets.filter(market =>
-    market.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Debounced search function
+  const searchAllMarkets = useCallback(async (query: string) => {
+    if (query.length < 2) {
+      setSearchResults([]);
+      setIsSearchMode(false);
+      return;
+    }
+
+    setIsSearching(true);
+    setIsSearchMode(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/market-insights/search-markets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query,
+          geoLevel,
+          limit: 50,
+          includeCommercialZips
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setSearchResults(data.markets);
+      }
+    } catch (err) {
+      console.error('Error searching markets:', err);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [geoLevel, includeCommercialZips]);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm.length >= 2) {
+        searchAllMarkets(searchTerm);
+      } else {
+        setSearchResults([]);
+        setIsSearchMode(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, searchAllMarkets]);
+
+  // Reset search when geo level changes
+  useEffect(() => {
+    if (searchTerm.length >= 2) {
+      searchAllMarkets(searchTerm);
+    }
+  }, [geoLevel]);
+
+  // Determine which markets to display
+  const displayMarkets = isSearchMode ? searchResults : markets;
 
   return (
     <div className="flex flex-col h-full">
@@ -66,15 +127,26 @@ export default function TopMarketsList({
         </div>
       </div>
 
-      {/* Search Filter */}
+      {/* Search Filter - Searches ALL markets */}
       <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search markets..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition-colors"
-        />
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-neutral-400" />
+          <input
+            type="text"
+            placeholder="Search all markets (type 2+ chars)..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition-colors"
+          />
+          {isSearching && (
+            <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-brand-gold animate-spin" />
+          )}
+        </div>
+        {isSearchMode && (
+          <p className="text-xs text-brand-gold mt-1">
+            🔍 Searching all {geoLevel === 'cbsa' ? 'metro areas' : geoLevel + 's'} — {searchResults.length} results
+          </p>
+        )}
       </div>
 
       {/* Markets List */}
@@ -83,7 +155,7 @@ export default function TopMarketsList({
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-gold"></div>
           </div>
-        ) : filteredMarkets.length === 0 ? (
+        ) : displayMarkets.length === 0 ? (
           <div className="text-center py-12">
             <MapPin className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
             <p className="text-neutral-600">
@@ -92,7 +164,7 @@ export default function TopMarketsList({
           </div>
         ) : (
           <div className="space-y-1">
-            {filteredMarkets.map((market) => (
+            {displayMarkets.map((market) => (
               <div
                 key={`${market.name}-${market.rank}`}
                 className="flex items-center gap-2"

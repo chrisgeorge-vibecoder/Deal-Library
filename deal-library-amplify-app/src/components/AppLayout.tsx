@@ -148,6 +148,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }, [savedCards]);
 
   const handleSaveCard = (card: { type: string, data: any }) => {
+    // Check if card is already saved to prevent duplicates
+    const cardId = getCardId(card as SavedCard);
+    if (savedCards.some(c => getCardId(c) === cardId)) {
+      console.log('📋 Card already saved, skipping duplicate:', cardId);
+      return;
+    }
+    
     const newCard: SavedCard = {
       type: card.type as SavedCard['type'],
       data: card.data,
@@ -423,7 +430,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       }
 
       // Show success message
-      alert('✅ Selections sent successfully! Email sent to cgeorge@sovrn.com and exchangedemand@sovrn.com');
+      alert('✅ Selections sent successfully! Email sent to cgeorge@sovrn.com');
       
       // Close the form after successful send
       setIsEmailFormOpen(false);
@@ -483,6 +490,24 @@ export default function AppLayout({ children }: AppLayoutProps) {
       console.log('📰 AppLayout: Opening Marketing News modal', event.detail.news);
       setSelectedMarketingNews(event.detail.news);
       setIsMarketingNewsModalOpen(true);
+    };
+
+    const handleOpenCompetitiveIntelModal = (event: any) => {
+      console.log('🎯 AppLayout: Opening Competitive Intelligence modal', event.detail.competitiveIntel);
+      setSelectedCompetitiveIntel(event.detail.competitiveIntel);
+      setIsCompetitiveIntelModalOpen(true);
+    };
+
+    const handleOpenContentStrategyModal = (event: any) => {
+      console.log('📝 AppLayout: Opening Content Strategy modal', event.detail.contentStrategy);
+      setSelectedContentStrategy(event.detail.contentStrategy);
+      setIsContentStrategyModalOpen(true);
+    };
+
+    const handleOpenBrandStrategyModal = (event: any) => {
+      console.log('🏷️ AppLayout: Opening Brand Strategy modal', event.detail.brandStrategy);
+      setSelectedBrandStrategy(event.detail.brandStrategy);
+      setIsBrandStrategyModalOpen(true);
     };
 
     const handleOpenCart = () => {
@@ -545,6 +570,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
     window.addEventListener('openMarketingSWOTModal', handleOpenMarketingSWOTModal);
     window.addEventListener('openCompanyProfileModal', handleOpenCompanyProfileModal);
     window.addEventListener('openMarketingNewsModal', handleOpenMarketingNewsModal);
+    window.addEventListener('openCompetitiveIntelligenceModal', handleOpenCompetitiveIntelModal);
+    window.addEventListener('openContentStrategyModal', handleOpenContentStrategyModal);
+    window.addEventListener('openBrandStrategyModal', handleOpenBrandStrategyModal);
     window.addEventListener('openCart', handleOpenCart);
     window.addEventListener('openCustomDealForm', handleOpenCustomDealForm);
     window.addEventListener('saveCard', handleSaveCardEvent);
@@ -560,6 +588,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
       window.removeEventListener('openMarketingSWOTModal', handleOpenMarketingSWOTModal);
       window.removeEventListener('openCompanyProfileModal', handleOpenCompanyProfileModal);
       window.removeEventListener('openMarketingNewsModal', handleOpenMarketingNewsModal);
+      window.removeEventListener('openCompetitiveIntelligenceModal', handleOpenCompetitiveIntelModal);
+      window.removeEventListener('openContentStrategyModal', handleOpenContentStrategyModal);
+      window.removeEventListener('openBrandStrategyModal', handleOpenBrandStrategyModal);
       window.removeEventListener('openCart', handleOpenCart);
       window.removeEventListener('openCustomDealForm', handleOpenCustomDealForm);
       window.removeEventListener('saveCard', handleSaveCardEvent);
@@ -591,10 +622,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
         {/* Header (conditional) */}
         {showHeader && (
           <header className={`bg-white shadow-sovrn border-b border-neutral-200 fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${sidebarOpen ? 'lg:left-80' : 'lg:left-16'}`}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="px-1 sm:px-2">
               <div className="flex justify-between items-center h-16 md:h-20">
                 {/* Left-aligned section: Mobile Menu + Logo and Title */}
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-1 sm:space-x-2">
                   {/* Mobile menu button */}
                   <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}

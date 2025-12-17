@@ -1,14 +1,52 @@
 'use client';
 
-import { Users, Target, BarChart3, MapPin, TrendingUp, Building2, Lightbulb, ShoppingCart } from 'lucide-react';
+import { useState } from 'react';
+import { Users, Target, BarChart3, MapPin, TrendingUp, Building2, Lightbulb, ShoppingCart, Plus, Check, Bookmark, BookmarkCheck, Shield, AlertTriangle, Presentation, ChevronRight } from 'lucide-react';
 import { ComprehensiveReport } from '@/types/agentMode';
-import ExportOptionsMenu from './ExportOptionsMenu';
+import { Deal, MarketingSWOT, CompetitiveIntelligence, Persona, GeoCard } from '@/types/deal';
+import { MarketSizing } from './MarketSizingCard';
+import DealCard from './DealCard';
+import {
+  InlinePersonaCard,
+  InlineMarketSizingCard,
+  InlineGeoCard,
+  InlineSWOTCard,
+  InlineCompetitiveIntelCard
+} from './InlineStrategyCards';
+
+// Import Detail Modals
+import PersonaDetailModal from './PersonaDetailModal';
+import { MarketSizingDetailModal } from './MarketSizingDetailModal';
+import GeoDetailModal from './GeoDetailModal';
+import { MarketingSWOTDetailModal } from './MarketingSWOTDetailModal';
+import { CompetitiveIntelligenceDetailModal } from './CompetitiveIntelligenceDetailModal';
 
 interface CampaignPlannerResultsProps {
   report: ComprehensiveReport;
+  onAddToCart?: (deal: Deal) => void;
+  onRemoveFromCart?: (dealId: string) => void;
+  isInCart?: (dealId: string) => boolean;
+  onSaveCard?: (card: { type: string; data: any }) => void;
+  onUnsaveCard?: (cardId: string) => void;
+  isSaved?: (cardId: string) => boolean;
 }
 
-export default function CampaignPlannerResults({ report }: CampaignPlannerResultsProps) {
+export default function CampaignPlannerResults({ 
+  report, 
+  onAddToCart, 
+  onRemoveFromCart, 
+  isInCart,
+  onSaveCard,
+  onUnsaveCard,
+  isSaved
+}: CampaignPlannerResultsProps) {
+  // Modal state
+  const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
+  const [selectedMarketSizing, setSelectedMarketSizing] = useState<MarketSizing | null>(null);
+  const [selectedGeo, setSelectedGeo] = useState<GeoCard | null>(null);
+  const [selectedSwot, setSelectedSwot] = useState<MarketingSWOT | null>(null);
+  const [selectedCompetitiveIntel, setSelectedCompetitiveIntel] = useState<CompetitiveIntelligence | null>(null);
+
   const formatDate = () => {
     return new Date().toLocaleDateString('en-US', { 
       year: 'numeric', 
@@ -26,785 +64,740 @@ export default function CampaignPlannerResults({ report }: CampaignPlannerResult
     return num.toString();
   };
 
+  // Transform data for modals
+  const transformPersonaForModal = (persona: any): Persona => ({
+    id: persona.id || `persona-${persona.name || persona.personaName}`,
+    name: persona.name || persona.personaName || 'Unknown',
+    emoji: persona.emoji || '👤',
+    segmentId: persona.segmentId || '',
+    category: persona.category || 'General',
+    coreInsight: persona.coreInsight || persona.description || '',
+    creativeHooks: persona.creativeHooks || [],
+    mediaTargeting: persona.mediaTargeting || [],
+    audienceMotivation: persona.audienceMotivation || persona.motivations?.[0] || '',
+    actionableStrategy: persona.actionableStrategy || {
+      creativeHook: persona.creativeHooks?.[0] || '',
+      mediaTargeting: persona.mediaTargeting?.[0] || ''
+    },
+    dealCount: persona.dealCount
+  });
+
+  const transformMarketSizingForModal = (): MarketSizing => ({
+    id: `market-sizing-${report.advertiserName}`,
+    marketName: `${report.advertiserName} Market`,
+    totalMarketSize: report.results.marketSizing.totalMarketSize || formatNumber(report.results.marketSizing.totalAddressableMarket),
+    growthRate: report.results.marketSizing.growthRate || 'N/A',
+    addressableMarket: report.results.marketSizing.addressableMarket || 'N/A',
+    addressableValue: report.results.marketSizing.addressableValue || 'N/A',
+    demographics: {
+      population: formatNumber(report.results.marketSizing.totalAddressableMarket || 0),
+      targetAge: report.results.marketSizing.demographicBreakdown?.ageDistribution 
+        ? Object.keys(report.results.marketSizing.demographicBreakdown.ageDistribution)[0] || 'All ages'
+        : 'All ages',
+      penetration: report.results.marketSizing.demographicBreakdown?.penetration || 'N/A'
+    },
+    growthTrends: {
+      growthRate: report.results.marketSizing.growthTrends?.growthRate || report.results.marketSizing.growthRate || 'N/A',
+      seasonality: report.results.marketSizing.growthTrends?.seasonality || 'Year-round',
+      keyOpportunities: report.results.marketSizing.growthTrends?.keyOpportunities || []
+    },
+    marketInsights: {
+      keyDrivers: report.results.marketSizing.marketInsights?.keyDrivers || [],
+      barriers: report.results.marketSizing.marketInsights?.barriers || [],
+      opportunities: report.results.marketSizing.marketInsights?.opportunities || []
+    }
+  });
+
+  const transformGeoForModal = (): GeoCard => ({
+    id: `geo-insights-${report.advertiserName}`,
+    audienceName: `${report.advertiserName} Geographic Insights`,
+    totalAddressable: formatNumber(report.results.marketSizing.totalAddressableMarket || 0),
+    topMarkets: report.results.geographic.topMarkets?.slice(0, 10).map((m: any) => ({
+      city: m.city,
+      state: m.state,
+      region: `${m.city}, ${m.state}`,
+      concentration: m.concentration,
+      population: m.population,
+      medianIncome: m.medianIncome,
+      urbanRural: m.urbanRural,
+      percentage: `${(m.concentration * 100).toFixed(1)}%`
+    })) || [],
+    demographics: {
+      medianIncome: report.results.geographic.topMarkets?.[0]?.medianIncome
+    }
+  });
+
+  const transformSwotForModal = (): MarketingSWOT => ({
+    id: `marketing-swot-${report.advertiserName}`,
+    companyName: report.advertiserName,
+    swot: {
+      strengths: (report.results.swot?.strengths || []).map((s: any) => 
+        typeof s === 'string' ? { title: s, description: '' } : s
+      ),
+      weaknesses: (report.results.swot?.weaknesses || []).map((w: any) => 
+        typeof w === 'string' ? { title: w, description: '' } : w
+      ),
+      opportunities: (report.results.swot?.opportunities || []).map((o: any) => 
+        typeof o === 'string' ? { title: o, description: '' } : o
+      ),
+      threats: (report.results.swot?.threats || []).map((t: any) => 
+        typeof t === 'string' ? { title: t, description: '' } : t
+      )
+    },
+    summary: report.results.swot?.summary || `Marketing SWOT analysis for ${report.advertiserName}`,
+    recommendedActions: report.results.swot?.recommendedActions || []
+  });
+
+  const transformCompetitiveIntelForModal = (): CompetitiveIntelligence => {
+    const strategyWithGaps = report.results.strategy as any;
+    return {
+      id: `competitive-intelligence-${report.advertiserName}`,
+      competitorOrIndustry: report.advertiserName,
+      competitors: report.results.strategy?.competitors?.map((c: string) => ({
+        name: c.split(' - ')[0] || c,
+        strategy: c.includes(' - ') ? c.split(' - ').slice(1).join(' - ') : undefined
+      })) || [],
+      competitiveAdvantages: report.results.strategy?.differentiators || [],
+      recommendations: report.results.swot?.recommendedActions || [],
+      competitiveAnalysis: {
+        marketPositioning: `${report.advertiserName} operates in a competitive market.`,
+        keyCompetitors: report.results.strategy?.competitors?.map((c: string) => c.split(' - ')[0]) || [],
+        differentiators: report.results.strategy?.differentiators || [],
+        messagingGaps: strategyWithGaps?.messagingGaps || []
+      }
+    };
+  };
+
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Export Options - Sticky Header */}
-      <div className="sticky top-0 z-10 bg-white rounded-lg shadow-md border border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-gray-900">Marketing Campaign Plan</h3>
-            <p className="text-sm text-gray-600">Copy formatted content or print</p>
+    <>
+      <div className="space-y-6 max-w-5xl mx-auto">
+        {/* Main Document Container */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 md:p-12">
+          {/* Document Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Marketing Proposal for {report.advertiserName}
+            </h1>
+            <p className="text-gray-600 mb-4">Prepared by Sovrn • {formatDate()}</p>
+            <div className="h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded"></div>
           </div>
-          <ExportOptionsMenu report={report} />
-        </div>
-      </div>
 
-      {/* Main Document Container */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 md:p-12">
-        {/* Document Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Marketing Proposal for {report.advertiserName}
-          </h1>
-          <p className="text-gray-600 mb-4">Prepared by Sovrn • {formatDate()}</p>
-          <div className="h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded"></div>
-        </div>
-
-        {/* Executive Summary */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Executive Summary</h2>
-          <p className="text-gray-700 leading-relaxed mb-6">
-            Sovrn is pleased to present a comprehensive marketing strategy to help {report.advertiserName} reach their target audiences across the United States. Through our advanced audience intelligence platform, we have identified and mapped precise audience segments that align with your campaign objectives.
-          </p>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
-            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-              <div className="text-xs text-purple-700 mb-1 uppercase tracking-wide">Audience Segments</div>
-              <div className="text-3xl font-bold text-purple-900">{report.summary.totalAudiences}</div>
-            </div>
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <div className="text-xs text-blue-700 mb-1 uppercase tracking-wide">Deal Recommendations</div>
-              <div className="text-3xl font-bold text-blue-900">{report.summary.totalDeals}</div>
-            </div>
-            <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-              <div className="text-xs text-indigo-700 mb-1 uppercase tracking-wide">Audience Personas</div>
-              <div className="text-3xl font-bold text-indigo-900">{report.summary.totalPersonas}</div>
-            </div>
-            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-              <div className="text-xs text-green-700 mb-1 uppercase tracking-wide">Estimated Reach</div>
-              <div className="text-3xl font-bold text-green-900">{formatNumber(report.results.marketSizing.reachEstimate)}</div>
-            </div>
-          </div>
-        </section>
-
-        {/* Target Audience Analysis */}
-        {report.results.audiences.count > 0 && (
+          {/* Executive Summary */}
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Target Audience Analysis</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Executive Summary</h2>
             <p className="text-gray-700 leading-relaxed mb-6">
-              We have identified <strong>{report.results.audiences.count} precision audience segments</strong> that align with your target market. These segments represent high-value opportunities for reaching your ideal customers.
-            </p>
-
-            {/* Audience Segments Grid */}
-            <div className="space-y-6">
-              {report.results.audiences.segments.map((segment: any, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-5 hover:border-purple-300 transition-colors">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {segment.segmentName || segment.name || segment.sovrnSegmentName || 'Segment'}
-                    </h3>
-                    {segment.segmentType && (
-                      <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
-                        {segment.segmentType}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600 mb-3">
-                    {segment.segmentDescription || segment.description || 'Audience segment details'}
-                  </p>
-                  {segment.scale7DayUS && (
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
-                      <span>Reach: {formatNumber(segment.scale7DayUS)}</span>
-                      {segment.cpm && <span>CPM: ${segment.cpm.toFixed(2)}</span>}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Audience Personas */}
-        {report.results.personas.count > 0 && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Audience Personas</h2>
-            <p className="text-gray-700 leading-relaxed mb-6">
-              Understanding your audience goes beyond demographics. We've developed detailed personas that bring your target customers to life:
+              Sovrn is pleased to present a comprehensive marketing strategy to help {report.advertiserName} reach their target audiences across the United States. Through our advanced audience intelligence platform, we have identified and mapped precise audience segments that align with your campaign objectives.
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {report.results.personas.profiles.map((persona: any, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-4xl">{persona.emoji}</span>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{persona.name || persona.personaName}</h3>
-                      <p className="text-sm text-gray-600">{persona.category}</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    {persona.coreInsight || persona.description}
-                  </p>
-                </div>
-              ))}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-6">
+              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                <div className="text-xs text-purple-700 mb-1 uppercase tracking-wide">Audience Segments</div>
+                <div className="text-3xl font-bold text-purple-900">{report.results.audiences?.segments?.length || report.summary.totalAudiences || 0}</div>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div className="text-xs text-blue-700 mb-1 uppercase tracking-wide">Deal Recommendations</div>
+                <div className="text-3xl font-bold text-blue-900">{report.results.deals?.recommendations?.length || report.summary.totalDeals || 0}</div>
+              </div>
+              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                <div className="text-xs text-indigo-700 mb-1 uppercase tracking-wide">Audience Personas</div>
+                <div className="text-3xl font-bold text-indigo-900">{report.results.personas?.profiles?.length || report.summary.totalPersonas || 0}</div>
+              </div>
             </div>
           </section>
-        )}
 
-        {/* Campaign Recommendations */}
-        {report.results.deals.count > 0 && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Campaign Recommendations</h2>
-            <p className="text-gray-700 leading-relaxed mb-6">
-              Based on your campaign objectives, we recommend the following deal packages optimized for maximum performance:
-            </p>
-
-            <div className="space-y-4">
-              {report.results.deals.recommendations.map((deal: any, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-5">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{deal.dealName}</h3>
-                  <p className="text-sm text-gray-600 mb-3">{deal.description}</p>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
-                      {deal.environment}
-                    </span>
-                    {deal.mediaType && (
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                        {deal.mediaType}
-                      </span>
-                    )}
-                    {deal.dealId && (
-                      <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
-                        ID: {deal.dealId}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Geographic Targeting */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Geographic Targeting Strategy</h2>
-          
-          {report.results.geographic.topMarkets && report.results.geographic.topMarkets.length > 0 ? (
-            <>
+          {/* Target Audience Analysis */}
+          {(report.results.audiences?.segments?.length > 0 || report.results.audiences?.count > 0) && (
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Target Audience Analysis</h2>
               <p className="text-gray-700 leading-relaxed mb-6">
-                Based on your target audiences, we've identified <strong>{report.results.geographic.topMarkets.length} high-opportunity markets</strong> ranked by concentration, population, and income levels. Focus on Tier 1 markets (top 5) for initial deployment.
+                We have identified <strong>{report.results.audiences.segments?.length || report.results.audiences.count} precision audience segments</strong> that align with your target market. These segments represent high-value opportunities for reaching your ideal customers.
               </p>
 
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Recommended Markets</h3>
-              <div className="space-y-3">
-                {report.results.geographic.topMarkets.slice(0, 10).map((market: any, index) => {
-                  const tier = index < 5 ? 'Tier 1' : 'Tier 2';
-                  const tierColor = index < 5 ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800';
+              {/* Audience Segments Grid */}
+              <div className="space-y-6">
+                {(report.results.audiences.segments || []).map((enrichedSegment: any, index: number) => {
+                  // Handle enriched segment structure (segment nested inside)
+                  const segment = enrichedSegment.segment || enrichedSegment;
+                  const segmentName = segment.segmentName || segment.name || enrichedSegment.segmentName || 'Audience Segment';
+                  const segmentDesc = segment.segmentDescription || segment.description || enrichedSegment.strategicHook || 'High-value audience segment';
+                  const segmentType = segment.segmentType || enrichedSegment.segmentType;
+                  const scale = segment.scale7DayUS || segment.scale || segment['scale_7day_us'];
+                  const cpm = segment.cpm;
                   
                   return (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div key={index} className="border border-gray-200 rounded-lg p-5 hover:border-purple-300 transition-colors">
                       <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-1">
-                            <span className="font-semibold text-gray-900 text-lg">
-                              {index + 1}. {market.city}, {market.state}
-                            </span>
-                            <span className={`text-xs px-2 py-1 rounded-full font-medium ${tierColor}`}>
-                              {tier}
-                            </span>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3 text-sm">
-                            {market.concentration && (
-                              <div>
-                                <div className="text-xs text-gray-500">Concentration</div>
-                                <div className="font-semibold text-purple-600">
-                                  {(market.concentration * 100).toFixed(1)}%
-                                </div>
-                              </div>
-                            )}
-                            
-                            {market.population && (
-                              <div>
-                                <div className="text-xs text-gray-500">Population</div>
-                                <div className="font-semibold text-gray-900">
-                                  {formatNumber(market.population)}
-                                </div>
-                              </div>
-                            )}
-                            
-                            {market.medianIncome && (
-                              <div>
-                                <div className="text-xs text-gray-500">Median Income</div>
-                                <div className="font-semibold text-green-600">
-                                  ${formatNumber(market.medianIncome)}
-                                </div>
-                              </div>
-                            )}
-                            
-                            {market.urbanRural && market.urbanRural !== 'Unknown' && (
-                              <div>
-                                <div className="text-xs text-gray-500">Environment</div>
-                                <div className="font-semibold text-gray-700">
-                                  {market.urbanRural}
-                                </div>
-                              </div>
-                            )}
-                            
-                            {market.opportunityScore && (
-                              <div>
-                                <div className="text-xs text-gray-500">Opportunity Score</div>
-                                <div className="font-semibold text-indigo-600">
-                                  {market.opportunityScore.toFixed(2)}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900">{segmentName}</h3>
+                        {segmentType && (
+                          <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+                            {segmentType}
+                          </span>
+                        )}
                       </div>
+                      <p className="text-sm text-gray-600 mb-3">{segmentDesc}</p>
+                      {scale && (
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <span>Reach: {formatNumber(scale)}</span>
+                          {cpm && <span>CPM: ${cpm.toFixed(2)}</span>}
+                        </div>
+                      )}
+                      {/* Show data sources if available */}
+                      {enrichedSegment.dataSources && enrichedSegment.dataSources.length > 0 && (
+                        <div className="mt-2 flex gap-1">
+                          {enrichedSegment.dataSources.map((source: string, idx: number) => (
+                            <span key={idx} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                              {source}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
               </div>
-
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h4 className="font-semibold text-blue-900 mb-2">Geographic Targeting Strategy</h4>
-                <ul className="space-y-2 text-sm text-blue-800">
-                  <li className="flex items-start gap-2">
-                    <span>•</span>
-                    <span>Focus initial campaign deployment on Tier 1 markets (top 5) for maximum efficiency</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span>•</span>
-                    <span>Scale to Tier 2 markets (6-10) based on early performance data</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span>•</span>
-                    <span>Use ZIP code-level targeting to exclude low-density areas and reduce waste</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span>•</span>
-                    <span>Customize messaging by market characteristics (urban vs suburban, income levels)</span>
-                  </li>
-                </ul>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="text-gray-700 leading-relaxed mb-6">
-                Our platform provides <strong>ZIP code-level targeting</strong> capabilities to maximize campaign efficiency. For each campaign, we can:
-              </p>
-              <ul className="space-y-2 mb-6">
-                <li className="flex items-start gap-3">
-                  <span className="text-purple-600 font-bold">•</span>
-                  <span className="text-gray-700">Identify Top Markets: Pinpoint the highest-concentration ZIPs for each audience segment</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-purple-600 font-bold">•</span>
-                  <span className="text-gray-700">Optimize for Location: Align campaigns with proximity to physical locations</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-purple-600 font-bold">•</span>
-                  <span className="text-gray-700">Exclude Low-Performing Areas: Avoid waste by filtering out low-density markets</span>
-                </li>
-              </ul>
-            </>
+            </section>
           )}
-        </section>
 
-        {/* Market Sizing */}
-        {report.results.marketSizing.totalAddressableMarket > 0 && (
+          {/* Strategy Cards Section - Clickable Inline Cards */}
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Market Sizing & Opportunity</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <div className="border border-gray-200 rounded-lg p-6 bg-gradient-to-br from-purple-50 to-white">
-                <div className="text-sm text-gray-600 mb-2">Total Addressable Market</div>
-                <div className="text-4xl font-bold text-purple-900">
-                  {formatNumber(report.results.marketSizing.totalAddressableMarket)}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">Potential consumers</div>
-              </div>
-              <div className="border border-gray-200 rounded-lg p-6 bg-gradient-to-br from-blue-50 to-white">
-                <div className="text-sm text-gray-600 mb-2">Estimated Reach</div>
-                <div className="text-4xl font-bold text-blue-900">
-                  {formatNumber(report.results.marketSizing.reachEstimate)}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">Unique users (7-day scale)</div>
-              </div>
-              <div className="border border-gray-200 rounded-lg p-6 bg-gradient-to-br from-green-50 to-white">
-                <div className="text-sm text-gray-600 mb-2">Market Penetration</div>
-                <div className="text-4xl font-bold text-green-900">
-                  {((report.results.marketSizing.reachEstimate / report.results.marketSizing.totalAddressableMarket) * 100).toFixed(1)}%
-                </div>
-                <div className="text-xs text-gray-500 mt-1">Of total addressable market</div>
-              </div>
+            <div className="flex items-center gap-3 mb-6">
+              <Presentation className="w-6 h-6 text-indigo-600" />
+              <h2 className="text-2xl font-bold text-gray-900">Strategy Cards</h2>
+              <span className="text-sm text-gray-500 ml-2">Click any card to view slides</span>
             </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Personas as Inline Cards */}
+              {report.results.personas.profiles.map((persona: any, index: number) => {
+                const personaData = transformPersonaForModal(persona);
+                const personaCardId = personaData.id;
+                const isPersonaSaved = isSaved ? isSaved(personaCardId) : false;
+                
+                return (
+                  <InlinePersonaCard
+                    key={personaCardId}
+                    persona={persona}
+                    onClick={() => setSelectedPersona(personaData)}
+                    onSave={() => {
+                      if (isPersonaSaved) {
+                        onUnsaveCard?.(personaCardId);
+                      } else {
+                        onSaveCard?.({ type: 'audience-persona', data: personaData });
+                      }
+                    }}
+                    isSaved={isPersonaSaved}
+                  />
+                );
+              })}
 
-            {/* Demographic Breakdown */}
-            {report.results.marketSizing.demographicBreakdown && (
-              <>
-                {(Object.keys(report.results.marketSizing.demographicBreakdown.ageDistribution || {}).length > 0 ||
-                  Object.keys(report.results.marketSizing.demographicBreakdown.incomeDistribution || {}).length > 0 ||
-                  Object.keys(report.results.marketSizing.demographicBreakdown.educationDistribution || {}).length > 0) && (
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Demographic Profile</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      {/* Age Distribution */}
-                      {Object.keys(report.results.marketSizing.demographicBreakdown.ageDistribution || {}).length > 0 && (
-                        <div className="border border-gray-200 rounded-lg p-4">
-                          <h4 className="font-semibold text-gray-900 mb-3 text-sm">Age Distribution</h4>
-                          <div className="space-y-2">
-                            {Object.entries(report.results.marketSizing.demographicBreakdown.ageDistribution)
-                              .sort(([, a], [, b]) => (b as number) - (a as number))
-                              .slice(0, 3)
-                              .map(([range, percentage]) => (
-                                <div key={range} className="flex items-center justify-between text-sm">
-                                  <span className="text-gray-700">{range}</span>
-                                  <span className="font-semibold text-purple-600">{(percentage as number).toFixed(1)}%</span>
-                                </div>
-                              ))}
-                          </div>
-                        </div>
-                      )}
+              {/* Market Sizing Card */}
+              {(report.results.marketSizing.totalAddressableMarket > 0 || report.results.marketSizing.aiGenerated) && (
+                <InlineMarketSizingCard
+                  sizing={{
+                    marketName: `${report.advertiserName} Market`,
+                    totalMarketSize: report.results.marketSizing.totalMarketSize || formatNumber(report.results.marketSizing.totalAddressableMarket),
+                    growthRate: report.results.marketSizing.growthRate,
+                    addressableValue: report.results.marketSizing.addressableValue
+                  }}
+                  onClick={() => setSelectedMarketSizing(transformMarketSizingForModal())}
+                  onSave={() => {
+                    const cardId = `market-sizing-${report.advertiserName}`;
+                    if (isSaved?.(cardId)) {
+                      onUnsaveCard?.(cardId);
+                    } else {
+                      onSaveCard?.({ type: 'market-sizing', data: transformMarketSizingForModal() });
+                    }
+                  }}
+                  isSaved={isSaved?.(`market-sizing-${report.advertiserName}`)}
+                />
+              )}
 
-                      {/* Income Distribution */}
-                      {Object.keys(report.results.marketSizing.demographicBreakdown.incomeDistribution || {}).length > 0 && (
-                        <div className="border border-gray-200 rounded-lg p-4">
-                          <h4 className="font-semibold text-gray-900 mb-3 text-sm">Income Distribution</h4>
-                          <div className="space-y-2">
-                            {Object.entries(report.results.marketSizing.demographicBreakdown.incomeDistribution)
-                              .sort(([, a], [, b]) => (b as number) - (a as number))
-                              .slice(0, 3)
-                              .map(([range, percentage]) => (
-                                <div key={range} className="flex items-center justify-between text-sm">
-                                  <span className="text-gray-700">{range}</span>
-                                  <span className="font-semibold text-green-600">{(percentage as number).toFixed(1)}%</span>
-                                </div>
-                              ))}
-                          </div>
-                        </div>
-                      )}
+              {/* Geographic Insights Card */}
+              {report.results.geographic.topMarkets && report.results.geographic.topMarkets.length > 0 && (
+                <InlineGeoCard
+                  geo={{
+                    audienceName: `${report.advertiserName} Geographic Insights`,
+                    totalAddressable: formatNumber(report.results.marketSizing.totalAddressableMarket || 0),
+                    topMarkets: report.results.geographic.topMarkets.slice(0, 3).map((m: any) => ({
+                      city: m.city,
+                      state: m.state
+                    }))
+                  }}
+                  onClick={() => setSelectedGeo(transformGeoForModal())}
+                  onSave={() => {
+                    const cardId = `geo-insights-${report.advertiserName}`;
+                    if (isSaved?.(cardId)) {
+                      onUnsaveCard?.(cardId);
+                    } else {
+                      onSaveCard?.({ type: 'geo-card', data: transformGeoForModal() });
+                    }
+                  }}
+                  isSaved={isSaved?.(`geo-insights-${report.advertiserName}`)}
+                />
+              )}
 
-                      {/* Education Distribution */}
-                      {Object.keys(report.results.marketSizing.demographicBreakdown.educationDistribution || {}).length > 0 && (
-                        <div className="border border-gray-200 rounded-lg p-4">
-                          <h4 className="font-semibold text-gray-900 mb-3 text-sm">Education Attainment</h4>
-                          <div className="space-y-2">
-                            {Object.entries(report.results.marketSizing.demographicBreakdown.educationDistribution)
-                              .sort(([, a], [, b]) => (b as number) - (a as number))
-                              .slice(0, 3)
-                              .map(([level, percentage]) => (
-                                <div key={level} className="flex items-center justify-between text-sm">
-                                  <span className="text-gray-700">{level}</span>
-                                  <span className="font-semibold text-blue-600">{(percentage as number).toFixed(1)}%</span>
-                                </div>
-                              ))}
-                          </div>
-                        </div>
-                      )}
+              {/* SWOT Card */}
+              {report.results.swot && (
+                <InlineSWOTCard
+                  swot={{
+                    companyName: report.advertiserName,
+                    summary: report.results.swot.summary,
+                    swot: {
+                      strengths: report.results.swot.strengths,
+                      weaknesses: report.results.swot.weaknesses,
+                      opportunities: report.results.swot.opportunities,
+                      threats: report.results.swot.threats
+                    }
+                  }}
+                  onClick={() => setSelectedSwot(transformSwotForModal())}
+                  onSave={() => {
+                    const cardId = `marketing-swot-${report.advertiserName}`;
+                    if (isSaved?.(cardId)) {
+                      onUnsaveCard?.(cardId);
+                    } else {
+                      onSaveCard?.({ type: 'marketing-swot', data: transformSwotForModal() });
+                    }
+                  }}
+                  isSaved={isSaved?.(`marketing-swot-${report.advertiserName}`)}
+                />
+              )}
+
+              {/* Competitive Intelligence Card */}
+              {report.results.strategy?.competitors && report.results.strategy.competitors.length > 0 && (
+                <InlineCompetitiveIntelCard
+                  intel={{
+                    competitorOrIndustry: report.advertiserName,
+                    competitiveAnalysis: {
+                      mainCompetitors: report.results.strategy.competitors.map((c: string) => ({ name: c.split(' - ')[0] })),
+                      marketPositioning: `${report.advertiserName} operates in a competitive market.`
+                    }
+                  }}
+                  onClick={() => setSelectedCompetitiveIntel(transformCompetitiveIntelForModal())}
+                  onSave={() => {
+                    const cardId = `competitive-intelligence-${report.advertiserName}`;
+                    if (isSaved?.(cardId)) {
+                      onUnsaveCard?.(cardId);
+                    } else {
+                      onSaveCard?.({ type: 'competitive-intelligence', data: transformCompetitiveIntelForModal() });
+                    }
+                  }}
+                  isSaved={isSaved?.(`competitive-intelligence-${report.advertiserName}`)}
+                />
+              )}
+            </div>
+          </section>
+
+          {/* Campaign Recommendations - Now with Deal Cards */}
+          {(report.results.deals?.recommendations?.length > 0 || report.results.deals?.count > 0) && (
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Recommended Deals</h2>
+              <p className="text-gray-700 leading-relaxed mb-6">
+                Based on your campaign objectives, we recommend the following deal packages optimized for maximum performance. 
+                <strong> Add deals to your cart to include them in your proposal.</strong>
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {report.results.deals.recommendations.map((deal: any, index: number) => {
+                  const dealData: Deal = {
+                    id: deal.id || deal.dealId || `deal-${index}`,
+                    dealName: deal.dealName || deal.name || 'Untitled Deal',
+                    dealId: deal.dealId || deal.id || `deal-${index}`,
+                    description: deal.description || '',
+                    environment: deal.environment || 'Web',
+                    targeting: deal.targeting || '',
+                    mediaType: deal.mediaType || 'Display',
+                    flightDate: deal.flightDate || '',
+                    bidGuidance: deal.bidGuidance || '',
+                    createdBy: deal.createdBy || 'Campaign Planner',
+                    createdAt: deal.createdAt || new Date().toISOString(),
+                    updatedAt: deal.updatedAt || new Date().toISOString(),
+                    personaInsights: deal.personaInsights
+                  };
+                  const inCart = isInCart ? isInCart(dealData.id) : false;
+                  
+                  return (
+                    <div key={dealData.id} className="relative">
+                      <DealCard
+                        deal={dealData}
+                        onClick={() => console.log('Deal clicked:', dealData)}
+                        onAddToCart={onAddToCart ? () => onAddToCart(dealData) : undefined}
+                        onRemoveFromCart={onRemoveFromCart ? () => onRemoveFromCart(dealData.id) : undefined}
+                        isInCart={inCart}
+                      />
                     </div>
-                  </div>
-                )}
-              </>
-            )}
-
-            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-              <h4 className="font-semibold text-gray-900 mb-2">Strategic Implications</h4>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span>•</span>
-                  <span>Target messaging and creative to dominant demographic segments</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span>•</span>
-                  <span>Price positioning should align with income distribution</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span>•</span>
-                  <span>Media channel selection optimized for age and education profiles</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span>•</span>
-                  <span>Geographic targeting prioritizes high-concentration, high-value markets</span>
-                </li>
-              </ul>
-            </div>
-          </section>
-        )}
-
-        {/* SWOT Analysis */}
-        {report.results.swot && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Marketing SWOT Analysis</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="border border-green-200 rounded-lg p-5 bg-green-50">
-                <h3 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
-                  <span className="text-xl">✓</span> Strengths
-                </h3>
-                <ul className="space-y-2">
-                  {report.results.swot.strengths.map((item, index) => (
-                    <li key={index} className="text-sm text-gray-700 pl-4 border-l-2 border-green-600">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                  );
+                })}
               </div>
+              
+              {/* Quick add all button */}
+              {onAddToCart && report.results.deals.recommendations.length > 1 && (
+                <div className="mt-6 flex justify-center">
+                  <button
+                    onClick={() => {
+                      report.results.deals.recommendations.forEach((deal: any, index: number) => {
+                        const dealData: Deal = {
+                          id: deal.id || deal.dealId || `deal-${index}`,
+                          dealName: deal.dealName || deal.name || 'Untitled Deal',
+                          dealId: deal.dealId || deal.id || `deal-${index}`,
+                          description: deal.description || '',
+                          environment: deal.environment || 'Web',
+                          targeting: deal.targeting || '',
+                          mediaType: deal.mediaType || 'Display',
+                          flightDate: deal.flightDate || '',
+                          bidGuidance: deal.bidGuidance || '',
+                          createdBy: deal.createdBy || 'Campaign Planner',
+                          createdAt: deal.createdAt || new Date().toISOString(),
+                          updatedAt: deal.updatedAt || new Date().toISOString()
+                        };
+                        if (!isInCart?.(dealData.id)) {
+                          onAddToCart(dealData);
+                        }
+                      });
+                    }}
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg font-medium"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    Add All Recommended Deals to Cart
+                  </button>
+                </div>
+              )}
+            </section>
+          )}
 
-              <div className="border border-red-200 rounded-lg p-5 bg-red-50">
-                <h3 className="font-semibold text-red-900 mb-3 flex items-center gap-2">
-                  <span className="text-xl">✗</span> Weaknesses
-                </h3>
-                <ul className="space-y-2">
-                  {report.results.swot.weaknesses.map((item, index) => (
-                    <li key={index} className="text-sm text-gray-700 pl-4 border-l-2 border-red-600">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="border border-blue-200 rounded-lg p-5 bg-blue-50">
-                <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                  <span className="text-xl">→</span> Opportunities
-                </h3>
-                <ul className="space-y-2">
-                  {report.results.swot.opportunities.map((item, index) => (
-                    <li key={index} className="text-sm text-gray-700 pl-4 border-l-2 border-blue-600">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="border border-orange-200 rounded-lg p-5 bg-orange-50">
-                <h3 className="font-semibold text-orange-900 mb-3 flex items-center gap-2">
-                  <span className="text-xl">⚠</span> Threats
-                </h3>
-                <ul className="space-y-2">
-                  {report.results.swot.threats.map((item, index) => (
-                    <li key={index} className="text-sm text-gray-700 pl-4 border-l-2 border-orange-600">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Competitive Analysis & Differentiation */}
-        {report.results.strategy?.competitors && report.results.strategy.competitors.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Competitive Analysis & Differentiation</h2>
-            <p className="text-gray-700 leading-relaxed mb-6">
-              Understanding the competitive landscape is crucial for positioning your campaign effectively.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="border border-gray-200 rounded-lg p-5">
-                <h3 className="font-semibold text-gray-900 mb-3">Key Competitors</h3>
-                <ul className="space-y-2">
-                  {report.results.strategy.competitors.map((competitor, index) => (
-                    <li key={index} className="text-sm text-gray-700 pl-4 border-l-2 border-purple-600">
-                      {competitor}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="border border-gray-200 rounded-lg p-5">
-                <h3 className="font-semibold text-gray-900 mb-3">Differentiation Strategies</h3>
-                <ul className="space-y-2">
-                  {report.results.strategy.differentiators?.map((diff, index) => (
-                    <li key={index} className="text-sm text-gray-700 pl-4 border-l-2 border-blue-600">
-                      {diff}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Market Prioritization */}
-        {report.results.strategy?.marketTiers && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Market Prioritization Strategy</h2>
-            <p className="text-gray-700 leading-relaxed mb-6">
-              Based on audience density, spending power, and market characteristics:
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="border border-purple-200 rounded-lg p-5 bg-purple-50">
-                <h3 className="font-semibold text-purple-900 mb-3">Tier 1 Markets (Primary Focus)</h3>
-                <ul className="space-y-1">
-                  {report.results.strategy.marketTiers.tier1.map((city, index) => (
-                    <li key={index} className="text-sm text-gray-700">• {city}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="border border-blue-200 rounded-lg p-5 bg-blue-50">
-                <h3 className="font-semibold text-blue-900 mb-3">Tier 2 Markets (Secondary Expansion)</h3>
-                <ul className="space-y-1">
-                  {report.results.strategy.marketTiers.tier2.map((city, index) => (
-                    <li key={index} className="text-sm text-gray-700">• {city}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-sm text-gray-700">
-                <strong>Rationale:</strong> {report.results.strategy.marketTiers.rationale}
+          {/* Market Prioritization */}
+          {report.results.strategy?.marketTiers && (
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Market Prioritization Strategy</h2>
+              <p className="text-gray-700 leading-relaxed mb-6">
+                Based on audience density, spending power, and market characteristics:
               </p>
-            </div>
-          </section>
-        )}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="border border-purple-200 rounded-lg p-5 bg-purple-50">
+                  <h3 className="font-semibold text-purple-900 mb-3">Tier 1 Markets (Primary Focus)</h3>
+                  <ul className="space-y-1">
+                    {report.results.strategy.marketTiers.tier1.map((city: string, index: number) => (
+                      <li key={index} className="text-sm text-gray-700">• {city}</li>
+                    ))}
+                  </ul>
+                </div>
 
-        {/* Dayparting Recommendations */}
-        {report.results.strategy?.dayparting && (
+                <div className="border border-blue-200 rounded-lg p-5 bg-blue-50">
+                  <h3 className="font-semibold text-blue-900 mb-3">Tier 2 Markets (Secondary Expansion)</h3>
+                  <ul className="space-y-1">
+                    {report.results.strategy.marketTiers.tier2.map((city: string, index: number) => (
+                      <li key={index} className="text-sm text-gray-700">• {city}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-700">
+                  <strong>Rationale:</strong> {report.results.strategy.marketTiers.rationale}
+                </p>
+              </div>
+            </section>
+          )}
+
+          {/* Dayparting Recommendations */}
+          {report.results.strategy?.dayparting && (
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Dayparting Recommendations</h2>
+              <p className="text-gray-700 leading-relaxed mb-6">
+                Optimal Campaign Flight Times:
+              </p>
+              
+              <div className="border border-gray-200 rounded-lg p-5">
+                <ul className="space-y-3">
+                  {report.results.strategy.dayparting.optimal.map((time: string, index: number) => (
+                    <li key={index} className="flex items-start gap-3">
+                      <span className="text-purple-600 font-semibold">⏰</span>
+                      <span className="text-sm text-gray-700">{time}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-700">
+                  <strong>Rationale:</strong> {report.results.strategy.dayparting.rationale}
+                </p>
+                <p className="text-sm text-gray-700 mt-2">
+                  By concentrating ad delivery during high-intent periods, we can maximize campaign efficiency and reduce wasted impressions.
+                </p>
+              </div>
+            </section>
+          )}
+
+          {/* Measurement & Success Metrics */}
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Dayparting Recommendations</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Measurement & Success Metrics</h2>
             <p className="text-gray-700 leading-relaxed mb-6">
-              Optimal Campaign Flight Times:
+              We recommend tracking the following KPIs to ensure campaign success:
             </p>
-            
-            <div className="border border-gray-200 rounded-lg p-5">
-              <ul className="space-y-3">
-                {report.results.strategy.dayparting.optimal.map((time, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <span className="text-purple-600 font-semibold">⏰</span>
-                    <span className="text-sm text-gray-700">{time}</span>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">Upper Funnel</h3>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Impressions delivered</span>
                   </li>
-                ))}
-              </ul>
-            </div>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Unique reach</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Viewability rate</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Brand lift (if measured)</span>
+                  </li>
+                </ul>
+              </div>
 
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-sm text-gray-700">
-                <strong>Rationale:</strong> {report.results.strategy.dayparting.rationale}
-              </p>
-              <p className="text-sm text-gray-700 mt-2">
-                By concentrating ad delivery during high-intent periods, we can maximize campaign efficiency and reduce wasted impressions.
-              </p>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">Middle Funnel</h3>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Click-through rate (CTR)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Site visits</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Landing page engagement</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Time on site</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">Lower Funnel</h3>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Test appointments scheduled</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Form completions</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Phone calls generated</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Cost per acquisition (CPA)</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-3">Business Outcomes</h3>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Return on ad spend (ROAS)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Customer lifetime value</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Market share growth</span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </section>
-        )}
 
-        {/* Measurement & Success Metrics */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Measurement & Success Metrics</h2>
-          <p className="text-gray-700 leading-relaxed mb-6">
-            We recommend tracking the following KPIs to ensure campaign success:
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Upper Funnel</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Impressions delivered</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Unique reach</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Viewability rate</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Brand lift (if measured)</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Middle Funnel</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Click-through rate (CTR)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Site visits</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Landing page engagement</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Time on site</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Lower Funnel</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Test appointments scheduled</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Form completions</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Phone calls generated</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Cost per acquisition (CPA)</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Business Outcomes</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Return on ad spend (ROAS)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Customer lifetime value</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Market share growth</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* Why Sovrn */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Why Sovrn for {report.advertiserName}?</h2>
-          
-          <div className="space-y-4">
-            <div className="border border-gray-200 rounded-lg p-5">
-              <h3 className="font-semibold text-gray-900 mb-2">1. Unmatched Scale & Quality</h3>
-              <ul className="space-y-1 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Commerce Audience segments across all categories</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Extensive interest-based targeting options</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>20M+ daily US reach across engaged consumers</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="border border-gray-200 rounded-lg p-5">
-              <h3 className="font-semibold text-gray-900 mb-2">2. Data-Driven Precision</h3>
-              <ul className="space-y-1 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Behavioral purchase intent signals</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Real-time audience refresh (7-day cookie scale)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>ZIP code-level geographic intelligence</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="border border-gray-200 rounded-lg p-5">
-              <h3 className="font-semibold text-gray-900 mb-2">3. Transparent Performance</h3>
-              <ul className="space-y-1 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Clear CPM pricing with no hidden fees</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Real-time reporting and optimization</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">•</span>
-                  <span>Dedicated support and strategic guidance</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* Next Steps */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Next Steps</h2>
-          <p className="text-gray-700 leading-relaxed mb-4">
-            To move forward with this proposal, we recommend:
-          </p>
-          
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                1
+          {/* Why Sovrn */}
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Why Sovrn for {report.advertiserName}?</h2>
+            
+            <div className="space-y-4">
+              <div className="border border-gray-200 rounded-lg p-5">
+                <h3 className="font-semibold text-gray-900 mb-2">1. Unmatched Scale & Quality</h3>
+                <ul className="space-y-1 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Commerce Audience segments across all categories</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Extensive interest-based targeting options</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>20M+ daily US reach across engaged consumers</span>
+                  </li>
+                </ul>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Strategic Planning Session</h3>
-                <p className="text-sm text-gray-600">Review audience priorities, align on campaign objectives, and discuss creative requirements</p>
+
+              <div className="border border-gray-200 rounded-lg p-5">
+                <h3 className="font-semibold text-gray-900 mb-2">2. Data-Driven Precision</h3>
+                <ul className="space-y-1 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Behavioral purchase intent signals</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Real-time audience refresh (7-day cookie scale)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>ZIP code-level geographic intelligence</span>
+                  </li>
+                </ul>
               </div>
+
+              <div className="border border-gray-200 rounded-lg p-5">
+                <h3 className="font-semibold text-gray-900 mb-2">3. Transparent Performance</h3>
+                <ul className="space-y-1 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Clear CPM pricing with no hidden fees</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Real-time reporting and optimization</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600">•</span>
+                    <span>Dedicated support and strategic guidance</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* Next Steps */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Next Steps</h2>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              To move forward with this proposal, we recommend:
+            </p>
+            
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  1
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Strategic Planning Session</h3>
+                  <p className="text-sm text-gray-600">Review audience priorities, align on campaign objectives, and discuss creative requirements</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  2
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Audience Insights Workshop</h3>
+                  <p className="text-sm text-gray-600">Deep-dive into specific segments, review geographic data, and explore behavioral overlaps</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  3
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Finalize Campaign Strategy</h3>
+                  <p className="text-sm text-gray-600">Lock messaging and creative, set budget and pacing, establish success metrics</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  4
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Launch Campaign</h3>
+                  <p className="text-sm text-gray-600">Test priority audiences, monitor and optimize, scale based on results</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Footer */}
+          <div className="border-t border-gray-200 pt-8">
+            <div className="mb-4">
+              <h3 className="font-semibold text-gray-900 text-lg mb-2">Contact Information</h3>
+              <p className="text-sm text-gray-600 mb-1"><strong>Sovrn Marketing Solutions</strong></p>
+              <p className="text-sm text-gray-600">Email: sales@sovrn.com</p>
+              <p className="text-sm text-gray-600">Website: www.sovrn.com</p>
             </div>
             
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                2
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Audience Insights Workshop</h3>
-                <p className="text-sm text-gray-600">Deep-dive into specific segments, review geographic data, and explore behavioral overlaps</p>
-              </div>
+            <div className="text-xs text-gray-500 space-y-1">
+              <p>This proposal is valid for 60 days from the date of issuance.</p>
+              <p>© {new Date().getFullYear()} Sovrn Holdings, Inc. All rights reserved.</p>
             </div>
-            
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                3
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Finalize Campaign Strategy</h3>
-                <p className="text-sm text-gray-600">Lock messaging and creative, set budget and pacing, establish success metrics</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                4
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Launch Campaign</h3>
-                <p className="text-sm text-gray-600">Test priority audiences, monitor and optimize, scale based on results</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <div className="border-t border-gray-200 pt-8">
-          <div className="mb-4">
-            <h3 className="font-semibold text-gray-900 text-lg mb-2">Contact Information</h3>
-            <p className="text-sm text-gray-600 mb-1"><strong>Sovrn Marketing Solutions</strong></p>
-            <p className="text-sm text-gray-600">Email: sales@sovrn.com</p>
-            <p className="text-sm text-gray-600">Website: www.sovrn.com</p>
-          </div>
-          
-          <div className="text-xs text-gray-500 space-y-1">
-            <p>This proposal is valid for 60 days from the date of issuance.</p>
-            <p>© {new Date().getFullYear()} Sovrn Holdings, Inc. All rights reserved.</p>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Detail Modals */}
+      <PersonaDetailModal
+        persona={selectedPersona}
+        isOpen={!!selectedPersona}
+        onClose={() => setSelectedPersona(null)}
+        onViewDeals={() => {}} // No-op for campaign planner context
+        onSaveCard={onSaveCard ? (card) => onSaveCard({ type: card.type, data: card.data }) : undefined}
+        onUnsaveCard={onUnsaveCard}
+        isSaved={isSaved}
+      />
+
+      <MarketSizingDetailModal
+        sizing={selectedMarketSizing}
+        isOpen={!!selectedMarketSizing}
+        onClose={() => setSelectedMarketSizing(null)}
+        onSaveCard={onSaveCard ? (card) => onSaveCard({ type: card.type, data: card.data }) : undefined}
+        onUnsaveCard={onUnsaveCard}
+        isSaved={isSaved}
+      />
+
+      <GeoDetailModal
+        geo={selectedGeo}
+        isOpen={!!selectedGeo}
+        onClose={() => setSelectedGeo(null)}
+        onSaveCard={onSaveCard}
+        onUnsaveCard={onUnsaveCard}
+        isSaved={isSaved}
+      />
+
+      <MarketingSWOTDetailModal
+        swot={selectedSwot}
+        isOpen={!!selectedSwot}
+        onClose={() => setSelectedSwot(null)}
+        onSaveCard={onSaveCard ? (card) => onSaveCard({ type: card.type, data: card.data }) : undefined}
+        onUnsaveCard={onUnsaveCard}
+        isSaved={isSaved}
+      />
+
+      <CompetitiveIntelligenceDetailModal
+        competitiveIntel={selectedCompetitiveIntel}
+        isOpen={!!selectedCompetitiveIntel}
+        onClose={() => setSelectedCompetitiveIntel(null)}
+        onSaveCard={onSaveCard ? (card) => onSaveCard({ type: card.type, data: card.data }) : undefined}
+        onUnsaveCard={onUnsaveCard}
+        isSaved={isSaved}
+      />
+    </>
   );
 }
-

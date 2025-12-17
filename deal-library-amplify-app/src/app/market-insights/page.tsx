@@ -42,6 +42,285 @@ function MarketInsightsContent() {
   const [campaignBrief, setCampaignBrief] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  
+  // Shopping products - two distinct lists
+  const [mostPopularProducts, setMostPopularProducts] = useState<Array<{
+    segment: string;
+    category: string;
+    overIndex?: number;
+  }>>([]);
+  const [overIndexingProducts, setOverIndexingProducts] = useState<Array<{
+    segment: string;
+    category: string;
+    overIndex?: number;
+  }>>([]);
+  const [commerceCategoryFilter, setCommerceCategoryFilter] = useState<string>('All Categories');
+  const [loadingCommerceData, setLoadingCommerceData] = useState(false);
+
+  // Map segment names to Google Product Taxonomy Level 1 categories
+  // Reference: https://www.google.com/basepages/producttype/taxonomy.en-US.txt
+  const getLevel1Category = (segmentName: string): string => {
+    const name = segmentName.toLowerCase();
+    
+    // Helper to check for whole word matches
+    const hasWord = (word: string) => {
+      const regex = new RegExp(`\\b${word}\\b`, 'i');
+      return regex.test(name);
+    };
+
+    // Vehicles & Parts
+    if (name.includes('vehicle') || name.includes('automotive') || name.includes('radar detector') ||
+        hasWord('car') || name.includes('motor') || name.includes('tire') || name.includes('auto part') ||
+        name.includes('watercraft') || name.includes('aircraft')) {
+      return 'Vehicles & Parts';
+    }
+    
+    // Cameras & Optics (separate from Electronics per Google taxonomy)
+    if (name.includes('camera') || name.includes('optic') || name.includes('binocular') ||
+        name.includes('telescope') || name.includes('microscope') || name.includes('tripod') ||
+        name.includes('photography') || name.includes('lens')) {
+      return 'Cameras & Optics';
+    }
+    
+    // Electronics
+    if (name.includes('circuit') || name.includes('computer') || name.includes('electronic') ||
+        name.includes('audio') || name.includes('video') || name.includes('phone') ||
+        name.includes('tablet') || name.includes('gps') || name.includes('smart') ||
+        name.includes('gaming') || name.includes('communication') || name.includes('speaker') ||
+        name.includes('television') || name.includes('laptop') || name.includes('network') ||
+        name.includes('printer') || name.includes('microphone') || name.includes('dvd') ||
+        name.includes('console') || name.includes('storage device') || name.includes('component') ||
+        name.includes('arcade') || name.includes('radar')) {
+      return 'Electronics';
+    }
+    
+    // Software (separate from Electronics per Google taxonomy)
+    if (name.includes('software') || name.includes('operating system') || name.includes('antivirus') ||
+        name.includes('video game software')) {
+      return 'Software';
+    }
+    
+    // Furniture (separate from Home & Garden per Google taxonomy)
+    if (name.includes('furniture') || name.includes('mattress') || name.includes('futon') ||
+        name.includes('cabinet') || name.includes('shelving') || name.includes('bench') ||
+        name.includes('ottoman') || hasWord('desk') || hasWord('sofa') || hasWord('chair') ||
+        hasWord('bed') || hasWord('table') && !name.includes('tablet')) {
+      return 'Furniture';
+    }
+    
+    // Home & Garden
+    if (name.includes('appliance') || name.includes('kitchen') || name.includes('bedding') ||
+        name.includes('garden') || name.includes('lawn') || name.includes('home decor') ||
+        name.includes('lighting') || name.includes('cleaning') || name.includes('decor') ||
+        name.includes('fencing') || name.includes('stove') || name.includes('fireplace') ||
+        name.includes('pool & spa') || name.includes('plumbing') || name.includes('cookware') ||
+        name.includes('linens') || name.includes('plant') || name.includes('household supply') ||
+        name.includes('household supplies') || name.includes('bathroom accessor') ||
+        name.includes('laundry') || name.includes('smoking accessor') || name.includes('umbrella') ||
+        name.includes('parasol') || name.includes('emergency prep') || name.includes('flood') ||
+        name.includes('fire safety')) {
+      return 'Home & Garden';
+    }
+    
+    // Food, Beverages & Tobacco (full name per Google taxonomy)
+    if (name.includes('food') || name.includes('beverage') || name.includes('grocery') ||
+        name.includes('snack') || name.includes('drink') || name.includes('coffee') ||
+        hasWord('tea') || name.includes('alcohol') || name.includes('pasta') ||
+        name.includes('soup') || name.includes('dairy') || name.includes('bread') ||
+        name.includes('juice') || name.includes('seasoning') || name.includes('spice') ||
+        name.includes('condiment') || name.includes('sauce') || name.includes('cooking') ||
+        name.includes('baking') || name.includes('frozen dessert') || name.includes('water') ||
+        name.includes('milk') || name.includes('dip') || name.includes('spread') ||
+        name.includes('tobacco') || name.includes('cigarette') || name.includes('cigar')) {
+      return 'Food, Beverages & Tobacco';
+    }
+    
+    // Apparel & Accessories
+    if (name.includes('apparel') || name.includes('clothing') || name.includes('shoes') ||
+        name.includes('jewelry') || hasWord('watch') || name.includes('handbag') ||
+        name.includes('fashion') || name.includes('shirt') || name.includes('skirt') || 
+        name.includes('shorts') || name.includes('costume') || name.includes('outerwear') ||
+        name.includes('activewear') || name.includes('sunglasses') || name.includes('wallet') ||
+        (name.includes('dress') && !name.includes('address') && !name.includes('hairdress'))) {
+      return 'Apparel & Accessories';
+    }
+    
+    // Luggage & Bags (separate from Apparel per Google taxonomy)
+    if (name.includes('luggage') || name.includes('suitcase') || name.includes('briefcase') ||
+        name.includes('backpack') || name.includes('duffel') || name.includes('garment bag') ||
+        name.includes('diaper bag') || name.includes('messenger bag') || name.includes('tote')) {
+      return 'Luggage & Bags';
+    }
+    
+    // Health & Beauty
+    if (name.includes('health') || name.includes('beauty') || name.includes('personal care') ||
+        name.includes('cosmetic') || name.includes('skincare') || name.includes('vitamin') ||
+        name.includes('medical') || name.includes('vision care') || name.includes('oral care') ||
+        name.includes('foot care') || name.includes('sleeping aid') || name.includes('condom') ||
+        name.includes('feminine') || name.includes('sanitary') || name.includes('shaving') ||
+        name.includes('grooming') || name.includes('hair care') || name.includes('hairdress')) {
+      return 'Health & Beauty';
+    }
+    
+    // Baby & Toddler (Google taxonomy name, not "Baby & Kids")
+    if (name.includes('baby') || name.includes('toddler') || name.includes('nursery') ||
+        name.includes('diaper') || name.includes('swaddl') || name.includes('nursing') ||
+        name.includes('pacifier') || name.includes('stroller') || name.includes('crib')) {
+      return 'Baby & Toddler';
+    }
+    
+    // Toys & Games (separate from Baby & Toddler per Google taxonomy)
+    if (name.includes('toy') || name.includes('puzzle') || hasWord('game') ||
+        name.includes('indoor game') || name.includes('outdoor play') || name.includes('doll') ||
+        name.includes('action figure') || name.includes('building block') || name.includes('lego')) {
+      return 'Toys & Games';
+    }
+    
+    // Sporting Goods
+    if (name.includes('sport') || name.includes('outdoor recreation') || name.includes('camping') ||
+        name.includes('exercise') || name.includes('athletic') || name.includes('bike') ||
+        name.includes('golf') || name.includes('cycling') || name.includes('yoga') ||
+        name.includes('pilates') || name.includes('hiking') || name.includes('fishing') ||
+        name.includes('hunting') || name.includes('boating') || name.includes('swimming') ||
+        name.includes('fitness')) {
+      return 'Sporting Goods';
+    }
+    
+    // Animals & Pet Supplies (Google taxonomy name)
+    if (hasWord('pet') || hasWord('dog') || hasWord('cat') || hasWord('animal') ||
+        name.includes('live animal') || name.includes('aquarium') || name.includes('bird supply') ||
+        name.includes('fish supply') || name.includes('reptile')) {
+      return 'Animals & Pet Supplies';
+    }
+    
+    // Business & Industrial
+    if (name.includes('business') || name.includes('industrial') || name.includes('construction') ||
+        name.includes('manufacturing') || name.includes('agriculture') || name.includes('forestry') ||
+        name.includes('science') || name.includes('laboratory') || name.includes('signage') ||
+        name.includes('advertising') || name.includes('marketing') || name.includes('retail') ||
+        name.includes('hotel') || name.includes('hospitality') || name.includes('finance') ||
+        name.includes('insurance') || name.includes('building material') || name.includes('dentistry') ||
+        name.includes('piercing') || name.includes('tattoo')) {
+      return 'Business & Industrial';
+    }
+    
+    // Hardware
+    if (name.includes('tool') || name.includes('hardware') || name.includes('lock') ||
+        hasWord('key') || name.includes('plumbing') || name.includes('electrical') ||
+        name.includes('heating') || name.includes('ventilation') || name.includes('hvac')) {
+      return 'Hardware';
+    }
+    
+    // Office Supplies
+    if (name.includes('office') || name.includes('stationery') || name.includes('desk accessor') ||
+        name.includes('filing') || name.includes('presentation')) {
+      return 'Office Supplies';
+    }
+    
+    // Arts & Entertainment
+    if (hasWord('art') || name.includes('craft') || name.includes('music') ||
+        name.includes('entertainment') || name.includes('hobby') || name.includes('event ticket') ||
+        name.includes('gift giving') || name.includes('party') || name.includes('film') ||
+        name.includes('creative') || name.includes('collectible') || name.includes('musical instrument')) {
+      return 'Arts & Entertainment';
+    }
+    
+    // Media (separate from Arts & Entertainment per Google taxonomy)
+    if (name.includes('book') || name.includes('magazine') || name.includes('newspaper') ||
+        name.includes('dvd') || name.includes('cd') || name.includes('vinyl') ||
+        name.includes('sheet music') || name.includes('audiobook')) {
+      return 'Media';
+    }
+    
+    // Religious & Ceremonial
+    if (name.includes('religious') || name.includes('ceremonial') || name.includes('memorial') ||
+        name.includes('wedding ceremony') || name.includes('prayer')) {
+      return 'Religious & Ceremonial';
+    }
+    
+    return 'General Merchandise';
+  };
+
+  // Fetch shopping products when a market profile is selected
+  const fetchShoppingProducts = async (profile: MarketProfileType, categoryFilter?: string) => {
+    try {
+      setLoadingCommerceData(true);
+      
+      const effectiveFilter = categoryFilter || commerceCategoryFilter;
+      console.log(`🛒 Fetching commerce data with category filter: "${effectiveFilter}"`);
+      
+      // Fetch market-specific commerce data using the new endpoint
+      const response = await fetch(`${API_BASE_URL}/api/market-insights/market-commerce`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          geoLevel: profile.geoLevel,
+          marketName: profile.name,
+          includeCommercialZips,
+          categoryFilter: effectiveFilter
+        })
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        // Top Shopping Categories - from market-specific data
+        const topCategories = (data.topByPopularity || [])
+          .slice(0, 5)
+          .map((seg: any) => ({
+            segment: seg.name,
+            category: seg.level1Category || getLevel1Category(seg.name)
+          }));
+        setMostPopularProducts(topCategories);
+
+        // Highest Over-Indexing - actual over-index vs national average
+        const byOverIndex = (data.topByOverIndex || [])
+          .slice(0, 5)
+          .map((seg: any) => ({
+            segment: seg.name,
+            category: seg.level1Category || getLevel1Category(seg.name),
+            overIndex: seg.overIndex
+          }));
+        setOverIndexingProducts(byOverIndex);
+
+        const filterLabel = data.categoryFilter !== 'All Categories' ? ` [${data.categoryFilter}]` : '';
+        console.log(`✅ Loaded ${data.totalSegments} commerce segments for ${profile.name} (${data.zipCodeCount} ZIPs)${filterLabel}`);
+        
+        // Debug: Log the categories of returned segments
+        console.log('📊 Top categories returned:', topCategories.map((p: any) => p.category));
+        console.log('📊 Over-indexing categories returned:', byOverIndex.map((p: any) => p.category));
+      } else {
+        console.warn('No commerce data for market:', data.error);
+        setMostPopularProducts([]);
+        setOverIndexingProducts([]);
+      }
+    } catch (err) {
+      console.error('Error fetching shopping products:', err);
+      // Don't show error to user, just leave products empty
+      setMostPopularProducts([]);
+      setOverIndexingProducts([]);
+    } finally {
+      setLoadingCommerceData(false);
+    }
+  };
+
+  // Handler to navigate to Audience Insights for a shopping product
+  const handleViewShoppingProduct = (segment: string) => {
+    // Navigate to Audience Insights page with the segment pre-selected
+    window.location.href = `/audience-insights?segment=${encodeURIComponent(segment)}`;
+  };
+
+  // Handler for commerce category filter change
+  const handleCommerceCategoryFilterChange = (category: string) => {
+    console.log(`🔄 Category filter changed to: "${category}"`);
+    setCommerceCategoryFilter(category);
+    // Refetch commerce data with new filter if a market is selected
+    if (selectedMarketProfile) {
+      console.log(`🔄 Refetching commerce data for ${selectedMarketProfile.name} with filter: "${category}"`);
+      fetchShoppingProducts(selectedMarketProfile, category);
+    } else {
+      console.log(`⚠️ No market profile selected, filter will apply on next market selection`);
+    }
+  };
 
   // Load available metrics on mount
   useEffect(() => {
@@ -85,17 +364,73 @@ function MarketInsightsContent() {
 
   const applyFilters = () => {
     let filtered = [...topMarkets];
+    const hasFilters = Object.keys(activeFilters).some(k => 
+      activeFilters[k as keyof typeof activeFilters] !== undefined && 
+      activeFilters[k as keyof typeof activeFilters] !== false
+    );
+    
+    // Debug: Log first few markets to see what data we have
+    if (topMarkets.length > 0 && hasFilters) {
+      console.log('🔍 Filter Debug - Sample market data:', {
+        name: topMarkets[0].name,
+        medianHouseholdIncome: topMarkets[0].medianHouseholdIncome,
+        collegeEducated: topMarkets[0].collegeEducated,
+        homeownershipRate: topMarkets[0].homeownershipRate,
+        medianAge: topMarkets[0].medianAge,
+        population: topMarkets[0].population
+      });
+      console.log('🔍 Active filters:', activeFilters);
+    }
 
+    // Population filters
     if (activeFilters.populationMin !== undefined) {
       filtered = filtered.filter(m => m.population >= activeFilters.populationMin!);
     }
     if (activeFilters.populationMax !== undefined) {
       filtered = filtered.filter(m => m.population <= activeFilters.populationMax!);
     }
-    // Note: Income, college educated, etc. filters would require fetching full profiles
-    // For now, we'll filter on what's available in TopMarket
+    
+    // Income filters
+    if (activeFilters.incomeMin !== undefined) {
+      const beforeCount = filtered.length;
+      filtered = filtered.filter(m => (m.medianHouseholdIncome || 0) >= activeFilters.incomeMin!);
+      console.log(`🔍 Income filter (min ${activeFilters.incomeMin}): ${beforeCount} → ${filtered.length} markets`);
+    }
+    if (activeFilters.incomeMax !== undefined) {
+      filtered = filtered.filter(m => (m.medianHouseholdIncome || 0) <= activeFilters.incomeMax!);
+    }
+    
+    // College educated filter
+    if (activeFilters.collegeEducatedMin !== undefined) {
+      filtered = filtered.filter(m => (m.collegeEducated || 0) >= activeFilters.collegeEducatedMin!);
+    }
+    
+    // Homeownership filter
+    if (activeFilters.homeOwnershipMin !== undefined) {
+      filtered = filtered.filter(m => (m.homeownershipRate || 0) >= activeFilters.homeOwnershipMin!);
+    }
+    
+    // Age filters
+    if (activeFilters.ageMedianMin !== undefined) {
+      filtered = filtered.filter(m => (m.medianAge || 0) >= activeFilters.ageMedianMin!);
+    }
+    if (activeFilters.ageMedianMax !== undefined) {
+      filtered = filtered.filter(m => (m.medianAge || 0) <= activeFilters.ageMedianMax!);
+    }
 
+    console.log(`🔍 Final filtered results: ${filtered.length} of ${topMarkets.length} markets`);
     setFilteredMarkets(filtered);
+    
+    // Show feedback message if filters are active
+    if (hasFilters && topMarkets.length > 0) {
+      if (filtered.length === 0) {
+        setError(`No markets match your filter criteria. Try adjusting your filters or changing the geographic level.`);
+        setTimeout(() => setError(null), 5000);
+      } else if (filtered.length < topMarkets.length) {
+        setSuccessMessage(`Filters applied: ${filtered.length} of ${topMarkets.length} markets match.`);
+        setTimeout(() => setSuccessMessage(null), 3000);
+      }
+    }
   };
 
   const handleFiltersChange = (filters: MarketFilters) => {
@@ -173,7 +508,9 @@ function MarketInsightsContent() {
       setLoadingProfile(true);
       setError(null);
       setGeoLevel(level);
-      
+      setMostPopularProducts([]); // Clear previous products
+      setOverIndexingProducts([]);
+
       const response = await fetch(`${API_BASE_URL}/api/market-insights/profile`, {
         method: 'POST',
         headers: {
@@ -190,6 +527,8 @@ function MarketInsightsContent() {
 
       if (data.success) {
         setSelectedMarketProfile(data.profile);
+        // Fetch relevant shopping products for this market
+        fetchShoppingProducts(data.profile);
       } else {
         setError(data.error || 'Failed to load market profile');
       }
@@ -224,7 +563,9 @@ function MarketInsightsContent() {
     try {
       setLoadingProfile(true);
       setError(null);
-      
+      setMostPopularProducts([]); // Clear previous products
+      setOverIndexingProducts([]);
+
       const response = await fetch(`${API_BASE_URL}/api/market-insights/profile`, {
         method: 'POST',
         headers: {
@@ -241,6 +582,8 @@ function MarketInsightsContent() {
 
       if (data.success) {
         setSelectedMarketProfile(data.profile);
+        // Fetch relevant shopping products for this market
+        fetchShoppingProducts(data.profile);
       } else {
         setError(data.error || 'Failed to load market profile');
       }
@@ -252,7 +595,7 @@ function MarketInsightsContent() {
     }
   };
 
-  const handleGenerateCampaignBrief = async () => {
+  const handleGenerateCampaignBrief = async (category?: string) => {
     if (!selectedMarketProfile) return;
 
     try {
@@ -267,7 +610,8 @@ function MarketInsightsContent() {
         body: JSON.stringify({
           geoLevel: selectedMarketProfile.geoLevel,
           marketName: selectedMarketProfile.name,
-          includeCommercialZips
+          includeCommercialZips,
+          productCategory: category // Pass the selected category for filtering
         })
       });
 
@@ -275,7 +619,8 @@ function MarketInsightsContent() {
 
       if (data.success) {
         setCampaignBrief(data.brief);
-        setSuccessMessage('Campaign brief generated successfully!');
+        const categoryMsg = category ? ` for ${category}` : '';
+        setSuccessMessage(`Campaign brief generated successfully${categoryMsg}!`);
         setTimeout(() => setSuccessMessage(null), 3000);
       } else {
         setError(data.error || 'Failed to generate campaign brief');
@@ -293,6 +638,14 @@ function MarketInsightsContent() {
   };
 
   const handleAddToComparison = async (market: TopMarket) => {
+    // Check if this is the primary market (selected market profile)
+    if (selectedMarketProfile && market.name === selectedMarketProfile.name) {
+      setError('This market is already selected as the primary market for comparison');
+      setSuccessMessage(null);
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
     // Check if already in comparison
     if (comparisonProfiles.some(p => p.name === market.name)) {
       setError('This market is already in the comparison');
@@ -301,9 +654,9 @@ function MarketInsightsContent() {
       return;
     }
 
-    // Limit to 3 markets
-    if (comparisonProfiles.length >= 3) {
-      setError('Maximum 3 markets can be compared at once. Remove one to add another.');
+    // Limit to 2 additional markets (primary + 2 = 3 total)
+    if (comparisonProfiles.length >= 2) {
+      setError('Maximum 2 additional markets can be compared. Remove one to add another.');
       setSuccessMessage(null);
       setTimeout(() => setError(null), 5000);
       return;
@@ -329,7 +682,7 @@ function MarketInsightsContent() {
 
       if (data.success) {
         setComparisonProfiles([...comparisonProfiles, data.profile]);
-        setSuccessMessage(`${market.name} added to comparison! (${comparisonProfiles.length + 1}/3)`);
+        setSuccessMessage(`${market.name} added to comparison! (${comparisonProfiles.length + 1}/2 additional markets)`);
         setTimeout(() => setSuccessMessage(null), 3000);
       } else {
         setError(data.error || 'Failed to load market for comparison');
@@ -539,22 +892,39 @@ function MarketInsightsContent() {
           <MarketFiltersPanel
             onFiltersChange={handleFiltersChange}
             activeFilters={activeFilters}
+            onApplyFilters={async () => {
+              // Trigger a refetch to get fresh data with filter fields
+              if (selectedMetric) {
+                await fetchTopMarkets();
+              }
+              // Note: Success message will be shown via the applyFilters effect
+              // when filteredMarkets updates after the new data arrives
+            }}
+            isLoading={loadingMarkets}
           />
         </div>
 
         {/* Top Section: Top Market Identification */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-brand-charcoal">
-              Top Market Identification
-            </h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-bold text-brand-charcoal">
+                Top Market Identification
+              </h2>
+              {/* Show filter results indicator */}
+              {filteredMarkets.length !== topMarkets.length && (
+                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded">
+                  {filteredMarkets.length} of {topMarkets.length} markets
+                </span>
+              )}
+            </div>
             
             {/* Actions: Comparison Counter, View Mode Toggle & Export */}
             <div className="flex gap-2 items-center">
-              {comparisonProfiles.length > 0 && (
+              {(selectedMarketProfile || comparisonProfiles.length > 0) && (
                 <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border-2 border-blue-500 text-blue-700 rounded-lg font-medium">
                   <GitCompare className="w-4 h-4" />
-                  <span className="text-sm">{comparisonProfiles.length} in comparison</span>
+                  <span className="text-sm">{(selectedMarketProfile ? 1 : 0) + comparisonProfiles.length} in comparison</span>
                 </div>
               )}
               <button
@@ -610,6 +980,7 @@ function MarketInsightsContent() {
                 onMarketClick={handleMarketClick}
                 onAddToComparison={handleAddToComparison}
                 loading={loadingMarkets}
+                includeCommercialZips={includeCommercialZips}
               />
             </div>
           ) : (
@@ -639,6 +1010,19 @@ function MarketInsightsContent() {
             generatingBrief={generatingBrief}
             campaignBrief={campaignBrief}
             onCloseCampaignBrief={handleCloseCampaignBrief}
+            mostPopularProducts={mostPopularProducts}
+            overIndexingProducts={overIndexingProducts}
+            onViewShoppingProduct={handleViewShoppingProduct}
+            commerceCategoryFilter={commerceCategoryFilter}
+            onCommerceCategoryFilterChange={handleCommerceCategoryFilterChange}
+            loadingCommerceData={loadingCommerceData}
+            onAddToComparison={(market) => handleAddToComparison({
+              ...market,
+              geoLevel: market.geoLevel as GeographicLevel,
+              rank: 0,
+              value: 0,
+              formattedValue: ''
+            })}
           />
         </div>
 
@@ -652,19 +1036,20 @@ function MarketInsightsContent() {
               </h2>
             </div>
             <div className="text-sm text-neutral-600">
-              {comparisonProfiles.length} / 3 markets selected
+              {selectedMarketProfile ? '1 primary' : '0'} + {comparisonProfiles.length}/2 additional
             </div>
           </div>
           
-          {comparisonProfiles.length > 0 && (
+          {selectedMarketProfile && comparisonProfiles.length < 2 && (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
-              💡 <strong>Tip:</strong> Click on any market in the Top Markets list to add it for comparison (max 3)
+              💡 <strong>Tip:</strong> Click the Compare button on any market to add it for comparison with {selectedMarketProfile.name} (up to 2 additional)
             </div>
           )}
 
           <MarketComparison
             profiles={comparisonProfiles}
             onRemoveMarket={handleRemoveFromComparison}
+            primaryMarket={selectedMarketProfile}
           />
         </div>
       </div>

@@ -7,14 +7,30 @@ import { X, TrendingUp, TrendingDown, Star } from 'lucide-react';
 interface MarketComparisonProps {
   profiles: MarketProfile[];
   onRemoveMarket: (marketName: string) => void;
+  primaryMarket?: MarketProfile | null;
 }
 
-export default function MarketComparison({ profiles, onRemoveMarket }: MarketComparisonProps) {
-  if (profiles.length === 0) {
+export default function MarketComparison({ profiles, onRemoveMarket, primaryMarket }: MarketComparisonProps) {
+  // Combine primary market with additional profiles
+  const allProfiles = primaryMarket 
+    ? [primaryMarket, ...profiles.filter(p => p.name !== primaryMarket.name)]
+    : profiles;
+
+  if (allProfiles.length === 0) {
     return (
       <div className="text-center py-12 text-neutral-500">
-        <p className="text-lg font-medium">No markets selected for comparison</p>
-        <p className="text-sm mt-2">Click on markets to add them for side-by-side comparison (up to 3)</p>
+        <p className="text-lg font-medium">No market selected</p>
+        <p className="text-sm mt-2">Select a market from the list above to view its profile, then add up to 2 more markets for comparison</p>
+      </div>
+    );
+  }
+
+  // If only the primary market exists with no additional markets
+  if (allProfiles.length === 1 && primaryMarket) {
+    return (
+      <div className="text-center py-12 text-neutral-500">
+        <p className="text-lg font-medium">Add markets to compare with {primaryMarket.name}</p>
+        <p className="text-sm mt-2">Click the Compare button on any market in the Top Markets list or Similar Markets section to add it for comparison (up to 2)</p>
       </div>
     );
   }
@@ -47,7 +63,7 @@ export default function MarketComparison({ profiles, onRemoveMarket }: MarketCom
 
   // Get all unique categories from all profiles
   const allCategories = new Set<string>();
-  profiles.forEach(profile => {
+  allProfiles.forEach(profile => {
     profile.attributes.forEach(attr => allCategories.add(attr.category));
   });
   const categories = Array.from(allCategories);
@@ -60,51 +76,67 @@ export default function MarketComparison({ profiles, onRemoveMarket }: MarketCom
   return (
     <div className="space-y-6">
       {/* Header Row */}
-      <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${profiles.length}, 1fr)` }}>
-        {profiles.map((profile) => (
-          <div key={profile.name} className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 relative border border-blue-200">
-            {/* Remove Button */}
-            <button
-              onClick={() => onRemoveMarket(profile.name)}
-              className="absolute top-3 right-3 p-1 rounded-full bg-white hover:bg-red-50 text-neutral-400 hover:text-red-600 transition-colors"
-              title="Remove from comparison"
+      <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${allProfiles.length}, 1fr)` }}>
+        {allProfiles.map((profile, index) => {
+          const isPrimary = primaryMarket && profile.name === primaryMarket.name;
+          return (
+            <div 
+              key={profile.name} 
+              className={`rounded-lg p-6 relative border ${
+                isPrimary 
+                  ? 'bg-gradient-to-br from-brand-gold/10 to-brand-gold/5 border-brand-gold/50' 
+                  : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'
+              }`}
             >
-              <X className="w-4 h-4" />
-            </button>
+              {/* Primary Badge or Remove Button */}
+              {isPrimary ? (
+                <span className="absolute top-3 right-3 px-2 py-1 bg-brand-gold text-white text-xs font-semibold rounded">
+                  Primary
+                </span>
+              ) : (
+                <button
+                  onClick={() => onRemoveMarket(profile.name)}
+                  className="absolute top-3 right-3 p-1 rounded-full bg-white hover:bg-red-50 text-neutral-400 hover:text-red-600 transition-colors"
+                  title="Remove from comparison"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
 
-            {/* Market Name and Location */}
-            <div className="mb-4 pr-8">
-              <h3 className="text-xl font-bold text-brand-charcoal mb-1">{profile.name}</h3>
-              <p className="text-sm text-neutral-600">
-                {profile.geoLevel.charAt(0).toUpperCase() + profile.geoLevel.slice(1)}
-              </p>
-              <p className="text-sm text-neutral-600 mt-1">
-                Population: {profile.population.toLocaleString()}
-              </p>
-            </div>
+              {/* Market Name and Location */}
+              <div className="mb-4 pr-16">
+                <h3 className="text-xl font-bold text-brand-charcoal mb-1">{profile.name}</h3>
+                <p className="text-sm text-neutral-600">
+                  {profile.geoLevel.charAt(0).toUpperCase() + profile.geoLevel.slice(1)}
+                </p>
+                <p className="text-sm text-neutral-600 mt-1">
+                  Population: {profile.population.toLocaleString()}
+                </p>
+              </div>
 
-            {/* Opportunity Score */}
-            {(profile.strategicSnapshot.topStrengths[0] as any)?.opportunityScore && (
-              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-blue-200">
-                <Star className={`w-5 h-5 ${getTierColor((profile.strategicSnapshot.topStrengths[0] as any)?.tier)}`} fill="currentColor" />
-                <div>
-                  <div className="text-sm font-semibold text-neutral-700">
-                    Score: {(profile.strategicSnapshot.topStrengths[0] as any)?.opportunityScore ? (profile.strategicSnapshot.topStrengths[0] as any).opportunityScore.toFixed(0) : 'N/A'}
-                  </div>
-                  <div className="text-xs text-neutral-600">
-                    {(profile.strategicSnapshot.topStrengths[0] as any)?.tier || 'N/A'} Tier
+              {/* Opportunity Score */}
+              {(profile.strategicSnapshot.topStrengths[0] as any)?.opportunityScore && (
+                <div className={`flex items-center gap-2 mt-3 pt-3 border-t ${isPrimary ? 'border-brand-gold/30' : 'border-blue-200'}`}>
+                  <Star className={`w-5 h-5 ${getTierColor((profile.strategicSnapshot.topStrengths[0] as any)?.tier)}`} fill="currentColor" />
+                  <div>
+                    <div className="text-sm font-semibold text-neutral-700">
+                      Score: {(profile.strategicSnapshot.topStrengths[0] as any)?.opportunityScore ? (profile.strategicSnapshot.topStrengths[0] as any).opportunityScore.toFixed(0) : 'N/A'}
+                    </div>
+                    <div className="text-xs text-neutral-600">
+                      {(profile.strategicSnapshot.topStrengths[0] as any)?.tier || 'N/A'} Tier
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        ))}
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Comparison Table by Category */}
       {categories.map((category) => {
         // Get all attributes for this category across all profiles
-        const categoryAttributes = profiles[0].attributes.filter(attr => attr.category === category);
+        const categoryAttributes = allProfiles[0].attributes.filter(attr => attr.category === category);
         
         if (categoryAttributes.length === 0) return null;
 
@@ -117,13 +149,13 @@ export default function MarketComparison({ profiles, onRemoveMarket }: MarketCom
             <div className="divide-y divide-neutral-200">
               {categoryAttributes.map((attr) => {
                 // Find this attribute in each profile
-                const values = profiles.map(profile => {
+                const values = allProfiles.map(profile => {
                   const matchingAttr = profile.attributes.find(a => a.name === attr.name);
                   return matchingAttr || null;
                 });
 
                 return (
-                  <div key={attr.name} className="grid gap-4 p-4" style={{ gridTemplateColumns: `200px repeat(${profiles.length}, 1fr)` }}>
+                  <div key={attr.name} className="grid gap-4 p-4" style={{ gridTemplateColumns: `200px repeat(${allProfiles.length}, 1fr)` }}>
                     {/* Attribute Name */}
                     <div className="font-medium text-neutral-700 flex items-center">
                       {attr.name}
@@ -173,8 +205,8 @@ export default function MarketComparison({ profiles, onRemoveMarket }: MarketCom
           <h4 className="font-semibold text-brand-charcoal">Strategic Insights</h4>
         </div>
         
-        <div className="grid gap-4 p-4" style={{ gridTemplateColumns: `repeat(${profiles.length}, 1fr)` }}>
-          {profiles.map((profile) => (
+        <div className="grid gap-4 p-4" style={{ gridTemplateColumns: `repeat(${allProfiles.length}, 1fr)` }}>
+          {allProfiles.map((profile) => (
             <div key={profile.name} className="space-y-4">
               {/* Market Archetype */}
               {profile.strategicSnapshot.archetype && (

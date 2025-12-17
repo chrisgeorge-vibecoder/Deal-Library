@@ -1,6 +1,8 @@
-import React from 'react';
-import { X, ShoppingCart, Users, Target, Lightbulb, TrendingUp, Clock, Smartphone, DollarSign, Bookmark, BookmarkCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, ShoppingCart, Users, Target, Lightbulb, TrendingUp, Clock, Smartphone, DollarSign, Bookmark, BookmarkCheck, Presentation, FileText } from 'lucide-react';
 import { AudienceInsights } from './AudienceInsightsCard';
+import { SlideView, SlideRenderer } from '@/components/slides';
+import { generateAudienceInsightsSlides } from '@/lib/slideConfigs';
 
 interface AudienceInsightsDetailModalProps {
   insights: AudienceInsights | null;
@@ -21,7 +23,11 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
   onUnsaveCard,
   isSaved
 }) => {
+  const [viewMode, setViewMode] = useState<'detail' | 'slides'>('detail');
+  
   if (!isOpen || !insights) return null;
+  
+  const slides = generateAudienceInsightsSlides(insights);
 
   return (
     <div 
@@ -37,54 +43,93 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Users className="h-6 w-6 text-blue-600" />
+        <div className="flex flex-col p-4 sm:p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">{insights.audienceName}</h2>
+                <p className="text-sm text-gray-500">Audience Insights</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">{insights.audienceName}</h2>
-              <p className="text-sm text-gray-500">Audience Insights</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {onSaveCard && onUnsaveCard && isSaved ? (
+            <div className="flex items-center gap-2">
+              {onSaveCard && onUnsaveCard && isSaved ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isSaved(`audience-insights-${insights.audienceName}`)) {
+                      onUnsaveCard(`audience-insights-${insights.audienceName}`);
+                    } else {
+                      onSaveCard({ type: 'audience-insights', data: insights });
+                    }
+                  }}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isSaved(`audience-insights-${insights.audienceName}`)
+                      ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+                      : 'text-neutral-500 hover:text-blue-600 hover:bg-blue-50'
+                  }`}
+                  title={isSaved(`audience-insights-${insights.audienceName}`) ? 'Remove from saved' : 'Save card'}
+                >
+                  {isSaved(`audience-insights-${insights.audienceName}`) ? (
+                    <BookmarkCheck className="w-5 h-5" />
+                  ) : (
+                    <Bookmark className="w-5 h-5" />
+                  )}
+                </button>
+              ) : null}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (isSaved(`audience-insights-${insights.audienceName}`)) {
-                    onUnsaveCard(`audience-insights-${insights.audienceName}`);
-                  } else {
-                    onSaveCard({ type: 'audience-insights', data: insights });
-                  }
+                  onClose();
                 }}
-                className={`p-2 rounded-lg transition-colors ${
-                  isSaved(`audience-insights-${insights.audienceName}`)
-                    ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
-                    : 'text-neutral-500 hover:text-blue-600 hover:bg-blue-50'
-                }`}
-                title={isSaved(`audience-insights-${insights.audienceName}`) ? 'Remove from saved' : 'Save card'}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                {isSaved(`audience-insights-${insights.audienceName}`) ? (
-                  <BookmarkCheck className="w-5 h-5" />
-                ) : (
-                  <Bookmark className="w-5 h-5" />
-                )}
+                <X className="h-5 w-5 text-gray-500" />
               </button>
-            ) : null}
+            </div>
+          </div>
+          
+          {/* View Mode Toggle */}
+          <div className="flex items-center gap-1 p-1 bg-neutral-100 rounded-lg mt-3 w-fit">
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onClose();
-              }}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              onClick={() => setViewMode('detail')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                viewMode === 'detail' 
+                  ? 'bg-white text-neutral-900 shadow-sm' 
+                  : 'text-neutral-500 hover:text-neutral-700'
+              }`}
             >
-              <X className="h-5 w-5 text-gray-500" />
+              <FileText className="w-3.5 h-3.5" />
+              <span>Detail</span>
+            </button>
+            <button
+              onClick={() => setViewMode('slides')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                viewMode === 'slides' 
+                  ? 'bg-white text-neutral-900 shadow-sm' 
+                  : 'text-neutral-500 hover:text-neutral-700'
+              }`}
+            >
+              <Presentation className="w-3.5 h-3.5" />
+              <span>Slides</span>
             </button>
           </div>
         </div>
 
         {/* Content */}
+        {viewMode === 'slides' ? (
+          <div className="flex-1 min-h-[500px]">
+            <SlideView
+              slides={slides}
+              cardType="audience-insights"
+              cardTitle={insights.audienceName || 'Audience Insights'}
+            >
+              {(slide) => <SlideRenderer slide={slide} slideIndex={slides.indexOf(slide)} />}
+            </SlideView>
+          </div>
+        ) : (
         <div className="p-6 space-y-8">
           {/* Demographics */}
           <div>
@@ -304,6 +349,7 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
             </div>
           )}
         </div>
+        )}
 
         {/* Sources */}
         {insights.sources && insights.sources.length > 0 && (

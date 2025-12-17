@@ -388,9 +388,9 @@ export default function AudienceExplorer({
           
         case 'audience-insights':
           try {
-            // Create an AbortController for timeout
+            // Create an AbortController for timeout - AI insights can take 60-90 seconds
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+            const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout
             
             const query = getQueryForSubcategory(subcategory, audienceFilter);
             const insightsResponse = await fetch('/api/audience-insights', {
@@ -432,7 +432,7 @@ export default function AudienceExplorer({
             console.error('❌ Error loading audience insights:', error);
             if (error instanceof Error) {
               if (error.name === 'AbortError') {
-                setError('Request timed out. The AI service may be slow to respond. Please try again.');
+                setError('Request timed out after 2 minutes. The AI service may be experiencing high load. Please try again.');
               } else if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
                 setError('Backend server is not available. Please ensure the backend is running on port 3002.');
               } else {
@@ -446,9 +446,9 @@ export default function AudienceExplorer({
           
         case 'market-sizing':
           try {
-            // Create an AbortController for timeout - market sizing can take longer
+            // Create an AbortController for timeout - market sizing can take 60-90 seconds
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout for market sizing
+            const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout for market sizing
             
             const query = getQueryForSubcategory(subcategory, audienceFilter);
             console.log(`📊 Market sizing query: "${query}"`);
@@ -492,7 +492,7 @@ export default function AudienceExplorer({
             console.error('❌ Error loading market sizing:', error);
             if (error instanceof Error) {
               if (error.name === 'AbortError') {
-                setError('Request timed out after 45 seconds. Market sizing analysis can be complex - please try again with a more specific query or try later.');
+                setError('Request timed out after 2 minutes. Market sizing analysis can be complex - please try again with a more specific query or try later.');
               } else if (error.message.includes('Failed to fetch')) {
                 setError('Cannot connect to the backend server. Please make sure the server is running on port 3002.');
               } else {

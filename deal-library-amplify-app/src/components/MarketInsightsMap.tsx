@@ -56,7 +56,14 @@ export default function MarketInsightsMap({
   };
 
   // Get coordinates for different geographic entities
-  const getCoordinatesForMarket = (marketName: string, geoLevel: string): [number, number] => {
+  const getCoordinatesForMarket = (market: TopMarket): [number, number] => {
+    // First, check if the market has coordinates from the API (for ZIP codes and cities)
+    if (market.latitude && market.longitude) {
+      return [market.latitude, market.longitude];
+    }
+
+    const marketName = market.name;
+    const geoLevel = market.geoLevel;
     const coordinates: { [key: string]: [number, number] } = {
       // US Regions
       'Northeast': [42.0, -75.0],
@@ -278,7 +285,7 @@ export default function MarketInsightsMap({
         const bounds: [number, number][] = [];
 
         markets.forEach((market) => {
-          const position = getCoordinatesForMarket(market.name, market.geoLevel);
+          const position = getCoordinatesForMarket(market);
           bounds.push(position);
           
           const color = getColorForRank(market.rank);

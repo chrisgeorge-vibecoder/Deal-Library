@@ -6,6 +6,8 @@ import CampaignPlannerForm from '@/components/CampaignPlannerForm';
 import CampaignPlannerResults from '@/components/CampaignPlannerResults';
 import AgentProgressTracker from '@/components/AgentProgressTracker';
 import { ProgressUpdate, ComprehensiveReport } from '@/types/agentMode';
+import { useCart, useSaveCard } from '@/components/AppLayout';
+import { Deal } from '@/types/deal';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -14,6 +16,12 @@ export default function CampaignPlannerPage() {
   const [progress, setProgress] = useState<ProgressUpdate | null>(null);
   const [report, setReport] = useState<ComprehensiveReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  
+  // Get cart context for adding deals
+  const { onAddToCart, onRemoveFromCart, isInCart } = useCart();
+  
+  // Get save card context for saving SWOT and Competitive cards
+  const { onSaveCard, onUnsaveCard, isSaved } = useSaveCard();
 
   const handleFormSubmit = async (formData: any) => {
     console.log('🚀 Campaign Planner: Starting generation with form data:', formData);
@@ -195,28 +203,15 @@ export default function CampaignPlannerPage() {
 
         {report && (
           <>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-purple-900 mb-2">
-                    Campaign Ready
-                  </h2>
-                  <p className="text-gray-600">
-                    Your comprehensive marketing recommendation for <strong>{report.advertiserName}</strong> is complete.
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleStartNew}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
-                  >
-                    Start New Campaign
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <CampaignPlannerResults report={report} />
+            <CampaignPlannerResults 
+              report={report} 
+              onAddToCart={onAddToCart}
+              onRemoveFromCart={onRemoveFromCart}
+              isInCart={isInCart}
+              onSaveCard={onSaveCard}
+              onUnsaveCard={onUnsaveCard}
+              isSaved={isSaved}
+            />
           </>
         )}
       </div>

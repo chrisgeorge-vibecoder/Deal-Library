@@ -9,10 +9,61 @@ applications:
         build:
           commands:
             - npm run build
-            - cp -r public .next/standalone/public
-            - cp -r .next/static .next/standalone/.next/static
+            # Create Amplify hosting structure
+            - mkdir -p .amplify-hosting/compute/default
+            - mkdir -p .amplify-hosting/static/_next
+            # Copy static assets
+            - cp -r public/* .amplify-hosting/static/ 2>/dev/null || true
+            - cp -r .next/static .amplify-hosting/static/_next/
+            # Copy server files (standalone build)
+            - cp -r .next/standalone/* .amplify-hosting/compute/default/
+            - cp -r .next/static .amplify-hosting/compute/default/.next/
+            - cp -r public .amplify-hosting/compute/default/public
+            # Create deploy manifest
+            - |
+              cat > .amplify-hosting/deploy-manifest.json << 'EOF'
+              {
+                "version": 1,
+                "routes": [
+                  {
+                    "path": "/_next/static/*",
+                    "target": {
+                      "kind": "Static"
+                    }
+                  },
+                  {
+                    "path": "/*.*",
+                    "target": {
+                      "kind": "Static"
+                    },
+                    "fallback": {
+                      "kind": "Compute",
+                      "src": "default"
+                    }
+                  },
+                  {
+                    "path": "/*",
+                    "target": {
+                      "kind": "Compute",
+                      "src": "default"
+                    }
+                  }
+                ],
+                "computeResources": [
+                  {
+                    "name": "default",
+                    "entrypoint": "server.js",
+                    "runtime": "nodejs18.x"
+                  }
+                ],
+                "framework": {
+                  "name": "next",
+                  "version": "14.2.7"
+                }
+              }
+              EOF
       artifacts:
-        baseDirectory: .next/standalone
+        baseDirectory: .amplify-hosting
         files:
           - '**/*'
       cache:

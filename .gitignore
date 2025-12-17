@@ -58,4 +58,5 @@ coverage/
 
 
 
-deal-library-backend/data/commerce_audience_segments.csv
+# Large CSV files (>100MB)
+**/commerce_audience_segments.csv

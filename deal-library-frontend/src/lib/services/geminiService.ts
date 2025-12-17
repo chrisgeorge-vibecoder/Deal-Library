@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Deal } from '../types/deal';
+import { RAGService } from './ragService';
 import { coachingService } from './coachingService';
 
 export interface CoachingInsights {
@@ -31,6 +32,8 @@ export class GeminiService {
   private proModel: any;        // Pro model for quality-critical operations (insights, analysis)
   private responseCache: Map<string, { result: GeminiSearchResult, timestamp: number }>;
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache TTL
+  private ragService: RAGService | null = null;
+  private ragEnabled: boolean = false;
 
   constructor(supabase?: any) {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -65,6 +68,17 @@ export class GeminiService {
     console.log('   🎯 Pro (gemini-2.5-pro): Insights, SWOT, market sizing, strategy');
     
     this.responseCache = new Map();
+
+    // Initialize RAG service if Supabase is available
+    if (supabase) {
+      try {
+        this.ragService = new RAGService(supabase);
+        this.ragEnabled = true;
+        console.log('✅ RAG enabled for Gemini Service');
+      } catch (error) {
+        console.warn('⚠️  RAG disabled:', error);
+      }
+    }
   }
 
   /**
@@ -697,8 +711,26 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
     try {
       console.log(`🤖 Gemini analyzing query: "${query}"`);
       
-      // Create a structured prompt for Gemini with conversation context
-      const prompt = this.createAnalysisPrompt(query, deals, conversationHistory);
+      // Retrieve relevant research context if RAG is enabled
+      let ragContext: { augmentedPrompt: string; citations: any[] } | null = null;
+      if (this.ragEnabled && this.ragService) {
+        try {
+          console.log('📚 Retrieving research context for query...');
+          const context = await this.ragService.retrieveContext(query);
+          if (context.chunks.length > 0) {
+            ragContext = {
+              augmentedPrompt: context.augmentedPrompt,
+              citations: context.citations
+            };
+            console.log(`📚 Found ${context.chunks.length} relevant research chunks from ${context.citations.length} studies`);
+          }
+        } catch (ragError) {
+          console.warn('⚠️  RAG retrieval failed, continuing without research context:', ragError);
+        }
+      }
+      
+      // Create a structured prompt for Gemini with conversation context and RAG
+      const prompt = this.createAnalysisPrompt(query, deals, conversationHistory, ragContext);
       
       // Add timeout to prevent hanging (60s for complex prompts with deal analysis and coaching)
       const timeoutPromise = new Promise<never>((_, reject) => {
@@ -715,6 +747,17 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
       
       // Parse Gemini's response
       const analysis = await this.parseGeminiResponse(text, deals, query);
+      
+      // Add citations to response if available
+      if (ragContext && ragContext.citations.length > 0) {
+        const citationsText = this.ragService!.formatCitations(ragContext.citations);
+        analysis.aiResponse += citationsText;
+        
+        // Track citation usage
+        const studyIds = ragContext.citations.map(c => c.studyId);
+        const chunkIds = ragContext.citations.flatMap(c => c.pages);
+        await this.ragService!.trackCitation(studyIds, query, chunkIds);
+      }
       
       return {
         deals: analysis.deals,
@@ -753,7 +796,7 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
   /**
    * Create a structured prompt for Gemini to analyze deals
    */
-  private createAnalysisPrompt(query: string, deals: Deal[], conversationHistory?: Array<{role: string, content: string}>): string {
+  private createAnalysisPrompt(query: string, deals: Deal[], conversationHistory?: Array<{role: string, content: string}>, ragContext?: { augmentedPrompt: string; citations: any[] } | null): string {
     // Prioritize relevant deals based on query
     let prioritizedDeals = deals;
     
@@ -1094,6 +1137,8 @@ EXAMPLES:
 - "I want to reach baby health shoppers" → Recommend deals with persona insights like "💊 The Wellness-Obsessed New Parent - This audience has zero tolerance for risk and seeks authoritative validation. Use creative hooks like 'The Non-Negotiable Standard. Confidence in Care, Backed by Science, Trusted by Experts.' Target pediatric health authority websites and medical institution content."
 - "Thank you!" → Respond conversationally, relevantDeals: []
 - "Why did you suggest Golf_CTV?" → Explain using conversation history, optionally show the deal
+
+${ragContext?.augmentedPrompt || ''}
 
 CRITICAL COACHING REQUIREMENT: When you return ANY deals in the relevantDeals array, the coaching field is MANDATORY and must be fully populated with all 7 fields:
 - strategyRationale (string)
@@ -1879,6 +1924,33 @@ Keep it conversational and helpful.`;
   }> {
     console.log(`🎯 Gemini generating audience insights for: "${query}"`);
     
+    // Retrieve relevant research context if RAG is enabled
+    let ragContext: { augmentedPrompt: string; citations: any[] } | null = null;
+    
+    if (this.ragEnabled && this.ragService) {
+      try {
+        console.log('📚 Retrieving research context for audience insights query...');
+        
+        // Add timeout protection for RAG retrieval
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('RAG retrieval timeout')), 5000); // 5 second timeout
+        });
+        
+        const ragPromise = this.ragService.retrieveContext(query);
+        const context = await Promise.race([ragPromise, timeoutPromise]);
+        
+        if (context.chunks.length > 0) {
+          ragContext = {
+            augmentedPrompt: context.augmentedPrompt,
+            citations: context.citations
+          };
+          console.log(`📚 Found ${context.chunks.length} relevant research chunks from ${context.citations.length} studies`);
+        }
+      } catch (ragError) {
+        console.warn('⚠️  RAG retrieval failed for audience insights, continuing without research context:', ragError);
+      }
+    }
+    
     // Build conversation context
     const conversationContext = conversationHistory && conversationHistory.length > 0 
       ? `\n\nPrevious conversation context:\n${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n`
@@ -1887,6 +1959,8 @@ Keep it conversational and helpful.`;
     const prompt = `You are a world-class account planner at a top advertising agency. You are prolific at generating deep, strategic audience insights that drive breakthrough creative and media strategies.
 
 Query: "${query}"${conversationContext}
+
+${ragContext?.augmentedPrompt || ''}
 
 Your task is to generate comprehensive audience insights for the audience mentioned in the query. Act as an expert account planner who has spent years studying consumer behavior, demographics, and market trends.
 
@@ -2012,6 +2086,21 @@ Return ONLY valid JSON. No other text.`;
       
       let finalResponse = parsed.aiResponse || "Here are the audience insights you requested.";
       
+      // Add citations to response if available
+      if (ragContext && ragContext.citations.length > 0) {
+        const citationsText = this.ragService!.formatCitations(ragContext.citations);
+        finalResponse += citationsText;
+        
+        // Track citation usage
+        try {
+          const studyIds = ragContext.citations.map(c => c.studyId);
+          const chunkIds = ragContext.citations.flatMap(c => c.pages);
+          await this.ragService!.trackCitation(studyIds, query, chunkIds);
+        } catch (trackError) {
+          console.warn('⚠️ Failed to track citation usage:', trackError);
+        }
+      }
+      
       return {
         audienceInsights: parsed.audienceInsights || [],
         aiResponse: finalResponse
@@ -2108,6 +2197,33 @@ Return ONLY valid JSON. No other text.`;
   async generateMarketSizing(query: string, conversationHistory?: Array<{role: string, content: string}>): Promise<{marketSizing: any[], aiResponse: string}> {
     console.log(`📊 Generating market sizing for query: "${query}"`);
 
+    // Retrieve relevant research context if RAG is enabled
+    let ragContext: { augmentedPrompt: string; citations: any[] } | null = null;
+
+    if (this.ragEnabled && this.ragService) {
+      try {
+        console.log('📚 Retrieving research context for market sizing query...');
+        
+        // Add timeout protection for RAG retrieval
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('RAG retrieval timeout')), 5000); // 5 second timeout
+        });
+        
+        const ragPromise = this.ragService.retrieveContext(query);
+        const context = await Promise.race([ragPromise, timeoutPromise]);
+        
+        if (context.chunks.length > 0) {
+          ragContext = {
+            augmentedPrompt: context.augmentedPrompt,
+            citations: context.citations
+          };
+          console.log(`📚 Found ${context.chunks.length} relevant research chunks from ${context.citations.length} studies`);
+        }
+      } catch (ragError) {
+        console.warn('⚠️  RAG retrieval failed for market sizing, continuing without research context:', ragError);
+      }
+    }
+    
     // Build conversation context
     const conversationContext = conversationHistory && conversationHistory.length > 0 
       ? `\n\nPrevious conversation context:\n${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n`
@@ -2116,6 +2232,8 @@ Return ONLY valid JSON. No other text.`;
     const prompt = `You are a world-class market research analyst at a top consulting firm who is prolific at generating market sizing insights.
 
 Query: "${query}"${conversationContext}
+
+${ragContext?.augmentedPrompt || ''}
 
 Generate 1-2 comprehensive market sizing cards with real-world data and actionable insights. Focus on market size, demographics, growth trends, and opportunities.
 
@@ -2288,6 +2406,21 @@ Return your response as JSON in this exact format:
       }
 
       let finalResponse = parsed.aiResponse || "Here are the market sizing insights you requested.";
+
+      // Add citations to response if available
+      if (ragContext && ragContext.citations.length > 0) {
+        const citationsText = this.ragService!.formatCitations(ragContext.citations);
+        finalResponse += citationsText;
+
+        // Track citation usage
+        try {
+          const studyIds = ragContext.citations.map(c => c.studyId);
+          const chunkIds = ragContext.citations.flatMap(c => c.pages);
+          await this.ragService!.trackCitation(studyIds, query, chunkIds);
+        } catch (trackError) {
+          console.warn('⚠️ Failed to track citation usage:', trackError);
+        }
+      }
       
       return {
         marketSizing: parsed.marketSizing || [],

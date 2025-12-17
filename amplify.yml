@@ -8,20 +8,26 @@ applications:
             - npm ci
         build:
           commands:
+            - echo "=== Building Next.js ==="
             - npm run build
-            # Create Amplify hosting structure
-            - mkdir -p .amplify-hosting/compute/default
-            - mkdir -p .amplify-hosting/static/_next
-            # Copy static assets
-            - cp -r public/* .amplify-hosting/static/ 2>/dev/null || true
-            - cp -r .next/static .amplify-hosting/static/_next/
-            # Copy server files (standalone build)
-            - cp -r .next/standalone/* .amplify-hosting/compute/default/
+            - echo "=== Build complete, checking output ==="
+            - ls -la .next/
+            - ls -la .next/standalone/ || echo "No standalone folder"
+            - echo "=== Creating Amplify hosting structure ==="
+            # Create directory structure
+            - mkdir -p .amplify-hosting/compute/default/.next
+            - mkdir -p .amplify-hosting/static/_next/static
+            # Copy standalone server
+            - cp -r .next/standalone/. .amplify-hosting/compute/default/
+            # Copy static assets to both locations
+            - cp -r .next/static/. .amplify-hosting/static/_next/static/
             - cp -r .next/static .amplify-hosting/compute/default/.next/
-            - cp -r public .amplify-hosting/compute/default/public
+            # Copy public folder
+            - cp -r public/. .amplify-hosting/static/ 2>/dev/null || true
+            - cp -r public .amplify-hosting/compute/default/ 2>/dev/null || true
             # Create deploy manifest
             - |
-              cat > .amplify-hosting/deploy-manifest.json << 'EOF'
+              cat > .amplify-hosting/deploy-manifest.json << 'MANIFEST'
               {
                 "version": 1,
                 "routes": [
@@ -61,7 +67,12 @@ applications:
                   "version": "14.2.7"
                 }
               }
-              EOF
+              MANIFEST
+            - echo "=== Final structure ==="
+            - ls -la .amplify-hosting/
+            - ls -la .amplify-hosting/compute/default/
+            - echo "=== Deploy manifest ==="
+            - cat .amplify-hosting/deploy-manifest.json
       artifacts:
         baseDirectory: .amplify-hosting
         files:

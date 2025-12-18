@@ -316,8 +316,18 @@ export class DealsControllerWrapper extends DealsController {
           };
         }
         
-        // Check if this is a general question
-        if (geminiResult.deals.length === 0 && geminiResult.aiResponse && !forceDeals && geminiResult.searchMethod !== 'error-fallback') {
+        // Check if this is a general question (market sizing, audience insights, etc.)
+        // Even with forceDeals, if query is clearly not about deals, return AI response
+        const queryLower = correctedQuery.toLowerCase();
+        const nonDealKeywords = [
+          'market size', 'market sizing', 'what is the market', 'how big is the market',
+          'audience insight', 'demographic', 'persona', 'geographic', 'location analysis'
+        ];
+        const isNonDealQuery = nonDealKeywords.some(keyword => queryLower.includes(keyword));
+        
+        if (geminiResult.deals.length === 0 && geminiResult.aiResponse && 
+            (!forceDeals || isNonDealQuery) && geminiResult.searchMethod !== 'error-fallback') {
+          console.log('💬 General question detected, returning AI response without deals');
           return {
             success: true,
             deals: [],
@@ -331,7 +341,8 @@ export class DealsControllerWrapper extends DealsController {
         }
         
         // If forceDeals is true but no deals were returned, try to find some relevant deals
-        if (forceDeals && geminiResult.deals.length === 0) {
+        // But only if the query is actually about deals
+        if (forceDeals && geminiResult.deals.length === 0 && !isNonDealQuery) {
           console.log('🔧 Force deals mode: Finding relevant deals despite empty Gemini result');
           
           const genericWords = new Set(['show', 'me', 'deals', 'for', 'the', 'and', 'with', 'find', 'get', 'looking', 'want', 'need']);

@@ -404,6 +404,37 @@ export default function HomePage() {
         }
         
         if (selectedType === 'deals') {
+          // Check if query is clearly about market sizing, audience insights, etc. - route appropriately
+          const queryLower = query.toLowerCase();
+          const marketSizingKeywords = [
+            'market size', 'market sizing', 'what\'s the market size', 'what is the market size',
+            'how big is the market', 'total market', 'addressable market', 'market opportunity',
+            'market value', 'market worth', 'market potential', 'market analysis'
+          ];
+          const isMarketSizingQuery = marketSizingKeywords.some(keyword => queryLower.includes(keyword));
+          
+          if (isMarketSizingQuery) {
+            console.log('📈 Market sizing query detected even with deals card selected, routing to market sizing...');
+            try {
+              const response = await fetch('/api/market-sizing', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query, conversationHistory: conversationHistory || [] }),
+              });
+              
+              if (response.ok) {
+                const data = await response.json();
+                setAiMarketSizing(data.marketSizing || []);
+                setAiResponse(data.aiResponse || 'Here is the market sizing analysis for your query.');
+                return;
+              }
+            } catch (error) {
+              console.error('Market sizing request failed:', error);
+              setAiResponse('Market sizing analysis is temporarily unavailable. Please try again later.');
+              return;
+            }
+          }
+          
           console.log('🔍 USING DEALS SEARCH PATH for:', query);
           // Create an AbortController for timeout (declare outside try block for catch access)
           const controller = new AbortController();
@@ -430,9 +461,24 @@ export default function HomePage() {
               console.log('🔍 FRONTEND DEBUG - API Response:', {
                 hasDeals: !!(searchResults.deals && searchResults.deals.length > 0),
                 dealsCount: searchResults.deals?.length || 0,
+                hasAiResponse: !!searchResults.aiResponse,
+                aiResponseLength: searchResults.aiResponse?.length || 0,
+                searchMethod: searchResults.searchMethod,
+                isGeneralQuestion: searchResults.isGeneralQuestion,
                 hasCoaching: 'coaching' in searchResults,
                 coaching: searchResults.coaching
               });
+              
+              // Handle general questions that don't return deals
+              if (searchResults.isGeneralQuestion || (searchResults.deals?.length === 0 && searchResults.aiResponse)) {
+                console.log('💬 General question detected, showing AI response without deals');
+                setFilteredDeals([]);
+                setAiResponse(searchResults.aiResponse || 'I can help you with that. Please try asking about specific deals or market insights.');
+                setAiCoaching(searchResults.coaching || undefined);
+                return;
+              }
+              
+              // Handle deals results
               const relevantDeals = getRelevantDeals(searchResults.deals || [], query, 6);
               setFilteredDeals(relevantDeals);
               setAiResponse(searchResults.aiResponse || `Found ${relevantDeals.length} relevant deals for your query.`);

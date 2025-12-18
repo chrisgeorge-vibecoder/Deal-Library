@@ -51,9 +51,14 @@ export class DealsControllerWrapper extends DealsController {
         console.log('🚀 Trying optimized direct Supabase query for segment names...');
         const segmentNames = await commerceAudienceService.getSegmentNamesFromSupabase();
         
-        if (segmentNames.length > 0) {
-          console.log(`✅ Fast query returned ${segmentNames.length} segments`);
+        // If we got a reasonable number of segments (more than 10), use them
+        // Otherwise, fall back to full data load to ensure we have all segments
+        if (segmentNames.length > 10) {
+          console.log(`✅ Fast query returned ${segmentNames.length} segments (using fast path)`);
           return { success: true, segments: segmentNames };
+        } else if (segmentNames.length > 0) {
+          console.warn(`⚠️ Fast query returned only ${segmentNames.length} segments (expected more), falling back to full data load`);
+          console.log(`   Segments found: ${segmentNames.join(', ')}`);
         } else {
           console.warn('⚠️ Fast query returned 0 segments, falling back to full data load');
         }
@@ -239,13 +244,55 @@ export class DealsControllerWrapper extends DealsController {
         };
       }
 
-      // Use Gemini to analyze and score all deals
+      // For serverless environments, limit deals sent to Gemini to avoid timeouts
+      // Pre-filter deals using keyword matching to reduce the set
+      const MAX_DEALS_FOR_GEMINI = 50; // Limit to top 50 deals for Gemini analysis
+      let dealsForGemini = allDeals;
+      
+      if (allDeals.length > MAX_DEALS_FOR_GEMINI) {
+        console.log(`📊 Pre-filtering ${allDeals.length} deals to ${MAX_DEALS_FOR_GEMINI} for Gemini analysis...`);
+        const queryLower = correctedQuery.toLowerCase();
+        const genericWords = new Set(['show', 'me', 'deals', 'for', 'the', 'and', 'with', 'find', 'get', 'looking', 'want', 'need']);
+        const importantKeywords = queryLower
+          .split(/\s+/)
+          .filter(word => word.length > 2 && !genericWords.has(word));
+        
+        // Score and filter deals
+        const scoredDeals = allDeals.map((deal: any) => {
+          const dealText = `${deal.dealName} ${deal.description} ${deal.targeting}`.toLowerCase();
+          let score = 0;
+          
+          for (const keyword of importantKeywords) {
+            if (deal.dealName?.toLowerCase().includes(keyword)) score += 10;
+            if (deal.description?.toLowerCase().includes(keyword)) score += 3;
+            if (deal.targeting?.toLowerCase().includes(keyword)) score += 2;
+          }
+          
+          return { deal, score };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, MAX_DEALS_FOR_GEMINI)
+        .map(item => item.deal);
+        
+        dealsForGemini = scoredDeals;
+        console.log(`✅ Pre-filtered to ${dealsForGemini.length} most relevant deals for Gemini`);
+      }
+      
+      // Use Gemini to analyze and score deals (limited set for performance)
       const gemini = getGeminiService();
       
       try {
-        console.log('🤖 Using Gemini to analyze and score all deals (Direct)...');
+        console.log(`🤖 Using Gemini to analyze ${dealsForGemini.length} deals (Direct)...`);
         
-        const geminiResult = await gemini.analyzeAllDeals(correctedQuery, allDeals, conversationHistory || [], forceDeals);
+        // Add a shorter timeout wrapper for serverless environments (18 seconds)
+        // This must be less than the API route timeout (25 seconds) to allow time for response processing
+        const geminiTimeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Gemini analysis timeout')), 18000);
+        });
+        
+        const geminiPromise = gemini.analyzeAllDeals(correctedQuery, dealsForGemini, conversationHistory || [], forceDeals);
+        
+        const geminiResult = await Promise.race([geminiPromise, geminiTimeoutPromise]);
         
         // Check if this is a timeout response
         if (geminiResult.searchMethod === 'timeout-fallback') {
@@ -335,12 +382,43 @@ export class DealsControllerWrapper extends DealsController {
           coaching: geminiResult.coaching
         };
         
-      } catch (geminiError) {
+      } catch (geminiError: any) {
         console.error('❌ Gemini search failed, falling back to rule-based search:', geminiError);
         
-        // Fallback to simple keyword search
+        // Check if it's a timeout error
+        if (geminiError.message?.includes('timeout') || geminiError.name === 'AbortError') {
+          console.log('⏰ Gemini timed out, using fast keyword fallback');
+        }
+        
+        // Fallback to keyword-based search (already pre-filtered if we had >50 deals)
         const queryLower = correctedQuery.toLowerCase();
-        const filtered = allDeals.filter((deal: any) => 
+        const genericWords = new Set(['show', 'me', 'deals', 'for', 'the', 'and', 'with', 'find', 'get', 'looking', 'want', 'need']);
+        const importantKeywords = queryLower
+          .split(/\s+/)
+          .filter(word => word.length > 2 && !genericWords.has(word));
+        
+        // Use the pre-filtered set if available, otherwise use all deals
+        const dealsToSearch = dealsForGemini.length < allDeals.length ? dealsForGemini : allDeals;
+        
+        const scoredDeals = dealsToSearch.map((deal: any) => {
+          const dealText = `${deal.dealName} ${deal.description} ${deal.targeting}`.toLowerCase();
+          let score = 0;
+          
+          for (const keyword of importantKeywords) {
+            if (deal.dealName?.toLowerCase().includes(keyword)) score += 10;
+            if (deal.description?.toLowerCase().includes(keyword)) score += 3;
+            if (deal.targeting?.toLowerCase().includes(keyword)) score += 2;
+          }
+          
+          return { deal, score };
+        })
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 6)
+        .map(item => item.deal);
+        
+        // If no scored matches, do simple substring matching
+        const filtered = scoredDeals.length > 0 ? scoredDeals : dealsToSearch.filter((deal: any) => 
           deal.dealName?.toLowerCase().includes(queryLower) ||
           deal.description?.toLowerCase().includes(queryLower) ||
           deal.targeting?.toLowerCase().includes(queryLower)
@@ -349,7 +427,9 @@ export class DealsControllerWrapper extends DealsController {
         return {
           success: true,
           deals: filtered,
-          aiResponse: `I found ${filtered.length} deals for your query.`,
+          aiResponse: filtered.length > 0 
+            ? `I found ${filtered.length} relevant deals for your query.`
+            : `I couldn't find specific deals matching "${correctedQuery}". Try searching for a category like "parents", "pets", or "fitness".`,
           searchMethod: 'fallback',
           confidence: 0.5,
           query: correctedQuery

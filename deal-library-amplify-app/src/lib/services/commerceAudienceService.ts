@@ -437,6 +437,11 @@ export class CommerceAudienceService {
   async getSegmentNamesFromSupabase(): Promise<string[]> {
     if (!this.useSupabase) {
       console.log('📋 getSegmentNamesFromSupabase: Supabase not enabled, falling back to local data');
+      // If Supabase is not enabled, we need to load local data first
+      if (!this.isLoaded) {
+        console.log('📋 Local data not loaded, loading now...');
+        await this.loadCommerceData();
+      }
       return this.getAudienceSegments().map(s => s.name);
     }
 
@@ -444,27 +449,62 @@ export class CommerceAudienceService {
       console.log('📋 getSegmentNamesFromSupabase: Fetching unique segment names from Supabase...');
       const supabase = SupabaseService.getClient();
       
-      // Use a simple query with distinct - much faster than loading all data
-      const { data, error } = await supabase
-        .from('commerce_audience_segments')
-        .select('audience_name')
-        .not('audience_name', 'is', null)
-        .limit(1000);  // Get up to 1000 unique combinations
+      // Use RPC call or paginated query to get all unique segment names
+      // First, try to get a count of unique segments
+      let allNames: string[] = [];
+      let offset = 0;
+      const pageSize = 5000; // Large page size to reduce queries
+      
+      // Fetch in pages to ensure we get all segments
+      while (true) {
+        const { data, error } = await supabase
+          .from('commerce_audience_segments')
+          .select('audience_name')
+          .not('audience_name', 'is', null)
+          .range(offset, offset + pageSize - 1);
 
-      if (error) {
-        console.error('❌ Supabase query error in getSegmentNamesFromSupabase:', error.message);
-        throw new Error(`Supabase query failed: ${error.message}`);
+        if (error) {
+          console.error('❌ Supabase query error in getSegmentNamesFromSupabase:', error.message);
+          throw new Error(`Supabase query failed: ${error.message}`);
+        }
+
+        if (!data || data.length === 0) {
+          break; // No more data
+        }
+
+        const pageNames = (data || []).map(r => r.audience_name?.trim()).filter(Boolean) as string[];
+        allNames = [...allNames, ...pageNames];
+        
+        console.log(`📋 Fetched ${pageNames.length} rows (total so far: ${allNames.length})`);
+        
+        if (data.length < pageSize) {
+          break; // Last page
+        }
+        
+        offset += pageSize;
       }
 
       // Extract unique segment names
-      const allNames = (data || []).map(r => r.audience_name?.trim()).filter(Boolean) as string[];
       const uniqueNames = Array.from(new Set(allNames));
-      console.log(`✅ getSegmentNamesFromSupabase: Found ${uniqueNames.length} unique segments`);
+      console.log(`✅ getSegmentNamesFromSupabase: Found ${uniqueNames.length} unique segments from ${allNames.length} total rows`);
+      
+      if (uniqueNames.length === 0) {
+        console.warn('⚠️ No segments found in Supabase, falling back to local data');
+        // Fallback to local method if Supabase returns no data
+        if (!this.isLoaded) {
+          await this.loadCommerceData();
+        }
+        return this.getAudienceSegments().map(s => s.name);
+      }
       
       return uniqueNames.sort();
     } catch (error) {
       console.error('❌ Error in getSegmentNamesFromSupabase:', error);
       // Fallback to local method if it fails
+      console.log('📋 Falling back to local data due to error');
+      if (!this.isLoaded) {
+        await this.loadCommerceData();
+      }
       if (this.isLoaded) {
         return this.getAudienceSegments().map(s => s.name);
       }

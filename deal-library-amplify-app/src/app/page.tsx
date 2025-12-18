@@ -462,9 +462,24 @@ export default function HomePage() {
               return;
             } else {
               // Handle non-OK responses
-              const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+              const errorData = await response.json().catch(() => ({ 
+                error: response.status === 504 ? 'Request timeout' : 'Unknown error',
+                message: response.status === 504 
+                  ? 'The search request took too long. Please try again with a simpler query.'
+                  : 'Server error occurred'
+              }));
               console.error('❌ Deals search API error:', response.status, errorData);
-              setAiResponse(`Search failed: ${errorData.error || 'Server error'}. Please try again.`);
+              
+              // For 504 timeout, use the error message from server if available
+              if (response.status === 504) {
+                setAiResponse(errorData.aiResponse || errorData.message || 'The search request timed out. Please try again with a simpler query or fewer deals.');
+                // If server returned deals in timeout response, use them
+                if (errorData.deals && errorData.deals.length > 0) {
+                  setFilteredDeals(errorData.deals);
+                }
+              } else {
+                setAiResponse(`Search failed: ${errorData.error || errorData.message || 'Server error'}. Please try again.`);
+              }
               return;
             }
           } catch (error: any) {

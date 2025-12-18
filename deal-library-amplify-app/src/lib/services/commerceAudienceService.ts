@@ -18,6 +18,227 @@ export interface AudienceSegment {
   averageWeight: number;
 }
 
+// Categories to exclude from results due to data quality issues
+// These categories have artificially inflated data (over-sampled or over-weighted in source data)
+const EXCLUDED_CATEGORIES = [
+  'Nuts & Seeds',  // 82% ZIP coverage vs ~60% avg - data collection artifact
+];
+
+// Google Product Taxonomy Level 1 Categories
+// Reference: https://www.google.com/basepages/producttype/taxonomy.en-US.txt
+export const LEVEL1_CATEGORIES = [
+  'All Categories',
+  'Animals & Pet Supplies',
+  'Apparel & Accessories',
+  'Arts & Entertainment',
+  'Baby & Toddler',
+  'Business & Industrial',
+  'Cameras & Optics',
+  'Electronics',
+  'Food, Beverages & Tobacco',
+  'Furniture',
+  'Hardware',
+  'Health & Beauty',
+  'Home & Garden',
+  'Luggage & Bags',
+  'Media',
+  'Office Supplies',
+  'Religious & Ceremonial',
+  'Software',
+  'Sporting Goods',
+  'Toys & Games',
+  'Vehicles & Parts',
+  'General Merchandise'
+] as const;
+
+export type Level1Category = typeof LEVEL1_CATEGORIES[number];
+
+/**
+ * Map segment names to Google Product Taxonomy Level 1 categories
+ * Reference: https://www.google.com/basepages/producttype/taxonomy.en-US.txt
+ */
+export function getLevel1Category(segmentName: string): Level1Category {
+  const name = segmentName.toLowerCase();
+  
+  // Helper to check for whole word matches
+  const hasWord = (word: string) => {
+    const regex = new RegExp(`\\b${word}\\b`, 'i');
+    return regex.test(name);
+  };
+
+  // Vehicles & Parts
+  if (name.includes('vehicle') || name.includes('automotive') || name.includes('radar detector') ||
+      hasWord('car') || name.includes('motor') || name.includes('tire') || name.includes('auto part') ||
+      name.includes('watercraft') || name.includes('aircraft')) {
+    return 'Vehicles & Parts';
+  }
+  
+  // Cameras & Optics (separate from Electronics per Google taxonomy)
+  if (name.includes('camera') || name.includes('optic') || name.includes('binocular') ||
+      name.includes('telescope') || name.includes('microscope') || name.includes('tripod') ||
+      name.includes('photography') || name.includes('lens')) {
+    return 'Cameras & Optics';
+  }
+  
+  // Electronics
+  if (name.includes('circuit') || name.includes('computer') || name.includes('electronic') ||
+      name.includes('audio') || name.includes('video') || name.includes('phone') ||
+      name.includes('tablet') || name.includes('gps') || name.includes('smart') ||
+      name.includes('gaming') || name.includes('communication') || name.includes('speaker') ||
+      name.includes('television') || name.includes('laptop') || name.includes('network') ||
+      name.includes('printer') || name.includes('microphone') || name.includes('dvd') ||
+      name.includes('console') || name.includes('storage device') || name.includes('component') ||
+      name.includes('arcade') || name.includes('radar')) {
+    return 'Electronics';
+  }
+  
+  // Software (separate from Electronics per Google taxonomy)
+  if (name.includes('software') || name.includes('operating system') || name.includes('antivirus') ||
+      name.includes('video game software')) {
+    return 'Software';
+  }
+  
+  // Furniture (separate from Home & Garden per Google taxonomy)
+  if (name.includes('furniture') || name.includes('mattress') || name.includes('futon') ||
+      name.includes('cabinet') || name.includes('shelving') || name.includes('bench') ||
+      name.includes('ottoman') || hasWord('desk') || hasWord('sofa') || hasWord('chair') ||
+      hasWord('bed') || hasWord('table') && !name.includes('tablet')) {
+    return 'Furniture';
+  }
+  
+  // Home & Garden
+  if (name.includes('appliance') || name.includes('kitchen') || name.includes('bedding') ||
+      name.includes('garden') || name.includes('lawn') || name.includes('home decor') ||
+      name.includes('lighting') || name.includes('cleaning') || name.includes('decor') ||
+      name.includes('fencing') || name.includes('stove') || name.includes('fireplace') ||
+      name.includes('pool & spa') || name.includes('plumbing') || name.includes('cookware') ||
+      name.includes('linens') || name.includes('plant') || name.includes('household supply') ||
+      name.includes('household supplies') || name.includes('bathroom accessor') ||
+      name.includes('laundry') || name.includes('smoking accessor') || name.includes('umbrella') ||
+      name.includes('parasol') || name.includes('emergency prep') || name.includes('flood') ||
+      name.includes('fire safety')) {
+    return 'Home & Garden';
+  }
+  
+  // Food, Beverages & Tobacco (full name per Google taxonomy)
+  if (name.includes('food') || name.includes('beverage') || name.includes('grocery') ||
+      name.includes('snack') || name.includes('drink') || name.includes('coffee') ||
+      hasWord('tea') || name.includes('alcohol') || name.includes('pasta') ||
+      name.includes('soup') || name.includes('dairy') || name.includes('bread') ||
+      name.includes('juice') || name.includes('seasoning') || name.includes('spice') ||
+      name.includes('condiment') || name.includes('sauce') || name.includes('cooking') ||
+      name.includes('baking') || name.includes('frozen dessert') || name.includes('water') ||
+      name.includes('milk') || name.includes('dip') || name.includes('spread') ||
+      name.includes('tobacco') || name.includes('cigarette') || name.includes('cigar')) {
+    return 'Food, Beverages & Tobacco';
+  }
+  
+  // Apparel & Accessories
+  if (name.includes('apparel') || name.includes('clothing') || name.includes('shoes') ||
+      name.includes('jewelry') || hasWord('watch') || name.includes('handbag') ||
+      name.includes('fashion') || name.includes('shirt') || name.includes('skirt') || 
+      name.includes('shorts') || name.includes('costume') || name.includes('outerwear') ||
+      name.includes('activewear') || name.includes('sunglasses') || name.includes('wallet') ||
+      (name.includes('dress') && !name.includes('address') && !name.includes('hairdress'))) {
+    return 'Apparel & Accessories';
+  }
+  
+  // Luggage & Bags (separate from Apparel per Google taxonomy)
+  if (name.includes('luggage') || name.includes('suitcase') || name.includes('briefcase') ||
+      name.includes('backpack') || name.includes('duffel') || name.includes('garment bag') ||
+      name.includes('diaper bag') || name.includes('messenger bag') || name.includes('tote')) {
+    return 'Luggage & Bags';
+  }
+  
+  // Health & Beauty
+  if (name.includes('health') || name.includes('beauty') || name.includes('personal care') ||
+      name.includes('cosmetic') || name.includes('skincare') || name.includes('vitamin') ||
+      name.includes('medical') || name.includes('vision care') || name.includes('oral care') ||
+      name.includes('foot care') || name.includes('sleeping aid') || name.includes('condom') ||
+      name.includes('feminine') || name.includes('sanitary') || name.includes('shaving') ||
+      name.includes('grooming') || name.includes('hair care') || name.includes('hairdress')) {
+    return 'Health & Beauty';
+  }
+  
+  // Baby & Toddler (Google taxonomy name, not "Baby & Kids")
+  if (name.includes('baby') || name.includes('toddler') || name.includes('nursery') ||
+      name.includes('diaper') || name.includes('swaddl') || name.includes('nursing') ||
+      name.includes('pacifier') || name.includes('stroller') || name.includes('crib')) {
+    return 'Baby & Toddler';
+  }
+  
+  // Toys & Games (separate from Baby & Toddler per Google taxonomy)
+  if (name.includes('toy') || name.includes('puzzle') || hasWord('game') ||
+      name.includes('indoor game') || name.includes('outdoor play') || name.includes('doll') ||
+      name.includes('action figure') || name.includes('building block') || name.includes('lego')) {
+    return 'Toys & Games';
+  }
+  
+  // Sporting Goods
+  if (name.includes('sport') || name.includes('outdoor recreation') || name.includes('camping') ||
+      name.includes('exercise') || name.includes('athletic') || name.includes('bike') ||
+      name.includes('golf') || name.includes('cycling') || name.includes('yoga') ||
+      name.includes('pilates') || name.includes('hiking') || name.includes('fishing') ||
+      name.includes('hunting') || name.includes('boating') || name.includes('swimming') ||
+      name.includes('fitness')) {
+    return 'Sporting Goods';
+  }
+  
+  // Animals & Pet Supplies (Google taxonomy name)
+  if (hasWord('pet') || hasWord('dog') || hasWord('cat') || hasWord('animal') ||
+      name.includes('live animal') || name.includes('aquarium') || name.includes('bird supply') ||
+      name.includes('fish supply') || name.includes('reptile')) {
+    return 'Animals & Pet Supplies';
+  }
+  
+  // Business & Industrial
+  if (name.includes('business') || name.includes('industrial') || name.includes('construction') ||
+      name.includes('manufacturing') || name.includes('agriculture') || name.includes('forestry') ||
+      name.includes('science') || name.includes('laboratory') || name.includes('signage') ||
+      name.includes('advertising') || name.includes('marketing') || name.includes('retail') ||
+      name.includes('hotel') || name.includes('hospitality') || name.includes('finance') ||
+      name.includes('insurance') || name.includes('building material') || name.includes('dentistry') ||
+      name.includes('piercing') || name.includes('tattoo')) {
+    return 'Business & Industrial';
+  }
+  
+  // Hardware
+  if (name.includes('tool') || name.includes('hardware') || name.includes('lock') ||
+      hasWord('key') || name.includes('plumbing') || name.includes('electrical') ||
+      name.includes('heating') || name.includes('ventilation') || name.includes('hvac')) {
+    return 'Hardware';
+  }
+  
+  // Office Supplies
+  if (name.includes('office') || name.includes('stationery') || name.includes('desk accessor') ||
+      name.includes('filing') || name.includes('presentation')) {
+    return 'Office Supplies';
+  }
+  
+  // Arts & Entertainment
+  if (hasWord('art') || name.includes('craft') || name.includes('music') ||
+      name.includes('entertainment') || name.includes('hobby') || name.includes('event ticket') ||
+      name.includes('gift giving') || name.includes('party') || name.includes('film') ||
+      name.includes('creative') || name.includes('collectible') || name.includes('musical instrument')) {
+    return 'Arts & Entertainment';
+  }
+  
+  // Media (separate from Arts & Entertainment per Google taxonomy)
+  if (name.includes('book') || name.includes('magazine') || name.includes('newspaper') ||
+      name.includes('dvd') || name.includes('cd') || name.includes('vinyl') ||
+      name.includes('sheet music') || name.includes('audiobook')) {
+    return 'Media';
+  }
+  
+  // Religious & Ceremonial
+  if (name.includes('religious') || name.includes('ceremonial') || name.includes('memorial') ||
+      name.includes('wedding ceremony') || name.includes('prayer')) {
+    return 'Religious & Ceremonial';
+  }
+  
+  return 'General Merchandise';
+}
+
 export class CommerceAudienceService {
   private commerceData: CommerceAudienceData[] = [];
   private isLoaded = false;
@@ -527,7 +748,7 @@ export class CommerceAudienceService {
   }
 
   /**
-   * Get all available audience segments
+   * Get all available audience segments (excludes problematic categories)
    */
   getAudienceSegments(): AudienceSegment[] {
     console.log(`📋 getAudienceSegments() called - isLoaded: ${this.isLoaded}, dataLength: ${this.commerceData.length}`);
@@ -544,6 +765,9 @@ export class CommerceAudienceService {
     const segmentMap = new Map<string, { totalZipCodes: number; totalWeight: number }>();
 
     for (const item of this.commerceData) {
+      // Skip excluded categories
+      if (this.isExcludedCategory(item.audienceName)) continue;
+      
       if (!item.audienceName || item.audienceName.trim() === '') {
         continue; // Skip items with empty audience names
       }
@@ -571,7 +795,7 @@ export class CommerceAudienceService {
   }
 
   /**
-   * Search ZIP codes by audience segment
+   * Search ZIP codes by audience segment (excludes problematic categories)
    */
   searchZipCodesByAudience(audienceName: string, limit: number = 50): CommerceAudienceData[] {
     if (!this.isLoaded) {
@@ -579,9 +803,16 @@ export class CommerceAudienceService {
       return [];
     }
 
-    // Filter by segment name
+    // Check if the search term matches an excluded category
+    if (this.isExcludedCategory(audienceName)) {
+      console.log(`   ⚠️ Category "${audienceName}" is excluded due to data quality issues`);
+      return [];
+    }
+
+    // Filter by segment name (also excluding problematic categories)
     const filtered = this.commerceData.filter(item => 
-      item.audienceName.toLowerCase().includes(audienceName.toLowerCase())
+      item.audienceName.toLowerCase().includes(audienceName.toLowerCase()) &&
+      !this.isExcludedCategory(item.audienceName)
     );
     
     // DEDUPLICATE: If multiple rows for same ZIP+segment, keep the one with highest weight
@@ -605,7 +836,7 @@ export class CommerceAudienceService {
   }
 
   /**
-   * Get audience data for specific ZIP codes
+   * Get audience data for specific ZIP codes (excludes problematic categories)
    */
   getAudienceDataForZipCodes(zipCodes: string[]): CommerceAudienceData[] {
     if (!this.isLoaded) {
@@ -614,11 +845,13 @@ export class CommerceAudienceService {
     }
 
     const zipCodeSet = new Set(zipCodes);
-    return this.commerceData.filter(item => zipCodeSet.has(item.zipCode));
+    return this.commerceData.filter(item => 
+      zipCodeSet.has(item.zipCode) && !this.isExcludedCategory(item.audienceName)
+    );
   }
 
   /**
-   * Get top ZIP codes by weight for a specific audience
+   * Get top ZIP codes by weight for a specific audience (excludes problematic categories)
    */
   getTopZipCodesByWeight(limit: number = 10, audienceName?: string): CommerceAudienceData[] {
     if (!this.isLoaded) {
@@ -626,7 +859,9 @@ export class CommerceAudienceService {
       return [];
     }
 
-    let filteredData = this.commerceData;
+    let filteredData = this.commerceData.filter(item => 
+      !this.isExcludedCategory(item.audienceName)
+    );
     
     if (audienceName) {
       filteredData = filteredData.filter(item => 
@@ -640,7 +875,7 @@ export class CommerceAudienceService {
   }
 
   /**
-   * Get audience penetration for a ZIP code
+   * Get audience penetration for a ZIP code (excludes problematic categories)
    */
   getAudiencePenetration(zipCode: string): CommerceAudienceData[] {
     if (!this.isLoaded) {
@@ -648,19 +883,142 @@ export class CommerceAudienceService {
       return [];
     }
 
-    return this.commerceData.filter(item => item.zipCode === zipCode);
+    return this.commerceData.filter(item => 
+      item.zipCode === zipCode && !this.isExcludedCategory(item.audienceName)
+    );
   }
 
   /**
-   * Search audience segments by name
+   * Search audience segments by name (excludes problematic categories)
    */
   searchAudienceSegments(query: string): AudienceSegment[] {
-    const segments = this.getAudienceSegments();
+    const segments = this.getAudienceSegments(); // Already excludes problematic categories
     const queryLower = query.toLowerCase();
     
     return segments.filter(segment => 
       segment.name.toLowerCase().includes(queryLower)
     );
+  }
+
+  /**
+   * Check if a category should be excluded due to data quality issues
+   */
+  private isExcludedCategory(categoryName: string): boolean {
+    return EXCLUDED_CATEGORIES.some(excluded => 
+      categoryName.toLowerCase() === excluded.toLowerCase()
+    );
+  }
+
+  /**
+   * Get audience segments for specific ZIP codes only
+   * Returns segments aggregated only from the provided ZIP codes
+   */
+  getSegmentsForZipCodes(zipCodes: string[]): AudienceSegment[] {
+    if (!this.isLoaded || zipCodes.length === 0) {
+      return [];
+    }
+
+    const zipSet = new Set(zipCodes);
+    const segmentMap = new Map<string, { totalZipCodes: number; totalWeight: number }>();
+
+    // Filter to only the specified ZIP codes
+    for (const item of this.commerceData) {
+      if (!zipSet.has(item.zipCode)) continue;
+      if (this.isExcludedCategory(item.audienceName)) continue;
+
+      const existing = segmentMap.get(item.audienceName) || { totalZipCodes: 0, totalWeight: 0 };
+      segmentMap.set(item.audienceName, {
+        totalZipCodes: existing.totalZipCodes + 1,
+        totalWeight: existing.totalWeight + item.weight
+      });
+    }
+
+    return Array.from(segmentMap.entries()).map(([name, data]) => ({
+      name,
+      totalZipCodes: data.totalZipCodes,
+      totalWeight: data.totalWeight,
+      averageWeight: data.totalWeight / data.totalZipCodes
+    }));
+  }
+
+  /**
+   * Get segments for ZIP codes with over-index calculation vs national average
+   * Filters out top X% most widespread segments (outliers that appear everywhere)
+   */
+  async getSegmentsWithOverIndex(
+    zipCodes: string[],
+    outlierPercentile: number = 10,
+    categoryFilter?: string
+  ): Promise<Array<AudienceSegment & { overIndex: number; level1Category: string }>> {
+    if (!this.isLoaded) {
+      await this.loadCommerceData();
+    }
+
+    // Get national (all) segments for comparison and filtering
+    const nationalSegments = this.getAudienceSegments();
+
+    // Calculate the ZIP count threshold for outlier filtering
+    // Segments in more ZIPs than this threshold are considered "everywhere" and filtered out
+    const sortedByZips = [...nationalSegments].sort((a, b) => b.totalZipCodes - a.totalZipCodes);
+    const cutoffIndex = Math.floor(nationalSegments.length * outlierPercentile / 100);
+    const cutoffSegment = cutoffIndex > 0 ? sortedByZips[cutoffIndex - 1] ?? undefined : undefined;
+    const zipCountThreshold = cutoffSegment?.totalZipCodes ?? Infinity;
+
+    // Create map of non-outlier national segments
+    const nationalMap = new Map(
+      nationalSegments
+        .filter(s => s.totalZipCodes <= zipCountThreshold)
+        .map(s => [s.name, s])
+    );
+
+    console.log(`   🔍 Outlier filter: removing segments in >${zipCountThreshold.toLocaleString()} ZIPs (top ${outlierPercentile}%)`);
+    console.log(`   🏷️ Category filter received in service: "${categoryFilter}" (type: ${typeof categoryFilter})`);
+    if (categoryFilter && categoryFilter !== 'All Categories') {
+      console.log(`   🏷️ Will filter to category: ${categoryFilter}`);
+    }
+
+    // Get segments for the specific market
+    const marketSegments = this.getSegmentsForZipCodes(zipCodes);
+
+    // Calculate over-index, filtering out outliers and optionally by category
+    const segmentsWithCategory = marketSegments
+      .filter(seg => nationalMap.has(seg.name)) // Only include non-outlier segments
+      .map(seg => {
+        const national = nationalMap.get(seg.name)!;
+        const overIndex = Math.round((seg.averageWeight / national.averageWeight) * 100);
+        const level1Category = getLevel1Category(seg.name);
+
+        return {
+          ...seg,
+          overIndex,
+          level1Category
+        };
+      });
+
+    // Debug: Show category distribution before filtering
+    if (categoryFilter && categoryFilter !== 'All Categories') {
+      const beforeFilter = segmentsWithCategory.reduce((acc, seg) => {
+        acc[seg.level1Category] = (acc[seg.level1Category] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      console.log(`   📊 Before category filter - segments by category:`, beforeFilter);
+      console.log(`   🎯 Looking for category: "${categoryFilter}"`);
+    }
+
+    const filteredSegments = segmentsWithCategory.filter(seg => {
+      // Apply category filter if specified
+      if (!categoryFilter || categoryFilter === 'All Categories') {
+        return true;
+      }
+      const matches = seg.level1Category === categoryFilter;
+      return matches;
+    });
+
+    if (categoryFilter && categoryFilter !== 'All Categories') {
+      console.log(`   ✅ After filter: ${filteredSegments.length} segments match "${categoryFilter}"`);
+    }
+
+    return filteredSegments;
   }
 
   /**

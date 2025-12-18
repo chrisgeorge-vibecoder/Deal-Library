@@ -46,6 +46,24 @@ export async function POST(request: NextRequest) {
 
     console.log(`   📍 Found ${zipCodes.length} ZIP codes for ${marketName}`);
 
+    // Ensure commerce data is loaded
+    const status = commerceAudienceService.getStatus();
+    if (!status.isLoaded || status.totalRecords === 0) {
+      console.log('   🔄 Commerce data not loaded, loading now...');
+      const loadResult = await commerceAudienceService.loadCommerceData();
+      if (!loadResult.success) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Failed to load commerce data',
+            message: loadResult.message
+          },
+          { status: 500 }
+        );
+      }
+      console.log(`   ✅ Commerce data loaded: ${loadResult.stats?.totalRecords || 0} records`);
+    }
+
     // Get commerce segments with over-index for these ZIP codes, optionally filtered by category
     const segments = await commerceAudienceService.getSegmentsWithOverIndex(
       zipCodes,

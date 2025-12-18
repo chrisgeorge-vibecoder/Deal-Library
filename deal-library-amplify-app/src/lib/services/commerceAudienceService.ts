@@ -684,42 +684,87 @@ export class CommerceAudienceService {
       console.log('📋 getSegmentNamesFromSupabase: Fetching unique segment names from Supabase...');
       const supabase = SupabaseService.getClient();
       
-      // IMPROVED: Based on Supabase support recommendations
-      // Use DISTINCT with proper normalization (trim, lowercase) and ordering
-      // This ensures we get diverse segments, not just the most common one
-      const SAMPLE_SIZE = 10000;
+      // OPTIMIZED: Since we know there are only 199 unique segments, we don't need a large limit
+      // The view should return all segments quickly, but we'll use a reasonable limit
+      const SAMPLE_SIZE = 500; // Much smaller - we only have 199 segments anyway
       
-      // Add timeout wrapper (20 seconds max)
+      // Add timeout wrapper (15 seconds max - reduced from 20)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Supabase query timeout')), 20000);
+        setTimeout(() => reject(new Error('Supabase query timeout')), 15000);
       });
       
       const queryPromise = (async () => {
-        // OPTIMIZED: Query the view for guaranteed DISTINCT results
-        // The view v_audience_segment_names provides normalized, distinct segment names
-        // This is faster and ensures we get diverse segments, not just the most common one
-        const { data, error } = await supabase
-          .from('v_audience_segment_names')
-          .select('audience_name')
-          .order('audience_name', { ascending: true })
-          .limit(SAMPLE_SIZE);
-
+        // OPTIMIZED: Use RPC function for much better performance
+        // The RPC function executes on the database server with optimized query plan
+        // This is much faster than querying a view or table directly
+        console.log('🚀 Using RPC function get_audience_segment_names for fast segment retrieval...');
+        
+        const { data, error } = await supabase.rpc('get_audience_segment_names', {
+          limit_count: SAMPLE_SIZE
+        });
+        
         if (error) {
-          console.error('❌ Supabase query error in getSegmentNamesFromSupabase:', error.message);
-          throw new Error(`Supabase query failed: ${error.message}`);
+          console.error('❌ Supabase RPC error in getSegmentNamesFromSupabase:', error.message);
+          console.error('   Error code:', error.code);
+          console.error('   Error details:', error);
+          
+          // If RPC function doesn't exist, fall back to view/table query
+          if (error.message?.includes('does not exist') || error.code === '42883' || error.code === '42P01') {
+            console.warn('⚠️ RPC function does not exist, falling back to view query...');
+            
+            // Fallback to view query
+            const viewResult = await supabase
+              .from('v_audience_segment_names')
+              .select('audience_name')
+              .order('audience_name', { ascending: true })
+              .limit(SAMPLE_SIZE);
+            
+            if (viewResult.error) {
+              // If view also doesn't exist, try direct table query
+              console.warn('⚠️ View also does not exist, falling back to direct table query...');
+              const tableResult = await supabase
+                .from('commerce_audience_segments')
+                .select('audience_name')
+                .not('audience_name', 'is', null)
+                .order('audience_name', { ascending: true })
+                .limit(SAMPLE_SIZE);
+              
+              if (tableResult.error) {
+                throw new Error(`All query methods failed. RPC: ${error.message}, View: ${viewResult.error.message}, Table: ${tableResult.error.message}`);
+              }
+              
+              const allNames = (tableResult.data || []).map(r => r.audience_name?.trim()).filter(Boolean) as string[];
+              const uniqueNames = Array.from(new Set(allNames));
+              console.log(`✅ getSegmentNamesFromSupabase (table fallback): Found ${uniqueNames.length} unique segments`);
+              return uniqueNames.sort();
+            }
+            
+            const allNames = (viewResult.data || []).map(r => r.audience_name?.trim()).filter(Boolean) as string[];
+            const uniqueNames = Array.from(new Set(allNames));
+            console.log(`✅ getSegmentNamesFromSupabase (view fallback): Found ${uniqueNames.length} unique segments`);
+            return uniqueNames.sort();
+          }
+          
+          throw new Error(`Supabase RPC failed: ${error.message}`);
         }
 
         if (!data || data.length === 0) {
-          console.warn('⚠️ No data returned from Supabase query');
+          console.warn('⚠️ No data returned from Supabase RPC');
           return [];
         }
 
-        // IMPROVED: Normalize and deduplicate with Set
-        // Trim whitespace and use Set for true uniqueness
-        const allNames = (data || []).map(r => r.audience_name?.trim()).filter(Boolean) as string[];
-        const uniqueNames = Array.from(new Set(allNames));
+        // RPC returns array of objects with audience_name property
+        // The function already returns DISTINCT and trimmed values, so we just need to extract them
+        const segmentNames = data.map((row: any) => {
+          // Handle both object format {audience_name: "..."} and direct string format
+          const name = typeof row === 'string' ? row : row.audience_name;
+          return name?.trim();
+        }).filter(Boolean) as string[];
         
-        console.log(`✅ getSegmentNamesFromSupabase: Found ${uniqueNames.length} unique segments from ${data.length} rows`);
+        // RPC already returns DISTINCT, but we'll deduplicate again just to be safe
+        const uniqueNames = Array.from(new Set(segmentNames));
+        
+        console.log(`✅ getSegmentNamesFromSupabase (RPC): Found ${uniqueNames.length} unique segments`);
         console.log(`   Sample segments (first 10): ${uniqueNames.slice(0, 10).join(', ')}`);
         
         return uniqueNames.sort();

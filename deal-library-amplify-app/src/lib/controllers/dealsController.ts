@@ -20,12 +20,12 @@ import { cacheService } from '../services/cacheService';
 
 export class DealsController {
   private _appsScriptService: AppsScriptService | null = null;
-  private geminiService: GeminiService | null = null;
+  private _geminiService: GeminiService | null = null;
   private embeddingService: any = null; // Dynamic import - may not be available in serverless
   private hybridSearchService: any = null; // Dynamic import - may not be available in serverless
   private personaService: PersonaService;
   private censusDataService: CensusDataService;
-  private agentModeService: AgentModeService | null = null;
+  private _agentModeService: AgentModeService | null = null;
   private embeddingServiceInitialized: boolean = false;
 
   private get appsScriptService(): AppsScriptService {
@@ -37,26 +37,47 @@ export class DealsController {
     return this._appsScriptService;
   }
 
+  private get geminiService(): GeminiService | null {
+    // Lazy initialization - create on first access to ensure env vars are available
+    if (this._geminiService === null) {
+      try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+          console.log('⚠️  GEMINI_API_KEY not available - Gemini service will be unavailable');
+          return null;
+        }
+        
+        // Initialize Gemini with Supabase if available for RAG support
+        const supabase = process.env.USE_SUPABASE === 'true' ? require('../services/supabaseService').SupabaseService.getClient() : null;
+        console.log('🔧 Lazy initializing GeminiService');
+        this._geminiService = new GeminiService(supabase);
+        console.log('✅ Gemini AI service initialized');
+      } catch (error) {
+        console.log('⚠️  Gemini AI service initialization failed:', error instanceof Error ? error.message : String(error));
+        return null;
+      }
+    }
+    return this._geminiService;
+  }
+
+  private get agentModeService(): AgentModeService | null {
+    // Lazy initialization - depends on geminiService
+    if (this._agentModeService === null) {
+      const gemini = this.geminiService;
+      if (!gemini) {
+        return null;
+      }
+      console.log('🔧 Lazy initializing AgentModeService');
+      this._agentModeService = new AgentModeService(gemini);
+      console.log('✅ Agent Mode service initialized');
+    }
+    return this._agentModeService;
+  }
+
   constructor() {
-    // Don't create AppsScriptService here - create it lazily on first use
+    // Don't create services here - create them lazily on first use to ensure env vars are available
     this.personaService = new PersonaService();
     this.censusDataService = new CensusDataService();
-    
-    // Initialize Gemini service only if API key is available
-    try {
-      // Initialize Gemini with Supabase if available for RAG support
-      const supabase = process.env.USE_SUPABASE === 'true' ? require('../services/supabaseService').SupabaseService.getClient() : null;
-      this.geminiService = new GeminiService(supabase);
-      console.log('✅ Gemini AI service initialized');
-      
-      // Initialize Agent Mode service
-      this.agentModeService = new AgentModeService(this.geminiService);
-      console.log('✅ Agent Mode service initialized');
-    } catch (error) {
-      console.log('⚠️  Gemini AI service not available (missing API key)');
-      this.geminiService = null;
-      this.agentModeService = null;
-    }
 
     // NOTE: Embedding service initialization moved to lazy loading
     // Native modules (faiss-node, @xenova/transformers) don't work in serverless

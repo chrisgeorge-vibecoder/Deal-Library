@@ -405,7 +405,13 @@ export default function HomePage() {
         
         if (selectedType === 'deals') {
           console.log('🔍 USING DEALS SEARCH PATH for:', query);
+          // Create an AbortController for timeout (declare outside try block for catch access)
+          const controller = new AbortController();
+          let timeoutId: NodeJS.Timeout | null = null;
+          
           try {
+            timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+            
             const response = await fetch('/api/deals/search', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -414,7 +420,10 @@ export default function HomePage() {
                 conversationHistory: conversationHistory || [],
                 forceDeals: true
               }),
+              signal: controller.signal
             });
+
+            if (timeoutId) clearTimeout(timeoutId);
 
             if (response.ok) {
               const searchResults = await response.json();
@@ -451,10 +460,22 @@ export default function HomePage() {
                 setAiCoaching(undefined);
               }
               return;
+            } else {
+              // Handle non-OK responses
+              const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+              console.error('❌ Deals search API error:', response.status, errorData);
+              setAiResponse(`Search failed: ${errorData.error || 'Server error'}. Please try again.`);
+              return;
             }
-          } catch (error) {
-            console.error('Deals search request failed:', error);
-            setAiResponse('Deals search is temporarily unavailable. Please try again later.');
+          } catch (error: any) {
+            if (timeoutId) clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+              console.error('⏰ Deals search request timed out after 60 seconds');
+              setAiResponse('Search request timed out. The AI service may be experiencing high load. Please try again with a simpler query.');
+            } else {
+              console.error('❌ Deals search request failed:', error);
+              setAiResponse(`Deals search is temporarily unavailable: ${error.message || 'Network error'}. Please try again later.`);
+            }
             return;
           }
         }

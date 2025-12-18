@@ -496,29 +496,74 @@ export default function AudienceInsightsPage() {
           console.log(`📋 Backend has ${backendSegmentNames.length} segments total`);
           console.log(`📋 First 20 segments:`, backendSegmentNames.slice(0, 20));
           
-          // Only show segments that exist in BOTH our mapping AND the backend data
-          const availableSegments = exactSegments.filter(seg => 
-            backendSegmentNames.includes(seg)
-          );
+          // Normalize function for case-insensitive and whitespace-insensitive matching
+          const normalize = (str: string): string => {
+            return str.toLowerCase().trim().replace(/\s+/g, ' ');
+          };
           
-          // Sort alphabetically
-          const sortedSegments = availableSegments.sort((a: string, b: string) => a.localeCompare(b));
-          setSegments(sortedSegments);
+          // Create normalized sets for faster lookup
+          const normalizedBackendSegments = new Set(backendSegmentNames.map(normalize));
+          const normalizedExactSegments = new Map<string, string>(); // normalized -> original
+          exactSegments.forEach(seg => {
+            normalizedExactSegments.set(normalize(seg), seg);
+          });
           
-          console.log(`📊 Mapped ${sortedSegments.length} exact segments for category: ${category}`);
-          console.log(`   Available segments: ${sortedSegments.join(', ')}`);
-          console.log(`   Expected segments in mapping: ${exactSegments.join(', ')}`);
+          // Find matches using normalized comparison
+          const matchedSegments: string[] = [];
           
-          if (sortedSegments.length === 0) {
-            console.warn(`⚠️ No segments found in backend data for category mapping`);
-            console.log(`   Looking for: ${exactSegments.join(', ')}`);
-            console.log(`   Backend has: ${backendSegmentNames.slice(0, 20).join(', ')}${backendSegmentNames.length > 20 ? '...' : ''}`);
-            
-            // If no exact matches, show all backend segments as fallback (for debugging)
-            console.log('🔄 Showing all backend segments as fallback for debugging...');
-            setSegments(backendSegmentNames.slice(0, 50).sort((a: string, b: string) => a.localeCompare(b)));
-            setError(`No exact matches for "${category}". Showing available segments instead.`);
+          // First, try exact normalized matches
+          for (const [normalized, original] of normalizedExactSegments.entries()) {
+            if (normalizedBackendSegments.has(normalized)) {
+              matchedSegments.push(original);
+            }
           }
+          
+          // If we found matches, use them
+          if (matchedSegments.length > 0) {
+            const sortedSegments = matchedSegments.sort((a: string, b: string) => a.localeCompare(b));
+            setSegments(sortedSegments);
+            console.log(`✅ Mapped ${sortedSegments.length} segments for category: ${category}`);
+            console.log(`   Available segments: ${sortedSegments.join(', ')}`);
+            return; // Success - exit early
+          }
+          
+          // If no exact matches, try partial matching (segment name contains category keywords)
+          console.log(`⚠️ No exact matches found, trying partial matching...`);
+          const categoryKeywords = category.toLowerCase().split(/[\s&]+/).filter(kw => kw.length > 2);
+          console.log(`   Category keywords: ${categoryKeywords.join(', ')}`);
+          
+          const partialMatches: string[] = [];
+          for (const backendSeg of backendSegmentNames) {
+            const normalizedBackend = normalize(backendSeg);
+            
+            // Check if backend segment contains any category keyword
+            const matchesKeyword = categoryKeywords.some(kw => normalizedBackend.includes(kw));
+            
+            // Also check if any expected segment is a substring of backend segment or vice versa
+            const matchesSubstring = Array.from(normalizedExactSegments.keys()).some(expectedNorm => 
+              normalizedBackend.includes(expectedNorm) || expectedNorm.includes(normalizedBackend)
+            );
+            
+            if (matchesKeyword || matchesSubstring) {
+              partialMatches.push(backendSeg);
+            }
+          }
+          
+          if (partialMatches.length > 0) {
+            const sortedSegments = [...new Set(partialMatches)].sort((a: string, b: string) => a.localeCompare(b));
+            setSegments(sortedSegments);
+            console.log(`✅ Found ${sortedSegments.length} partial matches for category: ${category}`);
+            console.log(`   Matched segments: ${sortedSegments.join(', ')}`);
+            return; // Success with partial matches
+          }
+          
+          // Last resort: show error with helpful debugging info
+          console.warn(`⚠️ No segments found in backend data for category mapping`);
+          console.log(`   Looking for: ${exactSegments.join(', ')}`);
+          console.log(`   Backend has: ${backendSegmentNames.slice(0, 20).join(', ')}${backendSegmentNames.length > 20 ? '...' : ''}`);
+          
+          setSegments([]);
+          setError(`No segments found for "${category}". Expected: ${exactSegments.slice(0, 5).join(', ')}${exactSegments.length > 5 ? '...' : ''}. Backend has ${backendSegmentNames.length} segments total.`);
         } else {
           console.error('❌ Backend response error:', data);
           console.error('❌ Response structure:', {

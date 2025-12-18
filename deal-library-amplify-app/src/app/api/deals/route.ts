@@ -6,9 +6,9 @@ import { cacheService } from '@/lib/services/cacheService';
 let dealsControllerInstance: DealsController | null = null;
 
 function getDealsController(): DealsController {
-  if (!dealsControllerInstance) {
-    dealsControllerInstance = new DealsController();
-  }
+  // Always create a new instance - the AppsScriptService checks env vars at runtime
+  // Creating fresh instances avoids any potential singleton caching issues
+  dealsControllerInstance = new DealsController();
   return dealsControllerInstance;
 }
 
@@ -16,13 +16,16 @@ export async function GET(request: NextRequest) {
   try {
     // Debug: Log environment variable status (without exposing the actual URL)
     const hasAppsScriptUrl = !!process.env.GOOGLE_APPS_SCRIPT_URL;
-    console.log('🔍 Environment check:', {
+    console.log('🔍 API Route Environment check:', {
       hasAppsScriptUrl,
       appsScriptUrlLength: process.env.GOOGLE_APPS_SCRIPT_URL?.length || 0,
       nodeEnv: process.env.NODE_ENV,
+      urlPrefix: process.env.GOOGLE_APPS_SCRIPT_URL?.substring(0, 50) || 'NOT SET',
+      allGoogleEnvKeys: Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')),
     });
     
     const controller = getDealsController();
+    console.log('🔍 Controller obtained, about to call getAllDeals()');
     
     // Parse query parameters for filtering
     const searchParams = request.nextUrl.searchParams;

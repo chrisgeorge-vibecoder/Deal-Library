@@ -40,7 +40,19 @@ export class AppsScriptService {
     const url = process.env.GOOGLE_APPS_SCRIPT_URL;
     const sharedSecret = process.env.APPS_SCRIPT_SHARED_SECRET;
     
+    // Debug logging
+    console.log('🔍 getBaseUrl() called:', {
+      hasUrl: !!url,
+      urlLength: url?.length || 0,
+      urlType: typeof url,
+      nodeEnv: process.env.NODE_ENV,
+      allEnvKeys: Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')),
+    });
+    
     if (!url) {
+      console.error('❌ GOOGLE_APPS_SCRIPT_URL is not set in process.env');
+      console.error('🔍 Available env vars containing "GOOGLE" or "APPS":', 
+        Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')));
       // Update cached value to null if env var is not set
       this.baseUrl = null;
       return '';

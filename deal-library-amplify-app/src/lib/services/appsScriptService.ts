@@ -32,20 +32,51 @@ export class AppsScriptService {
   }
 
   /**
+   * Get the base URL, checking environment variable at runtime
+   * This ensures we pick up env vars even if singleton was created before they were set
+   */
+  private getBaseUrl(): string {
+    // Check environment variable at runtime (not just constructor)
+    const url = process.env.GOOGLE_APPS_SCRIPT_URL;
+    const sharedSecret = process.env.APPS_SCRIPT_SHARED_SECRET;
+    
+    if (!url) {
+      // Update cached value to null if env var is not set
+      this.baseUrl = null;
+      return '';
+    }
+    
+    // Build URL with shared secret if configured
+    if (sharedSecret) {
+      const hasQuery = url.includes('?');
+      const fullUrl = `${url}${hasQuery ? '&' : '?'}api_key=${encodeURIComponent(sharedSecret)}`;
+      // Update cached value
+      this.baseUrl = fullUrl;
+      return fullUrl;
+    } else {
+      // Update cached value
+      this.baseUrl = url;
+      return url;
+    }
+  }
+
+  /**
    * Fetch all deals from Google Apps Script
    */
   async getAllDeals(): Promise<Deal[]> {
-    console.log('🔍 AppsScriptService.getAllDeals called, baseUrl:', this.baseUrl);
+    // Get base URL at runtime (checks env var every time)
+    const baseUrl = this.getBaseUrl();
+    console.log('🔍 AppsScriptService.getAllDeals called, baseUrl:', baseUrl ? `${baseUrl.substring(0, 50)}...` : 'null');
 
-    if (!this.baseUrl) {
+    if (!baseUrl) {
       console.error('❌ GOOGLE_APPS_SCRIPT_URL not configured - cannot fetch real deals');
       throw new Error('GOOGLE_APPS_SCRIPT_URL environment variable is required to fetch real deals');
     }
 
     try {
       // Call the Apps Script with the deals action parameter
-      const urlWithAction = `${this.baseUrl}${this.baseUrl.includes('?') ? '&' : '?'}action=deals`;
-      console.log('🔍 Calling Apps Script URL:', urlWithAction);
+      const urlWithAction = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}action=deals`;
+      console.log('🔍 Calling Apps Script URL:', urlWithAction.substring(0, 100) + '...');
       
       const response = await fetch(urlWithAction, { redirect: 'follow' });
       
@@ -123,13 +154,14 @@ export class AppsScriptService {
    * Get a specific deal by ID
    */
   async getDealById(id: string): Promise<Deal | null> {
-    if (!this.baseUrl) {
+    const baseUrl = this.getBaseUrl();
+    if (!baseUrl) {
       throw new Error('GOOGLE_APPS_SCRIPT_URL environment variable is required');
     }
 
     try {
       const makeUrlWith: (base: string, suffix: string) => string = (this as any)._makeUrlWith;
-      const response = await fetch(makeUrlWith(this.baseUrl, `action=deal&id=${encodeURIComponent(id)}`));
+      const response = await fetch(makeUrlWith(baseUrl, `action=deal&id=${encodeURIComponent(id)}`));
       
       if (response.status === 404) {
         return null;
@@ -151,13 +183,14 @@ export class AppsScriptService {
    * Add a new deal via Google Apps Script
    */
   async addDeal(deal: Omit<Deal, 'id' | 'createdAt' | 'updatedAt'>): Promise<Deal> {
-    if (!this.baseUrl) {
+    const baseUrl = this.getBaseUrl();
+    if (!baseUrl) {
       throw new Error('GOOGLE_APPS_SCRIPT_URL environment variable is required');
     }
 
     try {
       const makeUrlWith: (base: string, suffix: string) => string = (this as any)._makeUrlWith;
-      const response = await fetch(makeUrlWith(this.baseUrl, 'action=create'), {
+      const response = await fetch(makeUrlWith(baseUrl, 'action=create'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -181,13 +214,14 @@ export class AppsScriptService {
    * Update an existing deal via Google Apps Script
    */
   async updateDeal(id: string, updates: Partial<Deal>): Promise<Deal | null> {
-    if (!this.baseUrl) {
+    const baseUrl = this.getBaseUrl();
+    if (!baseUrl) {
       throw new Error('GOOGLE_APPS_SCRIPT_URL environment variable is required');
     }
 
     try {
       const makeUrlWith: (base: string, suffix: string) => string = (this as any)._makeUrlWith;
-      const response = await fetch(makeUrlWith(this.baseUrl, 'action=update'), {
+      const response = await fetch(makeUrlWith(baseUrl, 'action=update'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -226,13 +260,14 @@ export class AppsScriptService {
     timeline?: string;
     additionalNotes?: string;
   }): Promise<{ message: string; requestId: string }> {
-    if (!this.baseUrl) {
+    const baseUrl = this.getBaseUrl();
+    if (!baseUrl) {
       throw new Error('GOOGLE_APPS_SCRIPT_URL environment variable is required');
     }
 
     try {
       const makeUrlWith: (base: string, suffix: string) => string = (this as any)._makeUrlWith;
-      const response = await fetch(makeUrlWith(this.baseUrl, 'action=custom-deal-request'), {
+      const response = await fetch(makeUrlWith(baseUrl, 'action=custom-deal-request'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -256,13 +291,14 @@ export class AppsScriptService {
    * Health check for Apps Script service
    */
   async healthCheck(): Promise<{ status: string; timestamp: string; environment: string; service: string }> {
-    if (!this.baseUrl) {
+    const baseUrl = this.getBaseUrl();
+    if (!baseUrl) {
       throw new Error('GOOGLE_APPS_SCRIPT_URL environment variable is required');
     }
 
     try {
       const makeUrlWith: (base: string, suffix: string) => string = (this as any)._makeUrlWith;
-      const response = await fetch(makeUrlWith(this.baseUrl, 'action=health'));
+      const response = await fetch(makeUrlWith(baseUrl, 'action=health'));
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

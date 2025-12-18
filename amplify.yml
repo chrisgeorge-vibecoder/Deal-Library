@@ -9,6 +9,10 @@ applications:
         build:
           commands:
             - echo "=== Building Next.js ==="
+            - echo "=== Environment variables check (build time) ==="
+            - echo "GOOGLE_APPS_SCRIPT_URL is $([ -n "$GOOGLE_APPS_SCRIPT_URL" ] && echo "SET (length: ${#GOOGLE_APPS_SCRIPT_URL})" || echo "NOT SET")"
+            - echo "RESEND_API_KEY is $([ -n "$RESEND_API_KEY" ] && echo "SET" || echo "NOT SET")"
+            - echo "GEMINI_API_KEY is $([ -n "$GEMINI_API_KEY" ] && echo "SET" || echo "NOT SET")"
             - npm run build
             - echo "=== Build complete, checking output ==="
             - ls -la .next/
@@ -19,6 +23,8 @@ applications:
             - mkdir -p .amplify-hosting/static/_next/static
             # Copy standalone server
             - cp -r .next/standalone/. .amplify-hosting/compute/default/
+            # Copy .env.local to standalone output so it's available at runtime
+            - cp .env.local .amplify-hosting/compute/default/.env.local 2>/dev/null || echo "No .env.local to copy"
             # Copy static assets to both locations
             - cp -r .next/static/. .amplify-hosting/static/_next/static/
             - cp -r .next/static .amplify-hosting/compute/default/.next/

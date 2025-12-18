@@ -1116,15 +1116,39 @@ export class CommerceAudienceService {
    */
   getSegmentsForZipCodes(zipCodes: string[]): AudienceSegment[] {
     if (!this.isLoaded || zipCodes.length === 0) {
+      console.log(`   ⚠️ getSegmentsForZipCodes: isLoaded=${this.isLoaded}, zipCodes.length=${zipCodes.length}`);
       return [];
     }
 
     const zipSet = new Set(zipCodes);
     const segmentMap = new Map<string, { totalZipCodes: number; totalWeight: number }>();
+    
+    // Diagnostic: Check how many ZIP codes from the request exist in commerce data
+    const uniqueCommerceZips = new Set(this.commerceData.map(item => item.zipCode));
+    const matchingZips = zipCodes.filter(zip => uniqueCommerceZips.has(zip));
+    const nonMatchingZips = zipCodes.filter(zip => !uniqueCommerceZips.has(zip));
+    
+    console.log(`   🔍 getSegmentsForZipCodes: Searching ${zipCodes.length} ZIP codes`);
+    console.log(`   📊 Found ${matchingZips.length} matching ZIPs in commerce data, ${nonMatchingZips.length} not found`);
+    if (matchingZips.length > 0 && matchingZips.length <= 10) {
+      console.log(`   ✅ Matching ZIPs: ${matchingZips.slice(0, 10).join(', ')}`);
+    } else if (matchingZips.length > 10) {
+      console.log(`   ✅ Sample matching ZIPs: ${matchingZips.slice(0, 5).join(', ')}... (${matchingZips.length} total)`);
+    }
+    if (nonMatchingZips.length > 0 && nonMatchingZips.length <= 10) {
+      console.log(`   ⚠️ Non-matching ZIPs: ${nonMatchingZips.slice(0, 10).join(', ')}`);
+    } else if (nonMatchingZips.length > 10) {
+      console.log(`   ⚠️ Sample non-matching ZIPs: ${nonMatchingZips.slice(0, 5).join(', ')}... (${nonMatchingZips.length} total)`);
+    }
+
+    let itemsProcessed = 0;
+    let itemsMatched = 0;
 
     // Filter to only the specified ZIP codes
     for (const item of this.commerceData) {
+      itemsProcessed++;
       if (!zipSet.has(item.zipCode)) continue;
+      itemsMatched++;
       if (this.isExcludedCategory(item.audienceName)) continue;
 
       const existing = segmentMap.get(item.audienceName) || { totalZipCodes: 0, totalWeight: 0 };
@@ -1134,12 +1158,16 @@ export class CommerceAudienceService {
       });
     }
 
-    return Array.from(segmentMap.entries()).map(([name, data]) => ({
+    const result = Array.from(segmentMap.entries()).map(([name, data]) => ({
       name,
       totalZipCodes: data.totalZipCodes,
       totalWeight: data.totalWeight,
       averageWeight: data.totalWeight / data.totalZipCodes
     }));
+
+    console.log(`   📈 Processed ${itemsProcessed.toLocaleString()} commerce items, ${itemsMatched.toLocaleString()} matched ZIP codes, found ${result.length} segments`);
+
+    return result;
   }
 
   /**

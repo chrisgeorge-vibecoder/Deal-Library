@@ -45,6 +45,11 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`   📍 Found ${zipCodes.length} ZIP codes for ${marketName}`);
+    if (zipCodes.length > 0 && zipCodes.length <= 20) {
+      console.log(`   📍 Sample ZIP codes: ${zipCodes.slice(0, 10).join(', ')}${zipCodes.length > 10 ? '...' : ''}`);
+    } else if (zipCodes.length > 20) {
+      console.log(`   📍 Sample ZIP codes: ${zipCodes.slice(0, 5).join(', ')}... (${zipCodes.length} total)`);
+    }
 
     // Ensure commerce data is loaded
     const status = commerceAudienceService.getStatus();
@@ -91,6 +96,16 @@ export async function POST(request: NextRequest) {
         categoryFilter
       );
       console.log(`   ✅ Retrieved ${segments.length} segments`);
+      
+      if (segments.length === 0) {
+        // Diagnostic: Check if there's any commerce data for these ZIP codes at all
+        const commerceStatus = commerceAudienceService.getStatus();
+        console.log(`   ⚠️ No segments found. Commerce data status: ${commerceStatus.totalRecords} total records, ${commerceStatus.audienceSegments.length} segments available`);
+        
+        // Check if any of the ZIP codes have commerce data (even if no segments pass filters)
+        const testSegments = commerceAudienceService.getSegmentsForZipCodes(zipCodes.slice(0, 10)); // Test first 10 ZIPs
+        console.log(`   🔬 Diagnostic: First 10 ZIPs returned ${testSegments.length} segments before filtering`);
+      }
     } catch (segmentError) {
       console.error('   ❌ Error getting segments:', segmentError);
       return NextResponse.json(

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DealsController } from '@/lib/controllers/dealsController';
+import { AppsScriptService } from '@/lib/services/appsScriptService';
 import { cacheService } from '@/lib/services/cacheService';
 
 // Create a singleton instance of the deals controller
@@ -10,6 +11,16 @@ function getDealsController(): DealsController {
   // Creating fresh instances avoids any potential singleton caching issues
   dealsControllerInstance = new DealsController();
   return dealsControllerInstance;
+}
+
+// Helper to get deals directly using AppsScriptService (like diagnose endpoint does)
+async function getAllDealsDirect(): Promise<any[]> {
+  console.log('🔍 getAllDealsDirect: Creating AppsScriptService directly');
+  const appsScriptService = new AppsScriptService();
+  console.log('🔍 getAllDealsDirect: Calling getAllDeals()');
+  const deals = await appsScriptService.getAllDeals();
+  console.log('✅ getAllDealsDirect: Got', deals.length, 'deals');
+  return deals;
 }
 
 export async function GET(request: NextRequest) {
@@ -49,13 +60,19 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Get all deals using the controller
-    console.log('🔍 About to call controller.getAllDeals(), checking env var again:', {
-      hasAppsScriptUrl: !!process.env.GOOGLE_APPS_SCRIPT_URL,
-      urlLength: process.env.GOOGLE_APPS_SCRIPT_URL?.length || 0,
-    });
-    const allDeals = await controller.getAllDeals();
-    console.log('✅ controller.getAllDeals() returned', allDeals.length, 'deals');
+    // Get all deals - try direct method first (like diagnose endpoint)
+    console.log('🔍 API Route: Getting deals using direct method (like diagnose endpoint)');
+    let allDeals: any[];
+    try {
+      // Use direct method that works in diagnose endpoint
+      allDeals = await getAllDealsDirect();
+      console.log('✅ API Route: getAllDealsDirect() returned', allDeals.length, 'deals');
+    } catch (directError) {
+      console.error('❌ Direct method failed, trying controller method:', directError);
+      // Fallback to controller method
+      allDeals = await controller.getAllDeals();
+      console.log('✅ API Route: controller.getAllDeals() returned', allDeals.length, 'deals');
+    }
     
     // Build DealFilters object for the filterDeals method
     const dealFilters: any = {

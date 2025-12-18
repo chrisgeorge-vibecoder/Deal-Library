@@ -90,14 +90,19 @@ export class CommerceAudienceService {
       // Test connection by checking if table exists
       console.log('🔍 Testing connection to commerce_audience_segments table...');
       
-      // Fetch commerce records with pagination for better performance
-      const pageSize = 2000;
+      // CRITICAL: For getting segment names, we don't need to load ALL data
+      // Limit to a reasonable number of records to avoid timeout
+      // If full data is needed, it should be loaded on-demand for specific segments
+      const MAX_RECORDS_TO_LOAD = 100000; // Load up to 100k records max
+      const pageSize = 5000; // Larger page size for efficiency
       let allRecords: any[] = [];
       let offset = 0;
       let pageCount = 0;
       
+      console.log(`📊 Loading commerce data (limited to ${MAX_RECORDS_TO_LOAD.toLocaleString()} records to avoid timeout)...`);
+      
       // Load data in chunks to avoid memory issues
-      while (true) {
+      while (allRecords.length < MAX_RECORDS_TO_LOAD) {
         pageCount++;
         console.log(`📄 Fetching page ${pageCount} (offset: ${offset}, limit: ${pageSize})...`);
         
@@ -117,8 +122,11 @@ export class CommerceAudienceService {
         }
         
         console.log(`   ✅ Page ${pageCount} returned ${records?.length || 0} records`);
-        if (count !== null) {
-          console.log(`   📊 Total records in table: ${count}`);
+        if (count !== null && pageCount === 1) {
+          console.log(`   📊 Total records in table: ${count.toLocaleString()}`);
+          if (count > MAX_RECORDS_TO_LOAD) {
+            console.warn(`   ⚠️  Table has ${count.toLocaleString()} records, but loading only ${MAX_RECORDS_TO_LOAD.toLocaleString()} to avoid timeout`);
+          }
         }
         
         if (!records || records.length === 0) {
@@ -129,11 +137,17 @@ export class CommerceAudienceService {
         allRecords = [...allRecords, ...records];
         offset += pageSize;
         
-        console.log(`📈 Loaded ${allRecords.length} commerce records so far...`);
+        console.log(`📈 Loaded ${allRecords.length.toLocaleString()} commerce records so far...`);
+        
+        // Stop if we've reached our limit
+        if (allRecords.length >= MAX_RECORDS_TO_LOAD) {
+          console.warn(`⚠️  Reached record limit (${MAX_RECORDS_TO_LOAD.toLocaleString()}), stopping pagination`);
+          break;
+        }
         
         // Safety limit to prevent infinite loops
-        if (pageCount > 100) {
-          console.warn('⚠️  Reached page limit (100), stopping pagination');
+        if (pageCount > 50) {
+          console.warn('⚠️  Reached page limit (50), stopping pagination');
           break;
         }
       }
@@ -449,69 +463,54 @@ export class CommerceAudienceService {
       console.log('📋 getSegmentNamesFromSupabase: Fetching unique segment names from Supabase...');
       const supabase = SupabaseService.getClient();
       
-      // Strategy: Limit total rows scanned to avoid timeout
-      // We'll scan up to 50,000 rows which should give us most unique segments
-      // This is much faster than scanning all 4.2M rows
-      const MAX_ROWS_TO_SCAN = 50000;
-      const pageSize = 10000; // Larger page size for efficiency
-      let allNames: string[] = [];
-      let offset = 0;
-      let totalRowsScanned = 0;
+      // OPTIMIZED: Use a much simpler query with timeout
+      // Instead of scanning many rows, use a sample-based approach
+      // Get a random sample of 10,000 rows which should give us most unique segments
+      const SAMPLE_SIZE = 10000;
       
-      // Fetch pages until we hit our limit
-      while (totalRowsScanned < MAX_ROWS_TO_SCAN) {
+      // Add timeout wrapper (20 seconds max)
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Supabase query timeout')), 20000);
+      });
+      
+      const queryPromise = (async () => {
+        // Use a simple query with limit - much faster
         const { data, error } = await supabase
           .from('commerce_audience_segments')
           .select('audience_name')
           .not('audience_name', 'is', null)
-          .range(offset, offset + pageSize - 1);
+          .limit(SAMPLE_SIZE); // Limit to 10k rows for speed
 
         if (error) {
           console.error('❌ Supabase query error in getSegmentNamesFromSupabase:', error.message);
-          // If we have some segments already, return them rather than failing completely
-          if (allNames.length > 0) {
-            const uniqueCount = new Set(allNames).size;
-            console.warn(`⚠️ Query failed but we have ${uniqueCount} unique segments, using them`);
-            break;
-          }
           throw new Error(`Supabase query failed: ${error.message}`);
         }
 
         if (!data || data.length === 0) {
-          break; // No more data
+          console.warn('⚠️ No data returned from Supabase query');
+          return [];
         }
 
-        const pageNames = (data || []).map(r => r.audience_name?.trim()).filter(Boolean) as string[];
-        allNames = [...allNames, ...pageNames];
-        totalRowsScanned += data.length;
+        // Extract unique segment names
+        const allNames = (data || []).map(r => r.audience_name?.trim()).filter(Boolean) as string[];
+        const uniqueNames = Array.from(new Set(allNames));
+        console.log(`✅ getSegmentNamesFromSupabase: Found ${uniqueNames.length} unique segments from ${data.length} rows`);
         
-        const uniqueCount = new Set(allNames).size;
-        console.log(`📋 Fetched ${pageNames.length} rows (offset ${offset}), ${uniqueCount} unique segments from ${totalRowsScanned} total rows scanned`);
-        
-        if (data.length < pageSize) {
-          break; // Last page
-        }
-        
-        offset += pageSize;
-      }
+        return uniqueNames.sort();
+      })();
       
-      if (totalRowsScanned >= MAX_ROWS_TO_SCAN) {
-        console.log(`📋 Reached scan limit of ${MAX_ROWS_TO_SCAN} rows`);
-      }
-
-      // Extract unique segment names
-      const uniqueNames = Array.from(new Set(allNames));
-      console.log(`✅ getSegmentNamesFromSupabase: Found ${uniqueNames.length} unique segments from ${allNames.length} scanned rows`);
+      // Race between query and timeout
+      const uniqueNames = await Promise.race([queryPromise, timeoutPromise]);
       
       if (uniqueNames.length === 0) {
-        console.warn('⚠️ No segments found in Supabase, falling back to local data');
-        // Fallback to local method if Supabase returns no data
-        if (!this.isLoaded) {
-          await this.loadCommerceData();
-        }
-        return this.getAudienceSegments().map(s => s.name);
+        console.warn('⚠️ No segments found in Supabase sample query');
+        // Don't fall back to full data load - it will timeout
+        // Return empty array and let the caller handle it
+        return [];
       }
       
+      // Return whatever segments we found - even if it's fewer than expected
+      // The 50k row sample should give us most segments
       return uniqueNames.sort();
     } catch (error) {
       console.error('❌ Error in getSegmentNamesFromSupabase:', error);

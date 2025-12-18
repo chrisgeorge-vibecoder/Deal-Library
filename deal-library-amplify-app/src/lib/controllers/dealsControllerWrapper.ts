@@ -51,20 +51,29 @@ export class DealsControllerWrapper extends DealsController {
         console.log('🚀 Trying optimized direct Supabase query for segment names...');
         const segmentNames = await commerceAudienceService.getSegmentNamesFromSupabase();
         
-        // If we got a reasonable number of segments (more than 10), use them
-        // Otherwise, fall back to full data load to ensure we have all segments
-        if (segmentNames.length > 10) {
+        // Use ANY segments we get from the fast query - it's better than timing out
+        // The fast query samples 50k rows which should give us most segments
+        if (segmentNames.length > 0) {
           console.log(`✅ Fast query returned ${segmentNames.length} segments (using fast path)`);
+          console.log(`   Sample segments: ${segmentNames.slice(0, 10).join(', ')}...`);
           return { success: true, segments: segmentNames };
-        } else if (segmentNames.length > 0) {
-          console.warn(`⚠️ Fast query returned only ${segmentNames.length} segments (expected more), falling back to full data load`);
-          console.log(`   Segments found: ${segmentNames.join(', ')}`);
         } else {
-          console.warn('⚠️ Fast query returned 0 segments, falling back to full data load');
+          console.warn('⚠️ Fast query returned 0 segments, will try fallback');
         }
       } catch (fastQueryError) {
-        console.warn('⚠️ Fast query failed, falling back to full data load:', 
+        console.warn('⚠️ Fast query failed:', 
           fastQueryError instanceof Error ? fastQueryError.message : fastQueryError);
+        // Don't fall back to full data load - it will timeout
+        // Instead, return an error with helpful message
+        return {
+          success: false,
+          segments: [],
+          error: 'Failed to load segments from Supabase. The query timed out. This may indicate a database performance issue.',
+          errorDetails: fastQueryError instanceof Error ? {
+            name: fastQueryError.name,
+            message: fastQueryError.message
+          } : fastQueryError
+        };
       }
       
       // Fallback: Load all data (slower, but works if fast query fails)

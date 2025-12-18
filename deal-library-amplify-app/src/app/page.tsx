@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Deal, DealFilters, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews } from '@/types/deal';
 import { useSaveCard, useCart } from '@/components/AppLayout';
 import { MarketSizing } from '@/components/MarketSizingCard';
-import { mockDeals } from '@/data/mockDeals';
+// Removed mockDeals import - using real data only
 import { sampleAudienceInsights, sampleMarketSizing, sampleGeoCards } from '@/data/sampleCards';
 import ChatInterface from '@/components/ChatInterface';
 import FilterPanel from '@/components/FilterPanel';
@@ -177,29 +177,42 @@ export default function HomePage() {
         if (isMounted) setError(null); // Clear any previous errors
         const response = await fetch('/api/deals');
         
+        // Check response status
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `API returned status ${response.status}`);
+        }
+        
         const dealsData = await response.json();
         
-        // Handle both success and graceful degradation (empty deals array)
+        // Handle API response
         if (isMounted) {
           const deals = dealsData.deals || [];
           if (deals.length > 0) {
             setDeals(deals);
             console.log('✅ Successfully loaded deals:', deals.length);
           } else {
-            // Backend unavailable or no deals - use mock data silently
-            console.log('⚠️ No deals from backend, using mock deals data');
-            setDeals(mockDeals);
-            setError(null); // Don't show error
+            // No deals returned - check if there's an error message
+            if (dealsData.error) {
+              console.error('❌ API returned error:', dealsData.error);
+              if (dealsData.help) {
+                console.error('💡 Help:', dealsData.help);
+              }
+              setError(dealsData.error || 'Failed to load deals. Please check configuration.');
+            } else {
+              console.warn('⚠️ No deals returned from API. Check GOOGLE_APPS_SCRIPT_URL configuration.');
+              setError('No deals found. Please check that GOOGLE_APPS_SCRIPT_URL is configured in your environment variables.');
+            }
+            setDeals([]);
           }
         }
         // Don't automatically show deals - only show when explicitly requested through search
       } catch (err) {
         if (isMounted) {
-          // Silently use mock data instead of showing error when backend is unavailable
-          // This handles both connection errors and API route errors gracefully
-          console.log('⚠️ Backend unavailable, using mock deals data:', err instanceof Error ? err.message : 'Unknown error');
-          setDeals(mockDeals);
-          setError(null); // Don't show error for backend unavailability
+          const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+          console.error('❌ Error loading deals:', errorMessage);
+          setError(`Failed to load deals: ${errorMessage}`);
+          setDeals([]);
         }
         // Don't automatically show deals - only show when explicitly requested through search
       } finally {

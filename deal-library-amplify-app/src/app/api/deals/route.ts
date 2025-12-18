@@ -1,62 +1,110 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { DealsController } from '@/lib/controllers/dealsController';
+import { cacheService } from '@/lib/services/cacheService';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+// Create a singleton instance of the deals controller
+let dealsControllerInstance: DealsController | null = null;
+
+function getDealsController(): DealsController {
+  if (!dealsControllerInstance) {
+    dealsControllerInstance = new DealsController();
+  }
+  return dealsControllerInstance;
+}
 
 export async function GET(request: NextRequest) {
   try {
-    // Check if backend URL is configured and valid (not localhost or empty)
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const isLocalhost = API_BASE_URL.includes('localhost') || API_BASE_URL.includes('127.0.0.1');
-    const isEmpty = !apiUrl || apiUrl.trim() === '';
+    // Debug: Log environment variable status (without exposing the actual URL)
+    const hasAppsScriptUrl = !!process.env.GOOGLE_APPS_SCRIPT_URL;
+    console.log('🔍 Environment check:', {
+      hasAppsScriptUrl,
+      appsScriptUrlLength: process.env.GOOGLE_APPS_SCRIPT_URL?.length || 0,
+      nodeEnv: process.env.NODE_ENV,
+    });
     
-    if (isEmpty || isLocalhost) {
-      console.warn('⚠️ Backend API URL not configured or using localhost. Returning empty deals array.');
-      return NextResponse.json(
-        { deals: [], message: 'Backend API not configured' },
-        { status: 200 }
-      );
+    const controller = getDealsController();
+    
+    // Parse query parameters for filtering
+    const searchParams = request.nextUrl.searchParams;
+    const filters = {
+      search: searchParams.get('search') || undefined,
+      targeting: searchParams.get('targeting') || undefined,
+      environment: searchParams.get('environment') || undefined,
+      mediaType: searchParams.get('mediaType') || undefined,
+      page: parseInt(searchParams.get('page') || '1'),
+      limit: parseInt(searchParams.get('limit') || '1000'),
+    };
+
+    // Parse date range if provided
+    const dateStart = searchParams.get('dateStart');
+    const dateEnd = searchParams.get('dateEnd');
+    let dateRange = undefined;
+    if (dateStart || dateEnd) {
+      dateRange = {
+        start: dateStart || undefined,
+        end: dateEnd || undefined,
+      };
     }
 
-    // Proxy to backend API for reliable deal fetching
-    // Add timeout to prevent hanging requests
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    // Get all deals using the controller
+    const allDeals = await controller.getAllDeals();
     
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/deals`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        console.warn(`⚠️ Backend responded with status: ${response.status}. Returning empty deals array.`);
-        return NextResponse.json(
-          { deals: [], message: 'Backend unavailable' },
-          { status: 200 }
-        );
-      }
-      
-      const data = await response.json();
-      return NextResponse.json(data);
-    } catch (fetchError) {
-      clearTimeout(timeoutId);
-      // Re-throw to be caught by outer catch block
-      throw fetchError;
+    // Build DealFilters object for the filterDeals method
+    const dealFilters: any = {
+      search: filters.search,
+      targeting: filters.targeting,
+      environment: filters.environment,
+      mediaType: filters.mediaType,
+      page: filters.page,
+      limit: filters.limit,
+    };
+    
+    if (dateRange) {
+      dealFilters.dateRange = dateRange;
     }
-  } catch (error) {
-    // Catch all errors (network errors, timeouts, parse errors, etc.)
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.warn('⚠️ Error fetching deals from backend:', errorMessage);
     
-    // Always return 200 with empty deals array instead of 500
-    // This allows the frontend to handle gracefully with mock data
+    // Use the controller's filterDeals method
+    // This ensures consistent filtering logic
+    const filteredDeals = controller.filterDeals(allDeals, dealFilters);
+    
+    // Pagination
+    const total = filteredDeals.length;
+    const totalPages = Math.ceil(total / filters.limit);
+    const startIndex = (filters.page - 1) * filters.limit;
+    const endIndex = startIndex + filters.limit;
+    const paginatedDeals = filteredDeals.slice(startIndex, endIndex);
+
+    return NextResponse.json({
+      deals: paginatedDeals,
+      total,
+      page: filters.page,
+      limit: filters.limit,
+      totalPages,
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    console.error('❌ Error fetching deals:', errorMessage);
+    console.error('❌ Error stack:', errorStack);
+    
+    // Check if the error is about missing GOOGLE_APPS_SCRIPT_URL
+    const isConfigError = errorMessage.includes('GOOGLE_APPS_SCRIPT_URL') || 
+                         errorMessage.includes('not configured');
+    
+    // Return proper error response with helpful message
     return NextResponse.json(
-      { deals: [], message: 'Backend unavailable' },
-      { status: 200 }
+      {
+        deals: [],
+        total: 0,
+        page: 1,
+        limit: 1000,
+        totalPages: 0,
+        error: errorMessage,
+        configError: isConfigError,
+        help: isConfigError ? 'Please ensure GOOGLE_APPS_SCRIPT_URL is set in AWS Amplify Environment Variables (not Secrets, unless you know how to access secrets in Next.js API routes)' : undefined,
+      },
+      { status: 500 }
     );
   }
 }

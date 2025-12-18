@@ -88,50 +88,32 @@ export default function DealBrowser({
         const response = await fetch('/api/deals');
         
         if (!response.ok) {
-          throw new Error(`Failed to load deals: ${response.statusText}`);
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Failed to load deals: ${response.statusText}`);
         }
         
         const dealsData = await response.json();
-        setDeals(dealsData.deals || []);
-        setFilteredDeals(dealsData.deals || []);
+        const fetchedDeals = dealsData.deals || [];
+        
+        if (fetchedDeals.length === 0) {
+          // No deals found - this could mean:
+          // 1. GOOGLE_APPS_SCRIPT_URL is not configured
+          // 2. Google Apps Script is not returning deals
+          // 3. All deals are filtered out
+          console.warn('⚠️ No deals returned from API. Check GOOGLE_APPS_SCRIPT_URL configuration.');
+          setError('No deals found. Please check that GOOGLE_APPS_SCRIPT_URL is configured in your environment variables.');
+        } else {
+          console.log(`✅ Successfully loaded ${fetchedDeals.length} deals`);
+        }
+        
+        setDeals(fetchedDeals);
+        setFilteredDeals(fetchedDeals);
       } catch (err) {
-        console.error('Error loading deals:', err);
-        setError('Failed to load deals. Please try again later.');
-        // Use mock data as fallback
-        const mockDeals = [
-          {
-            id: 'deal-1',
-            dealId: 'DEAL001',
-            dealName: 'Premium Display Network',
-            description: 'High-impact display advertising across premium publisher network',
-            mediaType: 'Display',
-            environment: 'Web',
-            bidGuidance: '$2.50 - $5.00 CPM',
-            targeting: 'Demographic, Behavioral',
-            flightDate: '2024-01-15 to 2024-12-31',
-            createdBy: 'System',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            sampleData: true
-          },
-          {
-            id: 'deal-2',
-            dealId: 'DEAL002',
-            dealName: 'Video Pre-roll Package',
-            description: 'Premium video pre-roll advertising on top streaming platforms',
-            mediaType: 'Video',
-            environment: 'CTV',
-            bidGuidance: '$15.00 - $25.00 CPM',
-            targeting: 'Interest-based, Lookalike',
-            flightDate: '2024-01-15 to 2024-12-31',
-            createdBy: 'System',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            sampleData: true
-          }
-        ];
-        setDeals(mockDeals);
-        setFilteredDeals(mockDeals);
+        console.error('❌ Error loading deals:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load deals. Please check your configuration.';
+        setError(errorMessage);
+        setDeals([]);
+        setFilteredDeals([]);
       } finally {
         setLoading(false);
       }

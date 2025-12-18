@@ -90,20 +90,18 @@ export class DealsController {
     const cachedDeals = cacheService.get(cacheKey);
     
     if (cachedDeals) {
+      console.log('✅ Using cached deals:', cachedDeals.length);
       return cachedDeals;
     }
     
-    try {
-      const deals = await this.appsScriptService.getAllDeals();
-      
-      // Cache the results for 5 minutes
-      cacheService.set(cacheKey, deals, 5 * 60 * 1000);
-      
-      return deals;
-    } catch (error) {
-      console.error('Error fetching all deals:', error);
-      return [];
-    }
+    // Don't catch errors here - let them propagate so API route can return proper error
+    const deals = await this.appsScriptService.getAllDeals();
+    
+    // Cache the results for 5 minutes
+    cacheService.set(cacheKey, deals, 5 * 60 * 1000);
+    console.log(`✅ Fetched and cached ${deals.length} deals`);
+    
+    return deals;
   }
 
   /**
@@ -1954,7 +1952,7 @@ export class DealsController {
   /**
    * Filter deals based on search criteria
    */
-  private filterDeals(deals: Deal[], filters: DealFilters): Deal[] {
+  filterDeals(deals: Deal[], filters: DealFilters): Deal[] {
     return deals.filter(deal => {
       // Search filter
       if (filters.search) {

@@ -262,7 +262,10 @@ function MarketInsightsContent() {
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || errorData.error || `HTTP error! status: ${response.status}`;
+        console.error(`❌ Commerce data API error (${response.status}):`, errorMessage);
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();
@@ -294,13 +297,19 @@ function MarketInsightsContent() {
         console.log('📊 Top categories returned:', topCategories.map((p: any) => p.category));
         console.log('📊 Over-indexing categories returned:', byOverIndex.map((p: any) => p.category));
       } else {
-        console.warn('No commerce data for market:', data.error);
+        console.warn('⚠️ No commerce data for market:', data.error || data.message);
         setMostPopularProducts([]);
         setOverIndexingProducts([]);
       }
     } catch (err) {
-      console.error('Error fetching shopping products:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error('❌ Error fetching shopping products:', errorMessage);
+      // Log full error for debugging
+      if (err instanceof Error && err.stack) {
+        console.error('Error stack:', err.stack);
+      }
       // Don't show error to user, just leave products empty
+      // The Market Profile will still show, just without commerce data
       setMostPopularProducts([]);
       setOverIndexingProducts([]);
     } finally {

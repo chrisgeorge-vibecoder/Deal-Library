@@ -48,28 +48,60 @@ export async function POST(request: NextRequest) {
 
     // Ensure commerce data is loaded
     const status = commerceAudienceService.getStatus();
+    console.log(`   📊 Commerce data status: isLoaded=${status.isLoaded}, totalRecords=${status.totalRecords}`);
+    
     if (!status.isLoaded || status.totalRecords === 0) {
       console.log('   🔄 Commerce data not loaded, loading now...');
-      const loadResult = await commerceAudienceService.loadCommerceData();
-      if (!loadResult.success) {
+      try {
+        const loadResult = await commerceAudienceService.loadCommerceData();
+        if (!loadResult.success) {
+          console.error(`   ❌ Failed to load commerce data: ${loadResult.message}`);
+          return NextResponse.json(
+            {
+              success: false,
+              error: 'Failed to load commerce data',
+              message: loadResult.message || 'Commerce data could not be loaded. Please check Supabase configuration and environment variables.'
+            },
+            { status: 500 }
+          );
+        }
+        console.log(`   ✅ Commerce data loaded: ${loadResult.stats?.totalRecords || 0} records`);
+      } catch (loadError) {
+        console.error('   ❌ Exception while loading commerce data:', loadError);
         return NextResponse.json(
           {
             success: false,
             error: 'Failed to load commerce data',
-            message: loadResult.message
+            message: loadError instanceof Error ? loadError.message : 'Unknown error loading commerce data'
           },
           { status: 500 }
         );
       }
-      console.log(`   ✅ Commerce data loaded: ${loadResult.stats?.totalRecords || 0} records`);
+    } else {
+      console.log(`   ✅ Commerce data already loaded: ${status.totalRecords} records available`);
     }
 
     // Get commerce segments with over-index for these ZIP codes, optionally filtered by category
-    const segments = await commerceAudienceService.getSegmentsWithOverIndex(
-      zipCodes,
-      10, // outlierPercentile
-      categoryFilter
-    );
+    let segments;
+    try {
+      console.log(`   🔍 Getting segments with over-index for ${zipCodes.length} ZIP codes...`);
+      segments = await commerceAudienceService.getSegmentsWithOverIndex(
+        zipCodes,
+        10, // outlierPercentile
+        categoryFilter
+      );
+      console.log(`   ✅ Retrieved ${segments.length} segments`);
+    } catch (segmentError) {
+      console.error('   ❌ Error getting segments:', segmentError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to get commerce segments',
+          message: segmentError instanceof Error ? segmentError.message : 'Unknown error getting segments'
+        },
+        { status: 500 }
+      );
+    }
 
     // Debug: Log the categories of returned segments
     if (categoryFilter && categoryFilter !== 'All Categories') {

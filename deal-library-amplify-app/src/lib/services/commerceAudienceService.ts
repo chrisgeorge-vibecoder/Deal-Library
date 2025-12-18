@@ -431,6 +431,48 @@ export class CommerceAudienceService {
   }
 
   /**
+   * Get unique audience segment names directly from Supabase (fast - no full data load)
+   * This is optimized for dropdown population
+   */
+  async getSegmentNamesFromSupabase(): Promise<string[]> {
+    if (!this.useSupabase) {
+      console.log('📋 getSegmentNamesFromSupabase: Supabase not enabled, falling back to local data');
+      return this.getAudienceSegments().map(s => s.name);
+    }
+
+    try {
+      console.log('📋 getSegmentNamesFromSupabase: Fetching unique segment names from Supabase...');
+      const supabase = SupabaseService.getClient();
+      
+      // Use a simple query with distinct - much faster than loading all data
+      const { data, error } = await supabase
+        .from('commerce_audience_segments')
+        .select('audience_name')
+        .not('audience_name', 'is', null)
+        .limit(1000);  // Get up to 1000 unique combinations
+
+      if (error) {
+        console.error('❌ Supabase query error in getSegmentNamesFromSupabase:', error.message);
+        throw new Error(`Supabase query failed: ${error.message}`);
+      }
+
+      // Extract unique segment names
+      const allNames = (data || []).map(r => r.audience_name?.trim()).filter(Boolean) as string[];
+      const uniqueNames = Array.from(new Set(allNames));
+      console.log(`✅ getSegmentNamesFromSupabase: Found ${uniqueNames.length} unique segments`);
+      
+      return uniqueNames.sort();
+    } catch (error) {
+      console.error('❌ Error in getSegmentNamesFromSupabase:', error);
+      // Fallback to local method if it fails
+      if (this.isLoaded) {
+        return this.getAudienceSegments().map(s => s.name);
+      }
+      throw error;
+    }
+  }
+
+  /**
    * Get all available audience segments
    */
   getAudienceSegments(): AudienceSegment[] {

@@ -46,7 +46,22 @@ export class DealsControllerWrapper extends DealsController {
       console.log('🔄 ===== getCommerceAudienceSegmentsDirect() called =====');
       const { commerceAudienceService } = await import('../services/commerceAudienceService');
       
-      // Ensure data is loaded first
+      // Try the optimized direct Supabase query first (fast - no full data load)
+      try {
+        console.log('🚀 Trying optimized direct Supabase query for segment names...');
+        const segmentNames = await commerceAudienceService.getSegmentNamesFromSupabase();
+        
+        if (segmentNames.length > 0) {
+          console.log(`✅ Fast query returned ${segmentNames.length} segments`);
+          return { success: true, segments: segmentNames };
+        }
+      } catch (fastQueryError) {
+        console.warn('⚠️ Fast query failed, falling back to full data load:', 
+          fastQueryError instanceof Error ? fastQueryError.message : fastQueryError);
+      }
+      
+      // Fallback: Load all data (slower, but works if fast query fails)
+      console.log('🔄 Falling back to full data load...');
       let status = commerceAudienceService.getStatus();
       console.log('📊 Commerce data status:', { 
         isLoaded: status.isLoaded, 

@@ -698,15 +698,47 @@ export class CommerceAudienceService {
         // The RPC function executes on the database server with optimized query plan
         // This is much faster than querying a view or table directly
         console.log('🚀 Using RPC function get_audience_segment_names for fast segment retrieval...');
+        console.log(`   Limit: ${SAMPLE_SIZE}`);
         
-        const { data, error } = await supabase.rpc('get_audience_segment_names', {
+        // Add a shorter timeout for RPC (10 seconds)
+        const rpcTimeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('RPC function timeout')), 10000);
+        });
+        
+        const rpcCall = supabase.rpc('get_audience_segment_names', {
           limit_count: SAMPLE_SIZE
         });
+        
+        const { data, error } = await Promise.race([rpcCall, rpcTimeoutPromise]);
         
         if (error) {
           console.error('❌ Supabase RPC error in getSegmentNamesFromSupabase:', error.message);
           console.error('   Error code:', error.code);
           console.error('   Error details:', error);
+          
+          // If RPC times out, try cache table first (fastest)
+          if (error.message?.includes('timeout') || error.code === '57014' || error.message?.includes('RPC function timeout')) {
+            console.warn('⚠️ RPC function timed out, trying cache table...');
+            
+            // Try cache table (fastest option if it exists)
+            try {
+              const cacheResult = await supabase
+                .from('audience_segment_names_cache')
+                .select('audience_name')
+                .order('audience_name', { ascending: true })
+                .limit(SAMPLE_SIZE);
+              
+              if (!cacheResult.error && cacheResult.data && cacheResult.data.length > 0) {
+                const cacheNames = cacheResult.data.map(r => r.audience_name?.trim()).filter(Boolean) as string[];
+                console.log(`✅ getSegmentNamesFromSupabase (cache table): Found ${cacheNames.length} segments`);
+                return cacheNames.sort();
+              }
+            } catch (cacheError) {
+              console.warn('⚠️ Cache table not available:', cacheError);
+            }
+            
+            console.warn('⚠️ Cache table not available, falling back to view query...');
+          }
           
           // If RPC function doesn't exist, fall back to view/table query
           if (error.message?.includes('does not exist') || error.code === '42883' || error.code === '42P01') {

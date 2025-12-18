@@ -311,69 +311,92 @@ export class CommerceAudienceService {
       // Test connection by checking if table exists
       console.log('🔍 Testing connection to commerce_audience_segments table...');
       
-      // CRITICAL: For getting segment names, we don't need to load ALL data
-      // Limit to a reasonable number of records to avoid timeout
-      // If full data is needed, it should be loaded on-demand for specific segments
-      const MAX_RECORDS_TO_LOAD = 100000; // Load up to 100k records max
-      const pageSize = 5000; // Larger page size for efficiency
+      // CRITICAL: For serverless environments, we need to significantly reduce data loading
+      // Loading 100k records causes timeouts. Load a smaller sample that still provides
+      // good coverage across segments and ZIP codes for report generation
+      const MAX_RECORDS_TO_LOAD = 10000; // Reduced from 100k to 10k to avoid timeout
+      const pageSize = 2000; // Smaller page size for faster queries
       let allRecords: any[] = [];
       let offset = 0;
       let pageCount = 0;
       
+      // Add timeout wrapper (15 seconds max for data loading)
+      const loadTimeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Data loading timeout - Supabase query took too long')), 15000);
+      });
+      
       console.log(`📊 Loading commerce data (limited to ${MAX_RECORDS_TO_LOAD.toLocaleString()} records to avoid timeout)...`);
       
-      // Load data in chunks to avoid memory issues
-      while (allRecords.length < MAX_RECORDS_TO_LOAD) {
-        pageCount++;
-        console.log(`📄 Fetching page ${pageCount} (offset: ${offset}, limit: ${pageSize})...`);
-        
-        const { data: records, error, count } = await supabase
-          .from('commerce_audience_segments')
-          .select('sanitized_value, weight, audience_name, seed, dt', { count: 'exact' })
-          .order('sanitized_value')
-          .range(offset, offset + pageSize - 1);
+      const loadDataPromise = (async () => {
+        // Load data in chunks to avoid memory issues
+        while (allRecords.length < MAX_RECORDS_TO_LOAD) {
+          pageCount++;
+          console.log(`📄 Fetching page ${pageCount} (offset: ${offset}, limit: ${pageSize})...`);
+          
+          const { data: records, error, count } = await supabase
+            .from('commerce_audience_segments')
+            .select('sanitized_value, weight, audience_name, seed, dt', { count: 'exact' })
+            .order('sanitized_value')
+            .range(offset, offset + pageSize - 1);
       
-        if (error) {
-          console.error('❌ Supabase query error:', error);
-          console.error('   Error code:', error.code);
-          console.error('   Error message:', error.message);
-          console.error('   Error details:', error.details);
-          console.error('   Error hint:', error.hint);
-          throw new Error(`Supabase query failed: ${error.message} (code: ${error.code})`);
-        }
-        
-        console.log(`   ✅ Page ${pageCount} returned ${records?.length || 0} records`);
-        if (count !== null && pageCount === 1) {
-          console.log(`   📊 Total records in table: ${count.toLocaleString()}`);
-          if (count > MAX_RECORDS_TO_LOAD) {
-            console.warn(`   ⚠️  Table has ${count.toLocaleString()} records, but loading only ${MAX_RECORDS_TO_LOAD.toLocaleString()} to avoid timeout`);
+          if (error) {
+            console.error('❌ Supabase query error:', error);
+            console.error('   Error code:', error.code);
+            console.error('   Error message:', error.message);
+            console.error('   Error details:', error.details);
+            console.error('   Error hint:', error.hint);
+            throw new Error(`Supabase query failed: ${error.message} (code: ${error.code})`);
+          }
+          
+          console.log(`   ✅ Page ${pageCount} returned ${records?.length || 0} records`);
+          if (count !== null && pageCount === 1) {
+            console.log(`   📊 Total records in table: ${count.toLocaleString()}`);
+            if (count > MAX_RECORDS_TO_LOAD) {
+              console.warn(`   ⚠️  Table has ${count.toLocaleString()} records, but loading only ${MAX_RECORDS_TO_LOAD.toLocaleString()} to avoid timeout`);
+            }
+          }
+          
+          if (!records || records.length === 0) {
+            console.log(`   ℹ️  No more records (reached end at offset ${offset})`);
+            break; // No more records
+          }
+          
+          allRecords = [...allRecords, ...records];
+          offset += pageSize;
+          
+          console.log(`📈 Loaded ${allRecords.length.toLocaleString()} commerce records so far...`);
+          
+          // Stop if we've reached our limit
+          if (allRecords.length >= MAX_RECORDS_TO_LOAD) {
+            console.warn(`⚠️  Reached record limit (${MAX_RECORDS_TO_LOAD.toLocaleString()}), stopping pagination`);
+            break;
+          }
+          
+          // Safety limit to prevent infinite loops (reduced from 50 to 10 pages)
+          if (pageCount >= 10) {
+            console.warn('⚠️  Reached page limit (10), stopping pagination');
+            break;
           }
         }
         
-        if (!records || records.length === 0) {
-          console.log(`   ℹ️  No more records (reached end at offset ${offset})`);
-          break; // No more records
-        }
-        
-        allRecords = [...allRecords, ...records];
-        offset += pageSize;
-        
-        console.log(`📈 Loaded ${allRecords.length.toLocaleString()} commerce records so far...`);
-        
-        // Stop if we've reached our limit
-        if (allRecords.length >= MAX_RECORDS_TO_LOAD) {
-          console.warn(`⚠️  Reached record limit (${MAX_RECORDS_TO_LOAD.toLocaleString()}), stopping pagination`);
-          break;
-        }
-        
-        // Safety limit to prevent infinite loops
-        if (pageCount > 50) {
-          console.warn('⚠️  Reached page limit (50), stopping pagination');
-          break;
+        console.log(`📊 Total records fetched from Supabase: ${allRecords.length}`);
+        return allRecords;
+      })();
+      
+      // Race between data loading and timeout
+      try {
+        allRecords = await Promise.race([loadDataPromise, loadTimeoutPromise]);
+      } catch (timeoutError: any) {
+        if (timeoutError.message?.includes('timeout')) {
+          console.warn(`⚠️ Data loading timed out after loading ${allRecords.length} records`);
+          if (allRecords.length === 0) {
+            throw new Error('Data loading timed out before loading any records. This may indicate a database performance issue.');
+          }
+          console.warn(`   Using ${allRecords.length} records that were loaded before timeout`);
+        } else {
+          throw timeoutError;
         }
       }
-      
-      console.log(`📊 Total records fetched from Supabase: ${allRecords.length}`);
       
       if (allRecords.length === 0) {
         const errorMsg = 'No commerce data found in Supabase table "commerce_audience_segments". Table may be empty or query returned no results.';

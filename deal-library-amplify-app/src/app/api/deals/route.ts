@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 // Force dynamic rendering - ensures route runs at request time with full env var access
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-export async function GET(request: NextRequest) {
+// Use standard Request instead of NextRequest - maybe that's the difference?
+export async function GET(request: Request) {
   try {
-    // CRITICAL: Match test-env/diagnose pattern EXACTLY - check env var FIRST
-    // These routes have NO NextRequest parameter and they WORK
+    // CRITICAL: Check env var FIRST - same pattern as test-env/diagnose which WORK
+    // Check BEFORE accessing request object
     const appsScriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL;
     
     if (!appsScriptUrl) {
@@ -30,8 +30,9 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
     
-    // Parse query parameters - use request object (we need it for query params)
-    const searchParams = request.nextUrl.searchParams;
+    // Get query parameters from standard Request object
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
     const filters = {
       search: searchParams.get('search') || undefined,
       targeting: searchParams.get('targeting') || undefined,
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all deals - use EXACT same pattern as diagnose endpoint which WORKS
-    // Diagnose uses top-level import, so we'll match that pattern
+    // Use top-level import like diagnose (it works!)
     const { AppsScriptService } = await import('@/lib/services/appsScriptService');
     const appsScriptService = new AppsScriptService();
     const allDeals = await appsScriptService.getAllDeals();
@@ -137,7 +138,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const body = await request.json();
     // Dynamic import to ensure env vars are available

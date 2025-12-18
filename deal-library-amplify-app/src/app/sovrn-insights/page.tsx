@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { 
   Zap, Search, Shuffle, X, 
@@ -25,7 +25,7 @@ import {
 } from '@/data/sovrnInsights';
 import html2canvas from 'html2canvas';
 
-export default function SovrnInsightsPage() {
+function SovrnInsightsContent() {
   // Get save card context for saving insights
   const { onSaveCard, onUnsaveCard, isSaved } = useSaveCard();
   const searchParams = useSearchParams();
@@ -364,6 +364,21 @@ export default function SovrnInsightsPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function SovrnInsightsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-brand-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-neutral-600">Loading insights...</p>
+        </div>
+      </div>
+    }>
+      <SovrnInsightsContent />
+    </Suspense>
   );
 }
 

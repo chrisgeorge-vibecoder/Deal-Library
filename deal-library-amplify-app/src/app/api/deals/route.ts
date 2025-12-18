@@ -4,24 +4,59 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
 export async function GET(request: NextRequest) {
   try {
-    // Proxy to backend API for reliable deal fetching
-    const response = await fetch(`${API_BASE_URL}/api/deals`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    // Check if backend URL is configured and valid (not localhost or empty)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const isLocalhost = API_BASE_URL.includes('localhost') || API_BASE_URL.includes('127.0.0.1');
+    const isEmpty = !apiUrl || apiUrl.trim() === '';
     
-    if (!response.ok) {
-      throw new Error(`Backend responded with status: ${response.status}`);
+    if (isEmpty || isLocalhost) {
+      console.warn('⚠️ Backend API URL not configured or using localhost. Returning empty deals array.');
+      return NextResponse.json(
+        { deals: [], message: 'Backend API not configured' },
+        { status: 200 }
+      );
     }
+
+    // Proxy to backend API for reliable deal fetching
+    // Add timeout to prevent hanging requests
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
     
-    const data = await response.json();
-    return NextResponse.json(data);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/deals`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        console.warn(`⚠️ Backend responded with status: ${response.status}. Returning empty deals array.`);
+        return NextResponse.json(
+          { deals: [], message: 'Backend unavailable' },
+          { status: 200 }
+        );
+      }
+      
+      const data = await response.json();
+      return NextResponse.json(data);
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      // Re-throw to be caught by outer catch block
+      throw fetchError;
+    }
   } catch (error) {
-    console.error('Error fetching deals:', error);
+    // Catch all errors (network errors, timeouts, parse errors, etc.)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.warn('⚠️ Error fetching deals from backend:', errorMessage);
+    
+    // Always return 200 with empty deals array instead of 500
+    // This allows the frontend to handle gracefully with mock data
     return NextResponse.json(
-      { error: 'Failed to fetch deals', deals: [] },
-      { status: 500 }
+      { deals: [], message: 'Backend unavailable' },
+      { status: 200 }
     );
   }
 }

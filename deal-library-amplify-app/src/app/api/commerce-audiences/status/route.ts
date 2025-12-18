@@ -1,28 +1,41 @@
 import { NextResponse } from 'next/server';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+import { getDealsController } from '@/lib/controllers/dealsControllerWrapper';
 
 export async function GET() {
   try {
-    // Proxy to backend to get actual status (not local service which may not be loaded)
-    const response = await fetch(`${API_BASE_URL}/api/commerce-audiences/status`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+    console.log('🔍 Checking commerce audience status...');
+    
+    // Check local service status
+    const { commerceAudienceService } = await import('@/lib/services/commerceAudienceService');
+    const status = commerceAudienceService.getStatus();
+    
+    // Check Supabase configuration
+    const { SupabaseService } = await import('@/lib/services/supabaseService');
+    const isSupabaseEnabled = SupabaseService.isEnabled();
+    const hasSupabaseUrl = !!process.env.SUPABASE_URL;
+    const hasSupabaseKey = !!process.env.SUPABASE_ANON_KEY;
+    
+    return NextResponse.json({
+      isLoaded: status.isLoaded,
+      totalRecords: status.totalRecords,
+      audienceSegments: status.audienceSegments?.length || 0,
+      supabase: {
+        enabled: isSupabaseEnabled,
+        urlConfigured: hasSupabaseUrl,
+        keyConfigured: hasSupabaseKey,
+        useSupabaseEnv: process.env.USE_SUPABASE
+      },
+      environment: {
+        nodeEnv: process.env.NODE_ENV,
+        useSupabase: process.env.USE_SUPABASE
+      }
     });
-    
-    if (!response.ok) {
-      // If backend is unavailable, return loaded=true to skip unnecessary loading
-      // The segments endpoint will handle fallback to CSV
-      console.warn('⚠️ Backend status check failed, assuming data is available');
-      return NextResponse.json({ loaded: true, status: 'ok' });
-    }
-    
-    const data = await response.json();
-    return NextResponse.json(data);
   } catch (error) {
     console.error('Error getting commerce audience status:', error);
-    // Return loaded=true to prevent unnecessary loading attempts
-    // The actual data loading will happen when segments are fetched
-    return NextResponse.json({ loaded: true, status: 'ok' });
+    return NextResponse.json({
+      isLoaded: false,
+      totalRecords: 0,
+      error: error instanceof Error ? error.message : String(error)
+    }, { status: 500 });
   }
 }

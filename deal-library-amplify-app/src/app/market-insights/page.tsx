@@ -260,6 +260,11 @@ function MarketInsightsContent() {
           categoryFilter: effectiveFilter
         })
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
 
       if (data.success) {
@@ -448,6 +453,11 @@ function MarketInsightsContent() {
       setError(null);
       
       const response = await fetch(`${API_BASE_URL}/api/market-insights/metrics`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
 
       if (data.success) {
@@ -484,6 +494,10 @@ function MarketInsightsContent() {
           includeCommercialZips
         })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
 
@@ -522,6 +536,10 @@ function MarketInsightsContent() {
           includeCommercialZips
         })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
 
@@ -577,6 +595,10 @@ function MarketInsightsContent() {
           includeCommercialZips
         })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
 
@@ -677,6 +699,10 @@ function MarketInsightsContent() {
           includeCommercialZips
         })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
 

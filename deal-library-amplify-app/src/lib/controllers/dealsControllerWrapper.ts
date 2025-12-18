@@ -43,13 +43,111 @@ export class DealsControllerWrapper extends DealsController {
   // Get commerce audience segments directly
   async getCommerceAudienceSegmentsDirect(): Promise<any> {
     try {
+      console.log('🔄 ===== getCommerceAudienceSegmentsDirect() called =====');
       const { commerceAudienceService } = await import('../services/commerceAudienceService');
-      const segments = await commerceAudienceService.getSegments?.() || [];
-      return { success: true, segments };
+      
+      // Ensure data is loaded first
+      let status = commerceAudienceService.getStatus();
+      console.log('📊 Commerce data status:', { 
+        isLoaded: status.isLoaded, 
+        totalRecords: status.totalRecords,
+        audienceSegments: status.audienceSegments?.length || 0
+      });
+      
+      if (!status.isLoaded || status.totalRecords === 0) {
+        console.log('🔄 Commerce data not loaded, loading now...');
+        const loadResult = await commerceAudienceService.loadCommerceData();
+        console.log('📦 Load result:', { 
+          success: loadResult.success, 
+          message: loadResult.message,
+          stats: loadResult.stats ? {
+            totalRecords: loadResult.stats.totalRecords,
+            audienceSegmentCount: loadResult.stats.audienceSegmentCount || loadResult.stats.audienceSegments?.length
+          } : null
+        });
+        
+        // Check status again after loading
+        status = commerceAudienceService.getStatus();
+        console.log('📊 Commerce data status after load:', { 
+          isLoaded: status.isLoaded, 
+          totalRecords: status.totalRecords,
+          audienceSegments: status.audienceSegments?.length || 0
+        });
+        
+        if (!status.isLoaded || status.totalRecords === 0) {
+          const errorMsg = 'Commerce data failed to load. Check logs above for detailed error information.';
+          console.error(`❌ ${errorMsg}`);
+          throw new Error(errorMsg);
+        }
+      }
+      
+      // Get segments using the correct method name
+      const segments = commerceAudienceService.getAudienceSegments();
+      console.log(`📋 Found ${segments.length} segments from commerce service`);
+      
+      if (segments.length === 0) {
+        const errorMsg = 'No segments found after loading data. This indicates a data processing issue.';
+        console.error(`❌ ${errorMsg}`);
+        throw new Error(errorMsg);
+      }
+      
+      // Return in the expected format: array of segment names (strings)
+      const segmentNames = segments.map(seg => seg.name).filter(name => name && name.trim() !== '');
+      console.log(`✅ Returning ${segmentNames.length} segment names`);
+      
+      if (segmentNames.length === 0) {
+        const errorMsg = 'All segment names were empty after processing.';
+        console.error(`❌ ${errorMsg}`);
+        throw new Error(errorMsg);
+      }
+      
+      console.log(`✅ Successfully returning ${segmentNames.length} segments`);
+      return { success: true, segments: segmentNames };
     } catch (error) {
-      console.error('Error getting commerce segments:', error);
-      return { success: false, segments: [], error: String(error) };
+      console.error('❌ ===== ERROR in getCommerceAudienceSegmentsDirect() =====');
+      console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
+      console.error('Error message:', error instanceof Error ? error.message : String(error));
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      
+      // Return error details instead of sample data
+      return { 
+        success: false, 
+        segments: [], 
+        error: error instanceof Error ? error.message : String(error),
+        errorDetails: error instanceof Error ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        } : error
+      };
     }
+  }
+
+  // Get sample segments as fallback
+  private getSampleSegments(): any {
+    const sampleSegments = [
+      'Animals & Pet Supplies', 'Cat Supplies', 'Dog Supplies', 'Pet Supplies',
+      'Activewear', 'Clothing', 'Shoes', 'Outerwear', 'Sunglasses',
+      'Home Appliances', 'Small Kitchen Appliances', 'Vacuums',
+      'TVs', 'Cameras & Photography', 'Audio Equipment',
+      'Luggage & Bags', 'Camping & Hiking', 'Cycling', 'Fitness Equipment',
+      'Baby Care', 'Baby & Toddler Toys', 'Nursing & Feeding',
+      'Office Supplies', 'Office Instruments', 'Desk Accessories',
+      'Food', 'Beverages', 'Bakery', 'Grocery', 'Sweets & Treats',
+      'Home Decor', 'Furniture', 'Bedding', 'Bathroom Accessories',
+      'Toys & Games', 'Board Games', 'Puzzles', 'Action Figures',
+      'Vitamins & Supplements', 'Personal Care', 'Oral Care',
+      'Hardware', 'Building Materials', 'Plumbing Fixtures & Equipment',
+      'Apparel', 'Arts & Crafts', 'Bags & Luggage', 'Cameras & Optics',
+      'Electronics', 'Health & Beauty', 'Home & Garden', 'Media',
+      'Sporting Goods', 'Toys', 'Vehicles & Parts',
+      'Health & Beauty', 'Cosmetics', 'Personal Care', 'Oral Care',
+      'Furniture', 'Office Furniture', 'Home & Garden',
+      'Business & Industrial', 'Office Supplies', 'General Office Supplies'
+    ];
+    
+    console.log(`📋 Returning ${sampleSegments.length} sample segments as fallback`);
+    return { success: true, segments: sampleSegments };
   }
 
   // Get commerce audience status directly

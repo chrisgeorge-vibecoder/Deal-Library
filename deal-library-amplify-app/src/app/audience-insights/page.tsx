@@ -421,12 +421,14 @@ export default function AudienceInsightsPage() {
         // Try the primary endpoint first
         try {
           const response = await fetch('/api/audience-geo-analysis/segments');
+          const responseData = await response.json();
           
           if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            console.error('❌ Primary endpoint error response:', responseData);
+            throw new Error(responseData.error || `HTTP ${response.status}: ${response.statusText}`);
           }
           
-          data = await response.json();
+          data = responseData;
           console.log('📡 Backend response (primary endpoint):', data);
         } catch (primaryError) {
           console.warn('⚠️ Primary endpoint failed, trying fallback:', primaryError);
@@ -434,19 +436,46 @@ export default function AudienceInsightsPage() {
           // Try fallback endpoint
           try {
             const fallbackResponse = await fetch('/api/commerce-audiences/segments');
+            const fallbackData = await fallbackResponse.json();
+            
             if (fallbackResponse.ok) {
-              data = await fallbackResponse.json();
+              data = fallbackData;
               console.log('📡 Backend response (fallback endpoint):', data);
             } else {
-              throw new Error(`HTTP ${fallbackResponse.status}: ${fallbackResponse.statusText}`);
+              // Even if not ok, we got JSON - show the error
+              console.error('❌ Fallback endpoint returned error:', fallbackData);
+              throw new Error(fallbackData.error || `HTTP ${fallbackResponse.status}: ${fallbackResponse.statusText}`);
             }
           } catch (fallbackError) {
-            console.error('❌ Both endpoints failed:', { primaryError, fallbackError });
-            throw primaryError; // Re-throw the original error
+          console.error('❌ Both endpoints failed');
+          console.error('Primary error:', primaryError);
+          console.error('Fallback error:', fallbackError);
+          
+          // Try to extract error details from fallback response
+          if (fallbackError instanceof Error && fallbackError.message.includes('HTTP')) {
+            // If we got an HTTP error, try to get the response body
+            try {
+              const fallbackResponse = await fetch('/api/commerce-audiences/segments');
+              if (!fallbackResponse.ok) {
+                const errorData = await fallbackResponse.json().catch(() => ({}));
+                console.error('Fallback endpoint error response:', errorData);
+                setError(`Failed to load segments: ${errorData.error || errorData.message || fallbackResponse.statusText}`);
+                setSegments([]);
+                return;
+              }
+            } catch (e) {
+              // Ignore
+            }
           }
+          
+          throw primaryError; // Re-throw the original error
+        }
         }
         
-        if (data && data.success && Array.isArray(data.segments)) {
+        console.log('📦 Full API response:', JSON.stringify(data, null, 2));
+        
+        // Handle response with or without success field
+        if (data && Array.isArray(data.segments) && data.segments.length > 0) {
           // Handle both response formats:
           // 1. /api/audience-geo-analysis/segments returns: { segments: string[] }
           // 2. /api/commerce-audiences/segments returns: { segments: AudienceSegment[] }
@@ -465,6 +494,7 @@ export default function AudienceInsightsPage() {
           }
           
           console.log(`📋 Backend has ${backendSegmentNames.length} segments total`);
+          console.log(`📋 First 20 segments:`, backendSegmentNames.slice(0, 20));
           
           // Only show segments that exist in BOTH our mapping AND the backend data
           const availableSegments = exactSegments.filter(seg => 
@@ -482,11 +512,37 @@ export default function AudienceInsightsPage() {
           if (sortedSegments.length === 0) {
             console.warn(`⚠️ No segments found in backend data for category mapping`);
             console.log(`   Looking for: ${exactSegments.join(', ')}`);
-            console.log(`   Backend has: ${backendSegmentNames.slice(0, 10).join(', ')}${backendSegmentNames.length > 10 ? '...' : ''}`);
+            console.log(`   Backend has: ${backendSegmentNames.slice(0, 20).join(', ')}${backendSegmentNames.length > 20 ? '...' : ''}`);
+            
+            // If no exact matches, show all backend segments as fallback (for debugging)
+            console.log('🔄 Showing all backend segments as fallback for debugging...');
+            setSegments(backendSegmentNames.slice(0, 50).sort((a: string, b: string) => a.localeCompare(b)));
+            setError(`No exact matches for "${category}". Showing available segments instead.`);
           }
         } else {
           console.error('❌ Backend response error:', data);
-          setError(`Backend error: ${data?.message || 'Invalid response format'}`);
+          console.error('❌ Response structure:', {
+            hasData: !!data,
+            hasSuccess: data?.success,
+            hasSegments: Array.isArray(data?.segments),
+            segmentsLength: data?.segments?.length,
+            hasError: !!data?.error,
+            errorDetails: data?.errorDetails,
+            fullData: data
+          });
+          
+          // Show detailed error message
+          let errorMessage = 'Failed to load segments';
+          if (data?.error) {
+            errorMessage = `Error: ${data.error}`;
+            if (data?.errorDetails) {
+              errorMessage += `\n\nDetails: ${JSON.stringify(data.errorDetails, null, 2)}`;
+            }
+          } else if (data?.message) {
+            errorMessage = data.message;
+          }
+          
+          setError(errorMessage);
           setSegments([]);
         }
       } else {

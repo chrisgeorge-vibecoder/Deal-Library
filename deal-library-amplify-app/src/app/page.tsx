@@ -177,41 +177,29 @@ export default function HomePage() {
         if (isMounted) setError(null); // Clear any previous errors
         const response = await fetch('/api/deals');
         
-        if (!response.ok) {
-          // Try to get the actual error message from the backend
-          let errorMessage = `Failed to load deals: ${response.statusText}`;
-          try {
-            const errorData = await response.json();
-            if (errorData.message) {
-              errorMessage = errorData.message;
-            }
-          } catch {
-            // If we can't parse the error response, use the default message
-          }
-          throw new Error(errorMessage);
-        }
-        
         const dealsData = await response.json();
+        
+        // Handle both success and graceful degradation (empty deals array)
         if (isMounted) {
-          setDeals(dealsData.deals || []);
-          console.log('✅ Successfully loaded deals:', dealsData.deals?.length || 0);
+          const deals = dealsData.deals || [];
+          if (deals.length > 0) {
+            setDeals(deals);
+            console.log('✅ Successfully loaded deals:', deals.length);
+          } else {
+            // Backend unavailable or no deals - use mock data silently
+            console.log('⚠️ No deals from backend, using mock deals data');
+            setDeals(mockDeals);
+            setError(null); // Don't show error
+          }
         }
         // Don't automatically show deals - only show when explicitly requested through search
       } catch (err) {
         if (isMounted) {
-          // Check if it's a connection error (backend not running)
-          if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
-            // Silently use mock data instead of showing error when backend is down
-            setDeals(mockDeals);
-            setError(null); // Don't show error for backend unavailability
-            console.log('⚠️ Backend unavailable, using mock deals data');
-          } else {
-            // Show error for other types of failures
-            console.error('Error loading deals:', err);
-            const errorMessage = err instanceof Error ? err.message : 'Failed to load deals. Please try again later.';
-            setError(errorMessage);
-            setDeals(mockDeals);
-          }
+          // Silently use mock data instead of showing error when backend is unavailable
+          // This handles both connection errors and API route errors gracefully
+          console.log('⚠️ Backend unavailable, using mock deals data:', err instanceof Error ? err.message : 'Unknown error');
+          setDeals(mockDeals);
+          setError(null); // Don't show error for backend unavailability
         }
         // Don't automatically show deals - only show when explicitly requested through search
       } finally {

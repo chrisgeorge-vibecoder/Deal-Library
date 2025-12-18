@@ -684,9 +684,9 @@ export class CommerceAudienceService {
       console.log('📋 getSegmentNamesFromSupabase: Fetching unique segment names from Supabase...');
       const supabase = SupabaseService.getClient();
       
-      // OPTIMIZED: Use a much simpler query with timeout
-      // Instead of scanning many rows, use a sample-based approach
-      // Get a random sample of 10,000 rows which should give us most unique segments
+      // IMPROVED: Based on Supabase support recommendations
+      // Use DISTINCT with proper normalization (trim, lowercase) and ordering
+      // This ensures we get diverse segments, not just the most common one
       const SAMPLE_SIZE = 10000;
       
       // Add timeout wrapper (20 seconds max)
@@ -695,12 +695,14 @@ export class CommerceAudienceService {
       });
       
       const queryPromise = (async () => {
-        // Use a simple query with limit - much faster
+        // OPTIMIZED: Query the view for guaranteed DISTINCT results
+        // The view v_audience_segment_names provides normalized, distinct segment names
+        // This is faster and ensures we get diverse segments, not just the most common one
         const { data, error } = await supabase
-          .from('commerce_audience_segments')
+          .from('v_audience_segment_names')
           .select('audience_name')
-          .not('audience_name', 'is', null)
-          .limit(SAMPLE_SIZE); // Limit to 10k rows for speed
+          .order('audience_name', { ascending: true })
+          .limit(SAMPLE_SIZE);
 
         if (error) {
           console.error('❌ Supabase query error in getSegmentNamesFromSupabase:', error.message);
@@ -712,10 +714,13 @@ export class CommerceAudienceService {
           return [];
         }
 
-        // Extract unique segment names
+        // IMPROVED: Normalize and deduplicate with Set
+        // Trim whitespace and use Set for true uniqueness
         const allNames = (data || []).map(r => r.audience_name?.trim()).filter(Boolean) as string[];
         const uniqueNames = Array.from(new Set(allNames));
+        
         console.log(`✅ getSegmentNamesFromSupabase: Found ${uniqueNames.length} unique segments from ${data.length} rows`);
+        console.log(`   Sample segments (first 10): ${uniqueNames.slice(0, 10).join(', ')}`);
         
         return uniqueNames.sort();
       })();

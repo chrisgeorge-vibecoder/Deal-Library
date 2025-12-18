@@ -1,61 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { DealsController } from '@/lib/controllers/dealsController';
-import { AppsScriptService } from '@/lib/services/appsScriptService';
-import { cacheService } from '@/lib/services/cacheService';
-
-// Create a singleton instance of the deals controller
-let dealsControllerInstance: DealsController | null = null;
-
-function getDealsController(): DealsController {
-  // Always create a new instance - the AppsScriptService checks env vars at runtime
-  // Creating fresh instances avoids any potential singleton caching issues
-  dealsControllerInstance = new DealsController();
-  return dealsControllerInstance;
-}
-
-// Helper to get deals directly using AppsScriptService (like diagnose endpoint does)
-async function getAllDealsDirect(): Promise<{ deals: any[]; debug: any }> {
-  const debug: any = {
-    step: 'getAllDealsDirect',
-    checks: [],
-  };
-  
-  // Check env var before creating service
-  const envCheck = {
-    hasAppsScriptUrl: !!process.env.GOOGLE_APPS_SCRIPT_URL,
-    urlLength: process.env.GOOGLE_APPS_SCRIPT_URL?.length || 0,
-    nodeEnv: process.env.NODE_ENV,
-  };
-  debug.checks.push({ name: 'env_var_check', result: envCheck });
-  console.log('🔍 getAllDealsDirect: Env check:', envCheck);
-  
-  if (!process.env.GOOGLE_APPS_SCRIPT_URL) {
-    throw new Error(`GOOGLE_APPS_SCRIPT_URL not available. Debug: ${JSON.stringify(envCheck)}`);
-  }
-  
-  console.log('🔍 getAllDealsDirect: Creating AppsScriptService directly');
-  const appsScriptService = new AppsScriptService();
-  debug.checks.push({ name: 'service_created', result: 'success' });
-  
-  console.log('🔍 getAllDealsDirect: Calling getAllDeals()');
-  const deals = await appsScriptService.getAllDeals();
-  debug.checks.push({ name: 'getAllDeals_called', result: `got ${deals.length} deals` });
-  
-  console.log('✅ getAllDealsDirect: Got', deals.length, 'deals');
-  return { deals, debug };
-}
+// Don't import services at top level - use dynamic imports to ensure env vars are available
 
 export async function GET(request: NextRequest) {
   try {
-    // Debug: Log environment variable status (without exposing the actual URL)
-    const hasAppsScriptUrl = !!process.env.GOOGLE_APPS_SCRIPT_URL;
-    console.log('🔍 API Route Environment check:', {
-      hasAppsScriptUrl,
-      appsScriptUrlLength: process.env.GOOGLE_APPS_SCRIPT_URL?.length || 0,
+    // CRITICAL: Check env var FIRST, before any imports or service creation
+    // This ensures we're checking in the route handler context where env vars are available
+    const appsScriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL;
+    
+    console.log('🔍 API Route: FIRST check - env var accessible:', {
+      hasAppsScriptUrl: !!appsScriptUrl,
+      urlLength: appsScriptUrl?.length || 0,
       nodeEnv: process.env.NODE_ENV,
-      urlPrefix: process.env.GOOGLE_APPS_SCRIPT_URL?.substring(0, 50) || 'NOT SET',
       allGoogleEnvKeys: Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')),
     });
+    
+    if (!appsScriptUrl) {
+      // Env var not available - return error immediately
+      return NextResponse.json({
+        deals: [],
+        total: 0,
+        page: 1,
+        limit: 1000,
+        totalPages: 0,
+        error: 'GOOGLE_APPS_SCRIPT_URL environment variable is required to fetch real deals',
+        configError: true,
+        debug: {
+          routeHandler: {
+            hasAppsScriptUrl: false,
+            urlLength: 0,
+            nodeEnv: process.env.NODE_ENV,
+            allGoogleEnvKeys: Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')),
+          },
+        },
+        help: 'Please ensure GOOGLE_APPS_SCRIPT_URL is set in AWS Amplify Environment Variables (not Secrets)',
+      }, { status: 500 });
+    }
     
     // Parse query parameters for filtering
     const searchParams = request.nextUrl.searchParams;
@@ -79,24 +58,19 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Get all deals using DIRECT method only (same as diagnose endpoint)
-    // This bypasses DealsController entirely to avoid any initialization issues
-    console.log('🔍 API Route: Getting deals using DIRECT method (bypassing controller)');
-    let allDeals: any[];
-    let debugInfo: any = null;
-    try {
-      const result = await getAllDealsDirect();
-      allDeals = result.deals;
-      debugInfo = result.debug;
-      console.log('✅ API Route: getAllDealsDirect() returned', allDeals.length, 'deals');
-    } catch (directError) {
-      const errorMsg = directError instanceof Error ? directError.message : String(directError);
-      console.error('❌ getAllDealsDirect failed:', errorMsg);
-      throw new Error(`getAllDealsDirect failed: ${errorMsg}`);
-    }
+    // Get all deals using AppsScriptService directly (same pattern as diagnose endpoint)
+    // Dynamic import ensures module is loaded at runtime when env vars are available
+    console.log('🔍 API Route: Dynamically importing AppsScriptService');
+    const { AppsScriptService } = await import('@/lib/services/appsScriptService');
+    console.log('🔍 API Route: Creating AppsScriptService directly with env var:', !!appsScriptUrl);
+    const appsScriptService = new AppsScriptService();
+    console.log('🔍 API Route: Calling getAllDeals()');
+    const allDeals = await appsScriptService.getAllDeals();
+    console.log('✅ API Route: Got', allDeals.length, 'deals');
     
-    // Use controller only for filtering (it doesn't need env vars for this)
-    const controller = getDealsController();
+    // Import controller only for filtering (it doesn't need env vars for this)
+    const { DealsController } = await import('@/lib/controllers/dealsController');
+    const controller = new DealsController();
     
     // Build DealFilters object for the filterDeals method
     const dealFilters: any = {
@@ -175,7 +149,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const controller = getDealsController();
+    // Dynamic import to ensure env vars are available
+    const { DealsController } = await import('@/lib/controllers/dealsController');
+    const controller = new DealsController();
     const result = await controller.createDealFromBody(body);
     return NextResponse.json(result, { status: 201 });
   } catch (error) {

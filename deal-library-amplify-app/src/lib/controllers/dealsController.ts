@@ -19,7 +19,7 @@ import { AdvertiserBrief, ProgressUpdate } from '../types/agentMode';
 import { cacheService } from '../services/cacheService';
 
 export class DealsController {
-  private appsScriptService: AppsScriptService;
+  private _appsScriptService: AppsScriptService | null = null;
   private geminiService: GeminiService | null = null;
   private embeddingService: any = null; // Dynamic import - may not be available in serverless
   private hybridSearchService: any = null; // Dynamic import - may not be available in serverless
@@ -28,8 +28,17 @@ export class DealsController {
   private agentModeService: AgentModeService | null = null;
   private embeddingServiceInitialized: boolean = false;
 
+  private get appsScriptService(): AppsScriptService {
+    // Lazy initialization - create on first access to ensure env vars are available
+    if (!this._appsScriptService) {
+      console.log('🔧 Lazy initializing AppsScriptService');
+      this._appsScriptService = new AppsScriptService();
+    }
+    return this._appsScriptService;
+  }
+
   constructor() {
-    this.appsScriptService = new AppsScriptService();
+    // Don't create AppsScriptService here - create it lazily on first use
     this.personaService = new PersonaService();
     this.censusDataService = new CensusDataService();
     

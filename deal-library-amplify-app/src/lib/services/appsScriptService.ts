@@ -6,29 +6,17 @@ export class AppsScriptService {
   private personaService: PersonaService;
 
   constructor() {
-    const url = process.env.GOOGLE_APPS_SCRIPT_URL;
-    const sharedSecret = process.env.APPS_SCRIPT_SHARED_SECRET;
+    // Don't check env vars in constructor - getBaseUrl() checks at runtime
+    // This ensures env vars are available when methods are actually called
+    this.baseUrl = null; // Will be set by getBaseUrl() when needed
     
-    if (!url) {
-      console.warn('⚠️  GOOGLE_APPS_SCRIPT_URL not configured - Apps Script integration will be unavailable');
-      this.baseUrl = null;
-    } else {
-      // Append a shared secret as query param if configured
-      if (sharedSecret) {
-        const hasQuery = url.includes('?');
-        this.baseUrl = `${url}${hasQuery ? '&' : '?'}api_key=${encodeURIComponent(sharedSecret)}`;
-      } else {
-        this.baseUrl = url;
-      }
-      console.log('✅ AppsScriptService initialized');
-    }
-
     // Helper to join query params safely
     const makeUrlWith = (base: string, suffix: string) => `${base}${base.includes('?') ? '&' : '?'}${suffix}`;
     // Bind helpers for reuse
     (this as any)._makeUrlWith = makeUrlWith;
     
     this.personaService = new PersonaService();
+    console.log('✅ AppsScriptService initialized (env vars will be checked at runtime)');
   }
 
   /**

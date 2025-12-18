@@ -50,7 +50,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all deals using the controller
+    console.log('🔍 About to call controller.getAllDeals(), checking env var again:', {
+      hasAppsScriptUrl: !!process.env.GOOGLE_APPS_SCRIPT_URL,
+      urlLength: process.env.GOOGLE_APPS_SCRIPT_URL?.length || 0,
+    });
     const allDeals = await controller.getAllDeals();
+    console.log('✅ controller.getAllDeals() returned', allDeals.length, 'deals');
     
     // Build DealFilters object for the filterDeals method
     const dealFilters: any = {

@@ -76,13 +76,13 @@ export default function AudienceDetailModal({
               <div className="card p-4 text-center">
                 <div className="text-sm text-neutral-600 mb-1">CPM</div>
                 <div className="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">
-                  ${segment.cpm.toFixed(2)}
+                  {segment.cpm != null ? `$${segment.cpm.toFixed(2)}` : 'N/A'}
                 </div>
               </div>
               <div className="card p-4 text-center">
                 <div className="text-sm text-neutral-600 mb-1">Media Cost</div>
                 <div className="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">
-                  {(segment.mediaPercentCost * 100).toFixed(0)}%
+                  {segment.mediaPercentCost != null ? `${(segment.mediaPercentCost * 100).toFixed(0)}%` : 'N/A'}
                 </div>
               </div>
               <div className="card p-4 text-center">

@@ -17,8 +17,8 @@ export interface AudienceSegment {
   tier5?: string;
   tier6?: string;
   fullPath: string;
-  cpm: number;
-  mediaPercentCost: number;
+  cpm: number | null;
+  mediaPercentCost: number | null;
   activelyGenerated: boolean;
   scale7DayUS?: number;
   scale1DayIP?: number;

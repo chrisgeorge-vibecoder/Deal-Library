@@ -28,6 +28,17 @@ applications:
               else
                 echo "GEMINI_API_KEY is NOT SET"
               fi
+            # Debug: Show which env vars are available during build
+            - echo "=== DEBUG: Checking all relevant env vars ==="
+            - |
+              echo "GOOGLE_APPS_SCRIPT_URL length: ${#GOOGLE_APPS_SCRIPT_URL}"
+              echo "GEMINI_API_KEY length: ${#GEMINI_API_KEY}"
+              echo "RESEND_API_KEY length: ${#RESEND_API_KEY}"
+              echo "SUPABASE_URL length: ${#SUPABASE_URL}"
+              echo "SUPABASE_ANON_KEY length: ${#SUPABASE_ANON_KEY}"
+              echo "USE_SUPABASE value: $USE_SUPABASE"
+            - echo "=== DEBUG: Listing all env vars containing SUPA ==="
+            - env | grep -i SUPA || echo "No SUPA vars found"
             # Create .env.local with runtime environment variables
             - echo "=== Creating .env.local for runtime ==="
             - |

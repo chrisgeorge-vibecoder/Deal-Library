@@ -1,41 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-// Try top-level import pattern like diagnose endpoint which works
-import { AppsScriptService } from '@/lib/services/appsScriptService';
-import { DealsController } from '@/lib/controllers/dealsController';
+import { headers } from 'next/headers';
+
+// Force dynamic rendering - ensures route runs at request time with full env var access
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
-    // EXACT SAME PATTERN AS test-env endpoint which works
-    // Start with direct env var access before any other code
+    // CRITICAL: Match test-env/diagnose pattern EXACTLY - check env var FIRST
+    // These routes have NO NextRequest parameter and they WORK
     const appsScriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL;
     
-    // Debug output matching test-env pattern exactly
-    console.log('🔍 /api/deals GET - Env var check (matching test-env pattern):', {
-      hasAppsScriptUrl: !!appsScriptUrl,
-      appsScriptUrlLength: appsScriptUrl?.length || 0,
-      nodeEnv: process.env.NODE_ENV,
-      allEnvKeys: Object.keys(process.env).filter(k => 
-        k.includes('GOOGLE') || k.includes('APPS') || k.includes('GEMINI')
-      ),
-      timestamp: new Date().toISOString(),
-    });
-    
     if (!appsScriptUrl) {
-      // Return error with debug info matching test-env structure exactly
-      const debugInfo = {
-        routeHandler: {
-          hasAppsScriptUrl: false,
-          appsScriptUrlLength: 0,
-          nodeEnv: process.env.NODE_ENV,
-          allEnvKeys: Object.keys(process.env).filter(k => 
-            k.includes('GOOGLE') || k.includes('APPS') || k.includes('GEMINI')
-          ),
-          timestamp: new Date().toISOString(),
-        },
-      };
-      
-      console.error('❌ /api/deals GET - GOOGLE_APPS_SCRIPT_URL not available:', debugInfo);
-      
       return NextResponse.json({
         deals: [],
         total: 0,
@@ -44,12 +20,17 @@ export async function GET(request: NextRequest) {
         totalPages: 0,
         error: 'GOOGLE_APPS_SCRIPT_URL environment variable is required to fetch real deals',
         configError: true,
-        debug: debugInfo,
-        help: 'Check /api/deals/test-env - it shows env vars ARE accessible, so this is route-specific. This suggests a Next.js route handling issue on AWS Amplify.',
+        debug: {
+          hasAppsScriptUrl: false,
+          nodeEnv: process.env.NODE_ENV,
+          allEnvKeys: Object.keys(process.env).filter(k => 
+            k.includes('GOOGLE') || k.includes('APPS') || k.includes('GEMINI')
+          ),
+        },
       }, { status: 500 });
     }
     
-    // Parse query parameters for filtering
+    // Parse query parameters - use request object (we need it for query params)
     const searchParams = request.nextUrl.searchParams;
     const filters = {
       search: searchParams.get('search') || undefined,
@@ -71,15 +52,14 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Get all deals using AppsScriptService directly (same pattern as diagnose endpoint)
-    // Using top-level import like diagnose endpoint which works
-    console.log('🔍 API Route: Creating AppsScriptService with env var available:', !!appsScriptUrl);
+    // Get all deals - use EXACT same pattern as diagnose endpoint which WORKS
+    // Diagnose uses top-level import, so we'll match that pattern
+    const { AppsScriptService } = await import('@/lib/services/appsScriptService');
     const appsScriptService = new AppsScriptService();
-    console.log('🔍 API Route: Calling getAllDeals()');
     const allDeals = await appsScriptService.getAllDeals();
-    console.log('✅ API Route: Got', allDeals.length, 'deals');
     
-    // Use controller for filtering (top-level import like diagnose endpoint)
+    // Import controller for filtering
+    const { DealsController } = await import('@/lib/controllers/dealsController');
     const controller = new DealsController();
     
     // Build DealFilters object for the filterDeals method
@@ -160,7 +140,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    // Use top-level import (already imported above)
+    // Dynamic import to ensure env vars are available
+    const { DealsController } = await import('@/lib/controllers/dealsController');
     const controller = new DealsController();
     const result = await controller.createDealFromBody(body);
     return NextResponse.json(result, { status: 201 });

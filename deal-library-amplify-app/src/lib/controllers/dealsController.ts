@@ -2257,7 +2257,7 @@ export class DealsController {
 
       console.log(`🔍 Searching ZIP codes for audience: ${audienceName}`);
       
-      const zipCodes = commerceAudienceService.searchZipCodesByAudience(audienceName, limit);
+      const zipCodes = await commerceAudienceService.searchZipCodesByAudience(audienceName, limit);
       
       res.json({
         success: true,

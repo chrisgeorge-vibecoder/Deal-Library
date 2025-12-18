@@ -405,6 +405,14 @@ export default function AudienceExplorer({
             if (insightsResponse.ok) {
               const insightsData = await insightsResponse.json();
               console.log(`🎯 Loaded audience insights data:`, insightsData);
+              
+              // Check if the response indicates failure even with 200 status
+              if (insightsData.success === false) {
+                setError(`Failed to load audience insights: ${insightsData.message || insightsData.error || 'Please try again.'}`);
+                setSearchResults([]);
+                return;
+              }
+              
               if (insightsData.audienceInsights && insightsData.audienceInsights.length > 0) {
                 insightsData.audienceInsights.forEach((insight: AudienceInsights) => {
                   results.push({ type: 'audience-insights', data: insight });
@@ -412,6 +420,7 @@ export default function AudienceExplorer({
                 console.log(`✅ Added ${insightsData.audienceInsights.length} audience insights`);
               } else {
                 console.log('⚠️ No audience insights found in response');
+                setError('No audience insights were generated. Please try a different search term.');
               }
             } else {
               console.error(`❌ Failed to fetch audience insights: ${insightsResponse.status} ${insightsResponse.statusText}`);

@@ -113,7 +113,7 @@ export class AudienceGeoAnalysisService {
     
     console.log(`🔍 getTopGeoConcentration called for: "${audienceSegment}"`);
     
-    const audienceData = commerceAudienceService.searchZipCodesByAudience(
+    const audienceData = await commerceAudienceService.searchZipCodesByAudience(
       audienceSegment, 
       100 // Get more to filter by geo scope if needed
     );

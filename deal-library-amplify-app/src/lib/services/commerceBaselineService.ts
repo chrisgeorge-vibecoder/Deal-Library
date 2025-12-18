@@ -146,7 +146,7 @@ export class CommerceBaselineService {
     
     for (const segment of allSegments) {
       // Get top 50 ZIPs for this segment (their primary markets)
-      const segmentData = commerceAudienceService.searchZipCodesByAudience(
+      const segmentData = await commerceAudienceService.searchZipCodesByAudience(
         segment.name,
         50  // Top 50 ZIPs
       );

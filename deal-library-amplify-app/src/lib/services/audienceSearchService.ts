@@ -532,7 +532,7 @@ Focus on: audience behavior, purchase intent, demographic fit, and campaign obje
     
     try {
       // Search for ZIP codes associated with this audience
-      const zipData = this.commerceService.searchZipCodesByAudience(commerceAudienceName, 50);
+      const zipData = await this.commerceService.searchZipCodesByAudience(commerceAudienceName, 50);
       
       if (!zipData || zipData.length === 0) {
         return [];
@@ -567,7 +567,7 @@ Focus on: audience behavior, purchase intent, demographic fit, and campaign obje
     
     try {
       // Get top ZIPs for this audience
-      const topZips = this.commerceService.searchZipCodesByAudience(commerceAudienceName, 100);
+      const topZips = await this.commerceService.searchZipCodesByAudience(commerceAudienceName, 100);
       
       if (!topZips || topZips.length === 0) {
         return [];

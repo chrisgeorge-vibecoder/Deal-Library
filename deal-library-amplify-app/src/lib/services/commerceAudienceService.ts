@@ -900,9 +900,105 @@ export class CommerceAudienceService {
   }
 
   /**
-   * Search ZIP codes by audience segment (excludes problematic categories)
+   * Load commerce data for a specific segment from Supabase (on-demand, much faster)
    */
-  searchZipCodesByAudience(audienceName: string, limit: number = 50): CommerceAudienceData[] {
+  async loadSegmentDataFromSupabase(segmentName: string, limit: number = 5000): Promise<CommerceAudienceData[]> {
+    if (!this.useSupabase) {
+      console.log('📋 loadSegmentDataFromSupabase: Supabase not enabled');
+      return [];
+    }
+
+    try {
+      console.log(`📊 Loading commerce data for segment "${segmentName}" from Supabase...`);
+      const supabase = SupabaseService.getClient();
+      
+      // Add timeout wrapper (10 seconds max)
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Segment data loading timeout')), 10000);
+      });
+      
+      const queryPromise = (async () => {
+        // Query filtered by segment name - much faster than loading all data
+        // Try exact match first (faster), then fall back to case-insensitive partial match
+        const trimmedSegment = segmentName.trim();
+        let result = await supabase
+          .from('commerce_audience_segments')
+          .select('sanitized_value, weight, audience_name, seed, dt')
+          .eq('audience_name', trimmedSegment) // Exact match for best performance
+          .limit(limit);
+        
+        // If exact match returns no results, try case-insensitive partial match
+        if (result.error || !result.data || result.data.length === 0) {
+          console.log(`   Exact match failed, trying case-insensitive partial match...`);
+          result = await supabase
+            .from('commerce_audience_segments')
+            .select('sanitized_value, weight, audience_name, seed, dt')
+            .ilike('audience_name', `%${trimmedSegment}%`) // Case-insensitive partial match
+            .limit(limit);
+        }
+        
+        const { data, error } = result;
+
+        if (error) {
+          console.error('❌ Supabase query error in loadSegmentDataFromSupabase:', error.message);
+          throw new Error(`Supabase query failed: ${error.message}`);
+        }
+
+        if (!data || data.length === 0) {
+          console.warn(`⚠️ No data found for segment "${segmentName}"`);
+          return [];
+        }
+
+        // Process records
+        const segmentData: CommerceAudienceData[] = [];
+        for (const record of data) {
+          const sanitizedValue = record.sanitized_value;
+          
+          if (sanitizedValue && sanitizedValue.startsWith('NA_US_')) {
+            const zipCode = sanitizedValue.replace('NA_US_', '');
+            
+            if (/^\d{5}$/.test(zipCode)) {
+              segmentData.push({
+                zipCode,
+                weight: record.weight || 0,
+                audienceName: record.audience_name?.trim() || '',
+                seed: record.seed?.trim() || '',
+                date: record.dt || ''
+              });
+            }
+          }
+        }
+
+        console.log(`✅ Loaded ${segmentData.length} records for segment "${segmentName}"`);
+        return segmentData;
+      })();
+
+      const segmentData = await Promise.race([queryPromise, timeoutPromise]);
+      return segmentData;
+    } catch (error) {
+      console.error(`❌ Error loading segment data for "${segmentName}":`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Search ZIP codes by audience segment (excludes problematic categories)
+   * Now supports on-demand loading from Supabase if data not loaded
+   */
+  async searchZipCodesByAudience(audienceName: string, limit: number = 50): Promise<CommerceAudienceData[]> {
+    // If data not loaded and Supabase is enabled, try loading on-demand for this segment
+    if (!this.isLoaded && this.useSupabase) {
+      console.log(`📊 Data not loaded, loading on-demand for segment "${audienceName}"...`);
+      const segmentData = await this.loadSegmentDataFromSupabase(audienceName, limit * 10); // Load more to account for filtering
+      
+      if (segmentData.length > 0) {
+        // Use the loaded segment data directly
+        return segmentData
+          .sort((a, b) => b.weight - a.weight)
+          .slice(0, limit);
+      }
+    }
+    
     if (!this.isLoaded) {
       console.warn('⚠️ Commerce audience data not loaded');
       return [];

@@ -213,12 +213,12 @@ class AudienceInsightsService {
   async generateReport(segment: string, category?: string, includeCommercialZips: boolean = false): Promise<AudienceInsightsReport> {
     const startTime = Date.now();
     
-    // CRITICAL: Ensure commerce audience data is loaded before generating report
+    // OPTIMIZED: Don't load all data - we'll load on-demand for the specific segment
+    // This is much faster and avoids timeouts
     const commerceStatus = commerceAudienceService.getStatus();
     if (!commerceStatus.isLoaded || commerceStatus.totalRecords === 0) {
-      console.log('🔄 Commerce audience data not loaded, loading now...');
-      await commerceAudienceService.loadCommerceData();
-      console.log('✅ Commerce audience data loaded');
+      console.log('📊 Commerce audience data not loaded - will load on-demand for segment if needed');
+      // Don't load all data here - it times out. Instead, load on-demand in searchZipCodesByAudience
     }
     
     // Check cache first (Supabase or in-memory)
@@ -455,7 +455,7 @@ class AudienceInsightsService {
   }>> {
     console.log(`🔍 Getting top geo concentration for: "${segment}"`);
     
-    const audienceData = commerceAudienceService.searchZipCodesByAudience(segment, limit * 2); // Get more to account for filtering
+    const audienceData = await commerceAudienceService.searchZipCodesByAudience(segment, limit * 2); // Get more to account for filtering
     
     if (!audienceData || audienceData.length === 0) {
       console.log(`⚠️  No audience data found for segment: "${segment}"`);
@@ -1097,7 +1097,7 @@ class AudienceInsightsService {
     const allSegments = commerceAudienceService.getAudienceSegments().map(s => s.name);
     
     // Get target segment's ZIP codes (use top 100 for faster processing)
-    const targetZips = commerceAudienceService.searchZipCodesByAudience(targetSegment, 100);
+    const targetZips = await commerceAudienceService.searchZipCodesByAudience(targetSegment, 100);
     const targetZipSet = new Set(targetZips.map((z: any) => z.zipCode));
 
     console.log(`   Target segment has ${targetZipSet.size} ZIP codes`);
@@ -1118,7 +1118,7 @@ class AudienceInsightsService {
     const overlaps: Array<{ segment: string; overlapPercentage: number; insight: string }> = [];
     
     for (const segment of segmentsToCheck) {
-      const segmentZips = commerceAudienceService.searchZipCodesByAudience(segment, 100);
+      const segmentZips = await commerceAudienceService.searchZipCodesByAudience(segment, 100);
       const segmentZipSet = new Set(segmentZips.map((z: any) => z.zipCode));
 
       const intersection = new Set([...targetZipSet].filter(z => segmentZipSet.has(z)));
@@ -1213,8 +1213,8 @@ class AudienceInsightsService {
       console.log(`🔍 calculateOverIndexing: ${targetSegment} + ${overlapSegment}`);
       
       // Get ZIP data for both segments - get more data for better diversity
-      const targetZips = commerceAudienceService.searchZipCodesByAudience(targetSegment, 200);
-      const overlapZips = commerceAudienceService.searchZipCodesByAudience(overlapSegment, 200);
+      const targetZips = await commerceAudienceService.searchZipCodesByAudience(targetSegment, 200);
+      const overlapZips = await commerceAudienceService.searchZipCodesByAudience(overlapSegment, 200);
       
       console.log(`📊 Found ${targetZips.length} target ZIPs and ${overlapZips.length} overlap ZIPs`);
       
@@ -1530,8 +1530,8 @@ class AudienceInsightsService {
   private async getGeographicOverlapContext(targetSegment: string, overlapSegment: string): Promise<string> {
     try {
       // Get top ZIPs for both segments
-      const targetZips = commerceAudienceService.searchZipCodesByAudience(targetSegment, 50);
-      const overlapZips = commerceAudienceService.searchZipCodesByAudience(overlapSegment, 50);
+      const targetZips = await commerceAudienceService.searchZipCodesByAudience(targetSegment, 50);
+      const overlapZips = await commerceAudienceService.searchZipCodesByAudience(overlapSegment, 50);
       
       if (!targetZips || !overlapZips || targetZips.length === 0 || overlapZips.length === 0) {
         return '';

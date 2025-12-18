@@ -2016,12 +2016,23 @@ Return ONLY valid JSON. No other text.`;
 
     const startTime = Date.now();
     try {
+      // Add timeout protection - Gemini Pro can take 30-60 seconds, but we'll timeout at 90 seconds
+      const GEMINI_TIMEOUT_MS = 90000; // 90 seconds
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error(`Gemini API timeout after ${GEMINI_TIMEOUT_MS}ms. The request took too long to complete.`));
+        }, GEMINI_TIMEOUT_MS);
+      });
+
       // Use Pro model for quality-critical audience insights
-      const response = await this.proModel.generateContent(prompt);
-      const responseText = response.response.text();
-      this.logModelPerformance('pro', 'Audience Insights', startTime);
+      const generatePromise = this.proModel.generateContent(prompt);
+      const result = await Promise.race([generatePromise, timeoutPromise]);
       
-      console.log('🎯 Gemini Pro audience insights response:', responseText);
+      const response = result.response;
+      const responseText = response.text();
+      this.logModelPerformance('pro', 'Audience Insights', startTime, true);
+      
+      console.log('🎯 Gemini Pro audience insights response:', responseText.substring(0, 500) + '...');
       
       // Parse the JSON response with more robust error handling
       let parsed;
@@ -2041,9 +2052,9 @@ Return ONLY valid JSON. No other text.`;
             return this.generateInsightsFromText(responseText, query);
           }
         }
-      } catch (error) {
-        console.error('❌ Failed to parse audience insights JSON:', error);
-        console.log('🔍 Raw response:', responseText);
+      } catch (parseError) {
+        console.error('❌ Failed to parse audience insights JSON:', parseError);
+        console.log('🔍 Raw response (first 1000 chars):', responseText.substring(0, 1000));
         // Try to generate insights from the text response
         return this.generateInsightsFromText(responseText, query);
       }
@@ -2056,11 +2067,26 @@ Return ONLY valid JSON. No other text.`;
       };
       
     } catch (error) {
+      const duration = Date.now() - startTime;
+      this.logModelPerformance('pro', 'Audience Insights', startTime, false);
+      
+      // Log detailed error information
       console.error('❌ Failed to generate audience insights:', error);
-      return {
-        audienceInsights: [],
-        aiResponse: "I encountered an error while generating audience insights. Please try again."
-      };
+      if (error instanceof Error) {
+        console.error('   Error name:', error.name);
+        console.error('   Error message:', error.message);
+        console.error('   Error stack:', error.stack?.substring(0, 500));
+      } else {
+        console.error('   Error type:', typeof error);
+        console.error('   Error value:', String(error));
+      }
+      console.error(`   Duration before failure: ${duration}ms`);
+      console.error(`   Query: "${query}"`);
+      
+      // Re-throw with more context so the wrapper can handle it appropriately
+      throw new Error(
+        `Gemini API error: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 

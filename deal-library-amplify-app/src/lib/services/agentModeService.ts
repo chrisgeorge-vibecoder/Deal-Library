@@ -1611,7 +1611,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
             console.log(`   Analyzing demographics for: ${segmentName}`);
 
             // Get top ZIPs for this segment
-            const audienceData = commerceAudienceService.searchZipCodesByAudience(segmentName, 50);
+            const audienceData = await commerceAudienceService.searchZipCodesByAudience(segmentName, 50);
             
             if (!audienceData || audienceData.length === 0) {
               console.log(`   No data for ${segmentName}`);
@@ -1795,7 +1795,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
             console.log(`   Getting top ZIPs for: ${segmentName}`);
             
             // Get geographic distribution for this segment using commerce data
-            const audienceData = commerceAudienceService.searchZipCodesByAudience(segmentName, 30);
+            const audienceData = await commerceAudienceService.searchZipCodesByAudience(segmentName, 30);
 
             if (!audienceData || audienceData.length === 0) {
               console.log(`   No geo data found for ${segmentName}`);

@@ -3,15 +3,21 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
-    // CRITICAL: Check env var FIRST, before any imports or service creation
-    // This ensures we're checking in the route handler context where env vars are available
-    const appsScriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL;
+    // CRITICAL: Use a function call to force runtime evaluation
+    // This prevents Next.js from optimizing/env var access at build time
+    const getEnvVar = (key: string) => {
+      // Force runtime access by accessing process.env inside a function
+      return typeof process !== 'undefined' && process.env ? process.env[key] : undefined;
+    };
     
-    console.log('🔍 API Route: FIRST check - env var accessible:', {
+    const appsScriptUrl = getEnvVar('GOOGLE_APPS_SCRIPT_URL');
+    
+    console.log('🔍 API Route: Runtime env var check:', {
       hasAppsScriptUrl: !!appsScriptUrl,
       urlLength: appsScriptUrl?.length || 0,
-      nodeEnv: process.env.NODE_ENV,
-      allGoogleEnvKeys: Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')),
+      nodeEnv: getEnvVar('NODE_ENV'),
+      allProcessEnvKeys: typeof process !== 'undefined' && process.env ? Object.keys(process.env).slice(0, 10) : [],
+      allGoogleEnvKeys: typeof process !== 'undefined' && process.env ? Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')) : [],
     });
     
     if (!appsScriptUrl) {
@@ -28,8 +34,10 @@ export async function GET(request: NextRequest) {
           routeHandler: {
             hasAppsScriptUrl: false,
             urlLength: 0,
-            nodeEnv: process.env.NODE_ENV,
-            allGoogleEnvKeys: Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')),
+            nodeEnv: typeof process !== 'undefined' && process.env ? process.env.NODE_ENV : 'undefined',
+            hasProcess: typeof process !== 'undefined',
+            hasProcessEnv: typeof process !== 'undefined' && !!process.env,
+            allGoogleEnvKeys: typeof process !== 'undefined' && process.env ? Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')) : [],
           },
         },
         help: 'Please ensure GOOGLE_APPS_SCRIPT_URL is set in AWS Amplify Environment Variables (not Secrets)',
@@ -117,12 +125,17 @@ export async function GET(request: NextRequest) {
                          errorMessage.includes('not available');
     
     // Add debug info to help diagnose
+    const getEnvVar = (key: string) => {
+      return typeof process !== 'undefined' && process.env ? process.env[key] : undefined;
+    };
     const debugInfo = {
       routeHandler: {
-        hasAppsScriptUrl: !!process.env.GOOGLE_APPS_SCRIPT_URL,
-        urlLength: process.env.GOOGLE_APPS_SCRIPT_URL?.length || 0,
-        nodeEnv: process.env.NODE_ENV,
-        allGoogleEnvKeys: Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')),
+        hasAppsScriptUrl: !!getEnvVar('GOOGLE_APPS_SCRIPT_URL'),
+        urlLength: getEnvVar('GOOGLE_APPS_SCRIPT_URL')?.length || 0,
+        nodeEnv: getEnvVar('NODE_ENV'),
+        hasProcess: typeof process !== 'undefined',
+        hasProcessEnv: typeof process !== 'undefined' && !!process.env,
+        allGoogleEnvKeys: typeof process !== 'undefined' && process.env ? Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')) : [],
       },
       errorMessage,
       errorStack: errorStack?.substring(0, 500), // First 500 chars of stack

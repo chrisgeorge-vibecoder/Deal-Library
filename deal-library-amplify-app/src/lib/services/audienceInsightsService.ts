@@ -280,48 +280,99 @@ class AudienceInsightsService {
     const educationVsCommerce = commerceBaseline?.educationBachelorsPlus ? ((demographics.educationBachelors / commerceBaseline.educationBachelorsPlus) - 1) * 100 : null;
     console.log(`📊 vs Commerce: Income ${medianHHIvsCommerce !== null ? (medianHHIvsCommerce > 0 ? '+' : '') + medianHHIvsCommerce.toFixed(1) + '%' : 'N/A'}, Education ${educationVsCommerce !== null ? (educationVsCommerce > 0 ? '+' : '') + educationVsCommerce.toFixed(1) + '%' : 'N/A'}`);
 
-    // Step 4: Generate strategic insights with Gemini
+    // Step 4: Generate strategic insights with Gemini (with timeout protection)
+    // Each Gemini call gets a 30-second timeout to prevent hanging
+    const GEMINI_CALL_TIMEOUT_MS = 30000;
     stepStart = Date.now();
-    const strategicInsights = await this.generateStrategicInsights(
-      segment,
-      category || 'General',
-      demographics,
-      overlaps,
-      geoIntelligence,
-      commerceBaseline  // Pass baseline to Gemini
-    );
-    console.log(`✨ Generated strategic insights with Gemini (${Date.now() - stepStart}ms)`);
-
-    // Step 4b: Replace targetPersona with humanized version (narrative style like "Ambitious Aisha")
-    stepStart = Date.now();
-    const humanizedPersona = await this.generateHumanizedPersona(
-      segment,
-      category || 'General',
-      demographics,
-      geoIntelligence,
-      overlaps,
-      demographics.affluenceLevel,
-      demographics.familyProfile,
-      demographics.lifestyle?.selfEmployed && demographics.lifestyle.selfEmployed > 12 ? 'Often self-employed or entrepreneurial' : 'Typically employed'
-    );
-    strategicInsights.targetPersona = humanizedPersona;
-    console.log(`👤 Replaced targetPersona with "Ambitious Aisha" style narrative (${Date.now() - stepStart}ms)`);
-
-    // Step 5: Generate executive summary with Gemini
-    stepStart = Date.now();
-    const executiveSummary = await this.generateExecutiveSummary(
-      segment,
-      demographics,
-      overlaps,
-      geoIntelligence,
-      commerceBaseline  // Pass baseline to Gemini
-    );
-    console.log(`📝 Generated executive summary (${Date.now() - stepStart}ms)\n`);
     
-    // Generate AI-powered persona with visual description
-    stepStart = Date.now();
-    const personaResult = await this.generateAIPersona(segment, category || 'General', demographics, overlaps, geoIntelligence, commerceBaseline);
-    console.log(`👤 Generated AI persona: "${personaResult.name}" ${personaResult.emoji} (${Date.now() - stepStart}ms)`);
+    const strategicInsightsPromise = Promise.race([
+      this.generateStrategicInsights(
+        segment,
+        category || 'General',
+        demographics,
+        overlaps,
+        geoIntelligence,
+        commerceBaseline  // Pass baseline to Gemini
+      ),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Strategic insights generation timeout')), GEMINI_CALL_TIMEOUT_MS)
+      )
+    ]).catch(error => {
+      console.error('❌ Failed to generate strategic insights:', error);
+      // Return fallback insights
+      return {
+        targetPersona: `The ${segment} audience`,
+        keyInsights: [`Strong engagement with ${segment} products and services`],
+        mediaRecommendations: ['Digital channels', 'Targeted advertising'],
+        creativeGuidance: `Focus on ${segment} needs and preferences`
+      };
+    });
+    
+    // Step 4b: Generate humanized persona (with timeout protection) - run in parallel with strategic insights
+    const humanizedPersonaPromise = Promise.race([
+      this.generateHumanizedPersona(
+        segment,
+        category || 'General',
+        demographics,
+        geoIntelligence,
+        overlaps,
+        demographics.affluenceLevel,
+        demographics.familyProfile,
+        demographics.lifestyle?.selfEmployed && demographics.lifestyle.selfEmployed > 12 ? 'Often self-employed or entrepreneurial' : 'Typically employed'
+      ),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Humanized persona generation timeout')), GEMINI_CALL_TIMEOUT_MS)
+      )
+    ]).catch(error => {
+      console.error('❌ Failed to generate humanized persona:', error);
+      return `The ${segment} audience represents a key market segment with distinct characteristics and preferences.`;
+    });
+
+    // Step 5: Generate executive summary (with timeout protection) - run in parallel
+    const executiveSummaryPromise = Promise.race([
+      this.generateExecutiveSummary(
+        segment,
+        demographics,
+        overlaps,
+        geoIntelligence,
+        commerceBaseline  // Pass baseline to Gemini
+      ),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Executive summary generation timeout')), GEMINI_CALL_TIMEOUT_MS)
+      )
+    ]).catch(error => {
+      console.error('❌ Failed to generate executive summary:', error);
+      return `The ${segment} audience shows strong market potential with ${demographics.medianHHI ? '$' + demographics.medianHHI.toLocaleString() : 'above-average'} household income and ${demographics.educationBachelors ? demographics.educationBachelors.toFixed(0) + '%' : 'high'} education levels.`;
+    });
+    
+    // Generate AI-powered persona (with timeout protection) - run in parallel
+    const personaResultPromise = Promise.race([
+      this.generateAIPersona(segment, category || 'General', demographics, overlaps, geoIntelligence, commerceBaseline),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('AI persona generation timeout')), GEMINI_CALL_TIMEOUT_MS)
+      )
+    ]).catch(error => {
+      console.error('❌ Failed to generate AI persona:', error);
+      return {
+        name: segment,
+        emoji: '👤',
+        description: `The ${segment} audience`
+      };
+    });
+
+    // Wait for all parallel Gemini calls to complete (with individual timeouts)
+    const [strategicInsights, humanizedPersona, executiveSummary, personaResult] = await Promise.all([
+      strategicInsightsPromise,
+      humanizedPersonaPromise,
+      executiveSummaryPromise,
+      personaResultPromise
+    ]);
+    
+    console.log(`✨ Generated all strategic content with Gemini (${Date.now() - stepStart}ms)`);
+    
+    // Replace targetPersona with humanized version
+    strategicInsights.targetPersona = humanizedPersona;
+    console.log(`👤 Applied humanized persona narrative`);
 
     // Compile final report
     const report: AudienceInsightsReport = {

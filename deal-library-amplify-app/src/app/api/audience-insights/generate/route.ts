@@ -3,9 +3,13 @@ import { audienceInsightsService } from '@/lib/services/audienceInsightsService'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
-// AWS Amplify serverless functions have timeout limits (10-30 seconds)
-// We need to ensure we return before that limit
-const API_TIMEOUT_MS = 25000; // 25 seconds - leave buffer for Amplify timeout
+// Timeout for report generation
+// Note: If running on AWS Amplify, check your function timeout settings
+// For local/dev environments, we can use longer timeouts
+// For production, consider using background jobs or increasing Amplify timeout limits
+const API_TIMEOUT_MS = process.env.NODE_ENV === 'production' 
+  ? 55000  // 55 seconds for production (leaves buffer for Amplify 60s limit)
+  : 90000; // 90 seconds for development (more forgiving)
 
 export async function POST(request: NextRequest) {
   // Create a timeout promise that rejects after API_TIMEOUT_MS

@@ -10,9 +10,24 @@ applications:
           commands:
             - echo "=== Building Next.js ==="
             - echo "=== Environment variables check (build time) ==="
-            - echo "GOOGLE_APPS_SCRIPT_URL is $([ -n "$GOOGLE_APPS_SCRIPT_URL" ] && echo "SET (length: ${#GOOGLE_APPS_SCRIPT_URL})" || echo "NOT SET")"
-            - echo "RESEND_API_KEY is $([ -n "$RESEND_API_KEY" ] && echo "SET" || echo "NOT SET")"
-            - echo "GEMINI_API_KEY is $([ -n "$GEMINI_API_KEY" ] && echo "SET" || echo "NOT SET")"
+            - |
+              if [ -n "$GOOGLE_APPS_SCRIPT_URL" ]; then
+                echo "GOOGLE_APPS_SCRIPT_URL is SET (length: ${#GOOGLE_APPS_SCRIPT_URL})"
+              else
+                echo "GOOGLE_APPS_SCRIPT_URL is NOT SET"
+              fi
+            - |
+              if [ -n "$RESEND_API_KEY" ]; then
+                echo "RESEND_API_KEY is SET"
+              else
+                echo "RESEND_API_KEY is NOT SET"
+              fi
+            - |
+              if [ -n "$GEMINI_API_KEY" ]; then
+                echo "GEMINI_API_KEY is SET"
+              else
+                echo "GEMINI_API_KEY is NOT SET"
+              fi
             - npm run build
             - echo "=== Build complete, checking output ==="
             - ls -la .next/

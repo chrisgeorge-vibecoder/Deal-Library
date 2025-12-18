@@ -1,27 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
-// Don't import services at top level - use dynamic imports to ensure env vars are available
+// Try top-level import pattern like diagnose endpoint which works
+import { AppsScriptService } from '@/lib/services/appsScriptService';
+import { DealsController } from '@/lib/controllers/dealsController';
 
 export async function GET(request: NextRequest) {
   try {
-    // CRITICAL: Use a function call to force runtime evaluation
-    // This prevents Next.js from optimizing/env var access at build time
-    const getEnvVar = (key: string) => {
-      // Force runtime access by accessing process.env inside a function
-      return typeof process !== 'undefined' && process.env ? process.env[key] : undefined;
-    };
+    // EXACT SAME PATTERN AS test-env endpoint which works
+    // Start with direct env var access before any other code
+    const appsScriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL;
     
-    const appsScriptUrl = getEnvVar('GOOGLE_APPS_SCRIPT_URL');
-    
-    console.log('🔍 API Route: Runtime env var check:', {
+    // Debug output matching test-env pattern exactly
+    console.log('🔍 /api/deals GET - Env var check (matching test-env pattern):', {
       hasAppsScriptUrl: !!appsScriptUrl,
-      urlLength: appsScriptUrl?.length || 0,
-      nodeEnv: getEnvVar('NODE_ENV'),
-      allProcessEnvKeys: typeof process !== 'undefined' && process.env ? Object.keys(process.env).slice(0, 10) : [],
-      allGoogleEnvKeys: typeof process !== 'undefined' && process.env ? Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')) : [],
+      appsScriptUrlLength: appsScriptUrl?.length || 0,
+      nodeEnv: process.env.NODE_ENV,
+      allEnvKeys: Object.keys(process.env).filter(k => 
+        k.includes('GOOGLE') || k.includes('APPS') || k.includes('GEMINI')
+      ),
+      timestamp: new Date().toISOString(),
     });
     
     if (!appsScriptUrl) {
-      // Env var not available - return error immediately
+      // Return error with debug info matching test-env structure exactly
+      const debugInfo = {
+        routeHandler: {
+          hasAppsScriptUrl: false,
+          appsScriptUrlLength: 0,
+          nodeEnv: process.env.NODE_ENV,
+          allEnvKeys: Object.keys(process.env).filter(k => 
+            k.includes('GOOGLE') || k.includes('APPS') || k.includes('GEMINI')
+          ),
+          timestamp: new Date().toISOString(),
+        },
+      };
+      
+      console.error('❌ /api/deals GET - GOOGLE_APPS_SCRIPT_URL not available:', debugInfo);
+      
       return NextResponse.json({
         deals: [],
         total: 0,
@@ -30,17 +44,8 @@ export async function GET(request: NextRequest) {
         totalPages: 0,
         error: 'GOOGLE_APPS_SCRIPT_URL environment variable is required to fetch real deals',
         configError: true,
-        debug: {
-          routeHandler: {
-            hasAppsScriptUrl: false,
-            urlLength: 0,
-            nodeEnv: typeof process !== 'undefined' && process.env ? process.env.NODE_ENV : 'undefined',
-            hasProcess: typeof process !== 'undefined',
-            hasProcessEnv: typeof process !== 'undefined' && !!process.env,
-            allGoogleEnvKeys: typeof process !== 'undefined' && process.env ? Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')) : [],
-          },
-        },
-        help: 'Please ensure GOOGLE_APPS_SCRIPT_URL is set in AWS Amplify Environment Variables (not Secrets)',
+        debug: debugInfo,
+        help: 'Check /api/deals/test-env - it shows env vars ARE accessible, so this is route-specific. This suggests a Next.js route handling issue on AWS Amplify.',
       }, { status: 500 });
     }
     
@@ -67,17 +72,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all deals using AppsScriptService directly (same pattern as diagnose endpoint)
-    // Dynamic import ensures module is loaded at runtime when env vars are available
-    console.log('🔍 API Route: Dynamically importing AppsScriptService');
-    const { AppsScriptService } = await import('@/lib/services/appsScriptService');
-    console.log('🔍 API Route: Creating AppsScriptService directly with env var:', !!appsScriptUrl);
+    // Using top-level import like diagnose endpoint which works
+    console.log('🔍 API Route: Creating AppsScriptService with env var available:', !!appsScriptUrl);
     const appsScriptService = new AppsScriptService();
     console.log('🔍 API Route: Calling getAllDeals()');
     const allDeals = await appsScriptService.getAllDeals();
     console.log('✅ API Route: Got', allDeals.length, 'deals');
     
-    // Import controller only for filtering (it doesn't need env vars for this)
-    const { DealsController } = await import('@/lib/controllers/dealsController');
+    // Use controller for filtering (top-level import like diagnose endpoint)
     const controller = new DealsController();
     
     // Build DealFilters object for the filterDeals method
@@ -124,18 +126,14 @@ export async function GET(request: NextRequest) {
                          errorMessage.includes('not configured') ||
                          errorMessage.includes('not available');
     
-    // Add debug info to help diagnose
-    const getEnvVar = (key: string) => {
-      return typeof process !== 'undefined' && process.env ? process.env[key] : undefined;
-    };
+    // Add debug info to help diagnose - using direct process.env access like test-env
     const debugInfo = {
       routeHandler: {
-        hasAppsScriptUrl: !!getEnvVar('GOOGLE_APPS_SCRIPT_URL'),
-        urlLength: getEnvVar('GOOGLE_APPS_SCRIPT_URL')?.length || 0,
-        nodeEnv: getEnvVar('NODE_ENV'),
-        hasProcess: typeof process !== 'undefined',
-        hasProcessEnv: typeof process !== 'undefined' && !!process.env,
-        allGoogleEnvKeys: typeof process !== 'undefined' && process.env ? Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')) : [],
+        hasAppsScriptUrl: !!process.env.GOOGLE_APPS_SCRIPT_URL,
+        urlLength: process.env.GOOGLE_APPS_SCRIPT_URL?.length || 0,
+        nodeEnv: process.env.NODE_ENV,
+        allGoogleEnvKeys: Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')),
+        timestamp: new Date().toISOString(),
       },
       errorMessage,
       errorStack: errorStack?.substring(0, 500), // First 500 chars of stack
@@ -162,8 +160,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    // Dynamic import to ensure env vars are available
-    const { DealsController } = await import('@/lib/controllers/dealsController');
+    // Use top-level import (already imported above)
     const controller = new DealsController();
     const result = await controller.createDealFromBody(body);
     return NextResponse.json(result, { status: 201 });

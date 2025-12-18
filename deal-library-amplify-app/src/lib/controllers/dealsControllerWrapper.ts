@@ -54,6 +54,8 @@ export class DealsControllerWrapper extends DealsController {
         if (segmentNames.length > 0) {
           console.log(`✅ Fast query returned ${segmentNames.length} segments`);
           return { success: true, segments: segmentNames };
+        } else {
+          console.warn('⚠️ Fast query returned 0 segments, falling back to full data load');
         }
       } catch (fastQueryError) {
         console.warn('⚠️ Fast query failed, falling back to full data load:', 
@@ -80,6 +82,12 @@ export class DealsControllerWrapper extends DealsController {
             audienceSegmentCount: loadResult.stats.audienceSegmentCount || loadResult.stats.audienceSegments?.length
           } : null
         });
+        
+        if (!loadResult.success) {
+          const errorMsg = `Commerce data failed to load: ${loadResult.message}`;
+          console.error(`❌ ${errorMsg}`);
+          throw new Error(errorMsg);
+        }
         
         // Check status again after loading
         status = commerceAudienceService.getStatus();
@@ -117,6 +125,7 @@ export class DealsControllerWrapper extends DealsController {
       }
       
       console.log(`✅ Successfully returning ${segmentNames.length} segments`);
+      console.log(`   Sample segments: ${segmentNames.slice(0, 10).join(', ')}...`);
       return { success: true, segments: segmentNames };
     } catch (error) {
       console.error('❌ ===== ERROR in getCommerceAudienceSegmentsDirect() =====');
@@ -191,88 +200,169 @@ export class DealsControllerWrapper extends DealsController {
     }
   }
 
-  // Search deals with AI directly
+  // Search deals with AI directly - FIXED: Now uses Gemini like the full searchDealsAI method
   async searchDealsAIDirect(body: any): Promise<any> {
     try {
-      const deals = await this.getAllDeals();
-      const query = body.query?.toLowerCase() || '';
+      const { query, conversationHistory, forceDeals } = body;
       
-      // Check if this is a persona-based deal request
-      const isPersonaDealRequest = (query.includes('deals for') || query.includes('request deals')) && 
-                                   query.includes('persona');
+      if (!query || typeof query !== 'string' || query.trim().length === 0) {
+        return { 
+          success: false,
+          error: 'Search query is required',
+          message: 'Please provide a valid search query'
+        };
+      }
+
+      // Apply typo correction (simplified version)
+      const correctedQuery = query.trim();
       
-      if (isPersonaDealRequest) {
-        console.log(`🎯 Detected persona-based deal request in searchDealsAIDirect: "${query}"`);
-        
-        // Import personaService
-        const { personaService } = await import('../services/personaService');
-        const allPersonas = personaService.getAllPersonas();
-        let matchedPersona: any = null;
-        
-        // Find persona that matches the query
-        for (const persona of allPersonas) {
-          const personaNameLower = (persona.personaName || '').toLowerCase();
-          if (query.includes(personaNameLower)) {
-            matchedPersona = persona;
-            console.log(`✅ Matched persona: ${persona.personaName} (${persona.segmentId})`);
-            break;
-          }
-        }
-        
-        if (matchedPersona) {
-          // Find deals that match this persona
-          const matchingDeals = deals.filter((deal: any) => {
-            const personaInsights = personaService.matchDealToPersona(deal.dealName);
-            return personaInsights && personaInsights.segmentId === matchedPersona.segmentId;
-          });
-          
-          if (matchingDeals.length > 0) {
-            console.log(`🎯 Found ${matchingDeals.length} deals for persona: ${matchedPersona.personaName}`);
-            return { 
-              success: true, 
-              deals: matchingDeals.slice(0, body.limit || 20),
-              total: matchingDeals.length,
-              aiResponse: `Found ${matchingDeals.length} deals for ${matchedPersona.emoji} ${matchedPersona.personaName}. These deals are specifically matched to this persona's interests and behaviors.`
-            };
-          } else {
-            // Fallback: find deals by category
-            console.log(`⚠️ No exact persona matches, trying category-based search for: ${matchedPersona.category}`);
-            const categoryKeywords = (matchedPersona.category || '').toLowerCase().split(/[\s&]+/);
-            
-            const categoryDeals = deals.filter((deal: any) => {
-              const dealName = (deal.dealName || '').toLowerCase();
-              const dealDesc = (deal.description || '').toLowerCase();
-              return categoryKeywords.some((kw: string) => kw.length > 2 && (dealName.includes(kw) || dealDesc.includes(kw)));
-            });
-            
-            if (categoryDeals.length > 0) {
-              console.log(`📂 Found ${categoryDeals.length} deals by category keywords`);
-              return {
-                success: true,
-                deals: categoryDeals.slice(0, body.limit || 20),
-                total: categoryDeals.length,
-                aiResponse: `Found ${categoryDeals.length} deals related to ${matchedPersona.emoji} ${matchedPersona.personaName}'s category: ${matchedPersona.category}.`
-              };
-            }
-          }
-        }
+      console.log(`🔍 Hybrid AI Search request (Direct): "${query}"`);
+
+      // Get all deals first
+      let allDeals: any[] = [];
+      
+      try {
+        allDeals = await this.getAllDeals();
+      } catch (error) {
+        console.warn('⚠️  Apps Script service unavailable for search:', error instanceof Error ? error.message : 'Unknown error');
+        allDeals = [];
       }
       
-      // Standard keyword filtering for non-persona requests
-      const filtered = query ? deals.filter((deal: any) => 
-        deal.dealName?.toLowerCase().includes(query) ||
-        deal.description?.toLowerCase().includes(query) ||
-        deal.targeting?.toLowerCase().includes(query)
-      ) : deals;
+      if (allDeals.length === 0) {
+        return {
+          success: true,
+          deals: [],
+          aiResponse: "No deals are currently available from the Apps Script data source.",
+          searchMethod: 'apps-script',
+          confidence: 0,
+          query: correctedQuery
+        };
+      }
+
+      // Use Gemini to analyze and score all deals
+      const gemini = getGeminiService();
       
-      return { 
-        success: true, 
-        deals: filtered.slice(0, body.limit || 20),
-        total: filtered.length
-      };
+      try {
+        console.log('🤖 Using Gemini to analyze and score all deals (Direct)...');
+        
+        const geminiResult = await gemini.analyzeAllDeals(correctedQuery, allDeals, conversationHistory || [], forceDeals);
+        
+        // Check if this is a timeout response
+        if (geminiResult.searchMethod === 'timeout-fallback') {
+          console.log('⏰ Gemini timed out, using fallback search');
+          // Simple fallback search
+          const queryLower = correctedQuery.toLowerCase();
+          const filtered = allDeals.filter((deal: any) => 
+            deal.dealName?.toLowerCase().includes(queryLower) ||
+            deal.description?.toLowerCase().includes(queryLower) ||
+            deal.targeting?.toLowerCase().includes(queryLower)
+          ).slice(0, 6);
+          
+          return {
+            success: true,
+            deals: filtered,
+            aiResponse: `I found ${filtered.length} deals for your query.`,
+            searchMethod: 'fallback-timeout',
+            confidence: 0.6,
+            query: correctedQuery,
+            coaching: geminiResult.coaching
+          };
+        }
+        
+        // Check if this is a general question
+        if (geminiResult.deals.length === 0 && geminiResult.aiResponse && !forceDeals && geminiResult.searchMethod !== 'error-fallback') {
+          return {
+            success: true,
+            deals: [],
+            aiResponse: geminiResult.aiResponse,
+            searchMethod: 'gemini-direct',
+            confidence: geminiResult.confidence,
+            query: correctedQuery,
+            isGeneralQuestion: true,
+            coaching: geminiResult.coaching
+          };
+        }
+        
+        // If forceDeals is true but no deals were returned, try to find some relevant deals
+        if (forceDeals && geminiResult.deals.length === 0) {
+          console.log('🔧 Force deals mode: Finding relevant deals despite empty Gemini result');
+          
+          const genericWords = new Set(['show', 'me', 'deals', 'for', 'the', 'and', 'with', 'find', 'get', 'looking', 'want', 'need']);
+          const importantKeywords = correctedQuery.toLowerCase()
+            .split(/\s+/)
+            .filter(word => word.length > 2 && !genericWords.has(word));
+          
+          const scoredDeals = allDeals.map((deal: any) => {
+            const dealText = `${deal.dealName} ${deal.description} ${deal.targeting}`.toLowerCase();
+            let score = 0;
+            
+            for (const keyword of importantKeywords) {
+              if (deal.dealName?.toLowerCase().includes(keyword)) score += 10;
+              if (deal.description?.toLowerCase().includes(keyword)) score += 3;
+              if (deal.targeting?.toLowerCase().includes(keyword)) score += 2;
+            }
+            
+            return { deal, score };
+          })
+          .filter(item => item.score > 0)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 6)
+          .map(item => item.deal);
+          
+          if (scoredDeals.length > 0) {
+            return {
+              success: true,
+              deals: scoredDeals,
+              aiResponse: geminiResult.aiResponse || `Here are ${scoredDeals.length} relevant deals for your query.`,
+              searchMethod: 'gemini-direct-forced',
+              confidence: 0.6,
+              query: correctedQuery,
+              isGeneralQuestion: false,
+              coaching: geminiResult.coaching
+            };
+          }
+        }
+        
+        console.log(`✅ Gemini found ${geminiResult.deals.length} relevant deals with confidence ${geminiResult.confidence}`);
+        
+        return {
+          success: true,
+          deals: geminiResult.deals,
+          aiResponse: geminiResult.aiResponse,
+          searchMethod: 'gemini-direct',
+          confidence: geminiResult.confidence,
+          query: correctedQuery,
+          coaching: geminiResult.coaching
+        };
+        
+      } catch (geminiError) {
+        console.error('❌ Gemini search failed, falling back to rule-based search:', geminiError);
+        
+        // Fallback to simple keyword search
+        const queryLower = correctedQuery.toLowerCase();
+        const filtered = allDeals.filter((deal: any) => 
+          deal.dealName?.toLowerCase().includes(queryLower) ||
+          deal.description?.toLowerCase().includes(queryLower) ||
+          deal.targeting?.toLowerCase().includes(queryLower)
+        ).slice(0, 6);
+        
+        return {
+          success: true,
+          deals: filtered,
+          aiResponse: `I found ${filtered.length} deals for your query.`,
+          searchMethod: 'fallback',
+          confidence: 0.5,
+          query: correctedQuery
+        };
+      }
+      
     } catch (error) {
-      console.error('Error searching deals:', error);
-      return { success: false, deals: [], error: String(error) };
+      console.error('❌ AI Search error (Direct):', error);
+      return { 
+        success: false, 
+        deals: [], 
+        error: error instanceof Error ? error.message : String(error)
+      };
     }
   }
 

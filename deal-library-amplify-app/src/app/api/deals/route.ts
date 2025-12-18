@@ -14,13 +14,35 @@ function getDealsController(): DealsController {
 }
 
 // Helper to get deals directly using AppsScriptService (like diagnose endpoint does)
-async function getAllDealsDirect(): Promise<any[]> {
+async function getAllDealsDirect(): Promise<{ deals: any[]; debug: any }> {
+  const debug: any = {
+    step: 'getAllDealsDirect',
+    checks: [],
+  };
+  
+  // Check env var before creating service
+  const envCheck = {
+    hasAppsScriptUrl: !!process.env.GOOGLE_APPS_SCRIPT_URL,
+    urlLength: process.env.GOOGLE_APPS_SCRIPT_URL?.length || 0,
+    nodeEnv: process.env.NODE_ENV,
+  };
+  debug.checks.push({ name: 'env_var_check', result: envCheck });
+  console.log('🔍 getAllDealsDirect: Env check:', envCheck);
+  
+  if (!process.env.GOOGLE_APPS_SCRIPT_URL) {
+    throw new Error(`GOOGLE_APPS_SCRIPT_URL not available. Debug: ${JSON.stringify(envCheck)}`);
+  }
+  
   console.log('🔍 getAllDealsDirect: Creating AppsScriptService directly');
   const appsScriptService = new AppsScriptService();
+  debug.checks.push({ name: 'service_created', result: 'success' });
+  
   console.log('🔍 getAllDealsDirect: Calling getAllDeals()');
   const deals = await appsScriptService.getAllDeals();
+  debug.checks.push({ name: 'getAllDeals_called', result: `got ${deals.length} deals` });
+  
   console.log('✅ getAllDealsDirect: Got', deals.length, 'deals');
-  return deals;
+  return { deals, debug };
 }
 
 export async function GET(request: NextRequest) {
@@ -34,9 +56,6 @@ export async function GET(request: NextRequest) {
       urlPrefix: process.env.GOOGLE_APPS_SCRIPT_URL?.substring(0, 50) || 'NOT SET',
       allGoogleEnvKeys: Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')),
     });
-    
-    const controller = getDealsController();
-    console.log('🔍 Controller obtained, about to call getAllDeals()');
     
     // Parse query parameters for filtering
     const searchParams = request.nextUrl.searchParams;
@@ -60,19 +79,24 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Get all deals - try direct method first (like diagnose endpoint)
-    console.log('🔍 API Route: Getting deals using direct method (like diagnose endpoint)');
+    // Get all deals using DIRECT method only (same as diagnose endpoint)
+    // This bypasses DealsController entirely to avoid any initialization issues
+    console.log('🔍 API Route: Getting deals using DIRECT method (bypassing controller)');
     let allDeals: any[];
+    let debugInfo: any = null;
     try {
-      // Use direct method that works in diagnose endpoint
-      allDeals = await getAllDealsDirect();
+      const result = await getAllDealsDirect();
+      allDeals = result.deals;
+      debugInfo = result.debug;
       console.log('✅ API Route: getAllDealsDirect() returned', allDeals.length, 'deals');
     } catch (directError) {
-      console.error('❌ Direct method failed, trying controller method:', directError);
-      // Fallback to controller method
-      allDeals = await controller.getAllDeals();
-      console.log('✅ API Route: controller.getAllDeals() returned', allDeals.length, 'deals');
+      const errorMsg = directError instanceof Error ? directError.message : String(directError);
+      console.error('❌ getAllDealsDirect failed:', errorMsg);
+      throw new Error(`getAllDealsDirect failed: ${errorMsg}`);
     }
+    
+    // Use controller only for filtering (it doesn't need env vars for this)
+    const controller = getDealsController();
     
     // Build DealFilters object for the filterDeals method
     const dealFilters: any = {
@@ -115,7 +139,20 @@ export async function GET(request: NextRequest) {
     
     // Check if the error is about missing GOOGLE_APPS_SCRIPT_URL
     const isConfigError = errorMessage.includes('GOOGLE_APPS_SCRIPT_URL') || 
-                         errorMessage.includes('not configured');
+                         errorMessage.includes('not configured') ||
+                         errorMessage.includes('not available');
+    
+    // Add debug info to help diagnose
+    const debugInfo = {
+      routeHandler: {
+        hasAppsScriptUrl: !!process.env.GOOGLE_APPS_SCRIPT_URL,
+        urlLength: process.env.GOOGLE_APPS_SCRIPT_URL?.length || 0,
+        nodeEnv: process.env.NODE_ENV,
+        allGoogleEnvKeys: Object.keys(process.env).filter(k => k.includes('GOOGLE') || k.includes('APPS')),
+      },
+      errorMessage,
+      errorStack: errorStack?.substring(0, 500), // First 500 chars of stack
+    };
     
     // Return proper error response with helpful message
     return NextResponse.json(
@@ -127,6 +164,7 @@ export async function GET(request: NextRequest) {
         totalPages: 0,
         error: errorMessage,
         configError: isConfigError,
+        debug: debugInfo,
         help: isConfigError ? 'Please ensure GOOGLE_APPS_SCRIPT_URL is set in AWS Amplify Environment Variables (not Secrets, unless you know how to access secrets in Next.js API routes)' : undefined,
       },
       { status: 500 }

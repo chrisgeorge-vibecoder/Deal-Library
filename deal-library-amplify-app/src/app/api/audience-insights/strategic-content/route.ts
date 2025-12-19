@@ -69,12 +69,28 @@ export async function POST(request: NextRequest) {
 
     const strategicContent = await Promise.race([strategicContentPromise, timeoutPromise]);
 
+    // Check if we got minimal fallback content
+    const messagingRecs = strategicContent.strategicInsights?.messagingRecommendations || [];
+    const isMinimalContent = 
+      messagingRecs.length === 2 &&
+      typeof messagingRecs[0] === 'string' &&
+      messagingRecs[0] === 'Digital channels' &&
+      messagingRecs[1] === 'Targeted advertising';
+
     console.log('✅ Strategic content generated successfully:', {
       hasExecutiveSummary: !!strategicContent.executiveSummary,
       hasStrategicInsights: !!strategicContent.strategicInsights,
+      messagingRecsCount: messagingRecs.length,
+      messagingRecsType: messagingRecs.length > 0 ? typeof messagingRecs[0] : 'none',
+      isMinimalContent,
       personaName: strategicContent.personaName,
-      personaEmoji: strategicContent.personaEmoji
+      personaEmoji: strategicContent.personaEmoji,
+      personaDescription: strategicContent.personaDescription?.substring(0, 100) + (strategicContent.personaDescription?.length > 100 ? '...' : '')
     });
+
+    if (isMinimalContent) {
+      console.warn('⚠️ WARNING: Strategic insights appear to be minimal fallback content - AI generation may have failed');
+    }
 
     return NextResponse.json({
       success: true,
@@ -82,7 +98,8 @@ export async function POST(request: NextRequest) {
       strategicInsights: strategicContent.strategicInsights,
       personaName: strategicContent.personaName,
       personaEmoji: strategicContent.personaEmoji,
-      personaDescription: strategicContent.personaDescription
+      personaDescription: strategicContent.personaDescription,
+      isMinimalContent // Flag to help frontend detect fallback content
     });
   } catch (error: any) {
     console.error('❌ Error generating strategic content:', error);

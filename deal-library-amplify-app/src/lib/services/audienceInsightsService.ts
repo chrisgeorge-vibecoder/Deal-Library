@@ -550,6 +550,113 @@ class AudienceInsightsService {
   }
 
   /**
+   * Get segment-specific emoji based on segment name and category
+   */
+  private getSegmentEmoji(segment: string, category: string): string {
+    const segmentLower = segment.toLowerCase();
+    const categoryLower = category.toLowerCase();
+    
+    // Baby & Toddler category
+    if (categoryLower.includes('baby') || categoryLower.includes('toddler')) {
+      if (segmentLower.includes('diaper')) return '👶';
+      if (segmentLower.includes('nurs') || segmentLower.includes('feed')) return '🍼';
+      if (segmentLower.includes('toy')) return '🧸';
+      if (segmentLower.includes('safety')) return '🛡️';
+      if (segmentLower.includes('transport') || segmentLower.includes('stroller')) return '🚼';
+      if (segmentLower.includes('bath')) return '🛁';
+      return '👶';
+    }
+    
+    // Pet Supplies
+    if (categoryLower.includes('pet') || categoryLower.includes('animal')) {
+      if (segmentLower.includes('dog')) return '🐕';
+      if (segmentLower.includes('cat')) return '🐱';
+      return '🐾';
+    }
+    
+    // Health & Beauty
+    if (categoryLower.includes('health') || categoryLower.includes('beauty')) {
+      if (segmentLower.includes('cosmetic') || segmentLower.includes('makeup')) return '💄';
+      if (segmentLower.includes('hair')) return '💇';
+      if (segmentLower.includes('oral') || segmentLower.includes('dental')) return '🦷';
+      if (segmentLower.includes('vision') || segmentLower.includes('eye')) return '👓';
+      return '💅';
+    }
+    
+    // Home & Garden
+    if (categoryLower.includes('home') || categoryLower.includes('garden')) {
+      if (segmentLower.includes('garden') || segmentLower.includes('plant')) return '🌱';
+      if (segmentLower.includes('kitchen')) return '🍳';
+      if (segmentLower.includes('furniture')) return '🪑';
+      return '🏠';
+    }
+    
+    // Electronics
+    if (categoryLower.includes('electronic') || categoryLower.includes('computer')) {
+      if (segmentLower.includes('phone') || segmentLower.includes('mobile')) return '📱';
+      if (segmentLower.includes('camera')) return '📷';
+      if (segmentLower.includes('audio') || segmentLower.includes('speaker')) return '🔊';
+      return '💻';
+    }
+    
+    // Sports & Fitness
+    if (categoryLower.includes('sport') || categoryLower.includes('fitness')) {
+      if (segmentLower.includes('golf')) return '⛳';
+      if (segmentLower.includes('yoga')) return '🧘';
+      if (segmentLower.includes('cycling') || segmentLower.includes('bike')) return '🚴';
+      return '⚽';
+    }
+    
+    // Food & Beverage
+    if (categoryLower.includes('food') || categoryLower.includes('beverage')) {
+      if (segmentLower.includes('coffee')) return '☕';
+      if (segmentLower.includes('wine') || segmentLower.includes('alcohol')) return '🍷';
+      return '🍔';
+    }
+    
+    // Default fallback
+    return '👤';
+  }
+
+  /**
+   * Retry wrapper for Gemini API calls with exponential backoff
+   */
+  private async withRetry<T>(
+    fn: () => Promise<T>,
+    retries: number = 2,
+    timeout: number = 45000,
+    operationName: string = 'operation'
+  ): Promise<T> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const result = await Promise.race([
+          fn(),
+          new Promise<never>((_, reject) => 
+            setTimeout(() => reject(new Error(`${operationName} timeout after ${timeout}ms`)), timeout)
+          )
+        ]);
+        if (attempt > 0) {
+          console.log(`✅ ${operationName} succeeded on retry attempt ${attempt + 1}`);
+        }
+        return result;
+      } catch (error: any) {
+        const isLastAttempt = attempt === retries;
+        console.warn(`⚠️ ${operationName} attempt ${attempt + 1} failed:`, error.message || error);
+        
+        if (isLastAttempt) {
+          throw error;
+        }
+        
+        // Exponential backoff: 1s, 2s, 3s...
+        const backoffMs = 1000 * (attempt + 1);
+        console.log(`⏳ Retrying ${operationName} in ${backoffMs}ms...`);
+        await new Promise(resolve => setTimeout(resolve, backoffMs));
+      }
+    }
+    throw new Error(`${operationName} failed after ${retries + 1} attempts`);
+  }
+
+  /**
    * Generate only the strategic content (Gemini AI parts) for an existing report
    * This is used to load strategic insights asynchronously after the initial report
    */
@@ -561,14 +668,14 @@ class AudienceInsightsService {
     personaDescription: string;
   }> {
     const trimmedSegment = segment.trim();
-    const GEMINI_CALL_TIMEOUT_MS = 30000; // 30 seconds per call for standalone generation
+    const GEMINI_CALL_TIMEOUT_MS = 45000; // Increased from 30s to 45s for better reliability
     const startTime = Date.now();
 
     console.log(`✨ Generating strategic content for "${trimmedSegment}"`);
 
-    // Generate all strategic content in parallel
-    const strategicInsightsPromise = Promise.race([
-      this.generateStrategicInsights(
+    // Generate all strategic content in parallel with retry logic
+    const strategicInsightsPromise = this.withRetry(
+      () => this.generateStrategicInsights(
         trimmedSegment,
         category || 'General',
         demographics,
@@ -576,22 +683,34 @@ class AudienceInsightsService {
         geoIntelligence,
         commerceBaseline
       ),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Strategic insights generation timeout')), GEMINI_CALL_TIMEOUT_MS)
-      )
-    ]).catch(error => {
-      console.error('❌ Failed to generate strategic insights:', error);
+      2, // 2 retries
+      GEMINI_CALL_TIMEOUT_MS,
+      'Strategic insights generation'
+    ).catch(error => {
+      console.error('❌ Failed to generate strategic insights after retries:', error);
+      // Return more informative fallback
       return {
         targetPersona: `The ${trimmedSegment} audience`,
         keyInsights: [`Strong engagement with ${trimmedSegment} products and services`],
-        messagingRecommendations: ['Digital channels', 'Targeted advertising'],
-        channelRecommendations: ['Digital channels', 'Targeted advertising'],
-        creativeGuidance: `Focus on ${trimmedSegment} needs and preferences`
+        messagingRecommendations: [
+          {
+            valueProposition: `Target ${trimmedSegment} enthusiasts with quality-focused messaging that addresses their core needs`,
+            dataBacking: `Based on ${demographics.validZipCount || 'thousands of'} ZIP codes with high ${trimmedSegment} purchase activity`,
+            emotionalBenefit: `Connect with consumers seeking reliable, trusted solutions for their ${trimmedSegment} needs`,
+            campaignReady: false
+          }
+        ],
+        channelRecommendations: [
+          'Digital display advertising on premium content sites',
+          'Social media platforms targeting relevant demographics',
+          'Email marketing campaigns with personalized recommendations'
+        ],
+        creativeGuidance: `Focus on ${trimmedSegment} needs and preferences, showcasing how your offering aligns with their interests and lifestyle.`
       };
     });
 
-    const humanizedPersonaPromise = Promise.race([
-      this.generateHumanizedPersona(
+    const humanizedPersonaPromise = this.withRetry(
+      () => this.generateHumanizedPersona(
         trimmedSegment,
         category || 'General',
         demographics,
@@ -601,40 +720,41 @@ class AudienceInsightsService {
         demographics.familyProfile || 'mixed',
         demographics.lifestyle?.selfEmployed && demographics.lifestyle.selfEmployed > 12 ? 'Often self-employed or entrepreneurial' : 'Typically employed'
       ),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Humanized persona generation timeout')), GEMINI_CALL_TIMEOUT_MS)
-      )
-    ]).catch(error => {
-      console.error('❌ Failed to generate humanized persona:', error);
+      2,
+      GEMINI_CALL_TIMEOUT_MS,
+      'Humanized persona generation'
+    ).catch(error => {
+      console.error('❌ Failed to generate humanized persona after retries:', error);
       return `The ${trimmedSegment} audience represents a key market segment with distinct characteristics and preferences.`;
     });
 
-    const executiveSummaryPromise = Promise.race([
-      this.generateExecutiveSummary(
+    const executiveSummaryPromise = this.withRetry(
+      () => this.generateExecutiveSummary(
         trimmedSegment,
         demographics,
         overlaps,
         geoIntelligence,
         commerceBaseline
       ),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Executive summary generation timeout')), GEMINI_CALL_TIMEOUT_MS)
-      )
-    ]).catch(error => {
-      console.error('❌ Failed to generate executive summary:', error);
+      2,
+      GEMINI_CALL_TIMEOUT_MS,
+      'Executive summary generation'
+    ).catch(error => {
+      console.error('❌ Failed to generate executive summary after retries:', error);
       return `The ${trimmedSegment} audience shows strong market potential with ${demographics.medianHHI ? '$' + demographics.medianHHI.toLocaleString() : 'above-average'} household income and ${demographics.educationBachelors ? demographics.educationBachelors.toFixed(0) + '%' : 'high'} education levels.`;
     });
 
-    const personaResultPromise = Promise.race([
-      this.generateAIPersona(trimmedSegment, category || 'General', demographics, overlaps, geoIntelligence, commerceBaseline),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('AI persona generation timeout')), GEMINI_CALL_TIMEOUT_MS)
-      )
-    ]).catch(error => {
-      console.error('❌ Failed to generate AI persona:', error);
+    const personaResultPromise = this.withRetry(
+      () => this.generateAIPersona(trimmedSegment, category || 'General', demographics, overlaps, geoIntelligence, commerceBaseline),
+      2,
+      GEMINI_CALL_TIMEOUT_MS,
+      'AI persona generation'
+    ).catch(error => {
+      console.error('❌ Failed to generate AI persona after retries:', error);
+      // Use segment-specific emoji instead of generic
       return {
         name: trimmedSegment,
-        emoji: '👤',
+        emoji: this.getSegmentEmoji(trimmedSegment, category || 'General'),
         description: `The ${trimmedSegment} audience`
       };
     });

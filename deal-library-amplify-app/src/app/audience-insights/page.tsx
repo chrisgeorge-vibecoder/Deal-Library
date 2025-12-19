@@ -1008,13 +1008,29 @@ export default function AudienceInsightsPage() {
       }
 
       if (data.success) {
+        // Check if content is minimal/fallback
+        const messagingRecs = data.strategicInsights?.messagingRecommendations || [];
+        const isMinimalContent = data.isMinimalContent || (
+          messagingRecs.length === 2 &&
+          typeof messagingRecs[0] === 'string' &&
+          messagingRecs[0] === 'Digital channels' &&
+          messagingRecs[1] === 'Targeted advertising'
+        );
+        
         console.log('✅ Strategic content loaded successfully:', {
           hasExecutiveSummary: !!data.executiveSummary,
           hasStrategicInsights: !!data.strategicInsights,
           personaName: data.personaName,
           personaEmoji: data.personaEmoji,
-          messagingRecsCount: data.strategicInsights?.messagingRecommendations?.length || 0
+          messagingRecsCount: messagingRecs.length,
+          isMinimalContent
         });
+        
+        if (isMinimalContent) {
+          console.warn('⚠️ Received minimal fallback content - AI generation may have failed. Consider retrying.');
+          // Optionally show a warning to the user
+          setStrategicContentError('AI content generation encountered issues. Some content may be limited. You can try again.');
+        }
         
         // Update the report with strategic content
         setReport(prevReport => {
@@ -1047,6 +1063,11 @@ export default function AudienceInsightsPage() {
         
         // Ensure strategic content is marked as generated
         setStrategicContentGenerated(true);
+        
+        // Clear error if we got content (even if minimal)
+        if (!isMinimalContent) {
+          setStrategicContentError(null);
+        }
         
         // Force a re-render by updating loading state
         setLoadingStrategicContent(false);

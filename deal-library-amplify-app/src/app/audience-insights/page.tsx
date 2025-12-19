@@ -761,20 +761,43 @@ export default function AudienceInsightsPage() {
       clearTimeout(timeoutId);
       console.log('📡 [DEBUG] API Response status:', response.status);
       
+      // Handle 504 timeout specifically - infrastructure timeout may not have proper headers
+      if (response.status === 504) {
+        console.error('❌ API request timed out (504) - infrastructure timeout');
+        setError('Request timed out. The report generation took too long. Please try again with a different segment or contact support if the issue persists.');
+        return;
+      }
+      
       // Check if response has content before parsing
       const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
+      
+      // If content-type is null but status is not 504, it might still be a timeout
+      // In this case, try to read the response to see if there's content
+      if (!contentType) {
+        console.warn('⚠️ Response has no content-type header, attempting to read response body');
+        // Continue to try reading the response text below
+      } else if (!contentType.includes('application/json')) {
         console.error('❌ API returned non-JSON response:', contentType);
         setError('Failed to generate report: Invalid response format. Please try again.');
         return;
       }
 
       // Get response text first to check if it's empty
-      const responseText = await response.text();
+      let responseText: string;
+      try {
+        responseText = await response.text();
+      } catch (textError) {
+        console.error('❌ Failed to read response text:', textError);
+        setError('Failed to read response from server. Please try again.');
+        return;
+      }
+      
       if (!responseText || responseText.trim().length === 0) {
         console.error('❌ API returned empty response');
-        if (response.status === 504) {
-          setError('Request timed out. The report generation took too long. Please try again with a different segment.');
+        // If we got here and status is not 504, we already handled 504 above
+        // This is for other status codes with empty responses
+        if (response.status >= 500) {
+          setError('Server error. The report generation encountered an issue. Please try again or contact support if the issue persists.');
         } else {
           setError('Failed to generate report: Empty response. Please try again.');
         }

@@ -763,7 +763,7 @@ export default function AudienceInsightsPage() {
       const data = await response.json();
       console.log('📦 [DEBUG] Full API Response:', JSON.stringify(data, null, 2));
 
-      if (data.success) {
+      if (data.success && data.report) {
         console.log('✅ [DEBUG] Report received successfully');
         console.log('📊 [DEBUG] Geographic Hotspots:', {
           count: data.report.geographicHotspots?.length,
@@ -792,22 +792,45 @@ export default function AudienceInsightsPage() {
         console.log(`✅ [DEBUG] Report generated successfully`);
       } else {
         console.error('❌ [DEBUG] Report generation failed:', data);
-        setError(data.message || 'Failed to generate report');
+        const errorMessage = data.message || data.error || 'Failed to generate report';
+        setError(errorMessage);
+        
+        // Log additional details for debugging
+        if (data.error) {
+          console.error('   Error type:', data.error);
+        }
+        if (response.status !== 200) {
+          console.error('   HTTP Status:', response.status);
+        }
       }
     } catch (error) {
       clearTimeout(timeoutId);
       console.error('❌ [DEBUG] Error generating report:', error);
+      
+      let errorMessage = 'Failed to generate report. Please try again.';
+      
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
-          setError('Request timed out. The AI service may be slow to respond. Please try again.');
+          errorMessage = 'Request timed out. The report generation took too long. Please try again with a different segment.';
         } else if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
-          setError('Backend server is not available. Please ensure the backend is running on port 3002.');
+          errorMessage = 'Unable to connect to the server. Please check your connection and try again.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Request timed out. The report generation took too long. Please try again.';
         } else {
-          setError('Failed to generate report. Please try again.');
+          // Try to extract a meaningful error message
+          errorMessage = error.message || errorMessage;
         }
-      } else {
-        setError('Failed to generate report. Please try again.');
+      } else if (typeof error === 'object' && error !== null) {
+        // Handle error objects
+        const err = error as any;
+        if (err.message) {
+          errorMessage = err.message;
+        } else if (err.error) {
+          errorMessage = err.error;
+        }
       }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

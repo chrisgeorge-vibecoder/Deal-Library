@@ -79,3 +79,4 @@ Based on the debug output showing the variable is set, the issue is probably:
 - **If API returns error:** Check AWS Amplify runtime logs for details
 - **If API works but frontend doesn't:** Check browser console for frontend errors
 
+

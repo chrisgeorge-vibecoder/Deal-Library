@@ -79,3 +79,4 @@ The API route (`/api/deals/search`) itself may also need timeout handling if Gem
 - `deal-library-amplify-app/src/app/api/deals/search/route.ts` - API route
 - `deal-library-amplify-app/src/lib/controllers/dealsControllerWrapper.ts` - Backend search logic
 
+

@@ -213,6 +213,19 @@ class AudienceInsightsService {
   async generateReport(segment: string, category?: string, includeCommercialZips: boolean = false): Promise<AudienceInsightsReport> {
     const startTime = Date.now();
     
+    // Validate input
+    if (!segment || typeof segment !== 'string' || segment.trim().length === 0) {
+      throw new Error('Segment name is required and must be a non-empty string');
+    }
+    
+    const trimmedSegment = segment.trim();
+    console.log(`\n${'='.repeat(80)}`);
+    console.log(`🎯 Starting Audience Insights Report Generation`);
+    console.log(`   Segment: "${trimmedSegment}"`);
+    console.log(`   Category: ${category || 'General'}`);
+    console.log(`   Include Commercial ZIPs: ${includeCommercialZips ? 'YES' : 'NO (residential only)'}`);
+    console.log(`${'='.repeat(80)}\n`);
+    
     // OPTIMIZED: Don't load all data - we'll load on-demand for the specific segment
     // This is much faster and avoids timeouts
     const commerceStatus = commerceAudienceService.getStatus();
@@ -222,51 +235,103 @@ class AudienceInsightsService {
     }
     
     // Check cache first (Supabase or in-memory)
-    const cacheKey = `${segment}|${category}|${includeCommercialZips}`;
+    const cacheKey = `${trimmedSegment}|${category || 'General'}|${includeCommercialZips}`;
     
-    if (this.useSupabase) {
-      const cachedReport = await this.getFromSupabaseCache(cacheKey);
-      if (cachedReport) {
-        console.log(`💨 Returning cached report from Supabase for "${segment}"`);
-        return cachedReport;
+    try {
+      if (this.useSupabase) {
+        const cachedReport = await this.getFromSupabaseCache(cacheKey);
+        if (cachedReport) {
+          console.log(`💨 Returning cached report from Supabase for "${trimmedSegment}"`);
+          return cachedReport;
+        }
+      } else {
+        const cached = this.reportCache.get(cacheKey);
+        if (cached && (Date.now() - cached.timestamp < this.reportCacheTimeout)) {
+          console.log(`💨 Returning cached report for "${trimmedSegment}" (${((Date.now() - cached.timestamp) / 1000 / 60).toFixed(1)} minutes old)`);
+          return cached.report;
+        }
       }
-    } else {
-      const cached = this.reportCache.get(cacheKey);
-      if (cached && (Date.now() - cached.timestamp < this.reportCacheTimeout)) {
-        console.log(`💨 Returning cached report for "${segment}" (${((Date.now() - cached.timestamp) / 1000 / 60).toFixed(1)} minutes old)`);
-        return cached.report;
-      }
+    } catch (cacheError) {
+      console.warn('⚠️ Error checking cache, proceeding with fresh generation:', cacheError);
     }
-    
-    console.log(`\n${'='.repeat(80)}`);
-    console.log(`🎯 Generating Audience Insights Report for: "${segment}"`);
-    console.log(`   Include Commercial ZIPs: ${includeCommercialZips ? 'YES' : 'NO (residential only)'}`);
-    console.log(`${'='.repeat(80)}\n`);
 
     // Step 0: Get commerce baseline for comparison
     let stepStart = Date.now();
-    const commerceBaseline = await commerceBaselineService.getBaseline();
-    console.log(`📊 Commerce baseline: $${commerceBaseline.medianHHI.toLocaleString()}, ${commerceBaseline.educationBachelorsPlus}% edu (${Date.now() - stepStart}ms)`);
+    let commerceBaseline: any;
+    try {
+      commerceBaseline = await commerceBaselineService.getBaseline();
+      if (!commerceBaseline || !commerceBaseline.medianHHI) {
+        throw new Error('Commerce baseline data is invalid');
+      }
+      console.log(`📊 Commerce baseline: $${commerceBaseline.medianHHI.toLocaleString()}, ${commerceBaseline.educationBachelorsPlus}% edu (${Date.now() - stepStart}ms)`);
+    } catch (error) {
+      console.error(`❌ Error getting commerce baseline:`, error);
+      // Use fallback baseline values
+      commerceBaseline = {
+        medianHHI: 75000,
+        educationBachelorsPlus: 40,
+        medianAge: 42
+      };
+      console.warn(`⚠️ Using fallback commerce baseline values`);
+    }
 
     // Step 1: Get top geographic concentration
     stepStart = Date.now();
-    const topZipCodes = await this.getTopGeographicConcentration(segment, 50, includeCommercialZips);
-    console.log(`📍 Found ${topZipCodes.length} high-concentration ZIP codes (${Date.now() - stepStart}ms)`);
+    let topZipCodes: Array<{ zipCode: string; weight: number; city?: string; state?: string; population?: number; overIndex?: number }>;
+    try {
+      topZipCodes = await this.getTopGeographicConcentration(trimmedSegment, 50, includeCommercialZips);
+      console.log(`📍 Found ${topZipCodes.length} high-concentration ZIP codes (${Date.now() - stepStart}ms)`);
+      
+      if (!topZipCodes || topZipCodes.length === 0) {
+        throw new Error(`No geographic data found for segment "${trimmedSegment}". Please verify the segment name is correct.`);
+      }
+    } catch (error) {
+      console.error(`❌ Error getting geographic concentration for "${trimmedSegment}":`, error);
+      throw new Error(`Failed to get geographic data for "${trimmedSegment}": ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
 
     // Step 2: Aggregate demographics from census data
     stepStart = Date.now();
-    const demographics = await this.aggregateDemographics(topZipCodes);
-    console.log(`📊 Aggregated demographics for ${demographics.validZipCount} ZIPs (${Date.now() - stepStart}ms)`);
+    let demographics: any;
+    try {
+      demographics = await this.aggregateDemographics(topZipCodes);
+      console.log(`📊 Aggregated demographics for ${demographics.validZipCount} ZIPs (${Date.now() - stepStart}ms)`);
+      
+      if (!demographics || demographics.validZipCount === 0) {
+        throw new Error(`No valid demographic data found for segment "${trimmedSegment}". Census data may be missing for the selected ZIP codes.`);
+      }
+    } catch (error) {
+      console.error(`❌ Error aggregating demographics for "${trimmedSegment}":`, error);
+      throw new Error(`Failed to aggregate demographics for "${trimmedSegment}": ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
     
     // Step 2.5: Extract geographic intelligence
     stepStart = Date.now();
-    const geoIntelligence = this.extractGeographicIntelligence(topZipCodes);
-    console.log(`🗺️  Identified top markets: ${geoIntelligence.topCities.slice(0, 3).map(c => c.city).join(', ')} (${Date.now() - stepStart}ms)`);
+    let geoIntelligence: any;
+    try {
+      geoIntelligence = this.extractGeographicIntelligence(topZipCodes);
+      console.log(`🗺️  Identified top markets: ${geoIntelligence.topCities.slice(0, 3).map(c => c.city).join(', ')} (${Date.now() - stepStart}ms)`);
+    } catch (error) {
+      console.error(`❌ Error extracting geographic intelligence for "${trimmedSegment}":`, error);
+      // Use fallback geo intelligence
+      geoIntelligence = {
+        topCities: [],
+        topStates: [],
+        regionalInsights: []
+      };
+    }
 
     // Step 3: Calculate behavioral overlaps
     stepStart = Date.now();
-    const overlaps = await this.calculateBehavioralOverlaps(segment);
-    console.log(`🔗 Identified ${overlaps.length} overlapping segments (${Date.now() - stepStart}ms)`);
+    let overlaps: any[];
+    try {
+      overlaps = await this.calculateBehavioralOverlaps(segment);
+      console.log(`🔗 Identified ${overlaps.length} overlapping segments (${Date.now() - stepStart}ms)`);
+    } catch (error) {
+      console.error(`❌ Error calculating behavioral overlaps for "${trimmedSegment}":`, error);
+      // Use empty overlaps array as fallback
+      overlaps = [];
+    }
     
     // Step 3.5: Calculate commerce baseline comparisons
     console.log(`🔍 DEBUG: commerceBaseline values:`, {
@@ -287,7 +352,7 @@ class AudienceInsightsService {
     
     const strategicInsightsPromise = Promise.race([
       this.generateStrategicInsights(
-        segment,
+        trimmedSegment,
         category || 'General',
         demographics,
         overlaps,
@@ -301,17 +366,17 @@ class AudienceInsightsService {
       console.error('❌ Failed to generate strategic insights:', error);
       // Return fallback insights
       return {
-        targetPersona: `The ${segment} audience`,
-        keyInsights: [`Strong engagement with ${segment} products and services`],
+        targetPersona: `The ${trimmedSegment} audience`,
+        keyInsights: [`Strong engagement with ${trimmedSegment} products and services`],
         mediaRecommendations: ['Digital channels', 'Targeted advertising'],
-        creativeGuidance: `Focus on ${segment} needs and preferences`
+        creativeGuidance: `Focus on ${trimmedSegment} needs and preferences`
       };
     });
     
     // Step 4b: Generate humanized persona (with timeout protection) - run in parallel with strategic insights
     const humanizedPersonaPromise = Promise.race([
       this.generateHumanizedPersona(
-        segment,
+        trimmedSegment,
         category || 'General',
         demographics,
         geoIntelligence,
@@ -325,13 +390,13 @@ class AudienceInsightsService {
       )
     ]).catch(error => {
       console.error('❌ Failed to generate humanized persona:', error);
-      return `The ${segment} audience represents a key market segment with distinct characteristics and preferences.`;
+      return `The ${trimmedSegment} audience represents a key market segment with distinct characteristics and preferences.`;
     });
 
     // Step 5: Generate executive summary (with timeout protection) - run in parallel
     const executiveSummaryPromise = Promise.race([
       this.generateExecutiveSummary(
-        segment,
+        trimmedSegment,
         demographics,
         overlaps,
         geoIntelligence,
@@ -347,16 +412,16 @@ class AudienceInsightsService {
     
     // Generate AI-powered persona (with timeout protection) - run in parallel
     const personaResultPromise = Promise.race([
-      this.generateAIPersona(segment, category || 'General', demographics, overlaps, geoIntelligence, commerceBaseline),
+      this.generateAIPersona(trimmedSegment, category || 'General', demographics, overlaps, geoIntelligence, commerceBaseline),
       new Promise((_, reject) => 
         setTimeout(() => reject(new Error('AI persona generation timeout')), GEMINI_CALL_TIMEOUT_MS)
       )
     ]).catch(error => {
       console.error('❌ Failed to generate AI persona:', error);
       return {
-        name: segment,
+        name: trimmedSegment,
         emoji: '👤',
-        description: `The ${segment} audience`
+        description: `The ${trimmedSegment} audience`
       };
     });
 
@@ -376,7 +441,7 @@ class AudienceInsightsService {
 
     // Compile final report
     const report: AudienceInsightsReport = {
-      segment,
+      segment: trimmedSegment,
       category: category || 'General',
       executiveSummary,
       personaName: personaResult.name,
@@ -416,13 +481,19 @@ class AudienceInsightsService {
     };
 
     // Cache the report (Supabase or in-memory)
-    if (this.useSupabase) {
-      await this.saveToSupabaseCache(cacheKey, segment, category || 'General', report);
-    } else {
-      this.reportCache.set(cacheKey, { report, timestamp: Date.now() });
+    try {
+      if (this.useSupabase) {
+        await this.saveToSupabaseCache(cacheKey, trimmedSegment, category || 'General', report);
+      } else {
+        this.reportCache.set(cacheKey, { report, timestamp: Date.now() });
+      }
+      console.log(`💾 Report cached for "${trimmedSegment}"`);
+    } catch (cacheError) {
+      console.warn('⚠️ Error caching report (non-fatal):', cacheError);
     }
-    console.log(`💾 Report cached for "${segment}"`);
+    
     console.log(`⏱️  TOTAL REPORT GENERATION TIME: ${((Date.now() - startTime) / 1000).toFixed(2)}s\n`);
+    console.log(`✅ Successfully generated report for "${trimmedSegment}"`);
 
     return report;
   }

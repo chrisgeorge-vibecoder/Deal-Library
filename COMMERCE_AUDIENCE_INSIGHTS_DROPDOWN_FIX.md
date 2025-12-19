@@ -82,3 +82,4 @@ If segments still don't match after this fix, the issue may be:
 - `deal-library-amplify-app/src/lib/controllers/dealsControllerWrapper.ts` - Backend segment retrieval
 - `deal-library-amplify-app/src/lib/services/commerceAudienceService.ts` - Commerce audience service
 
+

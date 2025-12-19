@@ -415,9 +415,11 @@ export class CommerceAudienceService {
         
         // Only process US data (NA_US_ prefix)
         if (sanitizedValue && sanitizedValue.startsWith('NA_US_')) {
-          const zipCode = sanitizedValue.replace('NA_US_', '');
+          const rawZipCode = sanitizedValue.replace('NA_US_', '');
+          // Normalize ZIP code to 5 digits (pad with leading zeros if needed)
+          const zipCode = this.normalizeZipCode(rawZipCode);
           
-          // Validate ZIP code format (5 digits)
+          // Validate ZIP code format (5 digits after normalization)
           if (/^\d{5}$/.test(zipCode)) {
             this.commerceData.push({
               zipCode,
@@ -430,7 +432,7 @@ export class CommerceAudienceService {
           } else {
             skippedCount++;
             if (skippedCount <= 5) {
-              console.log(`   ⚠️  Skipped invalid ZIP: ${zipCode} (from ${sanitizedValue})`);
+              console.log(`   ⚠️  Skipped invalid ZIP: ${zipCode} (from ${sanitizedValue}, normalized from ${rawZipCode})`);
             }
           }
         } else {
@@ -528,10 +530,12 @@ export class CommerceAudienceService {
         // Only process US data (NA_US_ prefix) and ensure all fields exist
         if (sanitizedValue && sanitizedValue.startsWith('NA_US_') && 
             seed && date && weightStr && audienceName) {
-          const zipCode = sanitizedValue.replace('NA_US_', '');
+          const rawZipCode = sanitizedValue.replace('NA_US_', '');
+          // Normalize ZIP code to 5 digits (pad with leading zeros if needed)
+          const zipCode = this.normalizeZipCode(rawZipCode);
           const weight = parseInt(weightStr) || 0;
           
-          // Validate ZIP code format (5 digits)
+          // Validate ZIP code format (5 digits after normalization)
           if (/^\d{5}$/.test(zipCode)) {
             this.commerceData.push({
               zipCode,
@@ -955,7 +959,9 @@ export class CommerceAudienceService {
           const sanitizedValue = record.sanitized_value;
           
           if (sanitizedValue && sanitizedValue.startsWith('NA_US_')) {
-            const zipCode = sanitizedValue.replace('NA_US_', '');
+            const rawZipCode = sanitizedValue.replace('NA_US_', '');
+            // Normalize ZIP code to 5 digits (pad with leading zeros if needed)
+            const zipCode = this.normalizeZipCode(rawZipCode);
             
             if (/^\d{5}$/.test(zipCode)) {
               segmentData.push({
@@ -1120,15 +1126,27 @@ export class CommerceAudienceService {
       return [];
     }
 
-    const zipSet = new Set(zipCodes);
+    // Normalize both input ZIP codes and commerce data ZIP codes for comparison
+    const normalizedInputZips = zipCodes.map(zip => this.normalizeZipCode(zip));
+    const zipSet = new Set(normalizedInputZips);
+    
+    // Create normalized map of commerce data ZIP codes
+    const commerceZipMap = new Map<string, string>(); // normalized -> original
+    for (const item of this.commerceData) {
+      const normalized = this.normalizeZipCode(item.zipCode);
+      if (!commerceZipMap.has(normalized)) {
+        commerceZipMap.set(normalized, item.zipCode);
+      }
+    }
+    
     const segmentMap = new Map<string, { totalZipCodes: number; totalWeight: number }>();
     
     // Diagnostic: Check how many ZIP codes from the request exist in commerce data
-    const uniqueCommerceZips = new Set(this.commerceData.map(item => item.zipCode));
-    const matchingZips = zipCodes.filter(zip => uniqueCommerceZips.has(zip));
-    const nonMatchingZips = zipCodes.filter(zip => !uniqueCommerceZips.has(zip));
+    const uniqueCommerceZips = new Set(Array.from(commerceZipMap.keys()));
+    const matchingZips = normalizedInputZips.filter(zip => uniqueCommerceZips.has(zip));
+    const nonMatchingZips = normalizedInputZips.filter(zip => !uniqueCommerceZips.has(zip));
     
-    console.log(`   🔍 getSegmentsForZipCodes: Searching ${zipCodes.length} ZIP codes`);
+    console.log(`   🔍 getSegmentsForZipCodes: Searching ${zipCodes.length} ZIP codes (normalized)`);
     console.log(`   📊 Found ${matchingZips.length} matching ZIPs in commerce data, ${nonMatchingZips.length} not found`);
     if (matchingZips.length > 0 && matchingZips.length <= 10) {
       console.log(`   ✅ Matching ZIPs: ${matchingZips.slice(0, 10).join(', ')}`);
@@ -1144,10 +1162,11 @@ export class CommerceAudienceService {
     let itemsProcessed = 0;
     let itemsMatched = 0;
 
-    // Filter to only the specified ZIP codes
+    // Filter to only the specified ZIP codes (using normalized comparison)
     for (const item of this.commerceData) {
       itemsProcessed++;
-      if (!zipSet.has(item.zipCode)) continue;
+      const normalizedCommerceZip = this.normalizeZipCode(item.zipCode);
+      if (!zipSet.has(normalizedCommerceZip)) continue;
       itemsMatched++;
       if (this.isExcludedCategory(item.audienceName)) continue;
 
@@ -1171,6 +1190,16 @@ export class CommerceAudienceService {
   }
 
   /**
+   * Normalize ZIP code to 5-digit format (pad with leading zeros if needed)
+   */
+  private normalizeZipCode(zipCode: string): string {
+    // Remove any non-digit characters and pad to 5 digits
+    const digits = zipCode.replace(/\D/g, '');
+    if (digits.length === 0) return zipCode; // Return original if no digits found
+    return digits.padStart(5, '0');
+  }
+
+  /**
    * Get segments for ZIP codes with over-index calculation vs national average
    * Filters out top X% most widespread segments (outliers that appear everywhere)
    */
@@ -1183,8 +1212,19 @@ export class CommerceAudienceService {
       await this.loadCommerceData();
     }
 
+    // Normalize ZIP codes to ensure consistent format (5 digits, leading zeros)
+    const normalizedZipCodes = zipCodes.map(zip => this.normalizeZipCode(zip));
+    console.log(`   🔧 Normalized ${zipCodes.length} ZIP codes (sample: ${zipCodes.slice(0, 3).join(', ')} -> ${normalizedZipCodes.slice(0, 3).join(', ')})`);
+
     // Get national (all) segments for comparison and filtering
     const nationalSegments = this.getAudienceSegments();
+    
+    if (nationalSegments.length === 0) {
+      console.error('   ❌ ERROR: No national segments available. Commerce data may not be loaded.');
+      return [];
+    }
+
+    console.log(`   📊 National segments available: ${nationalSegments.length}`);
 
     // Calculate the ZIP count threshold for outlier filtering
     // Segments in more ZIPs than this threshold are considered "everywhere" and filtered out
@@ -1201,17 +1241,40 @@ export class CommerceAudienceService {
     );
 
     console.log(`   🔍 Outlier filter: removing segments in >${zipCountThreshold.toLocaleString()} ZIPs (top ${outlierPercentile}%)`);
+    console.log(`   📊 Non-outlier segments available: ${nationalMap.size} out of ${nationalSegments.length} total`);
     console.log(`   🏷️ Category filter received in service: "${categoryFilter}" (type: ${typeof categoryFilter})`);
     if (categoryFilter && categoryFilter !== 'All Categories') {
       console.log(`   🏷️ Will filter to category: ${categoryFilter}`);
     }
 
-    // Get segments for the specific market
-    const marketSegments = this.getSegmentsForZipCodes(zipCodes);
+    // Get segments for the specific market (using normalized ZIP codes)
+    const marketSegments = this.getSegmentsForZipCodes(normalizedZipCodes);
+    
+    console.log(`   📈 Market segments found: ${marketSegments.length} (before outlier and category filtering)`);
+    
+    if (marketSegments.length === 0) {
+      console.warn(`   ⚠️ WARNING: No segments found for market ZIP codes. This could indicate:`);
+      console.warn(`      - ZIP codes don't exist in commerce data`);
+      console.warn(`      - All segments filtered out by excluded categories`);
+      console.warn(`      - Commerce data not loaded properly`);
+      return [];
+    }
 
     // Calculate over-index, filtering out outliers and optionally by category
+    let outlierCount = 0;
     const segmentsWithCategory = marketSegments
-      .filter(seg => nationalMap.has(seg.name)) // Only include non-outlier segments
+      .filter(seg => {
+        const isOutlier = !nationalMap.has(seg.name);
+        if (isOutlier) {
+          outlierCount++;
+          // Log first few filtered outliers for debugging
+          if (outlierCount <= 3) {
+            console.log(`   🚫 Filtered outlier segment: ${seg.name} (in ${seg.totalZipCodes} ZIPs, threshold: ${zipCountThreshold})`);
+          }
+          return false;
+        }
+        return true;
+      })
       .map(seg => {
         const national = nationalMap.get(seg.name)!;
         const overIndex = Math.round((seg.averageWeight / national.averageWeight) * 100);
@@ -1223,6 +1286,12 @@ export class CommerceAudienceService {
           level1Category
         };
       });
+    
+    if (outlierCount > 0) {
+      console.log(`   🚫 Filtered out ${outlierCount} outlier segments (appear in >${zipCountThreshold.toLocaleString()} ZIPs)`);
+    }
+
+    console.log(`   ✅ After outlier filter: ${segmentsWithCategory.length} segments remain`);
 
     // Debug: Show category distribution before filtering
     if (categoryFilter && categoryFilter !== 'All Categories') {
@@ -1244,7 +1313,48 @@ export class CommerceAudienceService {
     });
 
     if (categoryFilter && categoryFilter !== 'All Categories') {
-      console.log(`   ✅ After filter: ${filteredSegments.length} segments match "${categoryFilter}"`);
+      console.log(`   ✅ After category filter: ${filteredSegments.length} segments match "${categoryFilter}"`);
+    }
+
+    // If all segments were filtered out, log a warning but return empty array
+    if (filteredSegments.length === 0 && marketSegments.length > 0) {
+      console.warn(`   ⚠️ WARNING: All ${marketSegments.length} market segments were filtered out.`);
+      console.warn(`      - Outlier filter removed: ${outlierCount} segments`);
+      console.warn(`      - Category filter removed: ${segmentsWithCategory.length - filteredSegments.length} segments`);
+      
+      // If outlier filter removed everything, provide a fallback: return top segments without outlier filtering
+      // This ensures users see some results even if the outlier filter is too aggressive
+      if (outlierCount === marketSegments.length && segmentsWithCategory.length === 0) {
+        console.warn(`   🔄 FALLBACK: All segments filtered as outliers. Returning top segments without outlier filter.`);
+        const fallbackSegments = marketSegments
+          .slice(0, 20) // Limit to top 20
+          .map(seg => {
+            // Use national average if available, otherwise use 100 as baseline
+            const national = nationalSegments.find(s => s.name === seg.name);
+            const overIndex = national 
+              ? Math.round((seg.averageWeight / national.averageWeight) * 100)
+              : 100;
+            const level1Category = getLevel1Category(seg.name);
+
+            return {
+              ...seg,
+              overIndex,
+              level1Category
+            };
+          })
+          .filter(seg => {
+            // Still apply category filter if specified
+            if (!categoryFilter || categoryFilter === 'All Categories') {
+              return true;
+            }
+            return seg.level1Category === categoryFilter;
+          });
+        
+        if (fallbackSegments.length > 0) {
+          console.log(`   ✅ Fallback returned ${fallbackSegments.length} segments (outlier filter disabled)`);
+          return fallbackSegments;
+        }
+      }
     }
 
     return filteredSegments;

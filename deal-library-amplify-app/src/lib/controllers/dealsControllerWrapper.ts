@@ -483,22 +483,83 @@ export class DealsControllerWrapper extends DealsController {
   // Unified search directly
   async unifiedSearchDirect(body: any): Promise<any> {
     try {
-      const deals = await this.getAllDeals();
-      const query = body.query?.toLowerCase() || '';
+      const { query, cardType = 'all', cardTypes } = body;
+      const queryLower = (query || '').toLowerCase();
       
-      // Simple filtering
-      const filteredDeals = query ? deals.filter((deal: any) =>
-        deal.dealName?.toLowerCase().includes(query) ||
-        deal.description?.toLowerCase().includes(query)
-      ).slice(0, 10) : deals.slice(0, 10);
+      // Handle both single cardType and array of cardTypes for multiple selection
+      const rawRequestedTypes = cardTypes && Array.isArray(cardTypes) ? cardTypes : (cardType === 'all' ? ['deals', 'personas', 'audience-insights', 'market-sizing', 'geographic', 'marketing-news'] : [cardType]);
       
-      return {
-        success: true,
-        deals: filteredDeals,
+      // Normalize card type names
+      const requestedTypes = rawRequestedTypes.map((type: string) => {
+        if (type === 'geo-cards') return 'geographic';
+        return type;
+      });
+      
+      console.log(`🔍 Unified search direct: "${query}", types: ${JSON.stringify(requestedTypes)}`);
+      
+      const results: any = {
+        deals: [],
         personas: [],
         audienceInsights: [],
         marketSizing: [],
-        geoCards: []
+        geoCards: [],
+        marketingNews: []
+      };
+      
+      // Search deals if requested
+      if (requestedTypes.includes('deals')) {
+        try {
+          const deals = await this.getAllDeals();
+          if (deals && deals.length > 0) {
+            const filteredDeals = queryLower ? deals.filter((deal: any) =>
+              deal.dealName?.toLowerCase().includes(queryLower) ||
+              deal.description?.toLowerCase().includes(queryLower)
+            ).slice(0, 10) : deals.slice(0, 10);
+            results.deals = filteredDeals;
+          }
+        } catch (error) {
+          console.error('Error searching deals:', error);
+        }
+      }
+      
+      // Generate market sizing if requested
+      if (requestedTypes.includes('market-sizing')) {
+        try {
+          const gemini = getGeminiService();
+          if (gemini) {
+            const sizingResult = await gemini.generateMarketSizing(query || 'technology market');
+            results.marketSizing = sizingResult.marketSizing || [];
+          }
+        } catch (error) {
+          console.error('Error generating market sizing:', error);
+        }
+      }
+      
+      // Generate marketing news if requested
+      if (requestedTypes.includes('marketing-news')) {
+        try {
+          const gemini = getGeminiService();
+          if (gemini) {
+            const newsResult = await gemini.generateMarketingNews(query);
+            // Fix: Access result.data.newsItems correctly
+            if (newsResult.success && newsResult.data?.newsItems) {
+              results.marketingNews = newsResult.data.newsItems;
+            }
+          }
+        } catch (error) {
+          console.error('Error generating marketing news:', error);
+        }
+      }
+      
+      console.log(`✅ Unified search direct results:`, {
+        deals: results.deals.length,
+        marketSizing: results.marketSizing.length,
+        marketingNews: results.marketingNews.length
+      });
+      
+      return {
+        success: true,
+        ...results
       };
     } catch (error) {
       console.error('Error in unified search:', error);
@@ -992,12 +1053,16 @@ export class DealsControllerWrapper extends DealsController {
       
       const result = await gemini.generateMarketingNews(body.query);
       
-      console.log('✅ Marketing news generated:', result.marketingNews?.length || 0, 'articles');
+      // Fix: result.data.newsItems contains the news items, not result.marketingNews
+      const newsItems = result.success && result.data?.newsItems ? result.data.newsItems : [];
+      const aiResponse = result.data?.aiResponse || '';
+      
+      console.log('✅ Marketing news generated:', newsItems.length, 'articles');
       
       return {
         success: true,
-        marketingNews: result.marketingNews || [],
-        aiResponse: result.aiResponse || ''
+        marketingNews: newsItems,
+        aiResponse: aiResponse
       };
     } catch (error) {
       console.error('❌ Error generating marketing news:', error);
@@ -1083,7 +1148,57 @@ export class DealsControllerWrapper extends DealsController {
     };
   }
 
-  // Generate agent mode recommendation directly
+  // Check if agent mode service is available
+  hasAgentModeService(): boolean {
+    return this.agentModeService !== null && this.geminiService !== null;
+  }
+
+  // Generate agent mode recommendation with progress callback (for SSE streaming)
+  async generateAgentModeRecommendationWithProgress(
+    body: { rawBrief?: string; formData?: any },
+    progressCallback: (update: any) => void
+  ): Promise<any> {
+    const { rawBrief, formData } = body;
+
+    if (!this.agentModeService || !this.geminiService) {
+      throw new Error('Agent Mode not available - AI service not configured');
+    }
+
+    // Create advertiser brief
+    const brief: any = rawBrief 
+      ? {
+          rawBrief: rawBrief.trim(),
+          timestamp: new Date()
+        }
+      : {
+          formData: formData,
+          timestamp: new Date()
+        };
+
+    // Import report generation service
+    const { reportGenerationService } = await import('../services/reportGenerationService');
+
+    // Generate comprehensive recommendation with progress updates
+    const report = await this.agentModeService.generateComprehensiveRecommendation(
+      brief,
+      progressCallback
+    );
+
+    // Generate markdown report
+    const markdownReport = reportGenerationService.generateReport(report.results);
+    report.markdownReport = markdownReport;
+
+    // Return the report in the format expected by the frontend
+    return {
+      advertiserName: report.advertiserName,
+      generatedDate: report.generatedDate.toISOString(),
+      markdownReport: report.markdownReport,
+      summary: report.summary,
+      results: report.results
+    };
+  }
+
+  // Generate agent mode recommendation directly (legacy - returns mock)
   async generateAgentModeRecommendationDirect(body: any): Promise<any> {
     return {
       success: true,

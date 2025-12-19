@@ -37,3 +37,4 @@ The logs should show:
 
 This will tell us if the environment variable is available when `getBaseUrl()` is actually called from the `/api/deals` route.
 
+

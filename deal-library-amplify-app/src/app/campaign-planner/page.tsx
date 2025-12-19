@@ -9,8 +9,6 @@ import { ProgressUpdate, ComprehensiveReport } from '@/types/agentMode';
 import { useCart, useSaveCard } from '@/components/AppLayout';
 import { Deal } from '@/types/deal';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
-
 export default function CampaignPlannerPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState<ProgressUpdate | null>(null);
@@ -38,7 +36,8 @@ export default function CampaignPlannerPage() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/agent-mode/generate-recommendation`, {
+      // Use Next.js API route (relative path)
+      const response = await fetch('/api/agent-mode/generate-recommendation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

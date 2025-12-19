@@ -1389,7 +1389,7 @@ export class DealsController {
       }
 
       // Handle both single cardType and array of cardTypes for multiple selection
-      const rawRequestedTypes = cardTypes && Array.isArray(cardTypes) ? cardTypes : (cardType === 'all' ? ['deals', 'personas', 'audience-insights', 'market-sizing', 'geographic'] : [cardType]);
+      const rawRequestedTypes = cardTypes && Array.isArray(cardTypes) ? cardTypes : (cardType === 'all' ? ['deals', 'personas', 'audience-insights', 'market-sizing', 'geographic', 'marketing-news'] : [cardType]);
       
       // Normalize card type names (handle frontend/backend naming inconsistencies)
       const requestedTypes = rawRequestedTypes.map(type => {
@@ -1404,7 +1404,8 @@ export class DealsController {
         personas: [],
         audienceInsights: [],
         marketSizing: [],
-        geoCards: []
+        geoCards: [],
+        marketingNews: []
       };
 
       // Check if query is asking for deals for a specific persona
@@ -1618,12 +1619,28 @@ export class DealsController {
         }
       }
 
+      // Generate marketing news if requested
+      if (requestedTypes.includes('marketing-news')) {
+        try {
+          if (this.geminiService) {
+            const newsResult = await this.geminiService.generateMarketingNews(query);
+            // Access result.data.newsItems correctly
+            if (newsResult.success && newsResult.data?.newsItems) {
+              results.marketingNews = newsResult.data.newsItems;
+            }
+          }
+        } catch (error) {
+          console.error('Error generating marketing news:', error);
+        }
+      }
+
       console.log(`✅ Unified search results:`, {
         deals: results.deals.length,
         personas: results.personas.length,
         audienceInsights: results.audienceInsights.length,
         marketSizing: results.marketSizing.length,
-        geoCards: results.geoCards.length
+        geoCards: results.geoCards.length,
+        marketingNews: results.marketingNews.length
       });
 
       res.json(results);

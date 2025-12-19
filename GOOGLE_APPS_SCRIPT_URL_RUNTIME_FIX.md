@@ -100,3 +100,4 @@ After deploying this fix:
 - `deal-library-amplify-app/src/app/api/deals/route.ts` - Uses AppsScriptService
 - `deal-library-amplify-app/src/app/api/deals/debug/route.ts` - Debug endpoint (already working)
 
+

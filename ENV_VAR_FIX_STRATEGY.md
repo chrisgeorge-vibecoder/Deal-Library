@@ -34,3 +34,4 @@ We need to make ALL services that depend on environment variables use **lazy ini
 2. Or make GeminiService constructor not throw, check at runtime instead
 3. Ensure all env var access happens when methods are called, not when classes are instantiated
 
+

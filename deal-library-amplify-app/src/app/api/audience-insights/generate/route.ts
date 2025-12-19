@@ -25,10 +25,24 @@ export async function POST(request: NextRequest) {
     const category = body.category || 'General';
     const includeCommercialZips = body.includeCommercialZips || false;
     
+    // Validate input
+    if (!segment || typeof segment !== 'string' || segment.trim().length === 0) {
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Invalid input',
+          message: 'Segment name is required and must be a non-empty string',
+          report: null,
+          recommendedDeals: []
+        },
+        { status: 400 }
+      );
+    }
+    
     console.log('🎯 Generating audience insights report:', { segment, category, includeCommercialZips });
     
     // Race between report generation and timeout
-    const reportPromise = audienceInsightsService.generateReport(segment, category, includeCommercialZips);
+    const reportPromise = audienceInsightsService.generateReport(segment.trim(), category, includeCommercialZips);
     const report = await Promise.race([reportPromise, timeoutPromise]);
     
     console.log('✅ Report generated successfully:', {
@@ -63,9 +77,12 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('❌ Error generating audience insights report:', error);
+    console.error('   Error type:', error?.constructor?.name);
+    console.error('   Error message:', error?.message);
+    console.error('   Error stack:', error?.stack?.substring(0, 500));
     
     // If it's a timeout, return a specific error
-    if (error.message?.includes('timeout') || error.name === 'AbortError') {
+    if (error.message?.includes('timeout') || error.name === 'AbortError' || error.message?.includes('timeout')) {
       console.error('⏰ Request timed out before completion');
       return NextResponse.json(
         { 
@@ -79,16 +96,37 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Check for specific error types
+    const errorMessage = error?.message || 'Unknown error occurred';
+    let statusCode = 500;
+    let userMessage = errorMessage;
+    
+    // Handle validation errors
+    if (errorMessage.includes('required') || errorMessage.includes('must be')) {
+      statusCode = 400;
+      userMessage = errorMessage;
+    }
+    // Handle data not found errors
+    else if (errorMessage.includes('No geographic data') || errorMessage.includes('No valid demographic data')) {
+      statusCode = 404;
+      userMessage = `No data found for this segment. Please verify the segment name is correct and try again.`;
+    }
+    // Handle service unavailable errors
+    else if (errorMessage.includes('not available') || errorMessage.includes('not loaded')) {
+      statusCode = 503;
+      userMessage = 'The data service is temporarily unavailable. Please try again in a few moments.';
+    }
+    
     // For other errors, return a 500 with error details
     return NextResponse.json(
       { 
         success: false,
         error: 'Failed to generate audience insights report',
-        message: error.message || 'Unknown error occurred',
+        message: userMessage,
         report: null,
         recommendedDeals: []
       },
-      { status: 500 }
+      { status: statusCode }
     );
   }
 }

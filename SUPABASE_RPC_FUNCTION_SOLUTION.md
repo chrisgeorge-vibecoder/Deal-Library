@@ -136,3 +136,4 @@ const { data, error } = await supabase
 2. **If RPC doesn't work**, try materialized view
 3. **If both fail**, check Supabase dashboard for query performance issues
 
+

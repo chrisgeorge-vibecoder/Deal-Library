@@ -115,3 +115,4 @@ After deployment, test:
 - `deal-library-amplify-app/src/lib/controllers/dealsControllerWrapper.ts` - Search logic with pre-filtering
 - `deal-library-amplify-app/src/app/page.tsx` - Frontend timeout (already fixed)
 
+

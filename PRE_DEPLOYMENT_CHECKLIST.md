@@ -214,3 +214,4 @@ The code is trying to query a view that doesn't exist yet, so Supabase will retu
 
 **You're about 80% ready - just need to create the database objects first!**
 
+

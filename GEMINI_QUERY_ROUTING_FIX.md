@@ -109,3 +109,4 @@ After deployment, test:
 - `deal-library-amplify-app/src/app/page.tsx` - Frontend routing logic
 - `deal-library-amplify-app/src/lib/controllers/dealsControllerWrapper.ts` - Backend search logic
 
+

@@ -117,3 +117,4 @@ If deals still don't load after following these steps:
 3. Check AWS Amplify build/runtime logs
 4. Verify Apps Script URL is accessible and returns valid JSON
 
+

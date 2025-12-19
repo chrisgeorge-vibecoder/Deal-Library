@@ -161,3 +161,4 @@ Copy the filled-in template and share it with Supabase support in your support t
 - [ ] Filled in `SQL_QUERY_RESULTS_TEMPLATE.md`
 - [ ] Ready to share with Supabase support
 
+

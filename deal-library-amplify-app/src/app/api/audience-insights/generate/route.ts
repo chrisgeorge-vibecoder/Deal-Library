@@ -4,11 +4,10 @@ import { audienceInsightsService } from '@/lib/services/audienceInsightsService'
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
 // Timeout for report generation
-// Note: If running on AWS Amplify, check your function timeout settings
-// For local/dev environments, we can use longer timeouts
-// For production, consider using background jobs or increasing Amplify timeout limits
+// Note: AWS Amplify has a 60s limit for serverless functions
+// We set this to 58 seconds to leave a small buffer for response formatting
 const API_TIMEOUT_MS = process.env.NODE_ENV === 'production' 
-  ? 55000  // 55 seconds for production (leaves buffer for Amplify 60s limit)
+  ? 58000  // 58 seconds for production (leaves 2s buffer for Amplify 60s limit)
   : 90000; // 90 seconds for development (more forgiving)
 
 export async function POST(request: NextRequest) {
@@ -70,10 +69,12 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    console.log('🎯 Generating audience insights report:', { segment, category, includeCommercialZips });
+    const skipStrategicContent = body.skipStrategicContent === true;
+    console.log('🎯 Generating audience insights report:', { segment, category, includeCommercialZips, skipStrategicContent });
     
     // Race between report generation and timeout
-    const reportPromise = audienceInsightsService.generateReport(segment.trim(), category, includeCommercialZips);
+    // Skip strategic content (Gemini calls) for faster initial response - can be loaded separately
+    const reportPromise = audienceInsightsService.generateReport(segment.trim(), category, includeCommercialZips, skipStrategicContent);
     const report = await Promise.race([reportPromise, timeoutPromise]);
     
     console.log('✅ Report generated successfully:', {

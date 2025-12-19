@@ -76,6 +76,7 @@ class AudienceInsightsService {
   private overlapsFilePath: string;
   private reportCache: Map<string, { report: AudienceInsightsReport; timestamp: number }> = new Map(); // Cache for generated reports
   private reportCacheTimeout: number = 1000 * 60 * 60; // 1 hour cache
+  private pregeneratedCacheTimeout: number = 1000 * 60 * 60 * 24 * 30; // 30 days for pre-generated content
   private useSupabase: boolean;
   
   constructor() {
@@ -209,8 +210,9 @@ class AudienceInsightsService {
   
   /**
    * Generate comprehensive audience insights report
+   * @param skipStrategicContent If true, skips Gemini AI calls (strategic insights, persona, executive summary) to return faster
    */
-  async generateReport(segment: string, category?: string, includeCommercialZips: boolean = false): Promise<AudienceInsightsReport> {
+  async generateReport(segment: string, category?: string, includeCommercialZips: boolean = false, skipStrategicContent: boolean = false): Promise<AudienceInsightsReport> {
     const startTime = Date.now();
     
     // Validate input
@@ -345,99 +347,125 @@ class AudienceInsightsService {
     const educationVsCommerce = commerceBaseline?.educationBachelorsPlus ? ((demographics.educationBachelors / commerceBaseline.educationBachelorsPlus) - 1) * 100 : null;
     console.log(`📊 vs Commerce: Income ${medianHHIvsCommerce !== null ? (medianHHIvsCommerce > 0 ? '+' : '') + medianHHIvsCommerce.toFixed(1) + '%' : 'N/A'}, Education ${educationVsCommerce !== null ? (educationVsCommerce > 0 ? '+' : '') + educationVsCommerce.toFixed(1) + '%' : 'N/A'}`);
 
-    // Step 4: Generate strategic insights with Gemini (with timeout protection)
-    // Each Gemini call gets a 30-second timeout to prevent hanging
-    const GEMINI_CALL_TIMEOUT_MS = 30000;
-    stepStart = Date.now();
+    // Step 4: Generate strategic insights with Gemini (with timeout protection) - SKIPPABLE for faster initial load
+    let strategicInsights: any;
+    let executiveSummary: string;
+    let personaResult: { name: string; emoji: string; description: string };
+    let humanizedPersona: string;
     
-    const strategicInsightsPromise = Promise.race([
-      this.generateStrategicInsights(
-        trimmedSegment,
-        category || 'General',
-        demographics,
-        overlaps,
-        geoIntelligence,
-        commerceBaseline  // Pass baseline to Gemini
-      ),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Strategic insights generation timeout')), GEMINI_CALL_TIMEOUT_MS)
-      )
-    ]).catch(error => {
-      console.error('❌ Failed to generate strategic insights:', error);
-      // Return fallback insights
-      return {
+    if (skipStrategicContent) {
+      console.log('⏩ Skipping strategic content generation for faster response');
+      // Use fallback values
+      strategicInsights = {
         targetPersona: `The ${trimmedSegment} audience`,
         keyInsights: [`Strong engagement with ${trimmedSegment} products and services`],
-        mediaRecommendations: ['Digital channels', 'Targeted advertising'],
+        messagingRecommendations: ['Digital channels', 'Targeted advertising'],
+        channelRecommendations: ['Digital channels', 'Targeted advertising'],
         creativeGuidance: `Focus on ${trimmedSegment} needs and preferences`
       };
-    });
-    
-    // Step 4b: Generate humanized persona (with timeout protection) - run in parallel with strategic insights
-    const humanizedPersonaPromise = Promise.race([
-      this.generateHumanizedPersona(
-        trimmedSegment,
-        category || 'General',
-        demographics,
-        geoIntelligence,
-        overlaps,
-        demographics.affluenceLevel,
-        demographics.familyProfile,
-        demographics.lifestyle?.selfEmployed && demographics.lifestyle.selfEmployed > 12 ? 'Often self-employed or entrepreneurial' : 'Typically employed'
-      ),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Humanized persona generation timeout')), GEMINI_CALL_TIMEOUT_MS)
-      )
-    ]).catch(error => {
-      console.error('❌ Failed to generate humanized persona:', error);
-      return `The ${trimmedSegment} audience represents a key market segment with distinct characteristics and preferences.`;
-    });
-
-    // Step 5: Generate executive summary (with timeout protection) - run in parallel
-    const executiveSummaryPromise = Promise.race([
-      this.generateExecutiveSummary(
-        trimmedSegment,
-        demographics,
-        overlaps,
-        geoIntelligence,
-        commerceBaseline  // Pass baseline to Gemini
-      ),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Executive summary generation timeout')), GEMINI_CALL_TIMEOUT_MS)
-      )
-    ]).catch(error => {
-      console.error('❌ Failed to generate executive summary:', error);
-      return `The ${segment} audience shows strong market potential with ${demographics.medianHHI ? '$' + demographics.medianHHI.toLocaleString() : 'above-average'} household income and ${demographics.educationBachelors ? demographics.educationBachelors.toFixed(0) + '%' : 'high'} education levels.`;
-    });
-    
-    // Generate AI-powered persona (with timeout protection) - run in parallel
-    const personaResultPromise = Promise.race([
-      this.generateAIPersona(trimmedSegment, category || 'General', demographics, overlaps, geoIntelligence, commerceBaseline),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('AI persona generation timeout')), GEMINI_CALL_TIMEOUT_MS)
-      )
-    ]).catch(error => {
-      console.error('❌ Failed to generate AI persona:', error);
-      return {
+      executiveSummary = `The ${trimmedSegment} audience shows strong market potential with ${demographics.medianHHI ? '$' + demographics.medianHHI.toLocaleString() : 'above-average'} household income and ${demographics.educationBachelors ? demographics.educationBachelors.toFixed(0) + '%' : 'high'} education levels.`;
+      personaResult = {
         name: trimmedSegment,
         emoji: '👤',
         description: `The ${trimmedSegment} audience`
       };
-    });
+      humanizedPersona = `The ${trimmedSegment} audience represents a key market segment with distinct characteristics and preferences.`;
+    } else {
+      // Each Gemini call gets a 20-second timeout to prevent hanging
+      // Reduced from 30s to 20s to allow more time for data processing
+      const GEMINI_CALL_TIMEOUT_MS = 20000;
+      stepStart = Date.now();
+      
+      const strategicInsightsPromise = Promise.race([
+        this.generateStrategicInsights(
+          trimmedSegment,
+          category || 'General',
+          demographics,
+          overlaps,
+          geoIntelligence,
+          commerceBaseline  // Pass baseline to Gemini
+        ),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Strategic insights generation timeout')), GEMINI_CALL_TIMEOUT_MS)
+        )
+      ]).catch(error => {
+        console.error('❌ Failed to generate strategic insights:', error);
+        // Return fallback insights
+        return {
+          targetPersona: `The ${trimmedSegment} audience`,
+          keyInsights: [`Strong engagement with ${trimmedSegment} products and services`],
+          messagingRecommendations: ['Digital channels', 'Targeted advertising'],
+          channelRecommendations: ['Digital channels', 'Targeted advertising'],
+          creativeGuidance: `Focus on ${trimmedSegment} needs and preferences`
+        };
+      });
+      
+      // Step 4b: Generate humanized persona (with timeout protection) - run in parallel with strategic insights
+      const humanizedPersonaPromise = Promise.race([
+        this.generateHumanizedPersona(
+          trimmedSegment,
+          category || 'General',
+          demographics,
+          geoIntelligence,
+          overlaps,
+          demographics.affluenceLevel,
+          demographics.familyProfile,
+          demographics.lifestyle?.selfEmployed && demographics.lifestyle.selfEmployed > 12 ? 'Often self-employed or entrepreneurial' : 'Typically employed'
+        ),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Humanized persona generation timeout')), GEMINI_CALL_TIMEOUT_MS)
+        )
+      ]).catch(error => {
+        console.error('❌ Failed to generate humanized persona:', error);
+        return `The ${trimmedSegment} audience represents a key market segment with distinct characteristics and preferences.`;
+      });
 
-    // Wait for all parallel Gemini calls to complete (with individual timeouts)
-    const [strategicInsights, humanizedPersona, executiveSummary, personaResult] = await Promise.all([
-      strategicInsightsPromise,
-      humanizedPersonaPromise,
-      executiveSummaryPromise,
-      personaResultPromise
-    ]);
-    
-    console.log(`✨ Generated all strategic content with Gemini (${Date.now() - stepStart}ms)`);
-    
-    // Replace targetPersona with humanized version
-    strategicInsights.targetPersona = humanizedPersona;
-    console.log(`👤 Applied humanized persona narrative`);
+      // Step 5: Generate executive summary (with timeout protection) - run in parallel
+      const executiveSummaryPromise = Promise.race([
+        this.generateExecutiveSummary(
+          trimmedSegment,
+          demographics,
+          overlaps,
+          geoIntelligence,
+          commerceBaseline  // Pass baseline to Gemini
+        ),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Executive summary generation timeout')), GEMINI_CALL_TIMEOUT_MS)
+        )
+      ]).catch(error => {
+        console.error('❌ Failed to generate executive summary:', error);
+        return `The ${segment} audience shows strong market potential with ${demographics.medianHHI ? '$' + demographics.medianHHI.toLocaleString() : 'above-average'} household income and ${demographics.educationBachelors ? demographics.educationBachelors.toFixed(0) + '%' : 'high'} education levels.`;
+      });
+      
+      // Generate AI-powered persona (with timeout protection) - run in parallel
+      const personaResultPromise = Promise.race([
+        this.generateAIPersona(trimmedSegment, category || 'General', demographics, overlaps, geoIntelligence, commerceBaseline),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('AI persona generation timeout')), GEMINI_CALL_TIMEOUT_MS)
+        )
+      ]).catch(error => {
+        console.error('❌ Failed to generate AI persona:', error);
+        return {
+          name: trimmedSegment,
+          emoji: '👤',
+          description: `The ${trimmedSegment} audience`
+        };
+      });
+
+      // Wait for all parallel Gemini calls to complete (with individual timeouts)
+      [strategicInsights, humanizedPersona, executiveSummary, personaResult] = await Promise.all([
+        strategicInsightsPromise,
+        humanizedPersonaPromise,
+        executiveSummaryPromise,
+        personaResultPromise
+      ]);
+      
+      console.log(`✨ Generated all strategic content with Gemini (${Date.now() - stepStart}ms)`);
+      
+      // Replace targetPersona with humanized version
+      strategicInsights.targetPersona = humanizedPersona;
+      console.log(`👤 Applied humanized persona narrative`);
+    }
 
     // Compile final report
     const report: AudienceInsightsReport = {
@@ -481,9 +509,11 @@ class AudienceInsightsService {
     };
 
     // Cache the report (Supabase or in-memory)
+    // Note: skipStrategicContent reports are cached as regular reports (1-hour TTL)
+    // Only pre-generated reports (via pregenerateReport method) get 30-day TTL
     try {
       if (this.useSupabase) {
-        await this.saveToSupabaseCache(cacheKey, trimmedSegment, category || 'General', report);
+        await this.saveToSupabaseCache(cacheKey, trimmedSegment, category || 'General', report, false);
       } else {
         this.reportCache.set(cacheKey, { report, timestamp: Date.now() });
       }
@@ -496,6 +526,117 @@ class AudienceInsightsService {
     console.log(`✅ Successfully generated report for "${trimmedSegment}"`);
 
     return report;
+  }
+
+  /**
+   * Generate only the strategic content (Gemini AI parts) for an existing report
+   * This is used to load strategic insights asynchronously after the initial report
+   */
+  async generateStrategicContent(segment: string, category: string, demographics: any, overlaps: any[], geoIntelligence: any, commerceBaseline: any): Promise<{
+    executiveSummary: string;
+    strategicInsights: any;
+    personaName: string;
+    personaEmoji: string;
+    personaDescription: string;
+  }> {
+    const trimmedSegment = segment.trim();
+    const GEMINI_CALL_TIMEOUT_MS = 30000; // 30 seconds per call for standalone generation
+    const startTime = Date.now();
+
+    console.log(`✨ Generating strategic content for "${trimmedSegment}"`);
+
+    // Generate all strategic content in parallel
+    const strategicInsightsPromise = Promise.race([
+      this.generateStrategicInsights(
+        trimmedSegment,
+        category || 'General',
+        demographics,
+        overlaps,
+        geoIntelligence,
+        commerceBaseline
+      ),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Strategic insights generation timeout')), GEMINI_CALL_TIMEOUT_MS)
+      )
+    ]).catch(error => {
+      console.error('❌ Failed to generate strategic insights:', error);
+      return {
+        targetPersona: `The ${trimmedSegment} audience`,
+        keyInsights: [`Strong engagement with ${trimmedSegment} products and services`],
+        messagingRecommendations: ['Digital channels', 'Targeted advertising'],
+        channelRecommendations: ['Digital channels', 'Targeted advertising'],
+        creativeGuidance: `Focus on ${trimmedSegment} needs and preferences`
+      };
+    });
+
+    const humanizedPersonaPromise = Promise.race([
+      this.generateHumanizedPersona(
+        trimmedSegment,
+        category || 'General',
+        demographics,
+        geoIntelligence,
+        overlaps,
+        demographics.affluenceLevel,
+        demographics.familyProfile,
+        demographics.lifestyle?.selfEmployed && demographics.lifestyle.selfEmployed > 12 ? 'Often self-employed or entrepreneurial' : 'Typically employed'
+      ),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Humanized persona generation timeout')), GEMINI_CALL_TIMEOUT_MS)
+      )
+    ]).catch(error => {
+      console.error('❌ Failed to generate humanized persona:', error);
+      return `The ${trimmedSegment} audience represents a key market segment with distinct characteristics and preferences.`;
+    });
+
+    const executiveSummaryPromise = Promise.race([
+      this.generateExecutiveSummary(
+        trimmedSegment,
+        demographics,
+        overlaps,
+        geoIntelligence,
+        commerceBaseline
+      ),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Executive summary generation timeout')), GEMINI_CALL_TIMEOUT_MS)
+      )
+    ]).catch(error => {
+      console.error('❌ Failed to generate executive summary:', error);
+      return `The ${trimmedSegment} audience shows strong market potential with ${demographics.medianHHI ? '$' + demographics.medianHHI.toLocaleString() : 'above-average'} household income and ${demographics.educationBachelors ? demographics.educationBachelors.toFixed(0) + '%' : 'high'} education levels.`;
+    });
+
+    const personaResultPromise = Promise.race([
+      this.generateAIPersona(trimmedSegment, category || 'General', demographics, overlaps, geoIntelligence, commerceBaseline),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('AI persona generation timeout')), GEMINI_CALL_TIMEOUT_MS)
+      )
+    ]).catch(error => {
+      console.error('❌ Failed to generate AI persona:', error);
+      return {
+        name: trimmedSegment,
+        emoji: '👤',
+        description: `The ${trimmedSegment} audience`
+      };
+    });
+
+    const [strategicInsights, humanizedPersona, executiveSummary, personaResult] = await Promise.all([
+      strategicInsightsPromise,
+      humanizedPersonaPromise,
+      executiveSummaryPromise,
+      personaResultPromise
+    ]);
+
+    // Replace targetPersona with humanized version
+    strategicInsights.targetPersona = humanizedPersona;
+
+    console.log(`✨ Generated strategic content in ${((Date.now() - startTime) / 1000).toFixed(2)}s`);
+
+    return {
+      executiveSummary,
+      strategicInsights,
+      personaName: personaResult.name,
+      personaEmoji: personaResult.emoji,
+      personaDescription: personaResult.description
+    };
   }
 
   /**
@@ -2957,17 +3098,20 @@ Write 3-4 analytical sentences that connect data points to reveal purchasing mot
 
   /**
    * Save report to Supabase cache
+   * @param isPregenerated - If true, uses 30-day TTL for pre-generated content; otherwise 1-hour TTL
    */
   private async saveToSupabaseCache(
     cacheKey: string, 
     segment: string, 
     category: string, 
-    report: AudienceInsightsReport
+    report: AudienceInsightsReport,
+    isPregenerated: boolean = false
   ): Promise<void> {
     try {
       const supabase = SupabaseService.getClient();
       
-      const expiresAt = new Date(Date.now() + this.reportCacheTimeout);
+      const ttl = isPregenerated ? this.pregeneratedCacheTimeout : this.reportCacheTimeout;
+      const expiresAt = new Date(Date.now() + ttl);
       
       const { error } = await supabase
         .from('audience_reports_cache')
@@ -2984,7 +3128,8 @@ Write 3-4 analytical sentences that connect data points to reveal purchasing mot
         // Fallback to in-memory cache
         this.reportCache.set(cacheKey, { report, timestamp: Date.now() });
       } else {
-        console.log(`💾 Report cached in Supabase (expires: ${expiresAt.toLocaleTimeString()})`);
+        const ttlDays = Math.round(ttl / (1000 * 60 * 60 * 24));
+        console.log(`💾 Report cached in Supabase (TTL: ${ttlDays} days, expires: ${expiresAt.toLocaleDateString()})`);
       }
       
     } catch (error) {

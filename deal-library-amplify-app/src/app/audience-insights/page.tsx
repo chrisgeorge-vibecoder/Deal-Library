@@ -747,13 +747,15 @@ export default function AudienceInsightsPage() {
     try {
       console.log('🔍 [DEBUG] Generating report for:', { selectedCategory, selectedSegment });
       
+      // Generate report without strategic content (Gemini calls) for faster initial load
       const response = await fetch('/api/audience-insights/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           segment: selectedSegment,
           category: selectedCategory,
-          includeCommercialZips  // NEW: Pass filter preference to backend
+          includeCommercialZips,
+          skipStrategicContent: true  // Skip Gemini calls for faster response
         }),
         signal: controller.signal,
       });
@@ -821,7 +823,7 @@ export default function AudienceInsightsPage() {
       console.log('📦 [DEBUG] Full API Response:', JSON.stringify(data, null, 2));
 
       if (data.success && data.report) {
-        console.log('✅ [DEBUG] Report received successfully');
+        console.log('✅ [DEBUG] Report received successfully (without strategic content)');
         console.log('📊 [DEBUG] Geographic Hotspots:', {
           count: data.report.geographicHotspots?.length,
           sample: data.report.geographicHotspots?.[0],
@@ -835,7 +837,9 @@ export default function AudienceInsightsPage() {
         });
         console.log('📊 [DEBUG] Key Metrics:', data.report.keyMetrics);
         
+        // Set the initial report (without strategic content)
         setReport(data.report);
+        setLoading(false); // Show the report immediately
         
         // Set recommended deals if available
         if (data.recommendedDeals && Array.isArray(data.recommendedDeals)) {
@@ -845,6 +849,9 @@ export default function AudienceInsightsPage() {
           setRecommendedDeals([]);
           console.log('⚠️ [DEBUG] No recommended deals in response');
         }
+        
+        // Load strategic content asynchronously after initial report is displayed
+        loadStrategicContent(data.report);
         
         console.log(`✅ [DEBUG] Report generated successfully`);
       } else {
@@ -890,6 +897,61 @@ export default function AudienceInsightsPage() {
       setError(errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Load strategic content asynchronously after initial report is displayed
+  const loadStrategicContent = async (report: AudienceInsightsReport) => {
+    try {
+      console.log('✨ Loading strategic content asynchronously...');
+      
+      const response = await fetch('/api/audience-insights/strategic-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          segment: report.segment,
+          category: report.category,
+          demographics: report.demographics,
+          overlaps: report.behavioralOverlap,
+          geoIntelligence: {
+            topCities: report.geographicHotspots?.slice(0, 10).map(h => ({ city: h.city, state: h.state })),
+            topStates: [],
+            regionalInsights: []
+          },
+          commerceBaseline: {
+            medianHHI: report.keyMetrics.medianHHI / (1 + report.keyMetrics.medianHHIvsCommerce / 100),
+            educationBachelorsPlus: report.keyMetrics.educationLevel / (1 + report.keyMetrics.educationVsCommerce / 100),
+            medianAge: 42
+          }
+        })
+      });
+
+      if (!response.ok) {
+        console.warn('⚠️ Failed to load strategic content, using fallback values');
+        return;
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('✅ Strategic content loaded successfully');
+        
+        // Update the report with strategic content
+        setReport(prevReport => {
+          if (!prevReport) return prevReport;
+          
+          return {
+            ...prevReport,
+            executiveSummary: data.executiveSummary,
+            strategicInsights: data.strategicInsights,
+            personaName: data.personaName,
+            personaEmoji: data.personaEmoji,
+            personaDescription: data.personaDescription
+          };
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error loading strategic content:', error);
+      // Don't show error to user - report is already displayed with fallback values
     }
   };
 

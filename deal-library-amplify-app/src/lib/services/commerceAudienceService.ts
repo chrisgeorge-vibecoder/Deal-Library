@@ -1018,9 +1018,9 @@ export class CommerceAudienceService {
       // Normalize ZIP codes
       const normalizedZips = zipCodes.map(zip => this.normalizeZipCode(zip));
       
-      // Add timeout wrapper (20 seconds max)
+      // Add timeout wrapper (15 seconds max - reduced for faster failure)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('ZIP codes data loading timeout')), 20000);
+        setTimeout(() => reject(new Error('ZIP codes data loading timeout')), 15000);
       });
       
       const queryPromise = (async () => {
@@ -1028,19 +1028,21 @@ export class CommerceAudienceService {
         const sanitizedValues = normalizedZips.map(zip => `NA_US_${zip}`);
         
         // Query filtered by ZIP codes - much faster than loading all data
-        // Use .in() for up to 100 ZIPs, otherwise batch the query
-        const batchSize = 100;
+        // Use smaller batches (50 ZIPs) for better performance and faster queries
+        const batchSize = 50; // Reduced from 100 for faster queries
         let allRecords: any[] = [];
+        const maxBatches = 10; // Limit to 10 batches max (500 ZIPs) to avoid timeout
         
-        for (let i = 0; i < sanitizedValues.length; i += batchSize) {
+        for (let i = 0; i < sanitizedValues.length && i < maxBatches * batchSize; i += batchSize) {
           const batch = sanitizedValues.slice(i, i + batchSize);
-          console.log(`   📦 Fetching batch ${Math.floor(i / batchSize) + 1} (${batch.length} ZIP codes)...`);
+          const batchNum = Math.floor(i / batchSize) + 1;
+          console.log(`   📦 Fetching batch ${batchNum}/${Math.min(Math.ceil(sanitizedValues.length / batchSize), maxBatches)} (${batch.length} ZIP codes)...`);
           
           const { data, error } = await supabase
             .from('commerce_audience_segments')
             .select('sanitized_value, weight, audience_name, seed, dt')
             .in('sanitized_value', batch)
-            .limit(limit);
+            .limit(10000); // Limit per batch to avoid huge responses
           
           if (error) {
             console.error('❌ Supabase query error in loadZipCodesDataFromSupabase:', error.message);
@@ -1049,7 +1051,7 @@ export class CommerceAudienceService {
           
           if (data && data.length > 0) {
             allRecords = [...allRecords, ...data];
-            console.log(`   ✅ Batch ${Math.floor(i / batchSize) + 1} returned ${data.length} records (total: ${allRecords.length})`);
+            console.log(`   ✅ Batch ${batchNum} returned ${data.length} records (total: ${allRecords.length})`);
           }
           
           // Stop if we've reached the limit
@@ -1057,6 +1059,10 @@ export class CommerceAudienceService {
             console.warn(`   ⚠️  Reached record limit (${limit.toLocaleString()}), stopping`);
             break;
           }
+        }
+        
+        if (sanitizedValues.length > maxBatches * batchSize) {
+          console.warn(`   ⚠️  Limited to first ${maxBatches * batchSize} ZIP codes (${sanitizedValues.length} total) to avoid timeout`);
         }
 
         // Process records

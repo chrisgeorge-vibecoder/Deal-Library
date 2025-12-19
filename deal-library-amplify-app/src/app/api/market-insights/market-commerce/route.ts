@@ -78,53 +78,16 @@ export async function POST(request: NextRequest) {
       console.log(`   📍 Sample ZIP codes: ${zipCodes.slice(0, 5).join(', ')}... (${zipCodes.length} total)`);
     }
 
-    // Ensure commerce data is loaded
+    // Check commerce data status (but don't force full load - let getSegmentsWithOverIndex handle on-demand loading)
     const status = commerceAudienceService.getStatus();
     console.log(`   📊 Commerce data status: isLoaded=${status.isLoaded}, totalRecords=${status.totalRecords}`);
     
-    if (!status.isLoaded || status.totalRecords === 0) {
-      console.log('   🔄 Commerce data not loaded, loading now...');
-      try {
-        const loadResult = await commerceAudienceService.loadCommerceData();
-        if (!loadResult.success) {
-          console.error(`   ❌ Failed to load commerce data: ${loadResult.message}`);
-          return NextResponse.json(
-            {
-              success: false,
-              error: 'Failed to load commerce data',
-              message: loadResult.message || 'Commerce data could not be loaded. Please check Supabase configuration and environment variables.'
-            },
-            { status: 500 }
-          );
-        }
-        console.log(`   ✅ Commerce data loaded: ${loadResult.stats?.totalRecords || 0} records`);
-      } catch (loadError) {
-        console.error('   ❌ Exception while loading commerce data:', loadError);
-        const errorMessage = loadError instanceof Error ? loadError.message : 'Unknown error loading commerce data';
-        
-        // If timeout error, provide more helpful message
-        if (errorMessage.includes('timeout') || errorMessage.includes('timed out')) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: 'Commerce data loading timeout',
-              message: 'The commerce data query is taking too long. This may indicate a database performance issue. Please try again in a moment or contact support if the issue persists.'
-            },
-            { status: 504 }
-          );
-        }
-        
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Failed to load commerce data',
-            message: errorMessage
-          },
-          { status: 500 }
-        );
-      }
-    } else {
+    // Note: We're NOT loading full data here. Instead, getSegmentsWithOverIndex will use
+    // on-demand loading for specific ZIP codes, which is much faster and avoids timeouts.
+    if (status.isLoaded && status.totalRecords > 0) {
       console.log(`   ✅ Commerce data already loaded: ${status.totalRecords} records available`);
+    } else {
+      console.log('   ⚡ Will use on-demand loading for specific ZIP codes (faster than full load)');
     }
 
     // Get commerce segments with over-index for these ZIP codes, optionally filtered by category

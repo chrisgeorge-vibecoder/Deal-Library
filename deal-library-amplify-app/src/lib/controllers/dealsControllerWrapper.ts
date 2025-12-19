@@ -1171,7 +1171,20 @@ export class DealsControllerWrapper extends DealsController {
 
   // Check if agent mode service is available
   hasAgentModeService(): boolean {
-    return this.agentModeService !== null && this.geminiService !== null;
+    try {
+      const agentMode = this.agentModeService;
+      const gemini = this.geminiService;
+      const isAvailable = agentMode !== null && gemini !== null;
+      console.log('🔍 Agent Mode availability check:', { 
+        agentMode: agentMode !== null, 
+        gemini: gemini !== null, 
+        isAvailable 
+      });
+      return isAvailable;
+    } catch (error) {
+      console.error('❌ Error checking agent mode service availability:', error);
+      return false;
+    }
   }
 
   // Generate agent mode recommendation with progress callback (for SSE streaming)
@@ -1181,8 +1194,21 @@ export class DealsControllerWrapper extends DealsController {
   ): Promise<any> {
     const { rawBrief, formData } = body;
 
-    if (!this.agentModeService || !this.geminiService) {
-      throw new Error('Agent Mode not available - AI service not configured');
+    try {
+      const agentMode = this.agentModeService;
+      const gemini = this.geminiService;
+      
+      if (!agentMode || !gemini) {
+        const errorMsg = 'Agent Mode not available - AI service not configured';
+        console.error('❌', errorMsg, { 
+          hasAgentMode: agentMode !== null, 
+          hasGemini: gemini !== null 
+        });
+        throw new Error(errorMsg);
+      }
+    } catch (error) {
+      console.error('❌ Error accessing agent mode services:', error);
+      throw error;
     }
 
     // Create advertiser brief
@@ -1196,17 +1222,50 @@ export class DealsControllerWrapper extends DealsController {
           timestamp: new Date()
         };
 
-    // Import report generation service
-    const { reportGenerationService } = await import('../services/reportGenerationService');
+    // Get agent mode service (should be available after check above)
+    const agentMode = this.agentModeService;
+    if (!agentMode) {
+      throw new Error('Agent Mode service became unavailable during execution');
+    }
 
     // Generate comprehensive recommendation with progress updates
-    const report = await this.agentModeService.generateComprehensiveRecommendation(
-      brief,
-      progressCallback
-    );
+    console.log('🚀 Starting comprehensive recommendation generation...');
+    let report;
+    try {
+      report = await agentMode.generateComprehensiveRecommendation(
+        brief,
+        progressCallback
+      );
+      console.log('✅ Comprehensive recommendation generated successfully');
+    } catch (error) {
+      console.error('❌ Error generating comprehensive recommendation:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      console.error('❌ Error details:', { errorMessage, errorStack: errorStack?.substring(0, 500) });
+      throw new Error(`Failed to generate recommendation: ${errorMessage}`);
+    }
+
+    // Import report generation service
+    let reportGenerationService;
+    try {
+      const reportServiceModule = await import('../services/reportGenerationService');
+      reportGenerationService = reportServiceModule.reportGenerationService;
+      console.log('✅ Report generation service imported');
+    } catch (error) {
+      console.error('❌ Failed to import report generation service:', error);
+      throw new Error(`Failed to load report generation service: ${error instanceof Error ? error.message : String(error)}`);
+    }
 
     // Generate markdown report
-    const markdownReport = reportGenerationService.generateReport(report.results);
+    let markdownReport;
+    try {
+      markdownReport = reportGenerationService.generateReport(report.results);
+      console.log('✅ Markdown report generated');
+    } catch (error) {
+      console.error('❌ Error generating markdown report:', error);
+      // Don't fail completely - just use empty markdown
+      markdownReport = '';
+    }
     report.markdownReport = markdownReport;
 
     // Return the report in the format expected by the frontend
@@ -1249,7 +1308,14 @@ let controllerInstance: DealsControllerWrapper | null = null;
 
 export function getDealsController(): DealsControllerWrapper {
   if (!controllerInstance) {
-    controllerInstance = new DealsControllerWrapper();
+    try {
+      console.log('🔧 Creating new DealsControllerWrapper instance...');
+      controllerInstance = new DealsControllerWrapper();
+      console.log('✅ DealsControllerWrapper instance created successfully');
+    } catch (error) {
+      console.error('❌ Failed to create DealsControllerWrapper:', error);
+      throw new Error(`Failed to initialize DealsController: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
   return controllerInstance;
 }

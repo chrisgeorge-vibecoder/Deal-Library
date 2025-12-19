@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { audienceInsightsService } from '@/lib/services/audienceInsightsService';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+import { DealsController } from '@/lib/controllers/dealsController';
 
 // Timeout for report generation
 // Note: AWS Amplify has a 60s limit for serverless functions
@@ -84,40 +83,32 @@ export async function POST(request: NextRequest) {
       overlaps: report.behavioralOverlap?.length || 0
     });
     
-    // Fetch deals from backend to get recommended deals
+    // Fetch deals directly using DealsController to get recommended deals
     let recommendedDeals: any[] = [];
     try {
-      console.log(`🔍 Fetching deals from: ${API_BASE_URL}/api/deals`);
-      const dealsResponse = await fetch(`${API_BASE_URL}/api/deals`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
+      console.log(`🔍 Fetching deals directly using DealsController...`);
+      const dealsController = new DealsController();
+      const allDeals = await dealsController.getAllDeals();
+      console.log(`📦 Fetched ${allDeals.length} total deals`);
       
-      if (dealsResponse.ok) {
-        const dealsData = await dealsResponse.json();
-        const allDeals = dealsData.deals || [];
-        console.log(`📦 Fetched ${allDeals.length} total deals from backend`);
+      if (allDeals.length > 0) {
+        // Use audienceInsightsService to match deals to this segment
+        recommendedDeals = await audienceInsightsService.getRecommendedDeals(segment.trim(), category || 'General', allDeals);
+        console.log(`🎯 Found ${recommendedDeals.length} recommended deals for "${segment}"`);
         
-        if (allDeals.length > 0) {
-          // Use audienceInsightsService to match deals to this segment
-          recommendedDeals = await audienceInsightsService.getRecommendedDeals(segment.trim(), category || 'General', allDeals);
-          console.log(`🎯 Found ${recommendedDeals.length} recommended deals for "${segment}"`);
-          
-          if (recommendedDeals.length > 0) {
-            console.log(`   Top matches: ${recommendedDeals.slice(0, 3).map(d => d.dealName || d.name).join(', ')}`);
-          } else {
-            console.log(`   No deals matched for segment "${segment}" - checking segment keywords...`);
-          }
+        if (recommendedDeals.length > 0) {
+          console.log(`   Top matches: ${recommendedDeals.slice(0, 3).map(d => d.dealName || d.name || d.title).join(', ')}`);
         } else {
-          console.warn('⚠️ No deals returned from backend API');
+          console.log(`   No deals matched for segment "${segment}" - checking segment keywords...`);
         }
       } else {
-        console.warn(`⚠️ Deals API returned status ${dealsResponse.status}: ${dealsResponse.statusText}`);
+        console.warn('⚠️ No deals returned from DealsController');
       }
     } catch (dealsError) {
       console.error('❌ Could not fetch deals for recommendations:', dealsError);
       if (dealsError instanceof Error) {
         console.error('   Error message:', dealsError.message);
+        console.error('   Error stack:', dealsError.stack?.substring(0, 200));
       }
     }
     

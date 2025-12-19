@@ -100,6 +100,7 @@ export default function AudienceInsightsPage() {
   const [showMap, setShowMap] = useState(false);  // Delay map loading to avoid chunk errors
   const [recommendedDeals, setRecommendedDeals] = useState<any[]>([]);  // NEW: Recommended deals
   const [geoTab, setGeoTab] = useState<'populous' | 'indexing'>('populous');  // NEW: Geographic hotspots tab
+  const [loadingStrategicContent, setLoadingStrategicContent] = useState(false);  // Loading state for strategic content
   const reportRef = useRef<HTMLDivElement>(null);  // Ref for PDF export
   
   // Deal Modal State
@@ -902,6 +903,7 @@ export default function AudienceInsightsPage() {
 
   // Load strategic content asynchronously after initial report is displayed
   const loadStrategicContent = async (report: AudienceInsightsReport) => {
+    setLoadingStrategicContent(true);
     try {
       console.log('✨ Loading strategic content asynchronously for:', report.segment);
       
@@ -973,15 +975,21 @@ export default function AudienceInsightsPage() {
         setReport(prevReport => {
           if (!prevReport) return prevReport;
           
+          // Merge strategic insights properly - data.strategicInsights should replace the entire object
+          const mergedStrategicInsights = data.strategicInsights || prevReport.strategicInsights;
+          
           return {
             ...prevReport,
             executiveSummary: data.executiveSummary || prevReport.executiveSummary,
-            strategicInsights: data.strategicInsights || prevReport.strategicInsights,
+            strategicInsights: mergedStrategicInsights,
             personaName: data.personaName || prevReport.personaName,
             personaEmoji: data.personaEmoji || prevReport.personaEmoji,
             personaDescription: data.personaDescription || prevReport.personaDescription
           };
         });
+        
+        // Force a re-render by updating loading state
+        setLoadingStrategicContent(false);
       } else {
         console.error('❌ Strategic content API returned success=false:', data.error || data.message);
       }
@@ -992,6 +1000,8 @@ export default function AudienceInsightsPage() {
         console.error('   Error stack:', error.stack?.substring(0, 300));
       }
       // Don't show error to user - report is already displayed with fallback values
+    } finally {
+      setLoadingStrategicContent(false);
     }
   };
 
@@ -1726,9 +1736,23 @@ export default function AudienceInsightsPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <Sparkles className="w-6 h-6 text-brand-orange" />
                 Strategic Marketing Insights
-                <span className="text-sm font-normal text-purple-600 ml-2">Powered by Gemini 2.5 Flash</span>
+                {loadingStrategicContent && (
+                  <span className="text-sm font-normal text-purple-600 ml-2 animate-pulse">
+                    Loading AI insights...
+                  </span>
+                )}
+                {!loadingStrategicContent && report?.strategicInsights?.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 && (
+                  <span className="text-sm font-normal text-purple-600 ml-2">Powered by Gemini 2.5 Flash</span>
+                )}
               </h2>
               
+              {loadingStrategicContent ? (
+                <div className="bg-white rounded-lg p-8 text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto mb-4"></div>
+                  <p className="text-gray-600">Generating strategic marketing insights with AI...</p>
+                </div>
+              ) : (
+                <>
               {/* Messaging Recommendations */}
               <div className="bg-white rounded-lg p-6 mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Messaging Recommendations</h3>
@@ -1801,7 +1825,8 @@ export default function AudienceInsightsPage() {
                   )}
                 </div>
               </div>
-
+              </>
+              )}
             </section>
 
             {/* Recommended Deal Cards */}

@@ -46,7 +46,34 @@ export default function CampaignPlannerPage() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
+        let errorText = '';
+        try {
+          errorText = await response.text();
+          // Try to parse as JSON for better error messages
+          if (errorText) {
+            try {
+              const errorJson = JSON.parse(errorText);
+              const errorMessage = errorJson.message || errorJson.error || 'Unknown error';
+              throw new Error(`HTTP error! status: ${response.status} - ${errorMessage}`);
+            } catch {
+              // Not JSON, use as-is
+            }
+          }
+        } catch (textError) {
+          console.error('❌ Error reading error response:', textError);
+        }
+        
+        // If we still don't have error text, provide a default message
+        if (!errorText) {
+          if (response.status === 500) {
+            errorText = 'Internal server error. Please check the server logs for details.';
+          } else if (response.status === 503) {
+            errorText = 'Service unavailable. The AI service may not be configured.';
+          } else {
+            errorText = `HTTP ${response.status} error`;
+          }
+        }
+        
         throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
 

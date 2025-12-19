@@ -101,6 +101,8 @@ export default function AudienceInsightsPage() {
   const [recommendedDeals, setRecommendedDeals] = useState<any[]>([]);  // NEW: Recommended deals
   const [geoTab, setGeoTab] = useState<'populous' | 'indexing'>('populous');  // NEW: Geographic hotspots tab
   const [loadingStrategicContent, setLoadingStrategicContent] = useState(false);  // Loading state for strategic content
+  const [strategicContentGenerated, setStrategicContentGenerated] = useState(false);  // Track if strategic content has been requested/generated
+  const [strategicContentError, setStrategicContentError] = useState<string | null>(null);  // Track errors during generation
   const reportRef = useRef<HTMLDivElement>(null);  // Ref for PDF export
   
   // Deal Modal State
@@ -849,6 +851,10 @@ export default function AudienceInsightsPage() {
         setReport(data.report);
         setLoading(false); // Show the report immediately
         
+        // Reset strategic content state when new report is generated
+        setStrategicContentGenerated(false);
+        setStrategicContentError(null);
+        
         // Set recommended deals if available
         if (data.recommendedDeals && Array.isArray(data.recommendedDeals)) {
           setRecommendedDeals(data.recommendedDeals);
@@ -858,8 +864,7 @@ export default function AudienceInsightsPage() {
           console.log('⚠️ [DEBUG] No recommended deals in response');
         }
         
-        // Load strategic content asynchronously after initial report is displayed
-        loadStrategicContent(data.report);
+        // Strategic content will be loaded on-demand when user clicks the button
         
         console.log(`✅ [DEBUG] Report generated successfully`);
       } else {
@@ -908,9 +913,18 @@ export default function AudienceInsightsPage() {
     }
   };
 
-  // Load strategic content asynchronously after initial report is displayed
+  // Handler for button click to generate strategic insights
+  const handleGenerateStrategicInsights = () => {
+    if (!report) return;
+    setStrategicContentGenerated(true);
+    setStrategicContentError(null);
+    loadStrategicContent(report);
+  };
+
+  // Load strategic content asynchronously when requested by user
   const loadStrategicContent = async (report: AudienceInsightsReport) => {
     setLoadingStrategicContent(true);
+    setStrategicContentError(null);
     try {
       console.log('✨ Loading strategic content asynchronously for:', report.segment);
       
@@ -950,7 +964,9 @@ export default function AudienceInsightsPage() {
       if (!response.ok) {
         const errorText = await response.text().catch(() => 'Unknown error');
         console.error('❌ Strategic content API error:', response.status, errorText);
-        console.warn('⚠️ Failed to load strategic content, using fallback values');
+        const errorMessage = `Failed to generate strategic insights. ${response.status === 504 ? 'Request timed out. Please try again.' : 'Please try again later.'}`;
+        setStrategicContentError(errorMessage);
+        setLoadingStrategicContent(false);
         return;
       }
 
@@ -958,6 +974,8 @@ export default function AudienceInsightsPage() {
       const responseText = await response.text();
       if (!responseText || responseText.trim().length === 0) {
         console.error('❌ Strategic content API returned empty response');
+        setStrategicContentError('No content received from AI service. Please try again.');
+        setLoadingStrategicContent(false);
         return;
       }
 
@@ -967,6 +985,8 @@ export default function AudienceInsightsPage() {
       } catch (parseError) {
         console.error('❌ Failed to parse strategic content JSON:', parseError);
         console.error('Response text:', responseText.substring(0, 500));
+        setStrategicContentError('Invalid response from AI service. Please try again.');
+        setLoadingStrategicContent(false);
         return;
       }
 
@@ -999,15 +1019,18 @@ export default function AudienceInsightsPage() {
         setLoadingStrategicContent(false);
       } else {
         console.error('❌ Strategic content API returned success=false:', data.error || data.message);
+        setStrategicContentError(data.error || data.message || 'Failed to generate strategic insights. Please try again.');
+        setLoadingStrategicContent(false);
       }
     } catch (error) {
       console.error('❌ Error loading strategic content:', error);
       if (error instanceof Error) {
         console.error('   Error message:', error.message);
         console.error('   Error stack:', error.stack?.substring(0, 300));
+        setStrategicContentError(error.message || 'An unexpected error occurred. Please try again.');
+      } else {
+        setStrategicContentError('An unexpected error occurred. Please try again.');
       }
-      // Don't show error to user - report is already displayed with fallback values
-    } finally {
       setLoadingStrategicContent(false);
     }
   };
@@ -1743,22 +1766,65 @@ export default function AudienceInsightsPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <Sparkles className="w-6 h-6 text-brand-orange" />
                 Strategic Marketing Insights
-                {loadingStrategicContent && (
-                  <span className="text-sm font-normal text-purple-600 ml-2 animate-pulse">
-                    Loading AI insights...
-                  </span>
-                )}
-                {!loadingStrategicContent && report?.strategicInsights?.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 && (
+                {!loadingStrategicContent && !strategicContentError && strategicContentGenerated && report?.strategicInsights?.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 && (
                   <span className="text-sm font-normal text-purple-600 ml-2">Powered by Gemini 2.5 Flash</span>
                 )}
               </h2>
               
-              {loadingStrategicContent ? (
+              {/* Initial State: Show CTA Button */}
+              {!strategicContentGenerated && !loadingStrategicContent && !strategicContentError && (
+                <div className="bg-white rounded-lg p-12 text-center border-2 border-dashed border-purple-200">
+                  <Sparkles className="w-16 h-16 text-brand-orange mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">AI-Powered Strategic Insights</h3>
+                  <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                    Get AI-generated messaging recommendations, channel strategies, and creative guidance tailored to your audience segment. 
+                    These insights are powered by advanced AI analysis of your audience demographics, behavioral patterns, and market data.
+                  </p>
+                  <button
+                    onClick={handleGenerateStrategicInsights}
+                    disabled={!report}
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-brand-orange text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                  >
+                    <Sparkles className="w-5 h-5" />
+                    Generate Strategic Marketing Insights
+                  </button>
+                  <p className="text-sm text-gray-500 mt-4">
+                    Powered by Gemini 2.5 Flash • Takes 30-60 seconds
+                  </p>
+                </div>
+              )}
+              
+              {/* Loading State */}
+              {loadingStrategicContent && (
                 <div className="bg-white rounded-lg p-8 text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto mb-4"></div>
-                  <p className="text-gray-600">Generating strategic marketing insights with AI...</p>
+                  <p className="text-gray-600 font-medium">Generating strategic marketing insights with AI...</p>
+                  <p className="text-sm text-gray-500 mt-2">This may take 30-60 seconds</p>
                 </div>
-              ) : report?.strategicInsights?.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 ? (
+              )}
+              
+              {/* Error State */}
+              {strategicContentError && !loadingStrategicContent && (
+                <div className="bg-white rounded-lg p-8 text-center border-2 border-red-200">
+                  <div className="text-red-500 mb-4">
+                    <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to Generate Insights</h3>
+                  <p className="text-gray-600 mb-6">{strategicContentError}</p>
+                  <button
+                    onClick={handleGenerateStrategicInsights}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-brand-orange text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Try Again
+                  </button>
+                </div>
+              )}
+              
+              {/* Content State: Show Strategic Insights */}
+              {strategicContentGenerated && !loadingStrategicContent && !strategicContentError && report?.strategicInsights?.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 && (
                 <>
               {/* Messaging Recommendations */}
               <div className="bg-white rounded-lg p-6 mb-6">
@@ -1833,10 +1899,6 @@ export default function AudienceInsightsPage() {
                 </div>
               </div>
               </>
-              ) : (
-                <div className="bg-white rounded-lg p-8 text-center">
-                  <p className="text-gray-500">Strategic marketing insights are being generated...</p>
-                </div>
               )}
             </section>
 

@@ -1,9 +1,27 @@
 import { NextRequest } from 'next/server';
-import { getDealsController } from '@/lib/controllers/dealsControllerWrapper';
 import { ProgressUpdate } from '@/types/agentMode';
+
+// Lazy import to catch import errors
+let getDealsController: (() => any) | null = null;
+
+async function getController() {
+  if (!getDealsController) {
+    try {
+      const module = await import('@/lib/controllers/dealsControllerWrapper');
+      getDealsController = module.getDealsController;
+      return getDealsController();
+    } catch (importError) {
+      console.error('❌ Failed to import DealsController:', importError);
+      throw new Error(`Failed to import controller: ${importError instanceof Error ? importError.message : String(importError)}`);
+    }
+  }
+  return getDealsController();
+}
 
 export async function POST(request: NextRequest) {
   console.log('📥 Campaign Planner API route called');
+  
+  // Wrap everything in a try-catch to ensure we always return a response
   try {
     // Parse request body with error handling
     let body;
@@ -61,23 +79,32 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    let controller: ReturnType<typeof getDealsController>;
+    let controller: any;
     try {
       console.log('🔧 Getting DealsController...');
-      controller = getDealsController();
+      controller = await getController();
       console.log('✅ DealsController obtained');
     } catch (error) {
       console.error('❌ Failed to get DealsController:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : undefined;
       console.error('❌ DealsController error details:', { errorMessage, errorStack: errorStack?.substring(0, 500) });
+      
+      const errorResponse = {
+        error: 'Failed to initialize controller',
+        message: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? errorStack?.substring(0, 1000) : undefined
+      };
+      
       return new Response(
-        JSON.stringify({ 
-          error: 'Failed to initialize controller',
-          message: errorMessage,
-          details: process.env.NODE_ENV === 'development' ? errorStack?.substring(0, 1000) : undefined
-        }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify(errorResponse),
+        { 
+          status: 500, 
+          headers: { 
+            'Content-Type': 'application/json',
+            'Content-Length': JSON.stringify(errorResponse).length.toString()
+          } 
+        }
       );
     }
     
@@ -304,19 +331,29 @@ export async function POST(request: NextRequest) {
     const errorStack = error instanceof Error ? error.stack : undefined;
     const errorName = error instanceof Error ? error.name : 'UnknownError';
     
+    const errorResponse = {
+      error: 'Failed to generate agent recommendation',
+      message: errorMessage,
+      errorName: errorName,
+      details: process.env.NODE_ENV === 'development' ? errorStack?.substring(0, 2000) : undefined,
+      hint: errorMessage.includes('GEMINI_API_KEY') 
+        ? 'The GEMINI_API_KEY environment variable may not be set. Please configure it in your environment variables.'
+        : errorMessage.includes('not available') || errorMessage.includes('not configured')
+        ? 'The AI service may not be properly configured. Please check your environment variables.'
+        : undefined
+    };
+    
+    console.error('❌ Returning error response:', JSON.stringify(errorResponse, null, 2));
+    
     return new Response(
-      JSON.stringify({ 
-        error: 'Failed to generate agent recommendation',
-        message: errorMessage,
-        errorName: errorName,
-        details: process.env.NODE_ENV === 'development' ? errorStack?.substring(0, 2000) : undefined,
-        hint: errorMessage.includes('GEMINI_API_KEY') 
-          ? 'The GEMINI_API_KEY environment variable may not be set. Please configure it in your environment variables.'
-          : errorMessage.includes('not available') || errorMessage.includes('not configured')
-          ? 'The AI service may not be properly configured. Please check your environment variables.'
-          : undefined
-      }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify(errorResponse),
+      { 
+        status: 500, 
+        headers: { 
+          'Content-Type': 'application/json',
+          'Content-Length': JSON.stringify(errorResponse).length.toString()
+        } 
+      }
     );
   }
 }

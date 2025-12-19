@@ -658,23 +658,38 @@ export function generateCompetitiveIntelSlides(data: CompetitiveIntelligence): S
         icon: TrendingUp,
         accentColor: '#22C55E',
         columns: 3,
-        items: [
-          ...(data.strategicRecommendations?.positioning || []).slice(0, 1).map((r: string) => ({
-            label: 'Positioning',
-            value: r,
-            color: '#3B82F6'
-          })),
-          ...(data.strategicRecommendations?.messaging || []).slice(0, 1).map((r: string) => ({
-            label: 'Messaging',
-            value: r,
-            color: '#8B5CF6'
-          })),
-          ...(data.strategicRecommendations?.channels || []).slice(0, 1).map((r: string) => ({
-            label: 'Channels',
-            value: r,
-            color: '#22C55E'
-          }))
-        ]
+        items: (() => {
+          // Handle both object format (for slides) and array format (for modal)
+          const recs = data.strategicRecommendationsForSlides || data.strategicRecommendations;
+          if (Array.isArray(recs)) {
+            // If it's an array, use first 3 items
+            return recs.slice(0, 3).map((r: string, idx: number) => ({
+              label: ['Positioning', 'Messaging', 'Channels'][idx] || 'Recommendation',
+              value: r,
+              color: ['#3B82F6', '#8B5CF6', '#22C55E'][idx] || '#6B7280'
+            }));
+          } else if (recs && typeof recs === 'object') {
+            // Object format with positioning, messaging, channels
+            return [
+              ...(recs.positioning || []).slice(0, 1).map((r: string) => ({
+                label: 'Positioning',
+                value: r,
+                color: '#3B82F6'
+              })),
+              ...(recs.messaging || []).slice(0, 1).map((r: string) => ({
+                label: 'Messaging',
+                value: r,
+                color: '#8B5CF6'
+              })),
+              ...(recs.channels || []).slice(0, 1).map((r: string) => ({
+                label: 'Channels',
+                value: r,
+                color: '#22C55E'
+              }))
+            ];
+          }
+          return [];
+        })()
       }
     }
   ];

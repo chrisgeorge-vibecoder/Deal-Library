@@ -1038,6 +1038,47 @@ export class CommerceAudienceService {
           console.log(`   ⚠️  Large market detected (${normalizedZips.length} ZIP codes). Sampling ${sampledZips.length} ZIP codes to avoid timeout.`);
         }
         
+        // Try RPC function first (much faster if available)
+        try {
+          console.log('   🚀 Attempting RPC function for faster query...');
+          const { data: rpcData, error: rpcError } = await supabase.rpc('get_commerce_data_for_zips', {
+            zip_codes: sampledZips,
+            max_records: limit
+          });
+          
+          if (!rpcError && rpcData && rpcData.length > 0) {
+            console.log(`   ✅ RPC function returned ${rpcData.length} records (much faster!)`);
+            // Process RPC results
+            const zipCodeData: CommerceAudienceData[] = [];
+            for (const record of rpcData) {
+              const sanitizedValue = record.sanitized_value;
+              
+              if (sanitizedValue && sanitizedValue.startsWith('NA_US_')) {
+                const rawZipCode = sanitizedValue.replace('NA_US_', '');
+                const zipCode = this.normalizeZipCode(rawZipCode);
+                
+                if (/^\d{5}$/.test(zipCode)) {
+                  zipCodeData.push({
+                    zipCode,
+                    weight: record.weight || 0,
+                    audienceName: record.audience_name?.trim() || '',
+                    seed: record.seed?.trim() || '',
+                    date: record.dt || ''
+                  });
+                }
+              }
+            }
+            return zipCodeData;
+          } else if (rpcError) {
+            // RPC function doesn't exist or failed - fall back to batched queries
+            console.log(`   ⚠️  RPC function not available or failed: ${rpcError.message}. Falling back to batched queries...`);
+          }
+        } catch (rpcException) {
+          // RPC function doesn't exist - fall back to batched queries
+          console.log(`   ⚠️  RPC function not available. Falling back to batched queries...`);
+        }
+        
+        // Fallback: Use batched .in() queries
         // Build sanitized values for query (format: NA_US_XXXXX)
         const sanitizedValues = sampledZips.map(zip => `NA_US_${zip}`);
         

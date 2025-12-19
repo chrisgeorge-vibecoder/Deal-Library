@@ -149,23 +149,90 @@ export default function CampaignPlannerResults({
   });
 
   const transformCompetitiveIntelForModal = (): CompetitiveIntelligence => {
-    const strategyWithGaps = report.results.strategy as any;
-    return {
+    const strategy = report.results.strategy as any;
+    
+    // Parse competitors from the strategy data
+    // Competitors come as strings like "Competitor Name - positioning"
+    const mainCompetitors = (strategy?.competitors || []).map((c: string) => {
+      const parts = c.split(' - ');
+      return {
+        name: parts[0] || c,
+        positioning: parts.slice(1).join(' - ') || 'Competitive player in the market',
+        keyStrengths: [] // We don't have this data from the strategy generator
+      };
+    });
+
+    // Build strategic recommendations array (for modal display)
+    const strategicRecsArray = [
+      ...(strategy?.strategicRecommendations?.positioning || []),
+      ...(strategy?.strategicRecommendations?.messaging || []),
+      ...(strategy?.strategicRecommendations?.channels || [])
+    ].slice(0, 6);
+
+    // Get market positioning text
+    const marketPositioningText = strategy?.competitiveAnalysis?.marketPositioning || 
+                                  strategy?.marketPositioning ||
+                                  `${report.advertiserName} operates in a competitive market with opportunities for differentiation.`;
+
+    // Build the proper structure for both modal and slides
+    const result: any = {
       id: `competitive-intelligence-${report.advertiserName}`,
       competitorOrIndustry: report.advertiserName,
-      competitors: report.results.strategy?.competitors?.map((c: string) => ({
-        name: c.split(' - ')[0] || c,
-        strategy: c.includes(' - ') ? c.split(' - ').slice(1).join(' - ') : undefined
-      })) || [],
-      competitiveAdvantages: report.results.strategy?.differentiators || [],
-      recommendations: report.results.swot?.recommendedActions || [],
+      // Legacy fields for backward compatibility
+      competitors: mainCompetitors.map(c => ({
+        name: c.name,
+        strategy: c.positioning
+      })),
+      competitiveAdvantages: strategy?.differentiators || [],
+      recommendations: strategicRecsArray.length > 0 ? strategicRecsArray : 
+                       (report.results.swot?.recommendedActions?.slice(0, 3) || []),
+      // Structure expected by modal (CompetitiveIntelligenceDetailModal)
+      marketPosition: {
+        marketShare: 'Competitive market position',
+        growthTrajectory: 'Growing market with opportunities',
+        keyDifferentiators: strategy?.differentiators || []
+      },
+      strengthsWeaknesses: {
+        strengths: strategy?.differentiators?.slice(0, 3) || [],
+        weaknesses: strategy?.messagingGaps?.slice(0, 3) || []
+      },
+      messagingPositioning: {
+        coreMessaging: marketPositioningText,
+        targetAudience: report.targetAudience || 'Target market segments',
+        valueProposition: strategy?.differentiators?.join('. ') || 'Competitive advantages in the market'
+      },
+      // Array format expected by modal
+      strategicRecommendations: strategicRecsArray.length > 0 ? strategicRecsArray : 
+                                 (report.results.swot?.recommendedActions?.slice(0, 4) || []),
+      // Structure expected by generateCompetitiveIntelSlides
       competitiveAnalysis: {
-        marketPositioning: `${report.advertiserName} operates in a competitive market.`,
-        keyCompetitors: report.results.strategy?.competitors?.map((c: string) => c.split(' - ')[0]) || [],
-        differentiators: report.results.strategy?.differentiators || [],
-        messagingGaps: strategyWithGaps?.messagingGaps || []
-      }
+        marketPositioning: marketPositioningText,
+        mainCompetitors: mainCompetitors,
+        differentiationOpportunities: strategy?.differentiators || []
+      },
+      // Structure expected by generateCompetitiveIntelSlides
+      messagingAnalysis: {
+        commonThemes: strategy?.commonThemes || [],
+        messagingGaps: strategy?.messagingGaps || [],
+        toneAndVoice: 'Professional and customer-focused'
+      },
+      sources: strategy?.sources || []
     };
+
+    // Add object format for slides (as a separate property to avoid conflict with modal's array format)
+    // The slides generator will check for strategicRecommendationsForSlides first, then fall back to strategicRecommendations
+    if (strategy?.strategicRecommendations && typeof strategy.strategicRecommendations === 'object' && !Array.isArray(strategy.strategicRecommendations)) {
+      result.strategicRecommendationsForSlides = strategy.strategicRecommendations;
+    } else if (strategicRecsArray.length > 0) {
+      // If we only have an array, create an object structure for slides
+      result.strategicRecommendationsForSlides = {
+        positioning: strategy?.strategicRecommendations?.positioning || strategicRecsArray.slice(0, 2),
+        messaging: strategy?.strategicRecommendations?.messaging || strategicRecsArray.slice(2, 4),
+        channels: strategy?.strategicRecommendations?.channels || strategicRecsArray.slice(4, 6)
+      };
+    }
+
+    return result;
   };
 
   return (

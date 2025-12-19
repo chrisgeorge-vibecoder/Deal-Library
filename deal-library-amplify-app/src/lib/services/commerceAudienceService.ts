@@ -1094,6 +1094,11 @@ export class CommerceAudienceService {
       return zipCodeData;
     } catch (error) {
       console.error(`❌ Error loading ZIP codes data:`, error);
+      // Re-throw timeout errors so they can be handled properly upstream
+      if (error instanceof Error && (error.message.includes('timeout') || error.message.includes('timed out'))) {
+        throw error;
+      }
+      // For other errors, return empty array (will trigger "no data" error upstream)
       return [];
     }
   }
@@ -1399,18 +1404,34 @@ export class CommerceAudienceService {
             throw error;
           }
         } else {
-          console.log('   ⚠️ On-demand loading returned no data, falling back to full load...');
+          // On-demand returned no data - don't fall back to full load (it will timeout)
+          console.warn('   ⚠️ On-demand loading returned no data');
+          throw new Error('No commerce data found for the specified ZIP codes. This may indicate the ZIP codes are not in the database or there was a query timeout.');
         }
       } catch (onDemandError) {
-        console.warn(`   ⚠️ On-demand loading failed: ${onDemandError instanceof Error ? onDemandError.message : 'Unknown error'}`);
-        console.log('   🔄 Falling back to full data load...');
-        // Fall through to full load
+        // Don't fall back to full load - it will timeout. Instead, throw the error.
+        const errorMessage = onDemandError instanceof Error ? onDemandError.message : 'Unknown error';
+        console.error(`   ❌ On-demand loading failed: ${errorMessage}`);
+        
+        // If it's a timeout, provide a more helpful message
+        if (errorMessage.includes('timeout') || errorMessage.includes('timed out')) {
+          throw new Error('Commerce data query timed out. The database query is taking too long. Please try again with a smaller market or contact support if the issue persists.');
+        }
+        
+        throw onDemandError;
       }
     }
     
-    // Fallback to full data load
+    // Only fallback to full data load if Supabase is NOT enabled (CSV mode)
+    // If Supabase is enabled and on-demand failed, we already threw an error above
     if (!this.isLoaded) {
-      await this.loadCommerceData();
+      if (!this.useSupabase) {
+        // CSV mode - safe to load all data
+        await this.loadCommerceData();
+      } else {
+        // Supabase mode but on-demand wasn't attempted (shouldn't happen, but handle it)
+        throw new Error('Commerce data not loaded and on-demand loading was not attempted. This may indicate a configuration issue.');
+      }
     }
 
     // Normalize ZIP codes to ensure consistent format (5 digits, leading zeros)

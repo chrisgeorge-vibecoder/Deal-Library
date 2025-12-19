@@ -370,11 +370,19 @@ class AudienceInsightsService {
       console.log('⏩ Skipping strategic content generation for faster response');
       // Use fallback values
       strategicInsights = {
-        targetPersona: `The ${trimmedSegment} audience`,
+        targetPersona: `The ${trimmedSegment} audience represents a key market segment with distinct characteristics and preferences. They show strong engagement with ${trimmedSegment}-related products and services.`,
         keyInsights: [`Strong engagement with ${trimmedSegment} products and services`],
-        messagingRecommendations: ['Digital channels', 'Targeted advertising'],
-        channelRecommendations: ['Digital channels', 'Targeted advertising'],
-        creativeGuidance: `Focus on ${trimmedSegment} needs and preferences`
+        messagingRecommendations: [
+          `Focus on the core benefits that resonate with ${trimmedSegment} enthusiasts`,
+          'Emphasize quality and value in your messaging',
+          'Highlight how your product or service enhances their experience'
+        ],
+        channelRecommendations: [
+          'Digital display advertising on premium content sites',
+          'Social media platforms targeting relevant demographics',
+          'Email marketing campaigns with personalized recommendations'
+        ],
+        creativeGuidance: `Focus on ${trimmedSegment} needs and preferences, showcasing how your offering aligns with their interests.`
       };
       executiveSummary = `The ${trimmedSegment} audience shows strong market potential with ${demographics.medianHHI ? '$' + demographics.medianHHI.toLocaleString() : 'above-average'} household income and ${demographics.educationBachelors ? demographics.educationBachelors.toFixed(0) + '%' : 'high'} education levels.`;
       personaResult = {

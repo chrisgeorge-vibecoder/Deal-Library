@@ -839,6 +839,13 @@ export default function AudienceInsightsPage() {
         console.log('📊 [DEBUG] Key Metrics:', data.report.keyMetrics);
         
         // Set the initial report (without strategic content)
+        console.log('📋 [DEBUG] Initial report persona values:', {
+          personaName: data.report.personaName,
+          personaEmoji: data.report.personaEmoji,
+          personaDescription: data.report.personaDescription,
+          hasStrategicInsights: !!data.report.strategicInsights,
+          strategicInsightsKeys: data.report.strategicInsights ? Object.keys(data.report.strategicInsights) : []
+        });
         setReport(data.report);
         setLoading(false); // Show the report immediately
         
@@ -1142,7 +1149,7 @@ export default function AudienceInsightsPage() {
                     segment: report.segment,
                     category: report.category,
                     emoji: report.personaEmoji,
-                    description: report.strategicInsights.targetPersona.replace(/\*\*/g, ''),
+                    description: report.strategicInsights?.targetPersona?.replace(/\*\*/g, '') || report.personaDescription || `The ${report.segment} audience`,
                     data: report
                   };
                   window.dispatchEvent(new CustomEvent('saveCard', { detail: personaCard }));
@@ -1172,7 +1179,7 @@ export default function AudienceInsightsPage() {
                   </div>
                   
                   <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                    {renderMarkdown(report.strategicInsights.targetPersona)}
+                    {report.strategicInsights?.targetPersona ? renderMarkdown(report.strategicInsights.targetPersona) : (report.personaDescription || `The ${report.segment} audience represents a key market segment with distinct characteristics and preferences.`)}
                   </p>
                   
                   
@@ -1180,7 +1187,7 @@ export default function AudienceInsightsPage() {
                   <div className="mb-4">
                     <h3 className="text-sm font-semibold text-gray-700 mb-2">💡 Creative Hooks:</h3>
                     <div className="flex flex-wrap gap-2">
-                      {report.strategicInsights.messagingRecommendations.slice(0, 3).map((msg: any, index: number) => {
+                      {report.strategicInsights?.messagingRecommendations?.slice(0, 3).map((msg: any, index: number) => {
                         // Handle both object format (new) and string format (legacy)
                         let cleanMsg = '';
                         if (typeof msg === 'object' && msg !== null) {
@@ -1751,13 +1758,13 @@ export default function AudienceInsightsPage() {
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto mb-4"></div>
                   <p className="text-gray-600">Generating strategic marketing insights with AI...</p>
                 </div>
-              ) : (
+              ) : report?.strategicInsights?.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 ? (
                 <>
               {/* Messaging Recommendations */}
               <div className="bg-white rounded-lg p-6 mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Messaging Recommendations</h3>
                 <div className="space-y-4">
-                  {report.strategicInsights.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 ? (
+                  {report.strategicInsights?.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 ? (
                     report.strategicInsights.messagingRecommendations.map((msg, index) => {
                     if (typeof msg === 'string') {
                       return (
@@ -1826,6 +1833,10 @@ export default function AudienceInsightsPage() {
                 </div>
               </div>
               </>
+              ) : (
+                <div className="bg-white rounded-lg p-8 text-center">
+                  <p className="text-gray-500">Strategic marketing insights are being generated...</p>
+                </div>
               )}
             </section>
 

@@ -48,20 +48,9 @@ export default function CampaignPlannerForm({ onSubmit, disabled = false }: Camp
   const [showBriefImporter, setShowBriefImporter] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  // Load saved form data from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('campaign_planner_form_data');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setFormData(parsed);
-      } catch (e) {
-        console.error('Error loading saved form data:', e);
-      }
-    }
-  }, []);
-
-  // Save form data to localStorage
+  // Note: Removed localStorage loading to ensure form starts blank
+  // Form data is still saved to localStorage as user types, but not loaded on mount
+  // Save form data to localStorage (but don't load it on mount)
   useEffect(() => {
     localStorage.setItem('campaign_planner_form_data', JSON.stringify(formData));
   }, [formData]);

@@ -112,11 +112,25 @@ export async function POST(request: NextRequest) {
       }
     } catch (segmentError) {
       console.error('   ❌ Error getting segments:', segmentError);
+      const errorMessage = segmentError instanceof Error ? segmentError.message : 'Unknown error getting segments';
+      
+      // Check if it's a timeout error
+      if (errorMessage.includes('timeout') || errorMessage.includes('timed out')) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Commerce data query timeout',
+            message: errorMessage || 'The commerce data query is taking too long. Please try again with a smaller market or contact support if the issue persists.'
+          },
+          { status: 504 }
+        );
+      }
+      
       return NextResponse.json(
         {
           success: false,
           error: 'Failed to get commerce segments',
-          message: segmentError instanceof Error ? segmentError.message : 'Unknown error getting segments'
+          message: errorMessage
         },
         { status: 500 }
       );

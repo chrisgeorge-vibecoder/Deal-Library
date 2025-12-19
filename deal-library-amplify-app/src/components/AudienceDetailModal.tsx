@@ -71,30 +71,6 @@ export default function AudienceDetailModal({
 
           {/* Content */}
           <div className="p-6 space-y-6">
-            {/* Key Metrics */}
-            <div className="grid grid-cols-3 gap-0 sm:p-4">
-              <div className="card p-4 text-center">
-                <div className="text-sm text-neutral-600 mb-1">CPM</div>
-                <div className="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">
-                  {segment.cpm != null ? `$${segment.cpm.toFixed(2)}` : 'N/A'}
-                </div>
-              </div>
-              <div className="card p-4 text-center">
-                <div className="text-sm text-neutral-600 mb-1">Media Cost</div>
-                <div className="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">
-                  {segment.mediaPercentCost != null ? `${(segment.mediaPercentCost * 100).toFixed(0)}%` : 'N/A'}
-                </div>
-              </div>
-              <div className="card p-4 text-center">
-                <div className="text-sm text-neutral-600 mb-1">Status</div>
-                <div className={`text-lg font-bold ${
-                  segment.activelyGenerated ? 'text-green-600' : 'text-neutral-400'
-                }`}>
-                  {segment.activelyGenerated ? 'Active' : 'Inactive'}
-                </div>
-              </div>
-            </div>
-
             {/* Description */}
             <div className="card p-6">
               <h3 className="font-semibold text-neutral-900 mb-3 flex items-center gap-2">

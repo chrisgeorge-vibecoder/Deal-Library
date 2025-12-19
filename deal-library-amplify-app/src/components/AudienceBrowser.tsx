@@ -105,33 +105,45 @@ export default function AudienceBrowser({
 
     if (hasAnyFilters) {
       filtered = filtered.filter(s => {
+        // Skip segments without tier2 when filters are active
+        if (!s.tier2 || !s.tier2.trim()) {
+          return false;
+        }
+
         // For each segment type, if filters are selected for that type,
         // the segment must match one of the selected filters
         // If no filters are selected for a type, exclude all segments of that type
         if (s.segmentType === 'Demographic') {
           if (selectedDemographicCategories.length > 0) {
-            return s.tier2 && selectedDemographicCategories.includes(s.tier2);
+            // Must match one of the selected categories exactly
+            return selectedDemographicCategories.includes(s.tier2);
           }
           // No demographic filters selected, exclude demographic segments
           return false;
         }
         if (s.segmentType === 'Interest') {
           if (selectedInterestCategories.length > 0) {
-            return s.tier2 && selectedInterestCategories.includes(s.tier2);
+            // Must match one of the selected categories exactly
+            return selectedInterestCategories.includes(s.tier2);
           }
           // No interest filters selected, exclude interest segments
           return false;
         }
         if (s.segmentType === 'Commerce Audience') {
           if (selectedCommerceCategories.length > 0) {
-            return s.tier2 && selectedCommerceCategories.includes(s.tier2);
+            // Must match one of the selected categories exactly
+            // This ensures "Benches" (tier2="Benches") only appears when "Benches" is selected
+            // and "Baby and Toddler" segments only appear when "Baby and Toddler" tier2 is selected
+            const matches = selectedCommerceCategories.includes(s.tier2);
+            return matches;
           }
           // No commerce filters selected, exclude commerce segments
           return false;
         }
         if (s.segmentType === 'Device') {
           if (selectedDeviceCategories.length > 0) {
-            return s.tier2 && selectedDeviceCategories.includes(s.tier2);
+            // Must match one of the selected categories exactly
+            return selectedDeviceCategories.includes(s.tier2);
           }
           // No device filters selected, exclude device segments
           return false;

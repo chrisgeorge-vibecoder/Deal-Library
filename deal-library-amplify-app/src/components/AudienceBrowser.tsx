@@ -96,19 +96,49 @@ export default function AudienceBrowser({
   useEffect(() => {
     let filtered = [...segments];
 
-    // Collect all selected categories across segment types
-    const allSelectedCategories = [
-      ...selectedDemographicCategories,
-      ...selectedInterestCategories,
-      ...selectedCommerceCategories,
-      ...selectedDeviceCategories
-    ];
+    // Filter by selected categories - must match both segmentType AND tier2
+    const hasAnyFilters = 
+      selectedDemographicCategories.length > 0 ||
+      selectedInterestCategories.length > 0 ||
+      selectedCommerceCategories.length > 0 ||
+      selectedDeviceCategories.length > 0;
 
-    // Filter by selected categories (OR logic across types)
-    if (allSelectedCategories.length > 0) {
-      filtered = filtered.filter(s => 
-        s.tier2 && allSelectedCategories.includes(s.tier2)
-      );
+    if (hasAnyFilters) {
+      filtered = filtered.filter(s => {
+        // For each segment type, if filters are selected for that type,
+        // the segment must match one of the selected filters
+        // If no filters are selected for a type, exclude all segments of that type
+        if (s.segmentType === 'Demographic') {
+          if (selectedDemographicCategories.length > 0) {
+            return s.tier2 && selectedDemographicCategories.includes(s.tier2);
+          }
+          // No demographic filters selected, exclude demographic segments
+          return false;
+        }
+        if (s.segmentType === 'Interest') {
+          if (selectedInterestCategories.length > 0) {
+            return s.tier2 && selectedInterestCategories.includes(s.tier2);
+          }
+          // No interest filters selected, exclude interest segments
+          return false;
+        }
+        if (s.segmentType === 'Commerce Audience') {
+          if (selectedCommerceCategories.length > 0) {
+            return s.tier2 && selectedCommerceCategories.includes(s.tier2);
+          }
+          // No commerce filters selected, exclude commerce segments
+          return false;
+        }
+        if (s.segmentType === 'Device') {
+          if (selectedDeviceCategories.length > 0) {
+            return s.tier2 && selectedDeviceCategories.includes(s.tier2);
+          }
+          // No device filters selected, exclude device segments
+          return false;
+        }
+        // Unknown segment type, exclude it
+        return false;
+      });
     }
 
     // Filter by search query

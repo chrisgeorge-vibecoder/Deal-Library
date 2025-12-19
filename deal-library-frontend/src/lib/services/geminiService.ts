@@ -45,7 +45,7 @@ export class GeminiService {
     
     // Flash model: Fast responses for search, chat, and real-time interactions
     this.model = this.genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash",
       generationConfig: {
         temperature: 0.1, // Lower temperature for more consistent results
         topP: 0.8, // Focus on most likely tokens
@@ -55,7 +55,7 @@ export class GeminiService {
     
     // Pro model: Higher quality for strategic analysis, insights, and business-critical outputs
     this.proModel = this.genAI.getGenerativeModel({ 
-      model: "gemini-2.5-pro",
+      model: "gemini-3-pro",
       generationConfig: {
         temperature: 0.2, // Slightly higher for nuanced reasoning
         topP: 0.9, // More diverse token selection for creative insights
@@ -64,8 +64,8 @@ export class GeminiService {
     });
     
     console.log('🚀 Gemini Hybrid Models initialized:');
-    console.log('   ⚡ Flash (gemini-2.5-flash): Search, chat, quick lookups');
-    console.log('   🎯 Pro (gemini-2.5-pro): Insights, SWOT, market sizing, strategy');
+    console.log('   ⚡ Flash (gemini-3-flash): Search, chat, quick lookups');
+    console.log('   🎯 Pro (gemini-3-pro): Insights, SWOT, market sizing, strategy');
     
     this.responseCache = new Map();
 
@@ -3247,7 +3247,7 @@ Return ONLY valid JSON in this exact format:
     
     // Create grounded model using Pro for quality-critical market intelligence
     const groundedModel = this.genAI.getGenerativeModel({ 
-      model: "gemini-2.5-pro",
+      model: "gemini-3-pro",
       generationConfig: {
         temperature: 0.2,
         topP: 0.9,

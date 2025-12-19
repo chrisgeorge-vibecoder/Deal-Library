@@ -87,19 +87,38 @@ export async function POST(request: NextRequest) {
     // Fetch deals from backend to get recommended deals
     let recommendedDeals: any[] = [];
     try {
-      const dealsResponse = await fetch(`${API_BASE_URL}/api/deals`);
+      console.log(`🔍 Fetching deals from: ${API_BASE_URL}/api/deals`);
+      const dealsResponse = await fetch(`${API_BASE_URL}/api/deals`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
       if (dealsResponse.ok) {
         const dealsData = await dealsResponse.json();
         const allDeals = dealsData.deals || [];
+        console.log(`📦 Fetched ${allDeals.length} total deals from backend`);
         
         if (allDeals.length > 0) {
           // Use audienceInsightsService to match deals to this segment
-          recommendedDeals = await audienceInsightsService.getRecommendedDeals(segment, category, allDeals);
+          recommendedDeals = await audienceInsightsService.getRecommendedDeals(segment.trim(), category || 'General', allDeals);
           console.log(`🎯 Found ${recommendedDeals.length} recommended deals for "${segment}"`);
+          
+          if (recommendedDeals.length > 0) {
+            console.log(`   Top matches: ${recommendedDeals.slice(0, 3).map(d => d.dealName || d.name).join(', ')}`);
+          } else {
+            console.log(`   No deals matched for segment "${segment}" - checking segment keywords...`);
+          }
+        } else {
+          console.warn('⚠️ No deals returned from backend API');
         }
+      } else {
+        console.warn(`⚠️ Deals API returned status ${dealsResponse.status}: ${dealsResponse.statusText}`);
       }
     } catch (dealsError) {
-      console.warn('⚠️ Could not fetch deals for recommendations:', dealsError);
+      console.error('❌ Could not fetch deals for recommendations:', dealsError);
+      if (dealsError instanceof Error) {
+        console.error('   Error message:', dealsError.message);
+      }
     }
     
     return NextResponse.json({

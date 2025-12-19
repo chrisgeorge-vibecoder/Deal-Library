@@ -589,8 +589,8 @@ class AudienceInsightsService {
         demographics,
         geoIntelligence,
         overlaps,
-        demographics.affluenceLevel,
-        demographics.familyProfile,
+        demographics.affluenceLevel || 'middle-income',
+        demographics.familyProfile || 'mixed',
         demographics.lifestyle?.selfEmployed && demographics.lifestyle.selfEmployed > 12 ? 'Often self-employed or entrepreneurial' : 'Typically employed'
       ),
       new Promise((_, reject) => 
@@ -665,16 +665,29 @@ class AudienceInsightsService {
     const categoryLower = (category || '').toLowerCase();
     
     // Create keyword list from segment and category
+    // For "Diapering", also include related keywords like "baby", "toddler", "infant"
+    const segmentKeywords = segmentLower.split(/[\s&]+/).filter(k => k.length > 2);
+    const relatedKeywords: string[] = [];
+    
+    // Add related keywords for common segments
+    if (segmentLower.includes('diaper')) {
+      relatedKeywords.push('baby', 'toddler', 'infant', 'newborn', 'parent');
+    }
+    if (segmentLower.includes('baby') || segmentLower.includes('toddler')) {
+      relatedKeywords.push('diaper', 'infant', 'newborn', 'parent', 'family');
+    }
+    
     const keywords = [
-      ...segmentLower.split(/[\s&]+/),
-      ...categoryLower.split(/[\s&,]+/)
-    ].filter(k => k.length > 2); // Filter out short words like "to", "of", etc.
+      ...segmentKeywords,
+      ...categoryLower.split(/[\s&,]+/).filter(k => k.length > 2),
+      ...relatedKeywords
+    ].filter((k, i, arr) => arr.indexOf(k) === i); // Remove duplicates
 
     console.log(`🔍 Matching deals for "${segment}" using keywords: ${keywords.join(', ')}`);
 
     // Score each deal based on keyword matches
     const scoredDeals = allDeals.map(deal => {
-      const dealText = `${deal.dealName || ''} ${deal.description || ''} ${deal.audienceSegment || ''} ${deal.category || ''}`.toLowerCase();
+      const dealText = `${deal.dealName || ''} ${deal.description || ''} ${deal.audienceSegment || ''} ${deal.category || ''} ${deal.tags?.join(' ') || ''}`.toLowerCase();
       
       let score = 0;
       
@@ -688,6 +701,13 @@ class AudienceInsightsService {
         score += 5;
       }
       
+      // Related keyword matches = medium-high score
+      relatedKeywords.forEach(keyword => {
+        if (dealText.includes(keyword)) {
+          score += 3;
+        }
+      });
+      
       // Keyword matches = lower score
       keywords.forEach(keyword => {
         if (dealText.includes(keyword)) {
@@ -698,17 +718,22 @@ class AudienceInsightsService {
       return { deal, score };
     });
 
-    // Return top 3 deals with score > 0
+    // Return top 5 deals with score > 0 (increased from 3 to 5)
     const topDeals = scoredDeals
       .filter(item => item.score > 0)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 3)
+      .slice(0, 5)
       .map(item => item.deal);
 
-    console.log(`✅ Found ${topDeals.length} matching deals for "${segment}"`);
-    topDeals.forEach((deal, i) => {
-      console.log(`   ${i + 1}. ${deal.dealName}`);
-    });
+    console.log(`✅ Found ${topDeals.length} matching deals for "${segment}" (out of ${allDeals.length} total deals)`);
+    if (topDeals.length > 0) {
+      topDeals.forEach((deal, i) => {
+        const dealName = deal.dealName || deal.name || 'Unknown Deal';
+        console.log(`   ${i + 1}. ${dealName} (score: ${scoredDeals.find(s => s.deal === deal)?.score || 0})`);
+      });
+    } else {
+      console.log(`   No deals matched. Sample deal names: ${allDeals.slice(0, 3).map(d => d.dealName || d.name || 'N/A').join(', ')}`);
+    }
 
     return topDeals;
   }

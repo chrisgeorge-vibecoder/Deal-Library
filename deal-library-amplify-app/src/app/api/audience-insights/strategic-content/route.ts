@@ -11,22 +11,51 @@ export async function POST(request: NextRequest) {
   });
 
   try {
-    const body = await request.json();
+    // Parse request body with error handling
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid request body',
+          message: 'The request body must be valid JSON.'
+        },
+        { status: 400 }
+      );
+    }
+
     const { segment, category, demographics, overlaps, geoIntelligence, commerceBaseline } = body;
 
     // Validate required fields
-    if (!segment || !demographics) {
+    if (!segment || typeof segment !== 'string') {
       return NextResponse.json(
         {
           success: false,
           error: 'Missing required fields',
-          message: 'Segment and demographics are required.'
+          message: 'Segment is required and must be a string.'
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!demographics || typeof demographics !== 'object') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Missing required fields',
+          message: 'Demographics is required and must be an object.'
         },
         { status: 400 }
       );
     }
 
     console.log('✨ Generating strategic content for:', segment);
+    console.log('   Demographics keys:', Object.keys(demographics || {}));
+    console.log('   Overlaps count:', overlaps?.length || 0);
+    console.log('   Commerce baseline:', commerceBaseline ? 'provided' : 'using defaults');
 
     // Generate strategic content
     const strategicContentPromise = audienceInsightsService.generateStrategicContent(
@@ -40,9 +69,20 @@ export async function POST(request: NextRequest) {
 
     const strategicContent = await Promise.race([strategicContentPromise, timeoutPromise]);
 
+    console.log('✅ Strategic content generated successfully:', {
+      hasExecutiveSummary: !!strategicContent.executiveSummary,
+      hasStrategicInsights: !!strategicContent.strategicInsights,
+      personaName: strategicContent.personaName,
+      personaEmoji: strategicContent.personaEmoji
+    });
+
     return NextResponse.json({
       success: true,
-      ...strategicContent
+      executiveSummary: strategicContent.executiveSummary,
+      strategicInsights: strategicContent.strategicInsights,
+      personaName: strategicContent.personaName,
+      personaEmoji: strategicContent.personaEmoji,
+      personaDescription: strategicContent.personaDescription
     });
   } catch (error: any) {
     console.error('❌ Error generating strategic content:', error);

@@ -903,7 +903,17 @@ export default function AudienceInsightsPage() {
   // Load strategic content asynchronously after initial report is displayed
   const loadStrategicContent = async (report: AudienceInsightsReport) => {
     try {
-      console.log('✨ Loading strategic content asynchronously...');
+      console.log('✨ Loading strategic content asynchronously for:', report.segment);
+      
+      // Calculate commerce baseline safely (avoid division by zero)
+      const medianHHIvsCommerce = report.keyMetrics.medianHHIvsCommerce || 0;
+      const educationVsCommerce = report.keyMetrics.educationVsCommerce || 0;
+      const commerceBaselineMedianHHI = medianHHIvsCommerce === -100 
+        ? report.keyMetrics.medianHHI 
+        : report.keyMetrics.medianHHI / (1 + medianHHIvsCommerce / 100);
+      const commerceBaselineEducation = educationVsCommerce === -100
+        ? report.keyMetrics.educationLevel
+        : report.keyMetrics.educationLevel / (1 + educationVsCommerce / 100);
       
       const response = await fetch('/api/audience-insights/strategic-content', {
         method: 'POST',
@@ -912,28 +922,52 @@ export default function AudienceInsightsPage() {
           segment: report.segment,
           category: report.category,
           demographics: report.demographics,
-          overlaps: report.behavioralOverlap,
+          overlaps: report.behavioralOverlap || [],
           geoIntelligence: {
-            topCities: report.geographicHotspots?.slice(0, 10).map(h => ({ city: h.city, state: h.state })),
+            topCities: report.geographicHotspots?.slice(0, 10).map(h => ({ city: h.city, state: h.state })) || [],
             topStates: [],
             regionalInsights: []
           },
           commerceBaseline: {
-            medianHHI: report.keyMetrics.medianHHI / (1 + report.keyMetrics.medianHHIvsCommerce / 100),
-            educationBachelorsPlus: report.keyMetrics.educationLevel / (1 + report.keyMetrics.educationVsCommerce / 100),
+            medianHHI: commerceBaselineMedianHHI,
+            educationBachelorsPlus: commerceBaselineEducation,
             medianAge: 42
           }
         })
       });
 
+      console.log('📡 Strategic content API response status:', response.status);
+
       if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error('❌ Strategic content API error:', response.status, errorText);
         console.warn('⚠️ Failed to load strategic content, using fallback values');
         return;
       }
 
-      const data = await response.json();
+      // Get response text first to check if it's empty
+      const responseText = await response.text();
+      if (!responseText || responseText.trim().length === 0) {
+        console.error('❌ Strategic content API returned empty response');
+        return;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ Failed to parse strategic content JSON:', parseError);
+        console.error('Response text:', responseText.substring(0, 500));
+        return;
+      }
+
       if (data.success) {
-        console.log('✅ Strategic content loaded successfully');
+        console.log('✅ Strategic content loaded successfully:', {
+          hasExecutiveSummary: !!data.executiveSummary,
+          hasStrategicInsights: !!data.strategicInsights,
+          personaName: data.personaName,
+          personaEmoji: data.personaEmoji
+        });
         
         // Update the report with strategic content
         setReport(prevReport => {
@@ -941,16 +975,22 @@ export default function AudienceInsightsPage() {
           
           return {
             ...prevReport,
-            executiveSummary: data.executiveSummary,
-            strategicInsights: data.strategicInsights,
-            personaName: data.personaName,
-            personaEmoji: data.personaEmoji,
-            personaDescription: data.personaDescription
+            executiveSummary: data.executiveSummary || prevReport.executiveSummary,
+            strategicInsights: data.strategicInsights || prevReport.strategicInsights,
+            personaName: data.personaName || prevReport.personaName,
+            personaEmoji: data.personaEmoji || prevReport.personaEmoji,
+            personaDescription: data.personaDescription || prevReport.personaDescription
           };
         });
+      } else {
+        console.error('❌ Strategic content API returned success=false:', data.error || data.message);
       }
     } catch (error) {
       console.error('❌ Error loading strategic content:', error);
+      if (error instanceof Error) {
+        console.error('   Error message:', error.message);
+        console.error('   Error stack:', error.stack?.substring(0, 300));
+      }
       // Don't show error to user - report is already displayed with fallback values
     }
   };

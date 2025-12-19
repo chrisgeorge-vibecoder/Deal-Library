@@ -915,7 +915,11 @@ export default function AudienceInsightsPage() {
 
   // Handler for button click to generate strategic insights
   const handleGenerateStrategicInsights = () => {
-    if (!report) return;
+    if (!report) {
+      console.warn('⚠️ Cannot generate strategic insights: no report available');
+      return;
+    }
+    console.log('🔘 Button clicked: Generating strategic insights for', report.segment);
     setStrategicContentGenerated(true);
     setStrategicContentError(null);
     loadStrategicContent(report);
@@ -1766,13 +1770,123 @@ export default function AudienceInsightsPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <Sparkles className="w-6 h-6 text-brand-orange" />
                 Strategic Marketing Insights
-                {!loadingStrategicContent && !strategicContentError && strategicContentGenerated && report?.strategicInsights?.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 && (
+                {strategicContentGenerated && !loadingStrategicContent && !strategicContentError && report?.strategicInsights?.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 && (
                   <span className="text-sm font-normal text-purple-600 ml-2">Powered by Gemini 2.5 Flash</span>
                 )}
               </h2>
               
-              {/* Initial State: Show CTA Button */}
-              {!strategicContentGenerated && !loadingStrategicContent && !strategicContentError && (
+              {/* Show states in priority order: Loading > Error > Content > Initial Button */}
+              
+              {/* Loading State - Highest Priority */}
+              {loadingStrategicContent && (
+                <div className="bg-white rounded-lg p-8 text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto mb-4"></div>
+                  <p className="text-gray-600 font-medium">Generating strategic marketing insights with AI...</p>
+                  <p className="text-sm text-gray-500 mt-2">This may take 30-60 seconds</p>
+                </div>
+              )}
+              
+              {/* Error State - Show if error exists and not loading */}
+              {!loadingStrategicContent && strategicContentError && strategicContentGenerated && (
+                <div className="bg-white rounded-lg p-8 text-center border-2 border-red-200">
+                  <div className="text-red-500 mb-4">
+                    <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to Generate Insights</h3>
+                  <p className="text-gray-600 mb-6">{strategicContentError}</p>
+                  <button
+                    onClick={handleGenerateStrategicInsights}
+                    disabled={loadingStrategicContent || !report}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-brand-orange text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Try Again
+                  </button>
+                </div>
+              )}
+              
+              {/* Content State: Show Strategic Insights - Only if generated successfully */}
+              {!loadingStrategicContent && !strategicContentError && strategicContentGenerated && report?.strategicInsights?.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 && (
+                <>
+              {/* Messaging Recommendations */}
+              <div className="bg-white rounded-lg p-6 mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Messaging Recommendations</h3>
+                <div className="space-y-4">
+                  {report.strategicInsights?.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 ? (
+                    report.strategicInsights.messagingRecommendations.map((msg, index) => {
+                    if (typeof msg === 'string') {
+                      return (
+                        <div
+                          key={index}
+                          className="px-4 py-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200"
+                        >
+                          <p className="text-sm text-gray-800 leading-relaxed">
+                            {renderMarkdown(msg)}
+                          </p>
+                        </div>
+                      );
+                    }
+
+                    // Handle JSON object format
+                    const msgObj = msg as any;
+                    return (
+                      <div
+                        key={index}
+                        className="bg-white border border-purple-200 rounded-lg p-5 hover:shadow-md transition-shadow"
+                      >
+                        {/* Value Proposition */}
+                        {msgObj.valueProposition && (
+                          <div className="mb-3">
+                            <h4 className="font-semibold text-purple-900 text-base mb-1">Value Proposition</h4>
+                            <p className="text-gray-800 leading-relaxed">{renderMarkdown(msgObj.valueProposition)}</p>
+                          </div>
+                        )}
+
+                        {/* Data Backing */}
+                        {msgObj.dataBacking && (
+                          <div className="mb-3">
+                            <h4 className="font-semibold text-blue-900 text-sm mb-1">📊 Data Insights</h4>
+                            <p className="text-gray-700 text-sm leading-relaxed">{renderMarkdown(msgObj.dataBacking)}</p>
+                          </div>
+                        )}
+
+                        {/* Emotional Benefits */}
+                        {msgObj.emotionalBenefit && (
+                          <div className="mb-2">
+                            <h4 className="font-semibold text-green-900 text-sm mb-1">💡 Emotional Benefits</h4>
+                            <p className="text-gray-700 text-sm leading-relaxed">{renderMarkdown(msgObj.emotionalBenefit)}</p>
+                          </div>
+                        )}
+
+                        {/* Campaign Ready Indicator */}
+                        {msgObj.campaignReady !== undefined && (
+                          <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              msgObj.campaignReady 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-600'
+                            }`}>
+                              {msgObj.campaignReady ? '✅ Campaign Ready' : '⏳ In Development'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                    })
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p className="text-sm">No messaging recommendations are available for this segment.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              </>
+              )}
+              
+              {/* Initial State: Show CTA Button - Only show if strategic content hasn't been generated yet */}
+              {!loadingStrategicContent && !strategicContentGenerated && !strategicContentError && (
                 <div className="bg-white rounded-lg p-12 text-center border-2 border-dashed border-purple-200">
                   <Sparkles className="w-16 h-16 text-brand-orange mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-gray-900 mb-3">AI-Powered Strategic Insights</h3>
@@ -1781,8 +1895,11 @@ export default function AudienceInsightsPage() {
                     These insights are powered by advanced AI analysis of your audience demographics, behavioral patterns, and market data.
                   </p>
                   <button
-                    onClick={handleGenerateStrategicInsights}
-                    disabled={!report}
+                    onClick={() => {
+                      console.log('🔘 Button clicked - handleGenerateStrategicInsights');
+                      handleGenerateStrategicInsights();
+                    }}
+                    disabled={!report || loadingStrategicContent}
                     className="inline-flex items-center gap-2 px-8 py-4 bg-brand-orange text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                   >
                     <Sparkles className="w-5 h-5" />
@@ -1804,7 +1921,7 @@ export default function AudienceInsightsPage() {
               )}
               
               {/* Error State */}
-              {strategicContentError && !loadingStrategicContent && (
+              {strategicContentError && !loadingStrategicContent && strategicContentGenerated && (
                 <div className="bg-white rounded-lg p-8 text-center border-2 border-red-200">
                   <div className="text-red-500 mb-4">
                     <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1815,7 +1932,8 @@ export default function AudienceInsightsPage() {
                   <p className="text-gray-600 mb-6">{strategicContentError}</p>
                   <button
                     onClick={handleGenerateStrategicInsights}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-brand-orange text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors"
+                    disabled={loadingStrategicContent}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-brand-orange text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Sparkles className="w-4 h-4" />
                     Try Again
@@ -1823,7 +1941,7 @@ export default function AudienceInsightsPage() {
                 </div>
               )}
               
-              {/* Content State: Show Strategic Insights */}
+              {/* Content State: Show Strategic Insights - Only show if strategic content has been generated AND exists */}
               {strategicContentGenerated && !loadingStrategicContent && !strategicContentError && report?.strategicInsights?.messagingRecommendations && report.strategicInsights.messagingRecommendations.length > 0 && (
                 <>
               {/* Messaging Recommendations */}

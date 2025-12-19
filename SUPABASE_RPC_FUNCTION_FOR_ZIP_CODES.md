@@ -96,3 +96,5 @@ Update `loadZipCodesDataFromSupabase()` in `commerceAudienceService.ts` to use t
 - **Batched `.in()` Queries:** 8 batches × 1-2 seconds = 8-16 seconds (times out)
 - **RPC Function:** Single query = < 3 seconds (expected)
 
+
+

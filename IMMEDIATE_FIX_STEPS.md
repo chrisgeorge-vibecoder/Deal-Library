@@ -118,3 +118,5 @@ For AWS Amplify compute resources with Next.js standalone:
 If the variable is set correctly in Amplify Console and you've redeployed, it should work.
 
 
+
+

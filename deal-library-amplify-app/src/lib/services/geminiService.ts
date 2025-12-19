@@ -2985,25 +2985,74 @@ Return ONLY valid JSON in this exact format:
 
     const startTime = Date.now();
     try {
+      console.log(`   Calling Gemini Pro model...`);
+      
       // Use Pro model for quality-critical competitive analysis
       const response = await this.proModel.generateContent(prompt);
+      
+      if (!response || !response.response) {
+        console.error('❌ Gemini API returned empty or invalid response');
+        return {
+          success: false,
+          error: 'Empty response from Gemini API'
+        };
+      }
+      
       const responseText = response.response.text();
       this.logModelPerformance('pro', 'Competitive Intel', startTime);
+      
+      console.log(`   Response received (${responseText.length} chars), parsing JSON...`);
       
       const cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
       const jsonText = jsonMatch ? jsonMatch[0] : cleanedResponse;
       
+      if (!jsonText || jsonText.length === 0) {
+        console.error('❌ No JSON found in response:', responseText.substring(0, 200));
+        return {
+          success: false,
+          error: 'No JSON found in Gemini response',
+          rawResponse: responseText.substring(0, 500)
+        };
+      }
+      
       const result = JSON.parse(jsonText);
       
+      // Validate result structure
+      if (!result.success) {
+        console.error('❌ Gemini returned success: false:', result);
+        return result;
+      }
+      
+      if (!result.data) {
+        console.error('❌ Gemini returned success but no data:', result);
+        return {
+          success: false,
+          error: 'No data in response',
+          rawResult: result
+        };
+      }
+      
       console.log(`✅ Generated competitive intelligence (Pro) for: ${query}`);
+      console.log(`   Response structure validated successfully`);
       return result;
       
     } catch (error) {
       console.error('❌ Error generating competitive intelligence:', error);
+      if (error instanceof SyntaxError) {
+        console.error('   JSON parsing error - response may not be valid JSON');
+        console.error('   Error details:', error.message);
+      } else if (error instanceof Error) {
+        console.error('   Error type:', error.constructor.name);
+        console.error('   Error message:', error.message);
+        if (error.stack) {
+          console.error('   Stack trace:', error.stack);
+        }
+      }
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        errorType: error instanceof Error ? error.constructor.name : typeof error
       };
     }
   }

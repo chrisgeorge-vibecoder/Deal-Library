@@ -12,7 +12,6 @@ import { audienceGeoAnalysisService } from './audienceGeoAnalysisService';
 import { AudienceSearchService } from './audienceSearchService';
 import { AudienceTaxonomyService } from './audienceTaxonomyService';
 import { StrategyGeneratorService } from './strategyGeneratorService';
-import { SupabaseService } from './supabaseService';
 import { Deal } from '../types/deal';
 import {
   AdvertiserBrief,
@@ -22,7 +21,6 @@ import {
   ComprehensiveReport,
   AnalysisStep
 } from '../types/agentMode';
-import * as crypto from 'crypto';
 
 export class AgentModeService {
   private geminiService: GeminiService;
@@ -327,7 +325,27 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
 
     // Generate strategic insights FIRST (includes AI competitive intelligence)
     console.log('🎯 Generating strategic insights...');
-    results.strategy = await this.generateStrategyInsights(parsedBrief, progressCallback);
+    results.strategy = await this.generateStrategyInsights(parsedBrief, progressCallback).catch(err => {
+      console.error('⚠️ Strategy generation failed, using fallback:', err);
+      results.errors.push({ step: 'strategy', error: err.message });
+      // Return a minimal fallback strategy to ensure the card can still display
+      return {
+        competitors: ['Industry competitors'],
+        differentiators: ['Market differentiation opportunities'],
+        marketTiers: { tier1: [], tier2: [], rationale: '' },
+        dayparting: { optimal: [], rationale: '' },
+        isAIGenerated: false
+      };
+    });
+    
+    // Debug logging
+    console.log('📊 Strategy data after generation:');
+    console.log('   Strategy exists:', !!results.strategy);
+    if (results.strategy) {
+      console.log('   Competitors:', results.strategy.competitors?.length || 0);
+      console.log('   Differentiators:', results.strategy.differentiators?.length || 0);
+      console.log('   Is AI Generated:', results.strategy.isAIGenerated || false);
+    }
 
     // Continue with remaining analyses (SWOT now has access to strategy insights)
     const remainingAnalyses = await Promise.allSettled([
@@ -2398,46 +2416,79 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
     parsedBrief: ParsedBrief
   ): Promise<any | null> {
     try {
-      // Check cache first
-      const cached = await this.getCachedCompetitiveIntelligence(parsedBrief);
-      if (cached) {
-        return cached;
-      }
-
-      console.log('🤖 Generating AI competitive intelligence...');
+      console.log('🤖 Generating AI competitive intelligence via Gemini API...');
       
       // Build query for Gemini
       const query = parsedBrief.advertiserName 
         ? `${parsedBrief.advertiserName} in ${parsedBrief.industry || 'their industry'}`
         : `${parsedBrief.industry || 'the industry'} for ${parsedBrief.keyProducts?.join(', ') || 'these products'}`;
 
+      console.log(`   Query: "${query}"`);
+      console.log(`   Advertiser: ${parsedBrief.advertiserName || 'N/A'}`);
+      console.log(`   Industry: ${parsedBrief.industry || 'N/A'}`);
+      console.log(`   Products: ${parsedBrief.keyProducts?.join(', ') || 'N/A'}`);
+
       // Call Gemini for competitive intelligence
       const aiResponse = await this.geminiService.generateCompetitiveIntelligence(query);
       
+      console.log(`   Gemini API response received:`, {
+        success: aiResponse.success,
+        hasData: !!aiResponse.data,
+        hasError: !!aiResponse.error,
+        error: aiResponse.error
+      });
+
       if (aiResponse.success && aiResponse.data) {
+        const competitiveAnalysis = aiResponse.data.competitiveAnalysis;
+        const messagingAnalysis = aiResponse.data.messagingAnalysis;
+        const strategicRecommendations = aiResponse.data.strategicRecommendations;
+
+        console.log(`   Parsing response data:`, {
+          hasCompetitiveAnalysis: !!competitiveAnalysis,
+          hasMainCompetitors: !!competitiveAnalysis?.mainCompetitors,
+          competitorsCount: competitiveAnalysis?.mainCompetitors?.length || 0,
+          hasMessagingAnalysis: !!messagingAnalysis,
+          hasStrategicRecommendations: !!strategicRecommendations
+        });
+
         const intelligence = {
-          competitors: aiResponse.data.competitiveAnalysis?.mainCompetitors?.map((c: any) => 
-            `${c.name} - ${c.positioning}`) || [],
-          differentiators: aiResponse.data.competitiveAnalysis?.differentiationOpportunities || [],
-          messagingGaps: aiResponse.data.messagingAnalysis?.messagingGaps || [],
-          commonThemes: aiResponse.data.messagingAnalysis?.commonThemes || [],
-          strategicRecommendations: aiResponse.data.strategicRecommendations || {},
+          competitors: competitiveAnalysis?.mainCompetitors?.map((c: any) => {
+            const name = c.name || 'Unknown Competitor';
+            const positioning = c.positioning || 'Competitive player';
+            return `${name} - ${positioning}`;
+          }) || [],
+          differentiators: competitiveAnalysis?.differentiationOpportunities || [],
+          messagingGaps: messagingAnalysis?.messagingGaps || [],
+          commonThemes: messagingAnalysis?.commonThemes || [],
+          strategicRecommendations: strategicRecommendations || {},
           sources: aiResponse.data.sources || []
         };
 
-        // Cache the result
-        await this.cacheCompetitiveIntelligence(parsedBrief, intelligence);
-        
-        console.log(`✅ AI competitive intelligence generated:`);
+        console.log(`✅ AI competitive intelligence generated successfully:`);
         console.log(`   Competitors: ${intelligence.competitors.length}`);
         console.log(`   Differentiators: ${intelligence.differentiators.length}`);
+        console.log(`   Messaging Gaps: ${intelligence.messagingGaps.length}`);
+        console.log(`   Common Themes: ${intelligence.commonThemes.length}`);
         
         return intelligence;
       }
 
+      // Log detailed error information
+      if (aiResponse.error) {
+        console.error('❌ Gemini API returned error:', aiResponse.error);
+      } else if (!aiResponse.success) {
+        console.error('❌ Gemini API returned unsuccessful response:', aiResponse);
+      } else if (!aiResponse.data) {
+        console.error('❌ Gemini API returned success but no data:', aiResponse);
+      }
+
       return null;
     } catch (error) {
-      console.warn('⚠️ AI competitive intelligence failed:', error);
+      console.error('❌ Exception during AI competitive intelligence generation:', error);
+      if (error instanceof Error) {
+        console.error('   Error message:', error.message);
+        console.error('   Error stack:', error.stack);
+      }
       return null;
     }
   }
@@ -2461,6 +2512,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       if (aiIntelligence && aiIntelligence.competitors && aiIntelligence.competitors.length > 0) {
         // Use AI-generated insights
         console.log('✅ Using AI competitive intelligence');
+        console.log(`   Found ${aiIntelligence.competitors.length} competitors from AI`);
         competitorAnalysis = {
           competitors: aiIntelligence.competitors,
           differentiators: aiIntelligence.differentiators || [],
@@ -2471,13 +2523,34 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       } else {
         // PRIORITY 2: Fallback to rule-based competitors from hardcoded lists
         // This triggers when AI fails OR when AI returns empty competitors
-        console.log('⚠️ Falling back to rule-based competitive analysis (AI returned empty or failed)');
+        console.log('⚠️ Falling back to rule-based competitive analysis');
+        if (aiIntelligence) {
+          console.log('   AI returned:', aiIntelligence);
+          console.log('   AI competitors:', aiIntelligence.competitors);
+        } else {
+          console.log('   AI returned null/undefined');
+        }
+        
         const rulebased = this.strategyGenerator.generateCompetitorAnalysis(parsedBrief);
+        console.log('   Rule-based competitors:', rulebased.competitors);
+        console.log('   Rule-based differentiators:', rulebased.differentiators);
+        
+        // Ensure we always have at least one competitor
+        const competitors = rulebased.competitors && rulebased.competitors.length > 0 
+          ? rulebased.competitors 
+          : ['Industry leaders with established brand recognition'];
+        
+        const differentiators = rulebased.differentiators && rulebased.differentiators.length > 0
+          ? rulebased.differentiators
+          : ['Market differentiation opportunities', 'Unique value proposition'];
+        
         competitorAnalysis = {
-          competitors: rulebased.competitors,
-          differentiators: rulebased.differentiators,
+          competitors,
+          differentiators,
           isAIGenerated: false
         };
+        
+        console.log(`   Final competitor count: ${competitorAnalysis.competitors.length}`);
       }
       
       // Generate other strategic components (fast, no API calls)
@@ -2887,83 +2960,5 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
   /**
    * Generate cache key for campaign intelligence
    */
-  private generateCacheKey(parsedBrief: ParsedBrief): string {
-    const keyComponents = [
-      parsedBrief.advertiserName || 'unknown',
-      parsedBrief.industry || 'general',
-      (parsedBrief.keyProducts || []).slice(0, 3).join(','),
-      (parsedBrief.campaignObjectives || []).slice(0, 2).join(',')
-    ].join('|').toLowerCase();
-
-    return crypto.createHash('md5').update(keyComponents).digest('hex');
-  }
-
-  /**
-   * Get cached competitive intelligence
-   */
-  private async getCachedCompetitiveIntelligence(parsedBrief: ParsedBrief): Promise<any | null> {
-    try {
-      const useSupabase = process.env.USE_SUPABASE === 'true';
-      if (!useSupabase) return null;
-
-      const cacheKey = this.generateCacheKey(parsedBrief);
-      const supabase = SupabaseService.getClient();
-
-      const { data, error } = await supabase
-        .from('campaign_intelligence_cache')
-        .select('competitive_intelligence, expires_at')
-        .eq('cache_key', cacheKey)
-        .single();
-
-      if (error || !data) {
-        return null;
-      }
-
-      // Check if cache has expired
-      if (data.expires_at && new Date(data.expires_at) < new Date()) {
-        console.log('⏰ Campaign intelligence cache expired');
-        return null;
-      }
-
-      console.log('✅ Using cached competitive intelligence');
-      return data.competitive_intelligence;
-    } catch (error) {
-      console.warn('⚠️ Error fetching cached competitive intelligence:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Save competitive intelligence to cache
-   */
-  private async cacheCompetitiveIntelligence(
-    parsedBrief: ParsedBrief,
-    intelligence: any
-  ): Promise<void> {
-    try {
-      const useSupabase = process.env.USE_SUPABASE === 'true';
-      if (!useSupabase) return;
-
-      const cacheKey = this.generateCacheKey(parsedBrief);
-      const supabase = SupabaseService.getClient();
-      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-      await supabase
-        .from('campaign_intelligence_cache')
-        .upsert({
-          cache_key: cacheKey,
-          advertiser_name: parsedBrief.advertiserName || 'Unknown',
-          industry: parsedBrief.industry || 'General',
-          products: parsedBrief.keyProducts || [],
-          objectives: parsedBrief.campaignObjectives || [],
-          competitive_intelligence: intelligence,
-          expires_at: expiresAt.toISOString()
-        }, { onConflict: 'cache_key' });
-
-      console.log('💾 Cached competitive intelligence (24h TTL)');
-    } catch (error) {
-      console.warn('⚠️ Error caching competitive intelligence:', error);
-    }
-  }
 }
 

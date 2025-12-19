@@ -151,16 +151,31 @@ export default function CampaignPlannerResults({
   const transformCompetitiveIntelForModal = (): CompetitiveIntelligence => {
     const strategy = report.results.strategy as any;
     
+    // Debug logging
+    console.log('🔄 Transforming Competitive Intelligence data:');
+    console.log('   Strategy:', strategy);
+    console.log('   Competitors:', strategy?.competitors);
+    console.log('   Differentiators:', strategy?.differentiators);
+    console.log('   Strategic Recommendations:', strategy?.strategicRecommendations);
+    
     // Parse competitors from the strategy data
     // Competitors come as strings like "Competitor Name - positioning"
-    const mainCompetitors = (strategy?.competitors || []).map((c: string) => {
-      const parts = c.split(' - ');
-      return {
-        name: parts[0] || c,
-        positioning: parts.slice(1).join(' - ') || 'Competitive player in the market',
-        keyStrengths: [] // We don't have this data from the strategy generator
-      };
-    });
+    // Handle both string arrays and ensure we always have at least one competitor
+    const competitorsArray = strategy?.competitors || [];
+    const mainCompetitors = competitorsArray.length > 0 
+      ? competitorsArray.map((c: string) => {
+          const parts = typeof c === 'string' ? c.split(' - ') : [String(c)];
+          return {
+            name: parts[0] || c || 'Industry competitor',
+            positioning: parts.slice(1).join(' - ') || 'Competitive player in the market',
+            keyStrengths: [] // We don't have this data from the strategy generator
+          };
+        })
+      : [{
+          name: 'Industry competitors',
+          positioning: 'Competitive market landscape',
+          keyStrengths: []
+        }];
 
     // Build strategic recommendations array (for modal display)
     const strategicRecsArray = [
@@ -430,27 +445,52 @@ export default function CampaignPlannerResults({
               )}
 
               {/* Competitive Intelligence Card */}
-              {report.results.strategy?.competitors && report.results.strategy.competitors.length > 0 && (
-                <InlineCompetitiveIntelCard
-                  intel={{
-                    competitorOrIndustry: report.advertiserName,
-                    competitiveAnalysis: {
-                      mainCompetitors: report.results.strategy.competitors.map((c: string) => ({ name: c.split(' - ')[0] })),
-                      marketPositioning: `${report.advertiserName} operates in a competitive market.`
-                    }
-                  }}
-                  onClick={() => setSelectedCompetitiveIntel(transformCompetitiveIntelForModal())}
-                  onSave={() => {
-                    const cardId = `competitive-intelligence-${report.advertiserName}`;
-                    if (isSaved?.(cardId)) {
-                      onUnsaveCard?.(cardId);
-                    } else {
-                      onSaveCard?.({ type: 'competitive-intelligence', data: transformCompetitiveIntelForModal() });
-                    }
-                  }}
-                  isSaved={isSaved?.(`competitive-intelligence-${report.advertiserName}`)}
-                />
-              )}
+              {(() => {
+                // Debug logging
+                console.log('🔍 Competitive Intelligence Card Debug:');
+                console.log('   Strategy exists:', !!report.results.strategy);
+                console.log('   Competitors:', report.results.strategy?.competitors);
+                console.log('   Competitors length:', report.results.strategy?.competitors?.length);
+                
+                // Show card if strategy exists and has competitors, OR if strategy exists at all (we'll show fallback content)
+                const hasStrategy = !!report.results.strategy;
+                const hasCompetitors = report.results.strategy?.competitors && report.results.strategy.competitors.length > 0;
+                
+                if (!hasStrategy) {
+                  console.log('   ❌ No strategy data - card will not render');
+                  return null;
+                }
+                
+                if (!hasCompetitors) {
+                  console.log('   ⚠️ Strategy exists but no competitors - showing card with fallback');
+                } else {
+                  console.log('   ✅ Strategy and competitors found - showing card');
+                }
+                
+                return (
+                  <InlineCompetitiveIntelCard
+                    intel={{
+                      competitorOrIndustry: report.advertiserName,
+                      competitiveAnalysis: {
+                        mainCompetitors: (report.results.strategy.competitors || ['Industry competitors']).map((c: string) => ({ 
+                          name: typeof c === 'string' ? c.split(' - ')[0] : 'Competitor'
+                        })),
+                        marketPositioning: `${report.advertiserName} operates in a competitive market.`
+                      }
+                    }}
+                    onClick={() => setSelectedCompetitiveIntel(transformCompetitiveIntelForModal())}
+                    onSave={() => {
+                      const cardId = `competitive-intelligence-${report.advertiserName}`;
+                      if (isSaved?.(cardId)) {
+                        onUnsaveCard?.(cardId);
+                      } else {
+                        onSaveCard?.({ type: 'competitive-intelligence', data: transformCompetitiveIntelForModal() });
+                      }
+                    }}
+                    isSaved={isSaved?.(`competitive-intelligence-${report.advertiserName}`)}
+                  />
+                );
+              })()}
             </div>
           </section>
 

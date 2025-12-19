@@ -1018,15 +1018,19 @@ export class CommerceAudienceService {
       // Normalize ZIP codes
       const normalizedZips = zipCodes.map(zip => this.normalizeZipCode(zip));
       
-      // Add timeout wrapper (10 seconds max - very aggressive to fail fast)
+      // Add timeout wrapper (8 seconds max - very aggressive to fail fast)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('ZIP codes data loading timeout')), 10000);
+        setTimeout(() => reject(new Error('ZIP codes data loading timeout')), 8000);
       });
       
+      // Track partial results in case of timeout
+      let partialResults: CommerceAudienceData[] = [];
+      let hasPartialResults = false;
+      
       const queryPromise = (async () => {
-        // For very large markets, sample ZIP codes to avoid timeout
-        // Use a representative sample that's still useful
-        const maxZipCodesToQuery = 200; // Limit total ZIP codes to query
+        // For very large markets, aggressively sample ZIP codes to avoid timeout
+        // Use a much smaller sample for faster queries
+        const maxZipCodesToQuery = 50; // Reduced from 200 to 50 for much faster queries
         const sampledZips = normalizedZips.length > maxZipCodesToQuery
           ? [
               ...normalizedZips.slice(0, Math.floor(maxZipCodesToQuery / 2)), // First half
@@ -1035,15 +1039,17 @@ export class CommerceAudienceService {
           : normalizedZips;
         
         if (normalizedZips.length > maxZipCodesToQuery) {
-          console.log(`   ⚠️  Large market detected (${normalizedZips.length} ZIP codes). Sampling ${sampledZips.length} ZIP codes to avoid timeout.`);
+          console.log(`   ⚠️  Large market detected (${normalizedZips.length} ZIP codes). Aggressively sampling ${sampledZips.length} ZIP codes to avoid timeout.`);
         }
         
         // Try RPC function first (much faster if available)
         try {
           console.log('   🚀 Attempting RPC function for faster query...');
+          // Use a more reasonable limit for RPC (2000 records should be enough for segments)
+          const rpcLimit = Math.min(limit, 2000);
           const { data: rpcData, error: rpcError } = await supabase.rpc('get_commerce_data_for_zips', {
             zip_codes: sampledZips,
-            max_records: limit
+            max_records: rpcLimit
           });
           
           if (!rpcError && rpcData && rpcData.length > 0) {
@@ -1083,10 +1089,34 @@ export class CommerceAudienceService {
         const sanitizedValues = sampledZips.map(zip => `NA_US_${zip}`);
         
         // Query filtered by ZIP codes - much faster than loading all data
-        // Use very small batches (25 ZIPs) for fastest queries
-        const batchSize = 25; // Reduced from 50 for even faster queries
+        // Use very small batches (10 ZIPs) for fastest queries
+        const batchSize = 10; // Reduced from 25 to 10 for even faster queries
         let allRecords: any[] = [];
-        const maxBatches = 8; // Limit to 8 batches max (200 ZIPs) to avoid timeout
+        const maxBatches = 5; // Limit to 5 batches max (50 ZIPs) to avoid timeout
+        
+        // Process records helper function
+        const processRecords = (records: any[]): CommerceAudienceData[] => {
+          const zipCodeData: CommerceAudienceData[] = [];
+          for (const record of records) {
+            const sanitizedValue = record.sanitized_value;
+            
+            if (sanitizedValue && sanitizedValue.startsWith('NA_US_')) {
+              const rawZipCode = sanitizedValue.replace('NA_US_', '');
+              const zipCode = this.normalizeZipCode(rawZipCode);
+              
+              if (/^\d{5}$/.test(zipCode)) {
+                zipCodeData.push({
+                  zipCode,
+                  weight: record.weight || 0,
+                  audienceName: record.audience_name?.trim() || '',
+                  seed: record.seed?.trim() || '',
+                  date: record.dt || ''
+                });
+              }
+            }
+          }
+          return zipCodeData;
+        };
         
         for (let i = 0; i < sanitizedValues.length && i < maxBatches * batchSize; i += batchSize) {
           const batch = sanitizedValues.slice(i, i + batchSize);
@@ -1097,7 +1127,7 @@ export class CommerceAudienceService {
             .from('commerce_audience_segments')
             .select('sanitized_value, weight, audience_name, seed, dt')
             .in('sanitized_value', batch)
-            .limit(5000); // Reduced limit per batch for faster queries
+            .limit(2000); // Reduced limit per batch for faster queries
           
           if (error) {
             console.error('❌ Supabase query error in loadZipCodesDataFromSupabase:', error.message);
@@ -1106,7 +1136,10 @@ export class CommerceAudienceService {
           
           if (data && data.length > 0) {
             allRecords = [...allRecords, ...data];
-            console.log(`   ✅ Batch ${batchNum} returned ${data.length} records (total: ${allRecords.length})`);
+            const processed = processRecords(allRecords);
+            partialResults = processed;
+            hasPartialResults = true;
+            console.log(`   ✅ Batch ${batchNum} returned ${data.length} records (total: ${allRecords.length} raw, ${processed.length} processed)`);
           }
           
           // Stop if we've reached the limit
@@ -1120,33 +1153,24 @@ export class CommerceAudienceService {
           console.warn(`   ⚠️  Limited to first ${maxBatches * batchSize} ZIP codes (${sanitizedValues.length} total) to avoid timeout`);
         }
 
-        // Process records
-        const zipCodeData: CommerceAudienceData[] = [];
-        for (const record of allRecords) {
-          const sanitizedValue = record.sanitized_value;
-          
-          if (sanitizedValue && sanitizedValue.startsWith('NA_US_')) {
-            const rawZipCode = sanitizedValue.replace('NA_US_', '');
-            const zipCode = this.normalizeZipCode(rawZipCode);
-            
-            if (/^\d{5}$/.test(zipCode)) {
-              zipCodeData.push({
-                zipCode,
-                weight: record.weight || 0,
-                audienceName: record.audience_name?.trim() || '',
-                seed: record.seed?.trim() || '',
-                date: record.dt || ''
-              });
-            }
-          }
-        }
-
+        // Process all records
+        const zipCodeData = processRecords(allRecords);
         console.log(`✅ Loaded ${zipCodeData.length} records for ${zipCodes.length} ZIP codes`);
         return zipCodeData;
       })();
 
-      const zipCodeData = await Promise.race([queryPromise, timeoutPromise]);
-      return zipCodeData;
+      try {
+        const zipCodeData = await Promise.race([queryPromise, timeoutPromise]);
+        return zipCodeData;
+      } catch (error: any) {
+        // If we have partial results and hit timeout, return them instead of failing completely
+        if (hasPartialResults && partialResults.length > 0 && 
+            error?.message?.includes('timeout')) {
+          console.log(`   ⚡ Timeout occurred but returning ${partialResults.length} partial results instead of failing`);
+          return partialResults;
+        }
+        throw error;
+      }
     } catch (error) {
       console.error(`❌ Error loading ZIP codes data:`, error);
       // Re-throw timeout errors so they can be handled properly upstream

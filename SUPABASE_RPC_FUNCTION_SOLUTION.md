@@ -137,3 +137,5 @@ const { data, error } = await supabase
 3. **If both fail**, check Supabase dashboard for query performance issues
 
 
+
+

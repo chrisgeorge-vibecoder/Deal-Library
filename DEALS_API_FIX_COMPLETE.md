@@ -88,3 +88,5 @@ After deploying:
 No backend deployment is needed - everything works from the Next.js frontend!
 
 
+
+

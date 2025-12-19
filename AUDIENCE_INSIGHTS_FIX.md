@@ -99,3 +99,5 @@ If reports still fail to generate:
 4. Check Gemini API key is configured (for AI-generated content)
 5. Verify Supabase connection if using Supabase caching
 
+
+

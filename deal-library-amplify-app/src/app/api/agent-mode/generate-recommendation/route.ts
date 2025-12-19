@@ -41,18 +41,18 @@ export async function POST(request: NextRequest) {
 
     // Create a ReadableStream for SSE
     const stream = new ReadableStream({
-      async start(controller) {
+      async start(streamController) {
         const encoder = new TextEncoder();
         
         // Helper to send SSE data
         const sendSSE = (data: any) => {
           const json = JSON.stringify(data);
-          controller.enqueue(encoder.encode(`data: ${json}\n\n`));
+          streamController.enqueue(encoder.encode(`data: ${json}\n\n`));
         };
 
         // Helper to send SSE comment (heartbeat)
         const sendHeartbeat = () => {
-          controller.enqueue(encoder.encode(':keepalive\n\n'));
+          streamController.enqueue(encoder.encode(':keepalive\n\n'));
         };
 
         // Send initial progress
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
             report: report
           });
 
-          controller.close();
+          streamController.close();
         } catch (error) {
           clearInterval(heartbeatInterval);
           console.error('Error generating recommendation:', error);
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
             type: 'error',
             message: error instanceof Error ? error.message : 'Failed to generate recommendation'
           });
-          controller.close();
+          streamController.close();
         }
       }
     });

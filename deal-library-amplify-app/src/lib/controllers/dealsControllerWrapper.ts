@@ -951,14 +951,23 @@ export class DealsControllerWrapper extends DealsController {
     }
   }
 
-  // Generate market sizing directly - FIXED: Now uses GeminiService
+  // Generate market sizing directly - FIXED: Now uses GeminiService with timeout protection
   async generateMarketSizingDirect(body: any): Promise<any> {
     try {
       console.log('📊 generateMarketSizingDirect called with:', body);
       const gemini = getGeminiService();
       const query = body.query || body.market || 'technology market';
       
-      const result = await gemini.generateMarketSizing(query, body.conversationHistory);
+      // Add timeout wrapper (20 seconds - slightly less than API timeout to fail fast)
+      const GEMINI_TIMEOUT_MS = 20000; // 20 seconds
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Market sizing generation timeout - Gemini API call exceeded 20 seconds'));
+        }, GEMINI_TIMEOUT_MS);
+      });
+      
+      const geminiPromise = gemini.generateMarketSizing(query, body.conversationHistory);
+      const result = await Promise.race([geminiPromise, timeoutPromise]);
       
       console.log('✅ Market sizing generated:', result.marketSizing?.length || 0, 'results');
       
@@ -969,10 +978,22 @@ export class DealsControllerWrapper extends DealsController {
       };
     } catch (error) {
       console.error('❌ Error generating market sizing:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // Check if it's a timeout error
+      if (errorMessage.includes('timeout')) {
+        return { 
+          success: false, 
+          marketSizing: [],
+          error: 'timeout',
+          message: 'Market sizing generation timed out. The query may be too complex. Please try a more specific query or try again later.'
+        };
+      }
+      
       return { 
         success: false, 
         marketSizing: [],
-        error: String(error) 
+        error: errorMessage
       };
     }
   }

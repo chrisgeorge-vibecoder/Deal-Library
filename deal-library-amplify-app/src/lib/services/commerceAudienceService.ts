@@ -320,9 +320,9 @@ export class CommerceAudienceService {
       let offset = 0;
       let pageCount = 0;
       
-      // Add timeout wrapper (15 seconds max for data loading)
+      // Add timeout wrapper (30 seconds max for data loading - increased from 15s)
       const loadTimeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Data loading timeout - Supabase query took too long')), 15000);
+        setTimeout(() => reject(new Error('Data loading timeout - Supabase query took too long')), 30000);
       });
       
       console.log(`📊 Loading commerce data (limited to ${MAX_RECORDS_TO_LOAD.toLocaleString()} records to avoid timeout)...`);
@@ -333,9 +333,14 @@ export class CommerceAudienceService {
           pageCount++;
           console.log(`📄 Fetching page ${pageCount} (offset: ${offset}, limit: ${pageSize})...`);
           
+          // Only use count on first page to avoid performance hit on subsequent queries
+          const queryOptions = pageCount === 1 
+            ? { count: 'exact' as const }
+            : {};
+          
           const { data: records, error, count } = await supabase
             .from('commerce_audience_segments')
-            .select('sanitized_value, weight, audience_name, seed, dt', { count: 'exact' })
+            .select('sanitized_value, weight, audience_name, seed, dt', queryOptions)
             .order('sanitized_value')
             .range(offset, offset + pageSize - 1);
       
@@ -983,6 +988,106 @@ export class CommerceAudienceService {
       return segmentData;
     } catch (error) {
       console.error(`❌ Error loading segment data for "${segmentName}":`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Temporarily set commerce data (for on-demand loading scenarios)
+   * This allows using data loaded for specific ZIP codes without full data load
+   */
+  private setTemporaryData(data: CommerceAudienceData[]): void {
+    this.commerceData = data;
+    this.isLoaded = data.length > 0;
+  }
+
+  /**
+   * Load commerce data for specific ZIP codes from Supabase (on-demand, much faster)
+   * This is optimized for market-specific queries
+   */
+  async loadZipCodesDataFromSupabase(zipCodes: string[], limit: number = 50000): Promise<CommerceAudienceData[]> {
+    if (!this.useSupabase) {
+      console.log('📋 loadZipCodesDataFromSupabase: Supabase not enabled');
+      return [];
+    }
+
+    try {
+      console.log(`📊 Loading commerce data for ${zipCodes.length} ZIP codes from Supabase...`);
+      const supabase = SupabaseService.getClient();
+      
+      // Normalize ZIP codes
+      const normalizedZips = zipCodes.map(zip => this.normalizeZipCode(zip));
+      
+      // Add timeout wrapper (20 seconds max)
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('ZIP codes data loading timeout')), 20000);
+      });
+      
+      const queryPromise = (async () => {
+        // Build sanitized values for query (format: NA_US_XXXXX)
+        const sanitizedValues = normalizedZips.map(zip => `NA_US_${zip}`);
+        
+        // Query filtered by ZIP codes - much faster than loading all data
+        // Use .in() for up to 100 ZIPs, otherwise batch the query
+        const batchSize = 100;
+        let allRecords: any[] = [];
+        
+        for (let i = 0; i < sanitizedValues.length; i += batchSize) {
+          const batch = sanitizedValues.slice(i, i + batchSize);
+          console.log(`   📦 Fetching batch ${Math.floor(i / batchSize) + 1} (${batch.length} ZIP codes)...`);
+          
+          const { data, error } = await supabase
+            .from('commerce_audience_segments')
+            .select('sanitized_value, weight, audience_name, seed, dt')
+            .in('sanitized_value', batch)
+            .limit(limit);
+          
+          if (error) {
+            console.error('❌ Supabase query error in loadZipCodesDataFromSupabase:', error.message);
+            throw new Error(`Supabase query failed: ${error.message}`);
+          }
+          
+          if (data && data.length > 0) {
+            allRecords = [...allRecords, ...data];
+            console.log(`   ✅ Batch ${Math.floor(i / batchSize) + 1} returned ${data.length} records (total: ${allRecords.length})`);
+          }
+          
+          // Stop if we've reached the limit
+          if (allRecords.length >= limit) {
+            console.warn(`   ⚠️  Reached record limit (${limit.toLocaleString()}), stopping`);
+            break;
+          }
+        }
+
+        // Process records
+        const zipCodeData: CommerceAudienceData[] = [];
+        for (const record of allRecords) {
+          const sanitizedValue = record.sanitized_value;
+          
+          if (sanitizedValue && sanitizedValue.startsWith('NA_US_')) {
+            const rawZipCode = sanitizedValue.replace('NA_US_', '');
+            const zipCode = this.normalizeZipCode(rawZipCode);
+            
+            if (/^\d{5}$/.test(zipCode)) {
+              zipCodeData.push({
+                zipCode,
+                weight: record.weight || 0,
+                audienceName: record.audience_name?.trim() || '',
+                seed: record.seed?.trim() || '',
+                date: record.dt || ''
+              });
+            }
+          }
+        }
+
+        console.log(`✅ Loaded ${zipCodeData.length} records for ${zipCodes.length} ZIP codes`);
+        return zipCodeData;
+      })();
+
+      const zipCodeData = await Promise.race([queryPromise, timeoutPromise]);
+      return zipCodeData;
+    } catch (error) {
+      console.error(`❌ Error loading ZIP codes data:`, error);
       return [];
     }
   }

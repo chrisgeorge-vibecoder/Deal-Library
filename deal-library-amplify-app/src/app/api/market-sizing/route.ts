@@ -13,12 +13,13 @@ export async function POST(request: NextRequest) {
     }, API_TIMEOUT_MS);
   });
 
+  let result: any = null;
   try {
     const body = await request.json();
     const controller = getDealsController();
     
     // Race between the actual market sizing generation and the timeout
-    const result = await Promise.race([
+    result = await Promise.race([
       controller.generateMarketSizingDirect(body),
       timeoutPromise
     ]);
@@ -28,15 +29,15 @@ export async function POST(request: NextRequest) {
     console.error('❌ Error generating market sizing:', error);
     
     // If it's a timeout, return a specific error
-    if (error.message?.includes('timeout') || error.name === 'AbortError') {
+    if (error.message?.includes('timeout') || error.name === 'AbortError' || (result && result.error === 'timeout')) {
       console.error('⏰ Request timed out before completion');
       return NextResponse.json(
         { 
           success: false,
           error: 'Request timeout',
-          message: 'The market sizing request took too long. Please try again with a simpler query.',
+          message: 'The market sizing request took too long. Market sizing analysis can be complex and may take up to 20 seconds. Please try again with a more specific query, or try again later.',
           marketSizing: [],
-          aiResponse: 'I apologize, but the market sizing request timed out. This can happen with complex queries. Please try a more specific query or try again.'
+          aiResponse: 'I apologize, but the market sizing request timed out. This can happen with complex queries. Please try a more specific query (e.g., "vitamin supplements market" instead of "vitamin buyers market sizing and competitive landscape") or try again.'
         },
         { status: 504 } // Gateway Timeout
       );

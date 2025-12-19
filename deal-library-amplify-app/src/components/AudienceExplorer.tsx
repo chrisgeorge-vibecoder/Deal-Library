@@ -402,8 +402,37 @@ export default function AudienceExplorer({
             });
             
             clearTimeout(timeoutId);
+            
+            // Check if response has content before parsing
+            const contentType = insightsResponse.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+              console.error('Audience insights API returned non-JSON response:', contentType);
+              setError('Failed to load audience insights: Invalid response format. Please try again.');
+              setSearchResults([]);
+              return;
+            }
+
+            // Get response text first to check if it's empty
+            const responseText = await insightsResponse.text();
+            if (!responseText || responseText.trim().length === 0) {
+              console.error('Audience insights API returned empty response');
+              setError('Failed to load audience insights: Empty response. Please try again.');
+              setSearchResults([]);
+              return;
+            }
+
             if (insightsResponse.ok) {
-              const insightsData = await insightsResponse.json();
+              let insightsData;
+              try {
+                insightsData = JSON.parse(responseText);
+              } catch (parseError) {
+                console.error('Failed to parse audience insights JSON:', parseError);
+                console.error('Response text:', responseText.substring(0, 500));
+                setError('Failed to load audience insights: Invalid response format. Please try again.');
+                setSearchResults([]);
+                return;
+              }
+              
               console.log(`🎯 Loaded audience insights data:`, insightsData);
               
               // Check if the response indicates failure even with 200 status
@@ -424,18 +453,21 @@ export default function AudienceExplorer({
               }
             } else {
               console.error(`❌ Failed to fetch audience insights: ${insightsResponse.status} ${insightsResponse.statusText}`);
+              // Try to parse error response using the responseText we already read
+              let errorData: any = {};
               try {
-                const errorData = await insightsResponse.json();
-                console.error('Error details:', errorData);
-                // Show specific error message to user
-                if (insightsResponse.status === 503) {
-                  setError('AI service is temporarily unavailable. Please check if Gemini API is configured correctly.');
-                } else {
-                  setError(`Failed to load audience insights: ${errorData.message || 'Please try again.'}`);
+                if (responseText && responseText.trim().length > 0) {
+                  errorData = JSON.parse(responseText);
                 }
               } catch (e) {
-                console.error('Could not parse error response');
-                setError('Failed to load audience insights. Please try again.');
+                console.error('Could not parse error response:', e);
+              }
+              console.error('Error details:', errorData);
+              // Show specific error message to user
+              if (insightsResponse.status === 503) {
+                setError('AI service is temporarily unavailable. Please check if Gemini API is configured correctly.');
+              } else {
+                setError(`Failed to load audience insights: ${errorData.message || errorData.error || 'Please try again.'}`);
               }
             }
           } catch (error) {

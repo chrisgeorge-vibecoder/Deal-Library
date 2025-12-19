@@ -73,11 +73,25 @@ export async function POST(request: NextRequest) {
         console.log(`   ✅ Commerce data loaded: ${loadResult.stats?.totalRecords || 0} records`);
       } catch (loadError) {
         console.error('   ❌ Exception while loading commerce data:', loadError);
+        const errorMessage = loadError instanceof Error ? loadError.message : 'Unknown error loading commerce data';
+        
+        // If timeout error, provide more helpful message
+        if (errorMessage.includes('timeout') || errorMessage.includes('timed out')) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: 'Commerce data loading timeout',
+              message: 'The commerce data query is taking too long. This may indicate a database performance issue. Please try again in a moment or contact support if the issue persists.'
+            },
+            { status: 504 }
+          );
+        }
+        
         return NextResponse.json(
           {
             success: false,
             error: 'Failed to load commerce data',
-            message: loadError instanceof Error ? loadError.message : 'Unknown error loading commerce data'
+            message: errorMessage
           },
           { status: 500 }
         );

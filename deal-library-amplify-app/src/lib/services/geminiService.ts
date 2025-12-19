@@ -2177,35 +2177,18 @@ Return ONLY valid JSON. No other text.`;
       ? `\n\nPrevious conversation context:\n${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n`
       : '';
 
-    const prompt = `You are a world-class market research analyst at a top consulting firm who is prolific at generating market sizing insights.
+    const prompt = `You are a market research analyst generating market sizing insights.
 
 Query: "${query}"${conversationContext}
 
-Generate 1-2 comprehensive market sizing cards with real-world data and actionable insights. Focus on market size, demographics, growth trends, and opportunities.
+Generate 1-2 market sizing cards. Focus on market size, demographics, growth trends, and opportunities.
 
-IMPORTANT: The user is asking about "${query}". Interpret this broadly:
-- If they ask about "trends", analyze the MARKET for that industry/topic
-- If they ask "what are...", provide market sizing for that industry
-- If they ask about specific topics (e.g., "sports"), size the entire market or key segments
-- Be flexible and interpret general questions as market sizing requests
+CRITICAL: Return ONLY valid JSON (no markdown, no code blocks). The "aiResponse" field must be 2-3 sentences of plain text (NOT JSON).
 
-CRITICAL INSTRUCTIONS:
-- ALWAYS generate 1-2 detailed cards, even for general questions
-- Include total market size, addressable market, demographics
-- Add growth trends, seasonality, and key opportunities
-- Use realistic numbers and percentages based on real market research
-- Make insights actionable for business planning
-- Focus on the specific market/industry mentioned in the query
-- DO NOT generate competitive intelligence about specific companies
-- Focus on market sizing and industry trends, not competitor analysis
-- If the query is broad (like "trends in sports"), break it into 1-2 key market segments
-
-RESPONSE FORMAT REQUIREMENTS:
-- Return ONLY valid JSON, nothing else
-- Do NOT include any text before or after the JSON
-- Do NOT wrap the JSON in code blocks or markdown
-- The "aiResponse" field MUST contain a natural language paragraph (NOT JSON, NOT a data structure)
-- The "aiResponse" should be 2-3 sentences summarizing the key insights for a CMO or marketing executive
+Interpret queries broadly:
+- "trends" = analyze the MARKET for that industry
+- "what are..." = provide market sizing for that industry
+- Focus on market sizing, NOT competitor analysis
 
 Return your response as JSON in this exact format:
 {

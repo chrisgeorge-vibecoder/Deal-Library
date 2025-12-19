@@ -613,16 +613,46 @@ export default function HomePage() {
               body: JSON.stringify({ query, conversationHistory: conversationHistory || [] }),
             });
             
-            if (response.ok) {
-              const data = await response.json();
-              setAiAudienceInsights(data.audienceInsights || []);
-              setAiResponse(data.aiResponse || 'Here are the audience insights for your query.');
-              // Don't set any deals when only audience-insights is selected
-              setFilteredDeals([]);
-              return;
-            } else {
-              console.error('Audience insights API returned error:', response.status, response.statusText);
+            // Check if response has content before parsing
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+              console.error('Audience insights API returned non-JSON response:', contentType);
               setAiResponse('Audience insights are temporarily unavailable. Please try again later.');
+              return;
+            }
+
+            // Get response text first to check if it's empty
+            const responseText = await response.text();
+            if (!responseText || responseText.trim().length === 0) {
+              console.error('Audience insights API returned empty response');
+              setAiResponse('Audience insights are temporarily unavailable. Please try again later.');
+              return;
+            }
+
+            if (response.ok) {
+              try {
+                const data = JSON.parse(responseText);
+                setAiAudienceInsights(data.audienceInsights || []);
+                setAiResponse(data.aiResponse || 'Here are the audience insights for your query.');
+                // Don't set any deals when only audience-insights is selected
+                setFilteredDeals([]);
+                return;
+              } catch (parseError) {
+                console.error('Failed to parse audience insights JSON:', parseError);
+                console.error('Response text:', responseText.substring(0, 500));
+                setAiResponse('Audience insights are temporarily unavailable. Please try again later.');
+                return;
+              }
+            } else {
+              // Try to parse error response, but handle gracefully if it fails
+              let errorData: any = {};
+              try {
+                errorData = JSON.parse(responseText);
+              } catch (e) {
+                console.error('Failed to parse error response:', e);
+              }
+              console.error('Audience insights API returned error:', response.status, response.statusText, errorData);
+              setAiResponse(errorData.message || 'Audience insights are temporarily unavailable. Please try again later.');
               return;
             }
           } catch (error) {
@@ -982,10 +1012,44 @@ export default function HomePage() {
           });
           clearTimeout(timeoutId);
 
+          // Check if response has content before parsing
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            console.error('Audience insights API returned non-JSON response:', contentType);
+            setAiResponse('Audience insights are temporarily unavailable. Please try again later.');
+            return;
+          }
+
+          // Get response text first to check if it's empty
+          const responseText = await response.text();
+          if (!responseText || responseText.trim().length === 0) {
+            console.error('Audience insights API returned empty response');
+            setAiResponse('Audience insights are temporarily unavailable. Please try again later.');
+            return;
+          }
+
           if (response.ok) {
-            const data = await response.json();
-            setAiAudienceInsights(data.audienceInsights || []);
-            setAiResponse(data.aiResponse || 'Here are the audience insights for your query.');
+            try {
+              const data = JSON.parse(responseText);
+              setAiAudienceInsights(data.audienceInsights || []);
+              setAiResponse(data.aiResponse || 'Here are the audience insights for your query.');
+              return;
+            } catch (parseError) {
+              console.error('Failed to parse audience insights JSON:', parseError);
+              console.error('Response text:', responseText.substring(0, 500));
+              setAiResponse('Audience insights are temporarily unavailable. Please try again later.');
+              return;
+            }
+          } else {
+            // Try to parse error response, but handle gracefully if it fails
+            let errorData: any = {};
+            try {
+              errorData = JSON.parse(responseText);
+            } catch (e) {
+              console.error('Failed to parse error response:', e);
+            }
+            console.error('Audience insights API returned error:', response.status, response.statusText, errorData);
+            setAiResponse(errorData.message || 'Audience insights are temporarily unavailable. Please try again later.');
             return;
           }
         } catch (error) {

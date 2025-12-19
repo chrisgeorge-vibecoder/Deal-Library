@@ -238,23 +238,36 @@ class AudienceInsightsService {
     
     // Check cache first (Supabase or in-memory)
     const cacheKey = `${trimmedSegment}|${category || 'General'}|${includeCommercialZips}`;
+    console.log(`🔍 Checking cache for key: "${cacheKey}" (USE_SUPABASE: ${this.useSupabase})`);
     
     try {
       if (this.useSupabase) {
+        const cacheStart = Date.now();
         const cachedReport = await this.getFromSupabaseCache(cacheKey);
+        const cacheTime = Date.now() - cacheStart;
+        console.log(`⏱️  Cache lookup took ${cacheTime}ms`);
+        
         if (cachedReport) {
-          console.log(`💨 Returning cached report from Supabase for "${trimmedSegment}"`);
+          console.log(`💨 ✅ Returning cached report from Supabase for "${trimmedSegment}" (cache lookup: ${cacheTime}ms)`);
+          // If skipStrategicContent was requested but we have a full cached report, return it anyway
+          // (cached reports always include strategic content)
           return cachedReport;
+        } else {
+          console.log(`❌ No cached report found in Supabase for "${trimmedSegment}"`);
         }
       } else {
+        console.log(`⚠️  Supabase cache disabled (USE_SUPABASE=${process.env.USE_SUPABASE}), checking in-memory cache...`);
         const cached = this.reportCache.get(cacheKey);
         if (cached && (Date.now() - cached.timestamp < this.reportCacheTimeout)) {
-          console.log(`💨 Returning cached report for "${trimmedSegment}" (${((Date.now() - cached.timestamp) / 1000 / 60).toFixed(1)} minutes old)`);
+          console.log(`💨 Returning cached report from memory for "${trimmedSegment}" (${((Date.now() - cached.timestamp) / 1000 / 60).toFixed(1)} minutes old)`);
           return cached.report;
+        } else {
+          console.log(`❌ No cached report found in memory for "${trimmedSegment}"`);
         }
       }
     } catch (cacheError) {
-      console.warn('⚠️ Error checking cache, proceeding with fresh generation:', cacheError);
+      console.error('❌ Error checking cache:', cacheError);
+      console.warn('⚠️ Proceeding with fresh generation due to cache error');
     }
 
     // Step 0: Get commerce baseline for comparison
@@ -3071,27 +3084,48 @@ Write 3-4 analytical sentences that connect data points to reveal purchasing mot
   private async getFromSupabaseCache(cacheKey: string): Promise<AudienceInsightsReport | null> {
     try {
       const supabase = SupabaseService.getClient();
+      if (!supabase) {
+        console.warn('⚠️ Supabase client is null - cannot check cache');
+        return null;
+      }
       
+      console.log(`🔍 Querying Supabase cache for key: "${cacheKey}"`);
       const { data, error } = await supabase
         .from('audience_reports_cache')
-        .select('report_data, created_at, expires_at')
+        .select('report_data, created_at, expires_at, segment, category')
         .eq('cache_key', cacheKey)
         .single();
       
-      if (error || !data) {
+      if (error) {
+        // Check if it's a "not found" error (PGRST116) vs other errors
+        if (error.code === 'PGRST116') {
+          console.log(`📭 No cache entry found for key: "${cacheKey}"`);
+        } else {
+          console.error(`❌ Supabase cache query error (code: ${error.code}):`, error.message);
+        }
+        return null;
+      }
+      
+      if (!data) {
+        console.log(`📭 No cache data returned for key: "${cacheKey}"`);
         return null;
       }
       
       // Check if cache has expired
       if (data.expires_at && new Date(data.expires_at) < new Date()) {
-        console.log(`⏰ Cache expired for key: ${cacheKey}`);
+        console.log(`⏰ Cache expired for key: "${cacheKey}" (expired: ${data.expires_at})`);
         return null;
       }
       
+      console.log(`✅ Cache hit for segment: "${data.segment || 'unknown'}" (category: ${data.category || 'unknown'}, expires: ${data.expires_at || 'never'})`);
       return data.report_data as AudienceInsightsReport;
       
     } catch (error) {
-      console.error('Error fetching from Supabase cache:', error);
+      console.error('❌ Exception fetching from Supabase cache:', error);
+      if (error instanceof Error) {
+        console.error('   Error message:', error.message);
+        console.error('   Error stack:', error.stack?.substring(0, 200));
+      }
       return null;
     }
   }

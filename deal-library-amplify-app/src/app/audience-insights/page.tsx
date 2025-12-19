@@ -761,25 +761,29 @@ export default function AudienceInsightsPage() {
       clearTimeout(timeoutId);
       console.log('📡 [DEBUG] API Response status:', response.status);
       
+      // Check content-type header early
+      const contentType = response.headers.get('content-type');
+      
       // Handle 504 timeout specifically - infrastructure timeout may not have proper headers
-      if (response.status === 504) {
-        console.error('❌ API request timed out (504) - infrastructure timeout');
+      // Also handle cases where status is 504 OR (status >= 500 AND content-type is null)
+      // This covers infrastructure-level timeouts that don't set proper headers
+      if (response.status === 504 || (response.status >= 500 && !contentType)) {
+        console.error('❌ API request timed out or server error (status:', response.status, ', content-type:', contentType, ')');
         setError('Request timed out. The report generation took too long. Please try again with a different segment or contact support if the issue persists.');
         return;
       }
       
-      // Check if response has content before parsing
-      const contentType = response.headers.get('content-type');
-      
-      // If content-type is null but status is not 504, it might still be a timeout
-      // In this case, try to read the response to see if there's content
-      if (!contentType) {
-        console.warn('⚠️ Response has no content-type header, attempting to read response body');
-        // Continue to try reading the response text below
-      } else if (!contentType.includes('application/json')) {
+      // If content-type exists but is not JSON, that's an error
+      if (contentType && !contentType.includes('application/json')) {
         console.error('❌ API returned non-JSON response:', contentType);
         setError('Failed to generate report: Invalid response format. Please try again.');
         return;
+      }
+      
+      // If content-type is null but status is OK (200-299), try to read the response
+      if (!contentType) {
+        console.warn('⚠️ Response has no content-type header but status is OK, attempting to read response body');
+        // Continue to try reading the response text below
       }
 
       // Get response text first to check if it's empty

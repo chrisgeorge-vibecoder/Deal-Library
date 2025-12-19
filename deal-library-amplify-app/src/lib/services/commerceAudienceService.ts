@@ -1018,20 +1018,34 @@ export class CommerceAudienceService {
       // Normalize ZIP codes
       const normalizedZips = zipCodes.map(zip => this.normalizeZipCode(zip));
       
-      // Add timeout wrapper (15 seconds max - reduced for faster failure)
+      // Add timeout wrapper (10 seconds max - very aggressive to fail fast)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('ZIP codes data loading timeout')), 15000);
+        setTimeout(() => reject(new Error('ZIP codes data loading timeout')), 10000);
       });
       
       const queryPromise = (async () => {
+        // For very large markets, sample ZIP codes to avoid timeout
+        // Use a representative sample that's still useful
+        const maxZipCodesToQuery = 200; // Limit total ZIP codes to query
+        const sampledZips = normalizedZips.length > maxZipCodesToQuery
+          ? [
+              ...normalizedZips.slice(0, Math.floor(maxZipCodesToQuery / 2)), // First half
+              ...normalizedZips.slice(-Math.floor(maxZipCodesToQuery / 2))    // Last half
+            ]
+          : normalizedZips;
+        
+        if (normalizedZips.length > maxZipCodesToQuery) {
+          console.log(`   ⚠️  Large market detected (${normalizedZips.length} ZIP codes). Sampling ${sampledZips.length} ZIP codes to avoid timeout.`);
+        }
+        
         // Build sanitized values for query (format: NA_US_XXXXX)
-        const sanitizedValues = normalizedZips.map(zip => `NA_US_${zip}`);
+        const sanitizedValues = sampledZips.map(zip => `NA_US_${zip}`);
         
         // Query filtered by ZIP codes - much faster than loading all data
-        // Use smaller batches (50 ZIPs) for better performance and faster queries
-        const batchSize = 50; // Reduced from 100 for faster queries
+        // Use very small batches (25 ZIPs) for fastest queries
+        const batchSize = 25; // Reduced from 50 for even faster queries
         let allRecords: any[] = [];
-        const maxBatches = 10; // Limit to 10 batches max (500 ZIPs) to avoid timeout
+        const maxBatches = 8; // Limit to 8 batches max (200 ZIPs) to avoid timeout
         
         for (let i = 0; i < sanitizedValues.length && i < maxBatches * batchSize; i += batchSize) {
           const batch = sanitizedValues.slice(i, i + batchSize);
@@ -1042,7 +1056,7 @@ export class CommerceAudienceService {
             .from('commerce_audience_segments')
             .select('sanitized_value, weight, audience_name, seed, dt')
             .in('sanitized_value', batch)
-            .limit(10000); // Limit per batch to avoid huge responses
+            .limit(5000); // Reduced limit per batch for faster queries
           
           if (error) {
             console.error('❌ Supabase query error in loadZipCodesDataFromSupabase:', error.message);

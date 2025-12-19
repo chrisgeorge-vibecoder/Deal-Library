@@ -47,28 +47,53 @@ export default function CampaignPlannerPage() {
 
       if (!response.ok) {
         let errorText = '';
+        let errorJson: any = null;
+        
         try {
           errorText = await response.text();
+          console.error('❌ Error response body:', errorText);
+          console.error('❌ Error response status:', response.status);
+          console.error('❌ Error response headers:', Object.fromEntries(response.headers.entries()));
+          
           // Try to parse as JSON for better error messages
-          if (errorText) {
+          if (errorText && errorText.trim()) {
             try {
-              const errorJson = JSON.parse(errorText);
-              const errorMessage = errorJson.message || errorJson.error || 'Unknown error';
-              throw new Error(`HTTP error! status: ${response.status} - ${errorMessage}`);
-            } catch {
+              errorJson = JSON.parse(errorText);
+              console.error('❌ Parsed error JSON:', errorJson);
+            } catch (parseError) {
+              console.error('❌ Error response is not JSON:', parseError);
               // Not JSON, use as-is
             }
+          } else {
+            console.warn('⚠️ Error response body is empty');
           }
         } catch (textError) {
           console.error('❌ Error reading error response:', textError);
         }
         
+        // Build error message from JSON if available
+        if (errorJson) {
+          const errorMessage = errorJson.message || errorJson.error || 'Unknown error';
+          const hint = errorJson.hint || '';
+          const details = errorJson.details || '';
+          
+          let fullMessage = `HTTP error! status: ${response.status} - ${errorMessage}`;
+          if (hint) {
+            fullMessage += `\n\nHint: ${hint}`;
+          }
+          if (details && process.env.NODE_ENV === 'development') {
+            fullMessage += `\n\nDetails: ${details.substring(0, 500)}`;
+          }
+          
+          throw new Error(fullMessage);
+        }
+        
         // If we still don't have error text, provide a default message
-        if (!errorText) {
+        if (!errorText || !errorText.trim()) {
           if (response.status === 500) {
-            errorText = 'Internal server error. Please check the server logs for details.';
+            errorText = 'Internal server error. The server encountered an unexpected error. Please check the server logs for details.';
           } else if (response.status === 503) {
-            errorText = 'Service unavailable. The AI service may not be configured.';
+            errorText = 'Service unavailable. The AI service may not be configured. Please ensure GEMINI_API_KEY is set.';
           } else {
             errorText = `HTTP ${response.status} error`;
           }

@@ -5,8 +5,24 @@ import { ProgressUpdate } from '@/types/agentMode';
 export async function POST(request: NextRequest) {
   console.log('📥 Campaign Planner API route called');
   try {
-    console.log('📥 Parsing request body...');
-    const body = await request.json();
+    // Parse request body with error handling
+    let body;
+    try {
+      console.log('📥 Parsing request body...');
+      body = await request.json();
+    } catch (parseError) {
+      console.error('❌ Error parsing request body:', parseError);
+      const errorMessage = parseError instanceof Error ? parseError.message : 'Invalid request body';
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid request body',
+          message: 'The request body must be valid JSON.',
+          details: errorMessage
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const { rawBrief, formData } = body;
     console.log('✅ Request body parsed:', { 
       hasRawBrief: !!rawBrief, 
@@ -24,16 +40,25 @@ export async function POST(request: NextRequest) {
 
     if (rawBrief && (typeof rawBrief !== 'string' || rawBrief.trim().length === 0)) {
       return new Response(
-        JSON.stringify({ error: 'Invalid brief format' }),
+        JSON.stringify({ error: 'Invalid brief format', message: 'Brief must be a non-empty string' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    if (formData && !formData.targetAudiences) {
-      return new Response(
-        JSON.stringify({ error: 'Target audiences are required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+    if (formData) {
+      if (typeof formData !== 'object' || formData === null || Array.isArray(formData)) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid form data format', message: 'Form data must be an object' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      if (!formData.targetAudiences || !Array.isArray(formData.targetAudiences) || formData.targetAudiences.length === 0) {
+        return new Response(
+          JSON.stringify({ error: 'Target audiences are required', message: 'Target audiences must be a non-empty array' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     let controller: ReturnType<typeof getDealsController>;
@@ -132,6 +157,11 @@ export async function POST(request: NextRequest) {
           };
 
           try {
+            // Verify the method exists before calling it
+            if (typeof controller.generateAgentModeRecommendationWithProgress !== 'function') {
+              throw new Error('generateAgentModeRecommendationWithProgress is not a function on the controller');
+            }
+
             // Send initial progress
             sendSSE({
               type: 'progress',
@@ -152,6 +182,8 @@ export async function POST(request: NextRequest) {
             // Generate the recommendation with progress callback
             console.log('🚀 Starting agent mode recommendation generation...');
             console.log('📋 Form data:', JSON.stringify(formData, null, 2));
+            console.log('📋 Controller type:', controller.constructor.name);
+            console.log('📋 Has generateAgentModeRecommendationWithProgress:', typeof controller.generateAgentModeRecommendationWithProgress);
             
             const report = await controller.generateAgentModeRecommendationWithProgress(
               { rawBrief, formData },
@@ -229,17 +261,31 @@ export async function POST(request: NextRequest) {
     if (streamCreationError || !stream) {
       console.error('❌ Stream creation failed, returning error response');
       const errorMessage = streamCreationError?.message || 'Failed to create response stream';
+      const errorStack = streamCreationError?.stack;
+      console.error('❌ Stream creation error details:', { errorMessage, errorStack: errorStack?.substring(0, 1000) });
+      
+      const errorResponse = {
+        error: 'Failed to initialize response stream',
+        message: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? errorStack?.substring(0, 2000) : undefined
+      };
+      
+      console.error('❌ Returning error response:', JSON.stringify(errorResponse, null, 2));
+      
       return new Response(
-        JSON.stringify({ 
-          error: 'Failed to initialize response stream',
-          message: errorMessage,
-          details: process.env.NODE_ENV === 'development' ? streamCreationError?.stack : undefined
-        }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify(errorResponse),
+        { 
+          status: 500, 
+          headers: { 
+            'Content-Type': 'application/json',
+            'Content-Length': JSON.stringify(errorResponse).length.toString()
+          } 
+        }
       );
     }
 
     // Return streaming response with SSE headers
+    console.log('✅ Stream created successfully, returning SSE response');
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/event-stream',
@@ -257,15 +303,6 @@ export async function POST(request: NextRequest) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : undefined;
     const errorName = error instanceof Error ? error.name : 'UnknownError';
-    
-    // Log full error details for debugging
-    console.error('Full error details:', { 
-      errorMessage, 
-      errorName,
-      errorStack: errorStack?.substring(0, 2000), // First 2000 chars
-      hasFormData: typeof formData !== 'undefined',
-      hasRawBrief: typeof rawBrief !== 'undefined'
-    });
     
     return new Response(
       JSON.stringify({ 

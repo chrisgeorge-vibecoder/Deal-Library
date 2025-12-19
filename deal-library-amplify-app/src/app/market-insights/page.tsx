@@ -261,14 +261,44 @@ function MarketInsightsContent() {
         })
       });
       
+      // Check if response has content before parsing
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('❌ Commerce data API returned non-JSON response:', contentType);
+        throw new Error('Invalid response format from commerce data API. Please try again.');
+      }
+
+      // Get response text first to check if it's empty
+      const responseText = await response.text();
+      if (!responseText || responseText.trim().length === 0) {
+        console.error('❌ Commerce data API returned empty response');
+        if (response.status === 504) {
+          throw new Error('The commerce data query is taking too long. This may indicate a database performance issue. Please try again in a moment or contact support if the issue persists.');
+        } else {
+          throw new Error('Commerce data API returned empty response. Please try again.');
+        }
+      }
+      
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        let errorData: any = {};
+        try {
+          errorData = JSON.parse(responseText);
+        } catch (e) {
+          console.error('Failed to parse error response:', e);
+        }
         const errorMessage = errorData.message || errorData.error || `HTTP error! status: ${response.status}`;
         console.error(`❌ Commerce data API error (${response.status}):`, errorMessage);
         throw new Error(errorMessage);
       }
       
-      const data = await response.json();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ Failed to parse commerce data JSON:', parseError);
+        console.error('Response text:', responseText.substring(0, 500));
+        throw new Error('Failed to parse commerce data response. Please try again.');
+      }
 
       if (data.success) {
         // Top Shopping Categories - from market-specific data

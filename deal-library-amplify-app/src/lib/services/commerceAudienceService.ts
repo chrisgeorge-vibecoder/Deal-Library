@@ -1307,12 +1307,102 @@ export class CommerceAudienceService {
   /**
    * Get segments for ZIP codes with over-index calculation vs national average
    * Filters out top X% most widespread segments (outliers that appear everywhere)
+   * Now supports on-demand loading if full data isn't available
    */
   async getSegmentsWithOverIndex(
     zipCodes: string[],
     outlierPercentile: number = 10,
     categoryFilter?: string
   ): Promise<Array<AudienceSegment & { overIndex: number; level1Category: string }>> {
+    // Try on-demand loading if data isn't loaded and Supabase is enabled
+    if (!this.isLoaded && this.useSupabase) {
+      console.log('   🚀 Using on-demand loading for ZIP codes (faster than full load)...');
+      try {
+        // Load data for specific ZIP codes (much faster)
+        const zipCodeData = await this.loadZipCodesDataFromSupabase(zipCodes, 50000);
+        
+        if (zipCodeData.length > 0) {
+          console.log(`   ✅ Loaded ${zipCodeData.length} records on-demand for ${zipCodes.length} ZIP codes`);
+          
+          // Temporarily set this data
+          const originalData = this.commerceData;
+          const originalIsLoaded = this.isLoaded;
+          
+          try {
+            this.commerceData = zipCodeData;
+            this.isLoaded = true;
+            
+            // Get market segments from the loaded data
+            const normalizedZipCodes = zipCodes.map(zip => this.normalizeZipCode(zip));
+            const marketSegments = this.getSegmentsForZipCodes(normalizedZipCodes);
+            
+            // For on-demand loading, we'll calculate a simplified over-index:
+            // Compare segment weight in market ZIPs vs average weight across all loaded ZIPs
+            // This is a proxy for national average (less accurate but much faster)
+            const segmentMap = new Map<string, { totalWeight: number; count: number }>();
+            
+            // Calculate average weight per segment across all loaded data
+            for (const item of zipCodeData) {
+              const existing = segmentMap.get(item.audienceName) || { totalWeight: 0, count: 0 };
+              segmentMap.set(item.audienceName, {
+                totalWeight: existing.totalWeight + item.weight,
+                count: existing.count + 1
+              });
+            }
+            
+            const segmentsWithOverIndex = marketSegments.map(seg => {
+              const level1Category = getLevel1Category(seg.name);
+              const nationalData = segmentMap.get(seg.name);
+              
+              // Calculate over-index: market average vs "national" average (from loaded data)
+              let overIndex = 100; // Default to 100 (no over-index)
+              if (nationalData && nationalData.count > 0) {
+                const nationalAvg = nationalData.totalWeight / nationalData.count;
+                if (nationalAvg > 0) {
+                  overIndex = Math.round((seg.averageWeight / nationalAvg) * 100);
+                }
+              }
+              
+              return {
+                ...seg,
+                overIndex,
+                level1Category
+              };
+            });
+            
+            // Apply category filter if specified
+            let filtered = segmentsWithOverIndex;
+            if (categoryFilter && categoryFilter !== 'All Categories') {
+              filtered = segmentsWithOverIndex.filter(seg => seg.level1Category === categoryFilter);
+            }
+            
+            // Sort by over-index (descending)
+            filtered.sort((a, b) => b.overIndex - a.overIndex);
+            
+            console.log(`   ✅ On-demand: Found ${filtered.length} segments (${marketSegments.length} before filtering)`);
+            
+            // Restore original state
+            this.commerceData = originalData;
+            this.isLoaded = originalIsLoaded;
+            
+            return filtered;
+          } catch (error) {
+            // Restore original state on error
+            this.commerceData = originalData;
+            this.isLoaded = originalIsLoaded;
+            throw error;
+          }
+        } else {
+          console.log('   ⚠️ On-demand loading returned no data, falling back to full load...');
+        }
+      } catch (onDemandError) {
+        console.warn(`   ⚠️ On-demand loading failed: ${onDemandError instanceof Error ? onDemandError.message : 'Unknown error'}`);
+        console.log('   🔄 Falling back to full data load...');
+        // Fall through to full load
+      }
+    }
+    
+    // Fallback to full data load
     if (!this.isLoaded) {
       await this.loadCommerceData();
     }

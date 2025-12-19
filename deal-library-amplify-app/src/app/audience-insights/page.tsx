@@ -760,7 +760,37 @@ export default function AudienceInsightsPage() {
 
       clearTimeout(timeoutId);
       console.log('📡 [DEBUG] API Response status:', response.status);
-      const data = await response.json();
+      
+      // Check if response has content before parsing
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('❌ API returned non-JSON response:', contentType);
+        setError('Failed to generate report: Invalid response format. Please try again.');
+        return;
+      }
+
+      // Get response text first to check if it's empty
+      const responseText = await response.text();
+      if (!responseText || responseText.trim().length === 0) {
+        console.error('❌ API returned empty response');
+        if (response.status === 504) {
+          setError('Request timed out. The report generation took too long. Please try again with a different segment.');
+        } else {
+          setError('Failed to generate report: Empty response. Please try again.');
+        }
+        return;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ Failed to parse API response JSON:', parseError);
+        console.error('Response text:', responseText.substring(0, 500));
+        setError('Failed to generate report: Invalid response format. Please try again.');
+        return;
+      }
+      
       console.log('📦 [DEBUG] Full API Response:', JSON.stringify(data, null, 2));
 
       if (data.success && data.report) {

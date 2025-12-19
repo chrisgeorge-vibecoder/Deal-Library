@@ -7,7 +7,34 @@ const marketInsightsService = new MarketInsightsService();
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Parse request body with error handling
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid request body',
+          message: 'The request body must be valid JSON.'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate body structure
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid request body',
+          message: 'Request body must be an object.'
+        },
+        { status: 400 }
+      );
+    }
+
     const { geoLevel, marketName, includeCommercialZips = false, categoryFilter } = body;
 
     // Validation

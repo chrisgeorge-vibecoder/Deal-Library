@@ -20,7 +20,38 @@ export async function POST(request: NextRequest) {
   });
 
   try {
-    const body = await request.json();
+    // Parse request body with error handling
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Invalid request body',
+          message: 'The request body must be valid JSON.',
+          report: null,
+          recommendedDeals: []
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate body structure
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Invalid request body',
+          message: 'Request body must be an object.',
+          report: null,
+          recommendedDeals: []
+        },
+        { status: 400 }
+      );
+    }
+
     const segment = body.segment || body.audienceSegment;
     const category = body.category || 'General';
     const includeCommercialZips = body.includeCommercialZips || false;

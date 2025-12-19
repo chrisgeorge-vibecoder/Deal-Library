@@ -201,6 +201,22 @@ export class GeminiService {
         console.log(`🎯 Parenting boost for: ${deal.dealName} (score: ${score})`);
       }
       
+      // Automotive/Vehicle queries (SUV, car, truck, vehicle, automotive, auto)
+      const hasAutomotiveQuery = queryLower.includes('suv') || queryLower.includes('car') || queryLower.includes('truck') || 
+          queryLower.includes('vehicle') || queryLower.includes('automotive') || queryLower.includes('auto') ||
+          queryLower.includes('automobile') || queryLower.includes('sedan') || queryLower.includes('crossover') ||
+          queryLower.includes('pickup') || queryLower.includes('van') || queryLower.includes('motorcycle');
+      const hasAutomotiveDeal = allText.includes('vehicle') || allText.includes('automotive') || allText.includes('auto') ||
+            allText.includes('car') || allText.includes('truck') || allText.includes('suv') ||
+            allText.includes('automobile') || allText.includes('sedan') || allText.includes('crossover') ||
+            allText.includes('pickup') || allText.includes('van') || allText.includes('motorcycle') ||
+            allText.includes('parts') || allText.includes('accessories') || allText.includes('tires');
+      
+      if (hasAutomotiveQuery && hasAutomotiveDeal) {
+        score += 30;
+        console.log(`🚗 Automotive boost for: ${deal.dealName} (score: ${score})`);
+      }
+      
       return { deal, score };
     });
     
@@ -272,6 +288,7 @@ DEAL REQUEST PATTERNS: The query must contain one of these exact phrases OR rele
 - Sports/Fitness keywords: "sport", "athletic", "fitness", "exercise", "gym", "workout", "mlb", "baseball", "nfl", "football", "nba", "basketball", "golf", "tennis", "soccer", "fan", "fans", "athlete", "athletes", "team", "teams", "league", "game", "games"
 - Pet/Animal keywords: "pet", "pets", "animal", "animals", "dog", "dogs", "cat", "cats", "pet home", "pet supplies", "pet owner", "pet owners"
 - Luxury/Fashion keywords: "luxury", "fashion", "accessories", "clothing", "apparel", "premium", "designer", "high-end", "luxury goods", "personal luxury", "fashion accessories"
+- Automotive/Vehicle keywords: "suv", "car", "truck", "vehicle", "automotive", "auto", "automobile", "sedan", "crossover", "pickup", "van", "motorcycle", "vehicle market", "automotive market", "car market"
 - Persona keywords: "persona", "personas", "integrated pet home manager", "pet home manager"
 
 ${forceDeals ? 'Since FORCE DEALS MODE is active, return 4 relevant deals for this query.' : 'If the query contains one of these patterns OR relevant keywords, return 4 relevant deals.\nIf the query is asking general questions about marketing, strategy, insights, etc., return no deals.'}
@@ -281,15 +298,19 @@ MATCHING GUIDANCE:
 - For sports personas, prioritize deals with "sport", "athletic", "fitness" keywords
 - For family personas, prioritize deals with "family", "parent", "children" keywords
 - For luxury/fashion queries, prioritize deals with "fashion", "clothing", "accessories", "luxury", "premium", "designer" keywords
-- Always match the persona's core interest area to relevant deal categories
+- For automotive/vehicle markets (like "SUV Market", "Car Market", "Automotive Market"), prioritize deals with "vehicle", "automotive", "auto", "car", "truck", "suv" in the name or description. DO NOT return personal care, cosmetics, or unrelated deals for automotive queries.
+- Always match the market category or persona's core interest area to relevant deal categories
 
-CRITICAL: If the query mentions "Integrated Pet Home Manager" or any pet-related persona, you MUST return pet-related deals. Do NOT return entertainment deals for pet personas.
+CRITICAL: 
+- If the query mentions "Integrated Pet Home Manager" or any pet-related persona, you MUST return pet-related deals. Do NOT return entertainment deals for pet personas.
+- If the query mentions "SUV Market", "Car Market", "Automotive Market", or any vehicle-related market, you MUST return automotive/vehicle-related deals. Do NOT return personal care, cosmetics, beauty, or other unrelated deals for automotive markets.
 
 EXAMPLE MATCHING:
 - "Integrated Pet Home Manager" → Pet Supplies Purchase Intender, Animals & Pet Supplies, Cat Supplies
 - "Sports Fan" → Sports, Athletic, Fitness deals
 - "Family Manager" → Family, Parenting, Children deals
 - "Luxury Goods Market" → Fashion, Clothing, Accessories, Premium deals
+- "Global SUV Market" or "SUV Market" → Vehicle, Automotive, Auto-related deals (NOT personal care or cosmetics)
 
 RESPOND WITH ONLY THIS JSON:
 

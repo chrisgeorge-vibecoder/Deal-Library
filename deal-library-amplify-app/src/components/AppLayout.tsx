@@ -888,14 +888,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
                             <p className="text-xs sm:text-sm text-neutral-600 mb-2">
                               {card.data.segmentDescription || card.data.segment?.segmentDescription}
                             </p>
-                            <div className="flex items-center flex-wrap gap-2 text-xs">
-                              <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
-                                ${(card.data.cpm || card.data.segment?.cpm || 0).toFixed(2)} CPM
-                              </span>
-                              <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
-                                {((card.data.mediaPercentCost || card.data.segment?.mediaPercentCost || 0) * 100).toFixed(0)}% Media Cost
-                              </span>
-                            </div>
                           </div>
                           <button
                             onClick={() => {

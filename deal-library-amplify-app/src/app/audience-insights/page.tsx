@@ -527,24 +527,22 @@ export default function AudienceInsightsPage() {
             return; // Success - exit early
           }
           
-          // If no exact matches, try partial matching (segment name contains category keywords)
+          // If no exact matches, try partial matching
+          // STRICT: Only include segments that are similar to expected segments to prevent cross-category contamination
+          // This prevents "Benches" from appearing in non-Furniture categories
           console.log(`⚠️ No exact matches found, trying partial matching...`);
-          const categoryKeywords = category.toLowerCase().split(/[\s&]+/).filter(kw => kw.length > 2);
-          console.log(`   Category keywords: ${categoryKeywords.join(', ')}`);
           
           const partialMatches: string[] = [];
           for (const backendSeg of backendSegmentNames) {
             const normalizedBackend = normalize(backendSeg);
             
-            // Check if backend segment contains any category keyword
-            const matchesKeyword = categoryKeywords.some(kw => normalizedBackend.includes(kw));
-            
-            // Also check if any expected segment is a substring of backend segment or vice versa
-            const matchesSubstring = Array.from(normalizedExactSegments.keys()).some(expectedNorm => 
+            // Only include if it's similar to an expected segment (substring match in either direction)
+            // This ensures we only show segments that are actually related to the selected category
+            const matchesExpectedSegment = Array.from(normalizedExactSegments.keys()).some(expectedNorm => 
               normalizedBackend.includes(expectedNorm) || expectedNorm.includes(normalizedBackend)
             );
             
-            if (matchesKeyword || matchesSubstring) {
+            if (matchesExpectedSegment) {
               partialMatches.push(backendSeg);
             }
           }
@@ -853,6 +851,7 @@ export default function AudienceInsightsPage() {
                 onChange={(e) => {
                   setSelectedCategory(e.target.value);
                   setSelectedSegment('');
+                  setSegments([]); // Clear segments immediately when category changes
                   setReport(null);
                 }}
                 className="input w-full"

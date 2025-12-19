@@ -86,12 +86,6 @@ export default function AudienceCard({
 
       {/* Metrics Row */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded font-medium">
-          ${segment.cpm.toFixed(2)} CPM
-        </span>
-        <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded font-medium">
-          {(segment.mediaPercentCost * 100).toFixed(0)}% Media Cost
-        </span>
         <span className="px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded">
           {segment.segmentType}
         </span>

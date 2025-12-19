@@ -18,16 +18,6 @@ export class ReportGenerationService {
       day: 'numeric' 
     });
 
-    // DEBUG: Check if strategy data is present
-    console.log('📊 Report Generation - Strategy Data Check:');
-    console.log('   Has strategy:', !!results.strategy);
-    if (results.strategy) {
-      console.log('   Competitors:', results.strategy.competitors?.length || 0);
-      console.log('   Differentiators:', results.strategy.differentiators?.length || 0);
-      console.log('   Market Tiers:', !!results.strategy.marketTiers);
-      console.log('   Dayparting:', !!results.strategy.dayparting);
-    }
-
     return `Marketing Proposal for ${brief.advertiserName}
 
 Prepared by Sovrn | ${date}
@@ -60,25 +50,9 @@ ${this.generateCampaignRecommendations(results, brief)}
 ${this.generateDealRecommendations(results.deals.recommendations)}
 
 
-Geographic Targeting Capabilities
-
-${this.generateGeographicSection(results)}
-
-
-Market Sizing & Opportunity
-
-${this.generateMarketSizingSection(results)}
-
-
-${results.strategy ? this.generateCompetitiveAnalysisSection(results.strategy) : ''}
-
 Marketing SWOT Analysis
 
 ${this.generateSWOTSection(results.swot)}
-
-${results.strategy?.marketTiers ? this.generateMarketTiersSection(results.strategy.marketTiers) : ''}
-
-${results.strategy?.dayparting ? this.generateDaypartingSection(results.strategy.dayparting) : ''}
 
 Measurement & Success Metrics
 

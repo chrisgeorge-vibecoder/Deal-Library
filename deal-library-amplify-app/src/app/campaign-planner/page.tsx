@@ -23,6 +23,7 @@ export default function CampaignPlannerPage() {
 
   const handleFormSubmit = async (formData: any) => {
     console.log('🚀 Campaign Planner: Starting generation with form data:', formData);
+    console.log('🔍 Browser Console: Client-side logging active');
     
     // Prevent duplicate submissions
     if (isGenerating) {
@@ -158,7 +159,14 @@ export default function CampaignPlannerPage() {
               if (update.type === 'progress') {
                 setProgress(update);
               } else if (update.type === 'complete') {
-                console.log('🎉 Complete event received!', update.report);
+                console.log('🎉 [BROWSER] Complete event received!');
+                console.log('   [BROWSER] Report structure:', update.report ? Object.keys(update.report) : 'null');
+                console.log('   [BROWSER] Report.results:', update.report?.results ? Object.keys(update.report.results) : 'null');
+                console.log('   [BROWSER] Report.results.strategy:', update.report?.results?.strategy);
+                if (update.report?.results?.strategy) {
+                  console.log('   [BROWSER] Strategy competitors:', update.report.results.strategy.competitors);
+                  console.log('   [BROWSER] Strategy competitors count:', update.report.results.strategy.competitors?.length);
+                }
                 setReport(update.report);
                 setProgress(null);
               } else if (update.type === 'error') {

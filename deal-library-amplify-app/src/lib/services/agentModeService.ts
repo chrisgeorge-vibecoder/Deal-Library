@@ -30,18 +30,14 @@ export class AgentModeService {
   private audienceSearchService: AudienceSearchService;
   private strategyGenerator: StrategyGeneratorService;
 
-  // Analysis steps configuration
+  // Analysis steps configuration (MVP: Only 4 priority features)
   private readonly ANALYSIS_STEPS: AnalysisStep[] = [
-    { id: 'parse', name: 'Analyzing brief', description: 'Extracting key requirements', order: 1, weight: 0.1 },
-    { id: 'audiences', name: 'Searching audiences', description: 'Finding relevant audience segments', order: 2, weight: 0.15 },
-    { id: 'deals', name: 'Finding deals', description: 'Identifying matching deals', order: 3, weight: 0.15 },
-    { id: 'personas', name: 'Generating personas', description: 'Creating audience personas', order: 4, weight: 0.12 },
-    { id: 'insights', name: 'Creating insights', description: 'Generating audience insights', order: 5, weight: 0.12 },
-    { id: 'sizing', name: 'Calculating market size', description: 'Estimating market opportunity', order: 6, weight: 0.08 },
-    { id: 'geographic', name: 'Analyzing geography', description: 'Mapping geographic distribution', order: 7, weight: 0.08 },
-    { id: 'swot', name: 'Building SWOT', description: 'Creating SWOT analysis', order: 8, weight: 0.08 },
-    { id: 'profile', name: 'Researching company', description: 'Building company profile', order: 9, weight: 0.07 },
-    { id: 'compile', name: 'Compiling report', description: 'Finalizing recommendations', order: 10, weight: 0.05 }
+    { id: 'parse', name: 'Analyzing brief', description: 'Extracting key requirements', order: 1, weight: 0.15 },
+    { id: 'audiences', name: 'Searching audiences', description: 'Finding relevant audience segments', order: 2, weight: 0.25 },
+    { id: 'deals', name: 'Finding deals', description: 'Identifying matching deals', order: 3, weight: 0.25 },
+    { id: 'personas', name: 'Generating personas', description: 'Creating audience personas', order: 4, weight: 0.20 },
+    { id: 'swot', name: 'Building SWOT', description: 'Creating SWOT analysis', order: 5, weight: 0.10 },
+    { id: 'compile', name: 'Compiling report', description: 'Finalizing recommendations', order: 6, weight: 0.05 }
   ];
 
   constructor(geminiService: GeminiService) {
@@ -70,11 +66,11 @@ export class AgentModeService {
       // Step 1: Parse the brief
       const parsedBrief = await this.analyzeBrief(brief, progressCallback);
       
-      // Step 2-9: Run all analyses in parallel
+      // Steps 2-5: Run MVP analyses (Audiences, Deals, Personas, SWOT)
       const results = await this.orchestrateAnalyses(parsedBrief, progressCallback);
       
-      // Step 10: Compile final report (this will be handled by reportGenerationService)
-      this.emitProgress(progressCallback, 10, 'compile', 'in_progress', 'Compiling final report...');
+      // Step 6: Compile final report (this will be handled by reportGenerationService)
+      this.emitProgress(progressCallback, 6, 'compile', 'in_progress', 'Compiling final report...');
       
       const report: ComprehensiveReport = {
         advertiserName: parsedBrief.advertiserName,
@@ -95,7 +91,7 @@ export class AgentModeService {
       const duration = ((Date.now() - startTime) / 1000).toFixed(1);
       console.log(`✅ Agent Mode completed in ${duration}s`);
       
-      this.emitProgress(progressCallback, 10, 'compile', 'completed', `Report generated in ${duration}s`, 100);
+      this.emitProgress(progressCallback, 6, 'compile', 'completed', `Report generated in ${duration}s`, 100);
       
       return report;
     } catch (error) {
@@ -138,7 +134,7 @@ export class AgentModeService {
       };
       
       console.log(`✅ Form data processed: ${parsedBrief.advertiserName}, ${parsedBrief.targetAudiences.length} audiences`);
-      this.emitProgress(progressCallback, 1, 'parse', 'completed', `Processed ${parsedBrief.targetAudiences.length} target audiences`, 10);
+      this.emitProgress(progressCallback, 1, 'parse', 'completed', `Processed ${parsedBrief.targetAudiences.length} target audiences`, 15);
       return parsedBrief;
     }
 
@@ -227,7 +223,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       };
 
       console.log(`✅ Extracted: ${parsedBrief.advertiserName}, ${parsedBrief.targetAudiences.length} audiences`);
-      this.emitProgress(progressCallback, 1, 'parse', 'completed', `Identified ${parsedBrief.targetAudiences.length} target audiences`, 10);
+      this.emitProgress(progressCallback, 1, 'parse', 'completed', `Identified ${parsedBrief.targetAudiences.length} target audiences`, 15);
       
       return parsedBrief;
     } catch (error) {
@@ -249,20 +245,20 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       };
       
       console.log(`✅ Fallback extraction: ${parsedBrief.advertiserName}, ${parsedBrief.targetAudiences.length} audiences`);
-      this.emitProgress(progressCallback, 1, 'parse', 'completed', `Identified ${parsedBrief.targetAudiences.length} target audiences`, 10);
+      this.emitProgress(progressCallback, 1, 'parse', 'completed', `Identified ${parsedBrief.targetAudiences.length} target audiences`, 15);
       
       return parsedBrief;
     }
   }
 
   /**
-   * Steps 2-9: Orchestrate all analyses in parallel
+   * Steps 2-5: Orchestrate MVP analyses (Audiences, Deals, Personas, SWOT)
    */
   private async orchestrateAnalyses(
     parsedBrief: ParsedBrief,
     progressCallback: (update: ProgressUpdate) => void
   ): Promise<AnalysisResults> {
-    console.log('⚡ Orchestrating analyses sequentially (memory-optimized)...');
+    console.log('⚡ Orchestrating MVP analyses...');
 
     const results: AnalysisResults = {
       parsedBrief,
@@ -274,15 +270,12 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       geographic: { topMarkets: [], coverageMap: {} },
       swot: { strengths: [], weaknesses: [], opportunities: [], threats: [] },
       companyProfile: { industry: '', competitiveLandscape: '', marketPosition: '' },
-      strategy: undefined, // Will be populated by strategy generator
+      strategy: undefined,
       errors: []
     };
 
-    // Run analyses sequentially to reduce memory pressure
-    // Parallel was causing out-of-memory errors
-    console.log('🔄 Running analyses one at a time...');
-    
-    // Run critical analyses first - audiences and deals in parallel
+    // Step 1: Run audiences and deals in parallel (highest priority)
+    console.log('🔄 Running audiences and deals in parallel...');
     const analyses = await Promise.allSettled([
       this.findAudiences(parsedBrief, progressCallback).catch(err => {
         results.errors.push({ step: 'audiences', error: err.message });
@@ -298,71 +291,21 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
     if (analyses[0].status === 'fulfilled') results.audiences = analyses[0].value;
     if (analyses[1].status === 'fulfilled') results.deals = analyses[1].value;
 
-    // NOW generate personas with access to actual audience segments
-    // This allows us to use audienceInsightsService for rich persona data
+    // Step 2: Generate personas (depends on audiences)
+    console.log('🔄 Generating personas...');
     results.personas = await this.generatePersonas(parsedBrief, results.audiences, progressCallback).catch(err => {
       results.errors.push({ step: 'personas', error: err.message });
       return { profiles: [], count: 0 };
     });
 
-    // Generate audience insights for first target audience (separate from personas)
-    results.audienceInsights = await this.generateAudienceInsights(parsedBrief, progressCallback).catch(err => {
-      results.errors.push({ step: 'insights', error: err.message });
-      return { reports: [], count: 0 };
+    // Step 3: Build SWOT (simplified, no strategy dependency)
+    console.log('🔄 Building SWOT analysis...');
+    results.swot = await this.buildSWOT(parsedBrief, progressCallback).catch(err => {
+      results.errors.push({ step: 'swot', error: err.message });
+      return { strengths: [], weaknesses: [], opportunities: [], threats: [] };
     });
 
-    // Now run market sizing with access to actual audience data
-    results.marketSizing = await this.calculateMarketSizing(parsedBrief, results.audiences, progressCallback).catch(err => {
-      results.errors.push({ step: 'sizing', error: err.message });
-      return { totalAddressableMarket: 0, reachEstimate: 0, demographicBreakdown: {} };
-    });
-
-    // Run geographic analysis with access to audience data
-    results.geographic = await this.analyzeGeographic(parsedBrief, results.audiences, progressCallback).catch(err => {
-      results.errors.push({ step: 'geographic', error: err.message });
-      return { topMarkets: [], coverageMap: {} };
-    });
-
-    // Generate strategic insights FIRST (includes AI competitive intelligence)
-    console.log('🎯 Generating strategic insights...');
-    results.strategy = await this.generateStrategyInsights(parsedBrief, progressCallback).catch(err => {
-      console.error('⚠️ Strategy generation failed, using fallback:', err);
-      results.errors.push({ step: 'strategy', error: err.message });
-      // Return a minimal fallback strategy to ensure the card can still display
-      return {
-        competitors: ['Industry competitors'],
-        differentiators: ['Market differentiation opportunities'],
-        marketTiers: { tier1: [], tier2: [], rationale: '' },
-        dayparting: { optimal: [], rationale: '' },
-        isAIGenerated: false
-      };
-    });
-    
-    // Debug logging
-    console.log('📊 Strategy data after generation:');
-    console.log('   Strategy exists:', !!results.strategy);
-    if (results.strategy) {
-      console.log('   Competitors:', results.strategy.competitors?.length || 0);
-      console.log('   Differentiators:', results.strategy.differentiators?.length || 0);
-      console.log('   Is AI Generated:', results.strategy.isAIGenerated || false);
-    }
-
-    // Continue with remaining analyses (SWOT now has access to strategy insights)
-    const remainingAnalyses = await Promise.allSettled([
-      this.buildSWOT(parsedBrief, results.strategy, progressCallback).catch(err => {
-        results.errors.push({ step: 'swot', error: err.message });
-        return { strengths: [], weaknesses: [], opportunities: [], threats: [] };
-      }),
-      this.researchCompany(parsedBrief, progressCallback).catch(err => {
-        results.errors.push({ step: 'profile', error: err.message });
-        return { industry: '', competitiveLandscape: '', marketPosition: '' };
-      })
-    ]);
-
-    if (remainingAnalyses[0].status === 'fulfilled') results.swot = remainingAnalyses[0].value;
-    if (remainingAnalyses[1].status === 'fulfilled') results.companyProfile = remainingAnalyses[1].value;
-
-    console.log(`✅ Orchestration complete: ${results.errors.length} errors`);
+    console.log(`✅ MVP orchestration complete: ${results.errors.length} errors`);
     return results;
   }
 
@@ -458,7 +401,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
         console.warn(`⚠️ WARNING: No segments found! This should not happen.`);
       }
 
-      this.emitProgress(progressCallback, 2, 'audiences', 'completed', `Found ${uniqueSegments.length} audience segments`, 25);
+      this.emitProgress(progressCallback, 2, 'audiences', 'completed', `Found ${uniqueSegments.length} audience segments`, 40);
       return { segments: uniqueSegments, count: uniqueSegments.length };
     } catch (error) {
       console.error('❌ Audience search failed:', error);
@@ -941,7 +884,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       
       console.log(`✅ Found ${relevantDeals.length} relevant deals (scored from ${allDeals.length} total)`);
       
-      this.emitProgress(progressCallback, 3, 'deals', 'completed', `Found ${relevantDeals.length} relevant deals`, 40);
+      this.emitProgress(progressCallback, 3, 'deals', 'completed', `Found ${relevantDeals.length} relevant deals`, 65);
       return { recommendations: relevantDeals, count: relevantDeals.length };
     } catch (error) {
       console.error('❌ Deal search failed:', error);
@@ -1299,7 +1242,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       }
       
       console.log(`   ✅ Total personas: ${personas.length} (${personas.filter(p => p.isAIGenerated).length} AI-generated)`);
-      this.emitProgress(progressCallback, 4, 'personas', 'completed', `Generated ${personas.length} personas`, 52);
+      this.emitProgress(progressCallback, 4, 'personas', 'completed', `Generated ${personas.length} personas`, 85);
       return { profiles: personas, count: personas.length };
     } catch (error) {
       console.error('❌ Persona generation failed:', error);
@@ -2146,29 +2089,28 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
   }
 
   /**
-   * Step 8: Build SWOT analysis (Enhanced with AI competitive intelligence and strategy cards)
+   * Step 5: Build SWOT analysis (MVP: Simplified, no strategy dependency)
    */
   private async buildSWOT(
     parsedBrief: ParsedBrief,
-    strategy: any,
     progressCallback: (update: ProgressUpdate) => void
   ): Promise<{ strengths: string[]; weaknesses: string[]; opportunities: string[]; threats: string[] }> {
-    this.emitProgress(progressCallback, 8, 'swot', 'in_progress', 'Building SWOT analysis...');
-    console.log('📋 Building AI-enhanced SWOT analysis...');
+    this.emitProgress(progressCallback, 5, 'swot', 'in_progress', 'Building SWOT analysis...');
+    console.log('📋 Building SWOT analysis...');
 
     try {
       // Try to fetch Marketing SWOT card for this company first
       let swotFromCard: any = null;
       try {
-        console.log(`   🔍 Searching for Marketing SWOT card for "${parsedBrief.advertiserName}"...`);
+        console.log(`   🔍 Generating Marketing SWOT for "${parsedBrief.advertiserName}"...`);
         const swotResult = await this.geminiService.generateMarketingSWOT(parsedBrief.advertiserName);
         
         if (swotResult && swotResult.swot) {
           swotFromCard = swotResult.swot;
-          console.log(`   ✅ Found Marketing SWOT card with ${swotFromCard.strengths?.length || 0} strengths`);
+          console.log(`   ✅ Generated Marketing SWOT with ${swotFromCard.strengths?.length || 0} strengths`);
         }
       } catch (error) {
-        console.log(`   ⚠️ Could not fetch Marketing SWOT card:`, error);
+        console.log(`   ⚠️ Could not generate Marketing SWOT:`, error);
       }
       
       // If we have SWOT card data, use it as the primary source
@@ -2188,79 +2130,22 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
           ).slice(0, 5) || []
         };
         
-        // Augment with strategy insights if available
-        if (strategy && strategy.isAIGenerated) {
-          console.log('   ✨ Augmenting Marketing SWOT card with competitive strategy insights...');
-          
-          // Add top differentiator to Opportunities if not already present
-          if (strategy.differentiators && strategy.differentiators.length > 0) {
-            const topDiff = strategy.differentiators[0]?.split(':')[0]?.trim();
-            if (topDiff && !swot.opportunities.some((o: string) => o.includes(topDiff))) {
-              swot.opportunities.push(`Market differentiation: ${topDiff}`);
-            }
-          }
-          
-          // Add top competitor as threat if not already present
-          if (strategy.competitors && strategy.competitors.length > 0) {
-            const topCompetitor = strategy.competitors[0]?.split(' - ')[0];
-            if (topCompetitor && !swot.threats.some((t: string) => t.includes(topCompetitor))) {
-              swot.threats.push(`Intense competitive pressure from both established brands and new entrants`);
-            }
-          }
-        }
-        
-        this.emitProgress(progressCallback, 8, 'swot', 'completed', 'SWOT analysis complete (using Marketing SWOT card)', 87);
+        this.emitProgress(progressCallback, 5, 'swot', 'completed', 'SWOT analysis complete', 95);
         return swot;
       }
       
-      // Fallback: Start with rule-based contextual SWOT
+      // Fallback: Use rule-based contextual SWOT
+      console.log('   ⚡ Using contextual SWOT fallback...');
       const baseSWOT = this.generateContextualSWOT(parsedBrief);
       
-      // Augment with AI competitive intelligence if available
-      if (strategy && strategy.isAIGenerated) {
-        console.log('   ✅ Augmenting contextual SWOT with AI competitive insights...');
-        
-        // Add differentiation opportunities to Opportunities
-        if (strategy.differentiators && strategy.differentiators.length > 0) {
-          strategy.differentiators.slice(0, 2).forEach((diff: string) => {
-            const parts = diff.split(':');
-            const simplified = (parts[0] || diff).trim(); // Extract key point
-            if (!baseSWOT.opportunities.some(o => o.includes(simplified))) {
-              baseSWOT.opportunities.push(`Market differentiation: ${simplified}`);
-            }
-          });
-        }
-        
-        // Add messaging gaps as Opportunities
-        if (strategy.messagingGaps && strategy.messagingGaps.length > 0) {
-          strategy.messagingGaps.slice(0, 1).forEach((gap: string) => {
-            baseSWOT.opportunities.push(`Messaging opportunity: ${gap}`);
-          });
-        }
-        
-        // Extract competitive threats from competitor positioning
-        if (strategy.competitors && strategy.competitors.length > 0) {
-          const topCompetitor = strategy.competitors[0].split(' - ')[0];
-          baseSWOT.threats.unshift(`Strong competition from ${topCompetitor} and established market leaders`);
-        }
-        
-        // Add strategic recommendations as Strengths (if they align)
-        if (strategy.strategicRecommendations?.positioning) {
-          const recommendation = strategy.strategicRecommendations.positioning[0];
-          if (recommendation) {
-            baseSWOT.strengths.push(`Strategic positioning: ${recommendation}`);
-          }
-        }
-        
-        console.log(`   ✨ SWOT enhanced with ${strategy.differentiators?.length || 0} differentiators`);
-      }
-      
-      this.emitProgress(progressCallback, 8, 'swot', 'completed', 'SWOT analysis complete', 87);
+      this.emitProgress(progressCallback, 5, 'swot', 'completed', 'SWOT analysis complete', 95);
       return baseSWOT;
     } catch (error) {
       console.error('❌ SWOT analysis failed:', error);
       // Return default SWOT
-      return this.generateContextualSWOT(parsedBrief);
+      const fallbackSWOT = this.generateContextualSWOT(parsedBrief);
+      this.emitProgress(progressCallback, 5, 'swot', 'completed', 'SWOT analysis complete (fallback)', 95);
+      return fallbackSWOT;
     }
   }
   

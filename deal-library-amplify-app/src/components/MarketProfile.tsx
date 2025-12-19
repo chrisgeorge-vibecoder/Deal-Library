@@ -307,21 +307,14 @@ export default function MarketProfile({
                       className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer"
                       onClick={() => onViewShoppingProduct && onViewShoppingProduct(product.segment)}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <span className="flex items-center justify-center w-6 h-6 bg-amber-600 text-white text-xs font-bold rounded-full flex-shrink-0">
-                            {index + 1}
-                          </span>
-                          <div className="min-w-0">
-                            <h5 className="font-medium text-neutral-900 text-sm truncate">{product.segment}</h5>
-                            <p className="text-xs text-neutral-500">{product.category}</p>
-                          </div>
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span className="flex items-center justify-center w-6 h-6 bg-amber-600 text-white text-xs font-bold rounded-full flex-shrink-0">
+                          {index + 1}
+                        </span>
+                        <div className="min-w-0">
+                          <h5 className="font-medium text-neutral-900 text-sm truncate">{product.segment}</h5>
+                          <p className="text-xs text-neutral-500">{product.category}</p>
                         </div>
-                        {product.overIndex && (
-                          <span className="ml-2 px-2 py-1 bg-amber-600 text-white text-xs font-medium rounded">
-                            {product.overIndex.toFixed(0)}%
-                          </span>
-                        )}
                       </div>
                     </div>
                   ))}

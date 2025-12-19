@@ -40,6 +40,26 @@ export default function CampaignPlannerResults({
   onUnsaveCard,
   isSaved
 }: CampaignPlannerResultsProps) {
+  // CLIENT-SIDE DEBUG: Log when component renders
+  console.log('🖥️ [BROWSER] CampaignPlannerResults: Component rendered');
+  console.log('   [BROWSER] Report exists:', !!report);
+  console.log('   [BROWSER] Report structure:', report ? Object.keys(report) : 'null');
+  console.log('   [BROWSER] Results exists:', !!report?.results);
+  console.log('   [BROWSER] Strategy exists:', !!report?.results?.strategy);
+  if (report?.results?.strategy) {
+    console.log('   [BROWSER] Strategy data:', {
+      hasCompetitors: !!report.results.strategy.competitors,
+      competitorsCount: report.results.strategy.competitors?.length || 0,
+      competitors: report.results.strategy.competitors,
+      hasDifferentiators: !!report.results.strategy.differentiators,
+      differentiatorsCount: report.results.strategy.differentiators?.length || 0,
+      isAIGenerated: report.results.strategy.isAIGenerated
+    });
+  } else {
+    console.warn('   [BROWSER] ⚠️ No strategy data in report!');
+    console.log('   [BROWSER] Full report.results:', report?.results);
+  }
+  
   // Modal state
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
   const [selectedMarketSizing, setSelectedMarketSizing] = useState<MarketSizing | null>(null);
@@ -372,52 +392,6 @@ export default function CampaignPlannerResults({
                 );
               })}
 
-              {/* Market Sizing Card */}
-              {(report.results.marketSizing.totalAddressableMarket > 0 || report.results.marketSizing.aiGenerated) && (
-                <InlineMarketSizingCard
-                  sizing={{
-                    marketName: `${report.advertiserName} Market`,
-                    totalMarketSize: report.results.marketSizing.totalMarketSize || formatNumber(report.results.marketSizing.totalAddressableMarket),
-                    growthRate: report.results.marketSizing.growthRate,
-                    addressableValue: report.results.marketSizing.addressableValue
-                  }}
-                  onClick={() => setSelectedMarketSizing(transformMarketSizingForModal())}
-                  onSave={() => {
-                    const cardId = `market-sizing-${report.advertiserName}`;
-                    if (isSaved?.(cardId)) {
-                      onUnsaveCard?.(cardId);
-                    } else {
-                      onSaveCard?.({ type: 'market-sizing', data: transformMarketSizingForModal() });
-                    }
-                  }}
-                  isSaved={isSaved?.(`market-sizing-${report.advertiserName}`)}
-                />
-              )}
-
-              {/* Geographic Insights Card */}
-              {report.results.geographic.topMarkets && report.results.geographic.topMarkets.length > 0 && (
-                <InlineGeoCard
-                  geo={{
-                    audienceName: `${report.advertiserName} Geographic Insights`,
-                    totalAddressable: formatNumber(report.results.marketSizing.totalAddressableMarket || 0),
-                    topMarkets: report.results.geographic.topMarkets.slice(0, 3).map((m: any) => ({
-                      city: m.city,
-                      state: m.state
-                    }))
-                  }}
-                  onClick={() => setSelectedGeo(transformGeoForModal())}
-                  onSave={() => {
-                    const cardId = `geo-insights-${report.advertiserName}`;
-                    if (isSaved?.(cardId)) {
-                      onUnsaveCard?.(cardId);
-                    } else {
-                      onSaveCard?.({ type: 'geo-card', data: transformGeoForModal() });
-                    }
-                  }}
-                  isSaved={isSaved?.(`geo-insights-${report.advertiserName}`)}
-                />
-              )}
-
               {/* SWOT Card */}
               {report.results.swot && (
                 <InlineSWOTCard
@@ -444,53 +418,6 @@ export default function CampaignPlannerResults({
                 />
               )}
 
-              {/* Competitive Intelligence Card */}
-              {(() => {
-                // Debug logging
-                console.log('🔍 Competitive Intelligence Card Debug:');
-                console.log('   Strategy exists:', !!report.results.strategy);
-                console.log('   Competitors:', report.results.strategy?.competitors);
-                console.log('   Competitors length:', report.results.strategy?.competitors?.length);
-                
-                // Show card if strategy exists and has competitors, OR if strategy exists at all (we'll show fallback content)
-                const hasStrategy = !!report.results.strategy;
-                const hasCompetitors = report.results.strategy?.competitors && report.results.strategy.competitors.length > 0;
-                
-                if (!hasStrategy) {
-                  console.log('   ❌ No strategy data - card will not render');
-                  return null;
-                }
-                
-                if (!hasCompetitors) {
-                  console.log('   ⚠️ Strategy exists but no competitors - showing card with fallback');
-                } else {
-                  console.log('   ✅ Strategy and competitors found - showing card');
-                }
-                
-                return (
-                  <InlineCompetitiveIntelCard
-                    intel={{
-                      competitorOrIndustry: report.advertiserName,
-                      competitiveAnalysis: {
-                        mainCompetitors: (report.results.strategy.competitors || ['Industry competitors']).map((c: string) => ({ 
-                          name: typeof c === 'string' ? c.split(' - ')[0] : 'Competitor'
-                        })),
-                        marketPositioning: `${report.advertiserName} operates in a competitive market.`
-                      }
-                    }}
-                    onClick={() => setSelectedCompetitiveIntel(transformCompetitiveIntelForModal())}
-                    onSave={() => {
-                      const cardId = `competitive-intelligence-${report.advertiserName}`;
-                      if (isSaved?.(cardId)) {
-                        onUnsaveCard?.(cardId);
-                      } else {
-                        onSaveCard?.({ type: 'competitive-intelligence', data: transformCompetitiveIntelForModal() });
-                      }
-                    }}
-                    isSaved={isSaved?.(`competitive-intelligence-${report.advertiserName}`)}
-                  />
-                );
-              })()}
             </div>
           </section>
 
@@ -568,72 +495,6 @@ export default function CampaignPlannerResults({
                   </button>
                 </div>
               )}
-            </section>
-          )}
-
-          {/* Market Prioritization */}
-          {report.results.strategy?.marketTiers && (
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Market Prioritization Strategy</h2>
-              <p className="text-gray-700 leading-relaxed mb-6">
-                Based on audience density, spending power, and market characteristics:
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="border border-purple-200 rounded-lg p-5 bg-purple-50">
-                  <h3 className="font-semibold text-purple-900 mb-3">Tier 1 Markets (Primary Focus)</h3>
-                  <ul className="space-y-1">
-                    {report.results.strategy.marketTiers.tier1.map((city: string, index: number) => (
-                      <li key={index} className="text-sm text-gray-700">• {city}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="border border-blue-200 rounded-lg p-5 bg-blue-50">
-                  <h3 className="font-semibold text-blue-900 mb-3">Tier 2 Markets (Secondary Expansion)</h3>
-                  <ul className="space-y-1">
-                    {report.results.strategy.marketTiers.tier2.map((city: string, index: number) => (
-                      <li key={index} className="text-sm text-gray-700">• {city}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-sm text-gray-700">
-                  <strong>Rationale:</strong> {report.results.strategy.marketTiers.rationale}
-                </p>
-              </div>
-            </section>
-          )}
-
-          {/* Dayparting Recommendations */}
-          {report.results.strategy?.dayparting && (
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Dayparting Recommendations</h2>
-              <p className="text-gray-700 leading-relaxed mb-6">
-                Optimal Campaign Flight Times:
-              </p>
-              
-              <div className="border border-gray-200 rounded-lg p-5">
-                <ul className="space-y-3">
-                  {report.results.strategy.dayparting.optimal.map((time: string, index: number) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <span className="text-purple-600 font-semibold">⏰</span>
-                      <span className="text-sm text-gray-700">{time}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-sm text-gray-700">
-                  <strong>Rationale:</strong> {report.results.strategy.dayparting.rationale}
-                </p>
-                <p className="text-sm text-gray-700 mt-2">
-                  By concentrating ad delivery during high-intent periods, we can maximize campaign efficiency and reduce wasted impressions.
-                </p>
-              </div>
             </section>
           )}
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { AudienceSegment, CategorizedSearchResults } from '@/types/audience';
-import { Search, Target, ShoppingCart, Plus, Trash2, Sparkles } from 'lucide-react';
+import { Search, Target, ShoppingCart, Plus, Trash2 } from 'lucide-react';
 import { formatScale } from '@/utils/formatters';
 import SmartSearchResults from './SmartSearchResults';
 
@@ -279,7 +279,7 @@ export default function AudienceBrowser({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Search audiences..."
+                placeholder="Search audiences... (Shift+Enter for AI search)"
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -288,20 +288,13 @@ export default function AudienceBrowser({
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && e.shiftKey) {
+                    e.preventDefault();
                     handleSmartSearch();
                   }
                 }}
                 className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-brand-orange"
               />
             </div>
-            <button
-              onClick={handleSmartSearch}
-              disabled={!searchQuery.trim() || searchLoading}
-              className="w-full btn-primary text-sm py-2 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Sparkles className="w-4 h-4" />
-              {searchLoading ? 'Searching...' : 'Smart Search (AI)'}
-            </button>
             {isSmartSearch && (
               <button
                 onClick={() => {

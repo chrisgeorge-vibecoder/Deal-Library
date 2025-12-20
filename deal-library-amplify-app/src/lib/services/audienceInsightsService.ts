@@ -392,9 +392,9 @@ class AudienceInsightsService {
       };
       humanizedPersona = `The ${trimmedSegment} audience represents a key market segment with distinct characteristics and preferences.`;
     } else {
-      // Each Gemini call gets a 20-second timeout to prevent hanging
-      // Reduced from 30s to 20s to allow more time for data processing
-      const GEMINI_CALL_TIMEOUT_MS = 20000;
+      // Each Gemini call gets a 60-second timeout to prevent hanging
+      // Increased from 20s to 60s to allow strategic insights to complete (they use 45s internally)
+      const GEMINI_CALL_TIMEOUT_MS = 60000;
       stepStart = Date.now();
       
       const strategicInsightsPromise = Promise.race([
@@ -411,14 +411,9 @@ class AudienceInsightsService {
         )
       ]).catch(error => {
         console.error('❌ Failed to generate strategic insights:', error);
-        // Return fallback insights
-        return {
-          targetPersona: `The ${trimmedSegment} audience`,
-          keyInsights: [`Strong engagement with ${trimmedSegment} products and services`],
-          messagingRecommendations: ['Digital channels', 'Targeted advertising'],
-          channelRecommendations: ['Digital channels', 'Targeted advertising'],
-          creativeGuidance: `Focus on ${trimmedSegment} needs and preferences`
-        };
+        // Return null to indicate failure - don't use generic fallback
+        // The pre-generation script will retry with cache clearing
+        throw error; // Re-throw to trigger retry logic
       });
       
       // Step 4b: Generate humanized persona (with timeout protection) - run in parallel with strategic insights

@@ -152,23 +152,21 @@ ${overlaps.map((o: any, i: number) => `${i + 1}. ${o.segment} (${o.overlapPercen
 
 === CRITICAL QUALITY REQUIREMENTS ===
 
-❌ DO NOT generate generic marketing advice like:
-- "Use digital channels" (too vague)
-- "Target demographics" (not specific)
-- "Social media marketing" (generic)
-- "Email campaigns" (no context)
+❌ ABSOLUTELY FORBIDDEN - DO NOT GENERATE:
+- "Strong engagement with [Segment] products and services" (REJECTED - too generic)
+- "Digital channels" as a channel name (REJECTED - must specify platform like "LinkedIn Sponsored Content")
+- "Targeted advertising" as a channel name (REJECTED - must specify platform)
+- Any keyInsight shorter than 80 characters
+- Any keyInsight without specific numbers, percentages, or city names
+- Generic phrases without data citations
 
-✅ DO generate specific, data-driven recommendations:
-- "Target 35-44 year-olds in ${geoIntelligence.topCities[0]?.city || 'top markets'} with $${demographics.medianHHI.toFixed(0)}+ income"
-- "Focus on ${demographics.familyProfile.toLowerCase()} messaging for ${segment} buyers who also purchase ${overlaps[0]?.segment || 'related products'}"
-- "Leverage ${geoIntelligence.topCities[0]?.city || 'top market'} over-indexing (${geoIntelligence.topOverIndexZips?.[0]?.overIndex?.toFixed(0) || 'high'}% above average)"
-
-✅ REQUIREMENTS:
-- Mention "${segment}" specifically (not just "this audience")
-- Cite at least 3 specific data points per recommendation (income, age, cities, percentages)
-- Mention specific cities/markets (not just "urban areas" or "major metros")
-- Minimum 150 words per recommendation section
-- All recommendations must be actionable and campaign-ready
+✅ REQUIRED - MUST INCLUDE:
+- keyInsights: Each must be 80+ characters with specific data (e.g., "${demographics.topAgeBracket} buyers in ${geoIntelligence.topCities[0]?.city || 'top markets'} earning $${demographics.medianHHI.toFixed(0)}+ show ${overlaps[0]?.overlapPercentage.toFixed(1)}% cross-shopping with ${overlaps[0]?.segment || 'related products'}, indicating...")
+- messagingRecommendations: Must mention "${segment}" explicitly in valueProposition or dataBacking
+- channelRecommendations: Must specify actual platform (e.g., "LinkedIn Sponsored Content", "Google Search Ads", "Instagram Stories") - NOT "Digital channels"
+- All recommendations must cite at least 3 specific data points (income, age, cities, percentages)
+- Mention specific cities/markets (e.g., "${geoIntelligence.topCities[0]?.city || 'top market'}", not "urban areas")
+- Minimum 100 characters per recommendation field
 
 CRITICAL - PERSONA FORMAT REQUIREMENTS (APPLIES ONLY TO targetPersona FIELD):
 ⚠️  THE FOLLOWING RULES APPLY **ONLY** TO THE targetPersona FIELD - NOT TO OTHER FIELDS ⚠️
@@ -280,10 +278,35 @@ function validateStrategicInsightsQuality(
     'target demographics',
     'social media',
     'email marketing',
-    'online advertising'
+    'online advertising',
+    'strong engagement with',
+    'products and services',
+    'targeted advertising'
   ];
   
   const content = JSON.stringify(insights).toLowerCase();
+  
+  // Check keyInsights for generic content
+  if (insights.keyInsights && Array.isArray(insights.keyInsights)) {
+    for (const insight of insights.keyInsights) {
+      const insightText = typeof insight === 'string' ? insight.toLowerCase() : JSON.stringify(insight).toLowerCase();
+      
+      // Reject generic "Strong engagement with [Segment] products and services"
+      if (insightText.includes('strong engagement with') && insightText.includes('products and services')) {
+        issues.push('Key insight is too generic: "Strong engagement with [Segment] products and services"');
+      }
+      
+      // Must have specific data (percentages, cities, dollar amounts, or detailed analysis)
+      const hasSpecificData = 
+        insightText.match(/\d+%|%\d+|\$\d+|\d+\.\d+%/) || // Has percentages or dollar amounts
+        insightText.match(/[A-Z][a-z]+, [A-Z]{2}/) || // Has city, state
+        insightText.length > 100; // Or is a detailed analysis
+      
+      if (!hasSpecificData && insightText.length < 50) {
+        issues.push(`Key insight too generic or short: "${insight.substring(0, 50)}..."`);
+      }
+    }
+  }
   
   // Check if generic phrases appear without specific context
   for (const phrase of genericPhrases) {
@@ -292,7 +315,8 @@ function validateStrategicInsightsQuality(
       const hasSpecificData = 
         content.includes(segment.toLowerCase()) ||
         content.match(/\$\d+/) || // Has dollar amounts
-        content.match(/\d+%/); // Has percentages
+        content.match(/\d+%/) || // Has percentages
+        content.match(/[A-Z][a-z]+, [A-Z]{2}/); // Has city, state
       
       if (!hasSpecificData) {
         issues.push(`Generic phrase "${phrase}" used without specific data context`);
@@ -330,13 +354,18 @@ function validateStrategicInsightsQuality(
           (allText.match(/[A-Z][a-z]+, [A-Z]{2}/g) || []).length // City, State format
         );
         
-        if (dataCitations < 2) {
-          issues.push(`Messaging recommendation has insufficient data citations (found ${dataCitations}, need at least 2)`);
+        // Be more lenient: require at least 1 citation if the text is detailed (100+ chars), otherwise require 2
+        const isDetailed = allText.length >= 100;
+        const minCitations = isDetailed ? 1 : 2;
+        
+        if (dataCitations < minCitations) {
+          issues.push(`Messaging recommendation has insufficient data citations (found ${dataCitations}, need at least ${minCitations})`);
         }
       }
       
       // Check if segment is mentioned anywhere in the recommendation (valueProposition, dataBacking, or emotionalBenefit)
-      if (!mentionsSegment) {
+      // Only flag if the recommendation is very short or clearly generic
+      if (!mentionsSegment && (!rec.valueProposition || rec.valueProposition.length < 80)) {
         issues.push(`Messaging recommendation does not mention segment "${segment}"`);
       }
     }
@@ -347,17 +376,26 @@ function validateStrategicInsightsQuality(
     for (const rec of insights.channelRecommendations) {
       // Handle both object format and string format
       if (typeof rec === 'string') {
-        continue; // Skip validation for string format
+        // String format - reject if too generic
+        const recLower = rec.toLowerCase();
+        if (recLower === 'digital channels' || recLower === 'targeted advertising' || recLower.length < 30) {
+          issues.push(`Channel recommendation too generic: "${rec}"`);
+        }
+        continue;
       }
       
       if (!rec.rationale || rec.rationale.length < 50) {
         issues.push('Channel recommendation missing detailed rationale');
       }
       
-      // Check for specific cities
-      const hasCities = /[A-Z][a-z]+, [A-Z]{2}/.test(rec.targeting || '');
-      if (!hasCities) {
-        issues.push('Channel recommendation targeting lacks specific cities');
+      // Check for specific cities - be lenient if targeting is detailed
+      const targeting = rec.targeting || '';
+      const hasCities = /[A-Z][a-z]+, [A-Z]{2}/.test(targeting);
+      const hasSpecificData = targeting.match(/\d+%|\$\d+|\d+\.\d+%/) || targeting.length > 80;
+      
+      // Only require cities if targeting is short and lacks other specific data
+      if (!hasCities && !hasSpecificData && targeting.length < 50) {
+        issues.push('Channel recommendation targeting lacks specific cities or detailed targeting info');
       }
     }
   }
@@ -383,19 +421,53 @@ function validateStrategicInsightsQuality(
     issues.push('Need at least 2 channel recommendations');
   }
   
-  // If we have most requirements met, be lenient on minor issues
+  // Separate critical issues (generic content) from minor issues
   const criticalIssues = issues.filter(issue => 
-    !issue.includes('does not mention segment') && // Segment mention is nice-to-have, not critical
-    !issue.includes('insufficient data citations') // Data citations are nice-to-have if content is otherwise good
+    issue.includes('too generic') || // Generic content is critical
+    issue.includes('Strong engagement with') || // This specific generic phrase is critical
+    issue.includes('Digital channels') || // Generic channel names are critical
+    issue.includes('Targeted advertising') // Generic channel names are critical
   );
   
-  // Pass if no critical issues, or if we have good content despite minor issues
+  const minorIssues = issues.filter(issue => 
+    !issue.includes('too generic') &&
+    !issue.includes('Strong engagement with') &&
+    !issue.includes('Digital channels') &&
+    !issue.includes('Targeted advertising')
+  );
+  
+  // NEVER pass if there are critical generic content issues
+  if (criticalIssues.length > 0) {
+    return {
+      passed: false,
+      issues: [...criticalIssues, ...minorIssues]
+    };
+  }
+  
+  // Check if we have good core content
   const hasGoodContent = 
     insights.targetPersona && insights.targetPersona.length >= 150 &&
     insights.messagingRecommendations && insights.messagingRecommendations.length >= 2 &&
     insights.channelRecommendations && insights.channelRecommendations.length >= 2;
   
-  const passed = criticalIssues.length === 0 || (hasGoodContent && criticalIssues.length <= 2);
+  // Allow minor issues if content is good - be more lenient
+  // Minor issues like "insufficient data citations" or "doesn't mention segment" are acceptable
+  // if the content is otherwise detailed and specific
+  const hasDetailedContent = 
+    insights.messagingRecommendations?.some((rec: any) => {
+      const text = (rec.valueProposition || '') + ' ' + (rec.dataBacking || '');
+      return text.length >= 100;
+    }) &&
+    insights.channelRecommendations?.some((rec: any) => {
+      const text = (rec.targeting || '') + ' ' + (rec.rationale || '');
+      return text.length >= 80;
+    });
+  
+  // Pass if:
+  // 1. No critical issues (generic content)
+  // 2. Has good core content structure
+  // 3. Has detailed content OR minor issues are acceptable (up to 5)
+  const passed = hasGoodContent && (hasDetailedContent || minorIssues.length <= 5);
   
   return {
     passed,

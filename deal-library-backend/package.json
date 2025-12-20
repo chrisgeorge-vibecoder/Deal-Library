@@ -13,7 +13,8 @@
     "migrate:supabase": "ts-node scripts/migrateToSupabase.ts",
     "migrate:personas": "ts-node scripts/migratePersonasOnly.ts",
     "test:supabase": "ts-node scripts/testSupabaseIntegration.ts",
-    "import:census": "ts-node scripts/simplifiedCensusImport.ts"
+    "import:census": "ts-node scripts/simplifiedCensusImport.ts",
+    "audit-segments": "cross-env NODE_OPTIONS='--max-old-space-size=4096' ts-node scripts/audit-segment-mapping.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

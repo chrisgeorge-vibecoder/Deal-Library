@@ -491,7 +491,17 @@ export default function AudienceInsightsPage() {
             if (typeof data.segments[0] === 'string') {
               backendSegmentNames = data.segments as string[];
             } else if (data.segments[0] && typeof data.segments[0] === 'object' && 'name' in data.segments[0]) {
-              backendSegmentNames = (data.segments as any[]).map(seg => seg.name);
+              // Filter segments to only include those with actual data (totalZipCodes > 0 or totalWeight > 0)
+              const segmentsWithData = (data.segments as any[]).filter(seg => {
+                const hasData = (seg.totalZipCodes && seg.totalZipCodes > 0) || (seg.totalWeight && seg.totalWeight > 0);
+                if (!hasData) {
+                  console.log(`🚫 Filtering out segment "${seg.name}" - no data (totalZipCodes: ${seg.totalZipCodes || 0}, totalWeight: ${seg.totalWeight || 0})`);
+                }
+                return hasData;
+              });
+              
+              console.log(`📊 Filtered ${segmentsWithData.length} segments with data out of ${data.segments.length} total segments`);
+              backendSegmentNames = segmentsWithData.map(seg => seg.name);
             } else {
               console.error('❌ Unknown segment format:', data.segments[0]);
               throw new Error('Unknown segment data format');
@@ -697,7 +707,7 @@ export default function AudienceInsightsPage() {
       ],
       'Home & Garden': [
         'Bathroom Accessories', 'Cabinets & Storage', 'Cookware & Bakeware', 'Decor',
-        'Emergency Preparedness', 'Food & Beverage Carriers', 'Food Service', 'Food Storage',
+        'Emergency Preparedness', 'Food & Beverage Carriers', 'Food Storage',
         'Food Storage Accessories', 'Gardening', 'Home & Garden', 'Household Appliance Accessories',
         'Household Appliances', 'Household Cleaning Supplies', 'Household Paper Products',
         'Household Supplies', 'Kitchen & Dining', 'Kitchen Appliance Accessories',

@@ -1101,6 +1101,585 @@ export const sovrnInsights: SovrnInsight[] = [
     category: 'Data Discoveries',
     tags: ['classical music', 'streetwear', 'culture', 'fashion', 'paradox'],
   },
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'income-3d-printers',
+    headline: '3D Printers Buyers Earn +37% More',
+    didYouKnow: '3D Printers shoppers have a median household income of $97,280—38.1% above the national average of $70,784. They\'re also 56.4% college-educated.',
+    marketingImplication: 'Premium positioning and quality messaging will resonate. These buyers can afford and expect the best.',
+    category: 'Consumer Profiles',
+    tags: ['3d printers', 'income', 'affluent', 'premium'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'stem-3d-printers',
+    headline: '3D Printers Shoppers: 51.4% STEM-Educated',
+    didYouKnow: '3D Printers buyers have one of the highest STEM education rates at 51.4%—+49% above the national average. These are analytical, data-driven decision-makers.',
+    marketingImplication: 'Lead with specifications, comparisons, and evidence-based claims. These buyers research thoroughly before purchasing.',
+    category: 'Consumer Profiles',
+    tags: ['3d printers', 'STEM', 'education', 'analytical'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'income-activewear',
+    headline: 'Activewear Buyers Earn +36% More',
+    didYouKnow: 'Activewear shoppers have a median household income of $96,465—37.0% above the national average of $70,784. They\'re also 57.4% college-educated.',
+    marketingImplication: 'Premium positioning and quality messaging will resonate. These buyers can afford and expect the best.',
+    category: 'Consumer Profiles',
+    tags: ['activewear', 'income', 'affluent', 'premium'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'stem-activewear',
+    headline: 'Activewear Shoppers: 51.2% STEM-Educated',
+    didYouKnow: 'Activewear buyers have one of the highest STEM education rates at 51.2%—+48% above the national average. These are analytical, data-driven decision-makers.',
+    marketingImplication: 'Lead with specifications, comparisons, and evidence-based claims. These buyers research thoroughly before purchasing.',
+    category: 'Consumer Profiles',
+    tags: ['activewear', 'STEM', 'education', 'analytical'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'income-agriculture',
+    headline: 'Agriculture Buyers Earn +36% More',
+    didYouKnow: 'Agriculture shoppers have a median household income of $96,133—36.5% above the national average of $70,784. They\'re also 57.3% college-educated.',
+    marketingImplication: 'Premium positioning and quality messaging will resonate. These buyers can afford and expect the best.',
+    category: 'Consumer Profiles',
+    tags: ['agriculture', 'income', 'affluent', 'premium'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'stem-agriculture',
+    headline: 'Agriculture Shoppers: 51.2% STEM-Educated',
+    didYouKnow: 'Agriculture buyers have one of the highest STEM education rates at 51.2%—+48% above the national average. These are analytical, data-driven decision-makers.',
+    marketingImplication: 'Lead with specifications, comparisons, and evidence-based claims. These buyers research thoroughly before purchasing.',
+    category: 'Consumer Profiles',
+    tags: ['agriculture', 'STEM', 'education', 'analytical'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'income-alcoholic-beverages',
+    headline: 'Alcoholic Beverages Buyers Earn +40% More',
+    didYouKnow: 'Alcoholic Beverages shoppers have a median household income of $98,954—40.5% above the national average of $70,784. They\'re also 58.4% college-educated.',
+    marketingImplication: 'Premium positioning and quality messaging will resonate. These buyers can afford and expect the best.',
+    category: 'Consumer Profiles',
+    tags: ['alcoholic beverages', 'income', 'affluent', 'premium'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'stem-alcoholic-beverages',
+    headline: 'Alcoholic Beverages Shoppers: 50.5% STEM-Educated',
+    didYouKnow: 'Alcoholic Beverages buyers have one of the highest STEM education rates at 50.5%—+46% above the national average. These are analytical, data-driven decision-makers.',
+    marketingImplication: 'Lead with specifications, comparisons, and evidence-based claims. These buyers research thoroughly before purchasing.',
+    category: 'Consumer Profiles',
+    tags: ['alcoholic beverages', 'STEM', 'education', 'analytical'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'income-animals-pet-supplies',
+    headline: 'Animals & Pet Supplies Buyers Earn +41% More',
+    didYouKnow: 'Animals & Pet Supplies shoppers have a median household income of $99,590—41.4% above the national average of $70,784. They\'re also 57.2% college-educated.',
+    marketingImplication: 'Premium positioning and quality messaging will resonate. These buyers can afford and expect the best.',
+    category: 'Consumer Profiles',
+    tags: ['animals & pet supplies', 'income', 'affluent', 'premium'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'stem-animals-pet-supplies',
+    headline: 'Animals & Pet Supplies Shoppers: 51.6% STEM-Educated',
+    didYouKnow: 'Animals & Pet Supplies buyers have one of the highest STEM education rates at 51.6%—+49% above the national average. These are analytical, data-driven decision-makers.',
+    marketingImplication: 'Lead with specifications, comparisons, and evidence-based claims. These buyers research thoroughly before purchasing.',
+    category: 'Consumer Profiles',
+    tags: ['animals & pet supplies', 'STEM', 'education', 'analytical'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'income-antivirus-security-software',
+    headline: 'Antivirus & Security Software Buyers Earn +28% More',
+    didYouKnow: 'Antivirus & Security Software shoppers have a median household income of $90,459—28.5% above the national average of $70,784. They\'re also 53.5% college-educated.',
+    marketingImplication: 'These consumers have discretionary income for considered purchases. Value-add messaging outperforms discount-driven approaches.',
+    category: 'Consumer Profiles',
+    tags: ['antivirus & security software', 'income', 'affluent', 'premium'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'stem-antivirus-security-software',
+    headline: 'Antivirus & Security Software Shoppers: 50.5% STEM-Educated',
+    didYouKnow: 'Antivirus & Security Software buyers have one of the highest STEM education rates at 50.5%—+46% above the national average. These are analytical, data-driven decision-makers.',
+    marketingImplication: 'Lead with specifications, comparisons, and evidence-based claims. These buyers research thoroughly before purchasing.',
+    category: 'Consumer Profiles',
+    tags: ['antivirus & security software', 'STEM', 'education', 'analytical'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'income-arcade-equipment',
+    headline: 'Arcade Equipment Buyers Earn +40% More',
+    didYouKnow: 'Arcade Equipment shoppers have a median household income of $98,782—40.3% above the national average of $70,784. They\'re also 54.6% college-educated.',
+    marketingImplication: 'Premium positioning and quality messaging will resonate. These buyers can afford and expect the best.',
+    category: 'Consumer Profiles',
+    tags: ['arcade equipment', 'income', 'affluent', 'premium'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'stem-arcade-equipment',
+    headline: 'Arcade Equipment Shoppers: 49.2% STEM-Educated',
+    didYouKnow: 'Arcade Equipment buyers have one of the highest STEM education rates at 49.2%—+42% above the national average. These are analytical, data-driven decision-makers.',
+    marketingImplication: 'Lead with specifications, comparisons, and evidence-based claims. These buyers research thoroughly before purchasing.',
+    category: 'Consumer Profiles',
+    tags: ['arcade equipment', 'STEM', 'education', 'analytical'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'income-arts-entertainment',
+    headline: 'Arts & Entertainment Buyers Earn +39% More',
+    didYouKnow: 'Arts & Entertainment shoppers have a median household income of $98,114—39.3% above the national average of $70,784. They\'re also 53.8% college-educated.',
+    marketingImplication: 'Premium positioning and quality messaging will resonate. These buyers can afford and expect the best.',
+    category: 'Consumer Profiles',
+    tags: ['arts & entertainment', 'income', 'affluent', 'premium'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'stem-arts-entertainment',
+    headline: 'Arts & Entertainment Shoppers: 50.4% STEM-Educated',
+    didYouKnow: 'Arts & Entertainment buyers have one of the highest STEM education rates at 50.4%—+46% above the national average. These are analytical, data-driven decision-makers.',
+    marketingImplication: 'Lead with specifications, comparisons, and evidence-based claims. These buyers research thoroughly before purchasing.',
+    category: 'Consumer Profiles',
+    tags: ['arts & entertainment', 'STEM', 'education', 'analytical'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'income-athletics',
+    headline: 'Athletics Buyers Earn +44% More',
+    didYouKnow: 'Athletics shoppers have a median household income of $101,799—44.6% above the national average of $70,784. They\'re also 58.0% college-educated.',
+    marketingImplication: 'Premium positioning and quality messaging will resonate. These buyers can afford and expect the best.',
+    category: 'Consumer Profiles',
+    tags: ['athletics', 'income', 'affluent', 'premium'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'stem-athletics',
+    headline: 'Athletics Shoppers: 50.3% STEM-Educated',
+    didYouKnow: 'Athletics buyers have one of the highest STEM education rates at 50.3%—+45% above the national average. These are analytical, data-driven decision-makers.',
+    marketingImplication: 'Lead with specifications, comparisons, and evidence-based claims. These buyers research thoroughly before purchasing.',
+    category: 'Consumer Profiles',
+    tags: ['athletics', 'STEM', 'education', 'analytical'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'entrepreneur-3d-printers',
+    headline: '16.7% of 3D Printers Buyers Are Self-Employed',
+    didYouKnow: '3D Printers shoppers have a 16.7% self-employment rate—+42% above the national average of 11.8%. Many are entrepreneurs, freelancers, or small business owners.',
+    marketingImplication: 'B2E (business-to-entrepreneur) messaging resonates. Position products as business investments, not just personal purchases.',
+    category: 'Lifestyle & Values',
+    tags: ['3d printers', 'entrepreneurs', 'self-employed', 'business'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'entrepreneur-activewear',
+    headline: '17.2% of Activewear Buyers Are Self-Employed',
+    didYouKnow: 'Activewear shoppers have a 17.2% self-employment rate—+46% above the national average of 11.8%. Many are entrepreneurs, freelancers, or small business owners.',
+    marketingImplication: 'B2E (business-to-entrepreneur) messaging resonates. Position products as business investments, not just personal purchases.',
+    category: 'Lifestyle & Values',
+    tags: ['activewear', 'entrepreneurs', 'self-employed', 'business'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'entrepreneur-agriculture',
+    headline: '16.2% of Agriculture Buyers Are Self-Employed',
+    didYouKnow: 'Agriculture shoppers have a 16.2% self-employment rate—+37% above the national average of 11.8%. Many are entrepreneurs, freelancers, or small business owners.',
+    marketingImplication: 'B2E (business-to-entrepreneur) messaging resonates. Position products as business investments, not just personal purchases.',
+    category: 'Lifestyle & Values',
+    tags: ['agriculture', 'entrepreneurs', 'self-employed', 'business'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'entrepreneur-alcoholic-beverages',
+    headline: '16.8% of Alcoholic Beverages Buyers Are Self-Employed',
+    didYouKnow: 'Alcoholic Beverages shoppers have a 16.8% self-employment rate—+43% above the national average of 11.8%. Many are entrepreneurs, freelancers, or small business owners.',
+    marketingImplication: 'B2E (business-to-entrepreneur) messaging resonates. Position products as business investments, not just personal purchases.',
+    category: 'Lifestyle & Values',
+    tags: ['alcoholic beverages', 'entrepreneurs', 'self-employed', 'business'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'dual-income-alcoholic-beverages',
+    headline: '58.5% of Alcoholic Beverages Buyers Are Dual-Income',
+    didYouKnow: 'Alcoholic Beverages households are 58.5% dual-income—+10% above the national average. Time is their scarcest resource.',
+    marketingImplication: 'Lead with convenience and time-saving benefits. "Save 10 hours per month" resonates more than "Save $50."',
+    category: 'Lifestyle & Values',
+    tags: ['alcoholic beverages', 'dual-income', 'time-saving', 'convenience'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'entrepreneur-animals-pet-supplies',
+    headline: '16.6% of Animals & Pet Supplies Buyers Are Self-Employed',
+    didYouKnow: 'Animals & Pet Supplies shoppers have a 16.6% self-employment rate—+41% above the national average of 11.8%. Many are entrepreneurs, freelancers, or small business owners.',
+    marketingImplication: 'B2E (business-to-entrepreneur) messaging resonates. Position products as business investments, not just personal purchases.',
+    category: 'Lifestyle & Values',
+    tags: ['animals & pet supplies', 'entrepreneurs', 'self-employed', 'business'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'entrepreneur-antivirus-security-software',
+    headline: '17.1% of Antivirus & Security Software Buyers Are Self-Employed',
+    didYouKnow: 'Antivirus & Security Software shoppers have a 17.1% self-employment rate—+45% above the national average of 11.8%. Many are entrepreneurs, freelancers, or small business owners.',
+    marketingImplication: 'B2E (business-to-entrepreneur) messaging resonates. Position products as business investments, not just personal purchases.',
+    category: 'Lifestyle & Values',
+    tags: ['antivirus & security software', 'entrepreneurs', 'self-employed', 'business'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'entrepreneur-arcade-equipment',
+    headline: '17.2% of Arcade Equipment Buyers Are Self-Employed',
+    didYouKnow: 'Arcade Equipment shoppers have a 17.2% self-employment rate—+45% above the national average of 11.8%. Many are entrepreneurs, freelancers, or small business owners.',
+    marketingImplication: 'B2E (business-to-entrepreneur) messaging resonates. Position products as business investments, not just personal purchases.',
+    category: 'Lifestyle & Values',
+    tags: ['arcade equipment', 'entrepreneurs', 'self-employed', 'business'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'entrepreneur-arts-entertainment',
+    headline: '17.1% of Arts & Entertainment Buyers Are Self-Employed',
+    didYouKnow: 'Arts & Entertainment shoppers have a 17.1% self-employment rate—+45% above the national average of 11.8%. Many are entrepreneurs, freelancers, or small business owners.',
+    marketingImplication: 'B2E (business-to-entrepreneur) messaging resonates. Position products as business investments, not just personal purchases.',
+    category: 'Lifestyle & Values',
+    tags: ['arts & entertainment', 'entrepreneurs', 'self-employed', 'business'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'entrepreneur-athletics',
+    headline: '17.4% of Athletics Buyers Are Self-Employed',
+    didYouKnow: 'Athletics shoppers have a 17.4% self-employment rate—+47% above the national average of 11.8%. Many are entrepreneurs, freelancers, or small business owners.',
+    marketingImplication: 'B2E (business-to-entrepreneur) messaging resonates. Position products as business investments, not just personal purchases.',
+    category: 'Lifestyle & Values',
+    tags: ['athletics', 'entrepreneurs', 'self-employed', 'business'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'geo-3d-printers-phoenix',
+    headline: 'Phoenix: 1159x Over-Index for 3D Printers',
+    didYouKnow: 'Phoenix, Arizona over-indexes for 3D Printers shoppers by 115,932.136%—that\'s 1159x the national average. This ZIP (85003) has a concentration of 985 active buyers.',
+    marketingImplication: 'Hyperlocal targeting in Phoenix will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
+    category: 'Regional Markets',
+    tags: ['3d printers', 'phoenix', 'arizona', 'geographic', 'over-index'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'geo-activewear-miami',
+    headline: 'Miami: 201x Over-Index for Activewear',
+    didYouKnow: 'Miami, Florida over-indexes for Activewear shoppers by 20,093.888%—that\'s 201x the national average. This ZIP (33125) has a concentration of 987 active buyers.',
+    marketingImplication: 'Hyperlocal targeting in Miami will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
+    category: 'Regional Markets',
+    tags: ['activewear', 'miami', 'florida', 'geographic', 'over-index'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'geo-agriculture-seattle',
+    headline: 'Seattle: 725x Over-Index for Agriculture',
+    didYouKnow: 'Seattle, Washington over-indexes for Agriculture shoppers by 72,489.668%—that\'s 725x the national average. This ZIP (98101) has a concentration of 941 active buyers.',
+    marketingImplication: 'Hyperlocal targeting in Seattle will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
+    category: 'Regional Markets',
+    tags: ['agriculture', 'seattle', 'washington', 'geographic', 'over-index'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'geo-alcoholic-beverages-new-york',
+    headline: 'New York: 230x Over-Index for Alcoholic Beverages',
+    didYouKnow: 'New York, New York over-indexes for Alcoholic Beverages shoppers by 22,953.763%—that\'s 230x the national average. This ZIP (10003) has a concentration of 997 active buyers.',
+    marketingImplication: 'Hyperlocal targeting in New York will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
+    category: 'Regional Markets',
+    tags: ['alcoholic beverages', 'new york', 'new york', 'geographic', 'over-index'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'geo-animals-pet-supplies-new-york',
+    headline: 'New York: 224x Over-Index for Animals & Pet Supplies',
+    didYouKnow: 'New York, New York over-indexes for Animals & Pet Supplies shoppers by 22,413.126%—that\'s 224x the national average. This ZIP (10003) has a concentration of 996 active buyers.',
+    marketingImplication: 'Hyperlocal targeting in New York will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
+    category: 'Regional Markets',
+    tags: ['animals & pet supplies', 'new york', 'new york', 'geographic', 'over-index'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'geo-antivirus-security-software-san-francisco',
+    headline: 'San Francisco: 328x Over-Index for Antivirus & Security Software',
+    didYouKnow: 'San Francisco, California over-indexes for Antivirus & Security Software shoppers by 32,787.185%—that\'s 328x the national average. This ZIP (94102) has a concentration of 995 active buyers.',
+    marketingImplication: 'Hyperlocal targeting in San Francisco will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
+    category: 'Regional Markets',
+    tags: ['antivirus & security software', 'san francisco', 'california', 'geographic', 'over-index'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'geo-arcade-equipment-los-angeles',
+    headline: 'Los Angeles: 285x Over-Index for Arcade Equipment',
+    didYouKnow: 'Los Angeles, California over-indexes for Arcade Equipment shoppers by 28,538.742%—that\'s 285x the national average. This ZIP (90005) has a concentration of 993 active buyers.',
+    marketingImplication: 'Hyperlocal targeting in Los Angeles will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
+    category: 'Regional Markets',
+    tags: ['arcade equipment', 'los angeles', 'california', 'geographic', 'over-index'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'geo-arts-entertainment-dallas',
+    headline: 'Dallas: 414x Over-Index for Arts & Entertainment',
+    didYouKnow: 'Dallas, Texas over-indexes for Arts & Entertainment shoppers by 41,441.936%—that\'s 414x the national average. This ZIP (75205) has a concentration of 978 active buyers.',
+    marketingImplication: 'Hyperlocal targeting in Dallas will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
+    category: 'Regional Markets',
+    tags: ['arts & entertainment', 'dallas', 'texas', 'geographic', 'over-index'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'geo-athletics-miami',
+    headline: 'Miami: 222x Over-Index for Athletics',
+    didYouKnow: 'Miami, Florida over-indexes for Athletics shoppers by 22,178.759%—that\'s 222x the national average. This ZIP (33125) has a concentration of 969 active buyers.',
+    marketingImplication: 'Hyperlocal targeting in Miami will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
+    category: 'Regional Markets',
+    tags: ['athletics', 'miami', 'florida', 'geographic', 'over-index'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-activewear-outerwear',
+    headline: 'Activewear Buyers Also Shop Outerwear',
+    didYouKnow: 'Activewear shoppers show a 66% overlap with Outerwear buyers. Both groups share key traits: 57.1% dual-income, $96,465 median income, 51.2% STEM-educated.',
+    marketingImplication: 'This 66% overlap indicates a highly engaged audience with strong cross-category purchase intent, representing qualified buyers who demonstrate sophisticated shopping behavior and higher lifetime value potential through their demonstrated cross-category purchase patterns.',
+    category: 'Data Discoveries',
+    tags: ['activewear', 'outerwear', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-athletics-laptops',
+    headline: 'Athletics Buyers Also Shop Laptops',
+    didYouKnow: 'Athletics shoppers show a 65% overlap with Laptops buyers. Both groups share key traits: 56.2% dual-income, $101,799 median income, 50.3% STEM-educated.',
+    marketingImplication: 'Athletics buyers include remote workers and tech professionals who invest in laptops and computing equipment, creating opportunities for home office products, productivity software, and tech accessories.',
+    category: 'Data Discoveries',
+    tags: ['athletics', 'laptops', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-athletics-sporting-goods',
+    headline: 'Athletics Buyers Also Shop Sporting Goods',
+    didYouKnow: 'Athletics shoppers show a 65% overlap with Sporting Goods buyers. Both groups share key traits: 56.2% dual-income, $101,799 median income, 50.3% STEM-educated.',
+    marketingImplication: 'This 65% overlap indicates a highly engaged audience with strong cross-category purchase intent, representing qualified buyers who demonstrate sophisticated shopping behavior and higher lifetime value potential through their demonstrated cross-category purchase patterns.',
+    category: 'Data Discoveries',
+    tags: ['athletics', 'sporting goods', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-athletics-outdoor-recreation',
+    headline: 'Athletics Buyers Also Shop Outdoor Recreation',
+    didYouKnow: 'Athletics shoppers show a 62% overlap with Outdoor Recreation buyers. Both groups share key traits: 56.2% dual-income, $101,799 median income, 50.3% STEM-educated.',
+    marketingImplication: 'This 62% overlap indicates a highly engaged audience with strong cross-category purchase intent, representing qualified buyers who demonstrate sophisticated shopping behavior and higher lifetime value potential through their demonstrated cross-category purchase patterns.',
+    category: 'Data Discoveries',
+    tags: ['athletics', 'outdoor recreation', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-athletics-shoes',
+    headline: 'Athletics Buyers Also Shop Shoes',
+    didYouKnow: 'Athletics shoppers show a 61% overlap with Shoes buyers. Both groups share key traits: 56.2% dual-income, $101,799 median income, 50.3% STEM-educated.',
+    marketingImplication: 'Athletics buyers often refresh multiple aspects of their lifestyle simultaneously, purchasing clothing and apparel alongside other products as they update their wardrobes and living spaces in coordinated shopping sessions.',
+    category: 'Data Discoveries',
+    tags: ['athletics', 'shoes', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-athletics-alcoholic-beverages',
+    headline: 'Athletics Buyers Also Shop Alcoholic Beverages',
+    didYouKnow: 'Athletics shoppers show a 60% overlap with Alcoholic Beverages buyers. Both groups share key traits: 56.2% dual-income, $101,799 median income, 50.3% STEM-educated.',
+    marketingImplication: 'Athletics buyers enjoy social entertaining and relaxation rituals, purchasing alcoholic beverages to complement their lifestyle, indicating sophistication and willingness to invest in quality experiences beyond basic necessities.',
+    category: 'Data Discoveries',
+    tags: ['athletics', 'alcoholic beverages', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-activewear-3d-printers',
+    headline: 'Activewear Buyers Also Shop 3D Printers',
+    didYouKnow: 'Activewear shoppers show a 55% overlap with 3D Printers buyers. Both groups share key traits: 57.1% dual-income, $96,465 median income, 51.2% STEM-educated.',
+    marketingImplication: 'The 55% overlap between activewear and 3D printer buyers reveals a "self-engineered improvement" mindset, driven by a desire to actively control and optimize their personal performance and',
+    category: 'Data Discoveries',
+    tags: ['activewear', '3d printers', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-activewear-cabinets-storage',
+    headline: 'Activewear Buyers Also Shop Cabinets & Storage',
+    didYouKnow: 'Activewear shoppers show a 54% overlap with Cabinets & Storage buyers. Both groups share key traits: 57.1% dual-income, $96,465 median income, 51.2% STEM-educated.',
+    marketingImplication: 'Buyers of activewear and cabinets & storage embody a **\'foundational control\' mindset**, meticulously investing in systems that optimize both their personal well-being and living spaces.',
+    category: 'Data Discoveries',
+    tags: ['activewear', 'cabinets & storage', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-activewear-shorts',
+    headline: 'Activewear Buyers Also Shop Shorts',
+    didYouKnow: 'Activewear shoppers show a 53% overlap with Shorts buyers. Both groups share key traits: 57.1% dual-income, $96,465 median income, 51.2% STEM-educated.',
+    marketingImplication: 'The 53% overlap reveals a "seamless transition" mindset among buyers in active, warm climates like Miami and San Francisco, who integrate performance-ready shorts into their daily lives for both',
+    category: 'Data Discoveries',
+    tags: ['activewear', 'shorts', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-activewear-building-materials',
+    headline: 'Activewear Buyers Also Shop Building Materials',
+    didYouKnow: 'Activewear shoppers show a 52% overlap with Building Materials buyers. Both groups share key traits: 57.1% dual-income, $96,465 median income, 51.2% STEM-educated.',
+    marketingImplication: 'The 52% overlap reveals a "proactive stewardship" mindset: these consumers are driven by a desire to actively cultivate and improve their personal well-being and their physical surroundings.',
+    category: 'Data Discoveries',
+    tags: ['activewear', 'building materials', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-alcoholic-beverages-sporting-goods',
+    headline: 'Alcoholic Beverages Buyers Also Shop Sporting Goods',
+    didYouKnow: 'Alcoholic Beverages shoppers show a 49% overlap with Sporting Goods buyers. Both groups share key traits: 58.5% dual-income, $98,954 median income, 50.5% STEM-educated.',
+    marketingImplication: 'Moderate 49% overlap indicates strategic consumers who coordinate purchases across sporting goods and alcoholic beverages categories, suggesting sophisticated shopping behavior and higher lifetime value potential through their demonstrated cross-category purchase intent.',
+    category: 'Data Discoveries',
+    tags: ['alcoholic beverages', 'sporting goods', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-agriculture-lawn-garden',
+    headline: 'Agriculture Buyers Also Shop Lawn & Garden',
+    didYouKnow: 'Agriculture shoppers show a 45% overlap with Lawn & Garden buyers. Both groups share key traits: 56.1% dual-income, $96,133 median income, 51.2% STEM-educated.',
+    marketingImplication: 'Moderate 45% overlap indicates strategic consumers who coordinate purchases across lawn & garden and agriculture categories, suggesting sophisticated shopping behavior and higher lifetime value potential through their demonstrated cross-category purchase intent.',
+    category: 'Data Discoveries',
+    tags: ['agriculture', 'lawn & garden', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-alcoholic-beverages-laptops',
+    headline: 'Alcoholic Beverages Buyers Also Shop Laptops',
+    didYouKnow: 'Alcoholic Beverages shoppers show a 42% overlap with Laptops buyers. Both groups share key traits: 58.5% dual-income, $98,954 median income, 50.5% STEM-educated.',
+    marketingImplication: 'Alcoholic Beverages buyers include remote workers and tech professionals who invest in laptops and computing equipment, creating opportunities for home office products, productivity software, and tech accessories.',
+    category: 'Data Discoveries',
+    tags: ['alcoholic beverages', 'laptops', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'paradox-alcoholic-beverages-vehicles-parts',
+    headline: 'Alcoholic Beverages Buyers Also Shop Vehicles & Parts',
+    didYouKnow: 'Alcoholic Beverages shoppers show a 42% overlap with Vehicles & Parts buyers. Both groups share key traits: 58.5% dual-income, $98,954 median income, 50.5% STEM-educated.',
+    marketingImplication: 'Moderate 42% overlap indicates strategic consumers who coordinate purchases across vehicles & parts and alcoholic beverages categories, suggesting sophisticated shopping behavior and higher lifetime value potential through their demonstrated cross-category purchase intent.',
+    category: 'Data Discoveries',
+    tags: ['alcoholic beverages', 'vehicles & parts', 'cross-purchase', 'paradox', 'overlap'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'city-seattle',
+    headline: 'Seattle: Top Market for 9 Categories',
+    didYouKnow: 'Seattle, Washington is a geographic hotspot for Activewear, Agriculture, Agriculture, Alcoholic Beverages and 5 more categories. Average shopper income: $100,240.',
+    marketingImplication: 'Seattle is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
+    category: 'City Insights',
+    tags: ['seattle', 'washington', 'geographic', 'hotspot', 'multi-category'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'city-dallas',
+    headline: 'Dallas: Top Market for 7 Categories',
+    didYouKnow: 'Dallas, Texas is a geographic hotspot for 3D Printers, Agriculture, Alcoholic Beverages, Animals & Pet Supplies and 3 more categories. Average shopper income: $96,638.',
+    marketingImplication: 'Dallas is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
+    category: 'City Insights',
+    tags: ['dallas', 'texas', 'geographic', 'hotspot', 'multi-category'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'city-san-francisco',
+    headline: 'San Francisco: Top Market for 7 Categories',
+    didYouKnow: 'San Francisco, California is a geographic hotspot for 3D Printers, Animals & Pet Supplies, Antivirus & Security Software, Arcade Equipment and 3 more categories. Average shopper income: $99,009.',
+    marketingImplication: 'San Francisco is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
+    category: 'City Insights',
+    tags: ['san francisco', 'california', 'geographic', 'hotspot', 'multi-category'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'city-los-angeles',
+    headline: 'Los Angeles: Top Market for 7 Categories',
+    didYouKnow: 'Los Angeles, California is a geographic hotspot for Alcoholic Beverages, Alcoholic Beverages, Antivirus & Security Software, Antivirus & Security Software and 3 more categories. Average shopper income: $96,900.',
+    marketingImplication: 'Los Angeles is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
+    category: 'City Insights',
+    tags: ['los angeles', 'california', 'geographic', 'hotspot', 'multi-category'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'city-new-york',
+    headline: 'New York: Top Market for 5 Categories',
+    didYouKnow: 'New York, New York is a geographic hotspot for 3D Printers, Agriculture, Alcoholic Beverages, Animals & Pet Supplies and 1 more categories. Average shopper income: $97,214.',
+    marketingImplication: 'New York is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
+    category: 'City Insights',
+    tags: ['new york', 'new york', 'geographic', 'hotspot', 'multi-category'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'city-miami',
+    headline: 'Miami: Top Market for 4 Categories',
+    didYouKnow: 'Miami, Florida is a geographic hotspot for Activewear, Animals & Pet Supplies, Arcade Equipment, Athletics. Average shopper income: $94,073.',
+    marketingImplication: 'Miami is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
+    category: 'City Insights',
+    tags: ['miami', 'florida', 'geographic', 'hotspot', 'multi-category'],
+  },
+
+  // AUTO-GENERATED FROM LAUNCHPAD DATA
+  {
+    id: 'city-philadelphia',
+    headline: 'Philadelphia: Top Market for 3 Categories',
+    didYouKnow: 'Philadelphia, Pennsylvania is a geographic hotspot for 3D Printers, Activewear, Agriculture. Average shopper income: $84,343.',
+    marketingImplication: 'Philadelphia is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
+    category: 'City Insights',
+    tags: ['philadelphia', 'pennsylvania', 'geographic', 'hotspot', 'multi-category'],
+  },
 ];
 
 // Helper function to get insights by category

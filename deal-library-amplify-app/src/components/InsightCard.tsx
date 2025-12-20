@@ -110,13 +110,20 @@ export default function InsightCard({
               </div>
 
               {/* Marketing Implication */}
-              <div>
+              <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-lg">🎯</span>
                   <h3 className="text-sm font-bold text-brand-charcoal">Marketing Implication</h3>
                 </div>
                 <p className="text-sm text-neutral-700 leading-relaxed">
                   {insight.marketingImplication}
+                </p>
+              </div>
+
+              {/* Powered by footer */}
+              <div className="mt-auto pt-3">
+                <p className="text-[10px] text-neutral-400 text-center">
+                  Powered by the Sovrn Data Collective
                 </p>
               </div>
             </div>

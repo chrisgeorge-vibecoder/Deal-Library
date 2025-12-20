@@ -572,15 +572,18 @@ export default function AudienceExplorer({
               try {
                 const errorData = await geoResponse.json();
                 console.error('Error details:', errorData);
-                setError(`Failed to load geographic insights: ${errorData.message || 'Please try again.'}`);
+                // Check for both 'message' and 'error' fields for compatibility
+                const errorMessage = errorData.message || errorData.error || 'Please try again.';
+                setError(`Failed to load geographic insights: ${errorMessage}`);
               } catch (e) {
-                console.error('Could not parse error response');
-                setError('Failed to load geographic insights. Please try again.');
+                console.error('Could not parse error response:', e);
+                setError('Failed to load geographic insights. Please check your configuration and try again.');
               }
             }
           } catch (error) {
             console.error('❌ Error loading geographic insights:', error);
-            setError('Failed to load geographic insights. Please try again.');
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            setError(`Failed to load geographic insights: ${errorMessage}. Please check your configuration and try again.`);
           }
           break;
           
@@ -784,27 +787,102 @@ export default function AudienceExplorer({
           }
           try {
             const query = audienceFilter.trim();
+            console.log(`⚔️ Fetching competitive intelligence for: "${query}"`);
+            
             const response = await fetch('/api/competitive-intelligence', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query }),
             });
             
+            console.log(`⚔️ Competitive intelligence response status: ${response.status}`);
+            
+            // Check if response has content before parsing
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+              console.error('❌ Competitive intelligence API returned non-JSON response:', contentType);
+              setError('Failed to load competitive intelligence: Invalid response format. Please try again.');
+              errorHandledByCase = true;
+              break;
+            }
+
+            // Get response text first to check if it's empty
+            const responseText = await response.text();
+            if (!responseText || responseText.trim().length === 0) {
+              console.error('❌ Competitive intelligence API returned empty response');
+              setError('Failed to load competitive intelligence: Empty response. Please try again.');
+              errorHandledByCase = true;
+              break;
+            }
+            
             if (response.ok) {
-              const data = await response.json();
+              let data;
+              try {
+                data = JSON.parse(responseText);
+                console.log(`⚔️ Competitive intelligence data received:`, data);
+              } catch (parseError) {
+                console.error('❌ Failed to parse competitive intelligence JSON:', parseError);
+                console.error('Response text:', responseText.substring(0, 500));
+                setError('Failed to load competitive intelligence: Invalid response format. Please try again.');
+                errorHandledByCase = true;
+                break;
+              }
+              
+              // Check if the response indicates failure even with 200 status
+              if (data.success === false) {
+                console.error('❌ Competitive intelligence API returned success: false:', data);
+                setError(`Failed to generate competitive intelligence: ${data.error || data.message || 'Please try again.'}`);
+                errorHandledByCase = true;
+                break;
+              }
+              
               if (data.success && data.data) {
                 results.push({ type: 'competitive-intelligence', data: data.data });
                 console.log(`✅ Added competitive intelligence for: ${query}`);
+                // Clear any previous errors since we have data
+                setError(null);
+                errorHandledByCase = true;
               } else {
-                setError('Failed to generate competitive intelligence. Please try again.');
+                console.error('❌ Competitive intelligence response missing success or data:', data);
+                setError('Failed to generate competitive intelligence. The response was incomplete. Please try again.');
+                errorHandledByCase = true;
               }
             } else {
-              const errorData = await response.json();
-              setError(`Failed to load competitive intelligence: ${errorData.error || 'Please try again.'}`);
+              console.error(`❌ Failed to fetch competitive intelligence: ${response.status} ${response.statusText}`);
+              // Try to parse error response using the responseText we already read
+              let errorData: any = {};
+              try {
+                if (responseText && responseText.trim().length > 0) {
+                  errorData = JSON.parse(responseText);
+                }
+              } catch (e) {
+                console.error('Could not parse error response:', e);
+              }
+              console.error('Error details:', errorData);
+              // Show specific error message to user
+              if (response.status === 503) {
+                setError('AI service is temporarily unavailable. Please check if Gemini API is configured correctly.');
+              } else if (response.status === 500) {
+                setError('Server error while generating competitive intelligence. Please try again or contact support if the issue persists.');
+              } else {
+                setError(`Failed to load competitive intelligence: ${errorData.error || errorData.message || 'Please try again.'}`);
+              }
+              errorHandledByCase = true;
             }
           } catch (error) {
-            console.error('Error loading competitive intelligence:', error);
-            setError('Failed to load competitive intelligence. Please try again.');
+            console.error('❌ Error loading competitive intelligence:', error);
+            if (error instanceof Error) {
+              if (error.name === 'AbortError') {
+                setError('Request timed out. The AI service may be experiencing high load. Please try again.');
+              } else if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
+                setError('Backend server is not available. Please ensure the backend is running.');
+              } else {
+                setError(`Failed to load competitive intelligence: ${error.message}`);
+              }
+            } else {
+              setError('Failed to load competitive intelligence. Please try again.');
+            }
+            errorHandledByCase = true;
           }
           break;
 

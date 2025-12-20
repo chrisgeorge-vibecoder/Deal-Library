@@ -1063,8 +1063,30 @@ export class DealsControllerWrapper extends DealsController {
   async generateGeographicInsightsDirect(body: any): Promise<any> {
     try {
       console.log('🗺️ generateGeographicInsightsDirect called with:', body);
+      
+      // Check for GEMINI_API_KEY before attempting to get service
+      if (!process.env.GEMINI_API_KEY) {
+        const errorMsg = 'GEMINI_API_KEY environment variable is not configured. Please set it in your environment variables.';
+        console.error('❌', errorMsg);
+        return {
+          success: false,
+          geoCards: [],
+          error: errorMsg
+        };
+      }
+      
       const gemini = getGeminiService();
       const query = body.query || body.location || 'United States';
+      
+      if (!query || query.trim() === '') {
+        const errorMsg = 'Query is required to generate geographic insights.';
+        console.error('❌', errorMsg);
+        return {
+          success: false,
+          geoCards: [],
+          error: errorMsg
+        };
+      }
       
       const result = await gemini.generateGeographicInsights(query, body.conversationHistory);
       
@@ -1077,10 +1099,23 @@ export class DealsControllerWrapper extends DealsController {
       };
     } catch (error) {
       console.error('❌ Error generating geographic insights:', error);
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to generate geographic insights.';
+      if (error instanceof Error) {
+        if (error.message.includes('GEMINI_API_KEY')) {
+          errorMessage = 'AI service is not configured. Please set GEMINI_API_KEY environment variable.';
+        } else if (error.message.includes('API key')) {
+          errorMessage = 'Invalid API key. Please check your GEMINI_API_KEY configuration.';
+        } else {
+          errorMessage = `Failed to generate geographic insights: ${error.message}`;
+        }
+      }
+      
       return { 
         success: false, 
         geoCards: [],
-        error: String(error) 
+        error: errorMessage
       };
     }
   }

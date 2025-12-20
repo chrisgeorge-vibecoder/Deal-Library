@@ -1,4 +1,232 @@
 {
+  "358": {
+    "segmentId": "358",
+    "segmentName": "Male",
+    "fullPath": "Demographic > Gender > Male",
+    "category": "Demographic",
+    "generatedAt": "2025-12-20T19:25:18.997Z",
+    "detailedInsight": "The male consumer in 2025 is increasingly prioritizing a holistic vision of wellness, extending beyond physical fitness to include mental health and self-care as mainstream values. Purchase decisions are often triggered by a desire for personal optimization and efficiency, leading to a preference for direct-to-consumer brands that offer personalized solutions and transparent messaging. This segment is moving away from traditional stoicism, embracing emotional resilience and seeking products that support their journey toward a redefined, healthier masculinity.",
+    "exampleAdvertisers": [
+      {
+        "name": "Hims & Hers",
+        "type": "brand",
+        "rationale": "This telehealth brand directly addresses men's health and wellness concerns, from hair loss to mental health, aligning with the growing trend of men proactively seeking self-care solutions."
+      },
+      {
+        "name": "Vuori",
+        "type": "brand",
+        "rationale": "Vuori's high-performance activewear seamlessly transitions to casual wear, appealing to the male consumer's desire for versatile, functional, and stylish apparel."
+      },
+      {
+        "name": "Direct-to-Consumer (DTC) Grooming Subscriptions",
+        "type": "category",
+        "rationale": "Services like Cornerstone or Harry's cater to the male preference for convenience, quality, and routine by offering personalized shaving and skincare products delivered directly to their door."
+      },
+      {
+        "name": "Sustainable Apparel Brands",
+        "type": "category",
+        "rationale": "As eco-consciousness grows, brands emphasizing sustainable materials and ethical production are gaining traction with male consumers, particularly Millennials and Gen Z, who are willing to invest in products that align with their values."
+      },
+      {
+        "name": "Wearable Technology & Wellness Apps",
+        "type": "category",
+        "rationale": "This category taps into the male consumer's interest in data-driven self-improvement and longevity, offering tools to track biometrics, optimize performance, and integrate health into a daily routine."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global men's grooming market is projected to reach over $115 billion by 2028, with skincare being a major growth driver as men adopt more complex, multi-step routines.",
+        "relevance": "This indicates a significant shift from basic hygiene to dedicated self-care rituals, creating opportunities for brands offering targeted and ingredient-focused skincare solutions for men.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Smart grooming is expanding, with AI and technology being integrated into personal care devices to offer personalized skin analysis, predictive recommendations, and enhanced product effectiveness.",
+        "relevance": "Male consumers are increasingly receptive to tech-driven solutions that promise efficiency and optimized results, making smart mirrors, AI-powered apps, and advanced grooming tools a high-growth area.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "A profound transformation in men's wellbeing is underway, with a greater focus on mental health, emotional resilience, and seeking community and support to combat loneliness.",
+        "relevance": "Men are actively seeking resources and services that support their mental and emotional health, creating a market for wellness apps, coaching services, and community platforms that foster connection and vulnerability.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Engineered for Resilience: Master Your Body and Mind.",
+      "emotionalDriver": "Empowerment through self-optimization and control.",
+      "callToAction": "Access your personalized wellness blueprint now."
+    }
+  },
+  "360": {
+    "segmentId": "360",
+    "segmentName": "Ownership",
+    "fullPath": "Demographic > Household Data > Ownership",
+    "category": "Demographic",
+    "generatedAt": "2025-12-20T19:26:04.217Z",
+    "detailedInsight": "Homeowners are characterized by a long-term investment mindset, making purchase decisions that enhance both their lifestyle and property equity. Their spending is often cyclical, tied to home maintenance schedules and a desire to create a personalized, secure sanctuary. As diligent researchers, they prioritize durability and return on investment for significant purchases like renovations, appliances, and financial products.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "Directly serves the core needs of homeowners, catering to both DIY projects and those requiring professional contractors, covering the full spectrum of home maintenance and improvement."
+      },
+      {
+        "name": "HVAC & Plumbing Services",
+        "type": "category",
+        "rationale": "These essential, high-stakes services are a non-discretionary expense for homeowners, driven by seasonal needs, emergency repairs, and the desire for energy efficiency."
+      },
+      {
+        "name": "Ring",
+        "type": "brand",
+        "rationale": "Appeals to the homeowner's fundamental need for security and control over their property, offering an accessible entry point into smart home technology."
+      },
+      {
+        "name": "Mortgage Refinancing & HELOC Lenders",
+        "type": "category",
+        "rationale": "Targets the financial savvy of homeowners who are looking to leverage their primary asset's equity for renovations, debt consolidation, or investment."
+      },
+      {
+        "name": "High-Efficiency Appliance Manufacturers",
+        "type": "category",
+        "rationale": "Resonates with homeowners' focus on long-term value, offering reduced utility costs and improved sustainability, which are growing priorities."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "Homeowners are increasingly adopting a hybrid \"Pro-Sourcing\" model, tackling simpler cosmetic projects like painting themselves while hiring professionals for complex jobs requiring specialized tools and skills.",
+        "relevance": "This segment represents a dual audience receptive to both DIY product marketing and lead generation for professional home service providers, requiring a nuanced channel strategy.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Driven by a desire for long-term savings and environmental responsibility, homeowners are prioritizing sustainable and energy-efficient upgrades like solar panels, improved insulation, and eco-friendly materials.",
+        "relevance": "This audience is highly receptive to messaging that quantifies the return on investment of green technology, focusing on reduced utility bills and increased property value.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Smart home technology adoption is becoming mainstream, with 59% of households having at least one device in 2025; however, the primary drivers are ease of use and security, with AI features ranking as the lowest priority for homeowners.",
+        "relevance": "Marketing should focus on practical benefits like convenience and safety (e.g., smart locks, security cameras) rather than complex, AI-driven automation, which has yet to prove its value to this audience.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Enhance, Protect, and Grow Your Greatest Asset.",
+      "emotionalDriver": "Pride of Investment: The deep satisfaction of making smart, lasting improvements that build both personal sanctuary and financial equity.",
+      "callToAction": "Get Your Personalized Home Value & Upgrade Analysis"
+    }
+  },
+  "361": {
+    "segmentId": "361",
+    "segmentName": "Renters",
+    "fullPath": "Demographic > Household Data > Ownership > Renters",
+    "category": "Demographic",
+    "generatedAt": "2025-12-20T19:26:29.703Z",
+    "detailedInsight": "The modern renter in 2025 is increasingly older, with the median age jumping to 42, reflecting a shift towards long-term, lifestyle renting rather than a transient phase. [20, 26] This demographic prioritizes financial stability, with 95% stating that staying within budget is their primary concern, influencing all purchase decisions. [20] Their core values center on convenience and control over their environment, expecting seamless digital experiences for everything from paying rent to requesting maintenance, and prioritizing smart home technology and sustainable features not as luxuries, but as standard amenities. [2, 5, 27]",
+    "exampleAdvertisers": [
+      {
+        "name": "IKEA",
+        "type": "brand",
+        "rationale": "Renters require affordable, stylish, and often space-conscious furnishing solutions that can adapt to different living situations. IKEA's product line and business model are perfectly aligned with the transient yet home-focused nature of this segment."
+      },
+      {
+        "name": "Smart Home Technology Brands",
+        "type": "category",
+        "rationale": "Renters in 2025 expect properties to be equipped with smart features like keyless entry, smart thermostats, and video doorbells for convenience and security. [5, 18] Brands like Google Nest, Ring, and Amazon Alexa can target renters directly or partner with property management companies."
+      },
+      {
+        "name": "Pet Food Subscription Services",
+        "type": "category",
+        "rationale": "Pet ownership is a significant factor for renters, with pet-friendly policies being a key decision driver. [2] Subscription services like Chewy or The Farmer's Dog offer the convenience and personalization this audience values for their furry family members."
+      },
+      {
+        "name": "Financial Technology (FinTech) Apps",
+        "type": "category",
+        "rationale": "Given their focus on budget and financial goals, renters are a prime audience for apps that facilitate budgeting, saving, or credit building through rent reporting. [22, 43] These services appeal to their desire for financial control and future planning."
+      },
+      {
+        "name": "Moveable and Modular Storage Solutions",
+        "type": "category",
+        "rationale": "Renters often face challenges with storage and space personalization. Brands offering modular shelving, portable closets, and other non-permanent storage solutions cater directly to their need for flexibility and making a temporary space feel like home."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The 'Tenant Experience Revolution' is standardizing digital integration in rental living. [27]",
+        "relevance": "Renters now expect a fully integrated digital experience, from mobile-first property searches and virtual tours to app-based rent payments and maintenance requests. [26] A seamless tech interface is no longer a perk but a baseline requirement for this audience. [25]",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Sustainability features are shifting from a 'nice-to-have' to a non-negotiable requirement for renters.",
+        "relevance": "Driven by both environmental consciousness and a desire to save on utilities, renters are actively seeking and prioritizing properties with energy-efficient appliances, EV charging stations, and robust recycling programs. [12, 17, 18] Landlords who highlight these green features gain a significant competitive edge. [3]",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "The rise of the 'renter-by-choice' lifestyle is leading to demand for longer-term leases and community-focused amenities.",
+        "relevance": "With homeownership affordability challenges persisting, more individuals and families are settling into renting for the long haul. [20, 38] This creates demand for amenities that foster a sense of community, such as co-working spaces and resident events, and a preference for stability through longer lease options. [5, 25]",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Lease Doesn't Own You. Your Style Should.",
+      "emotionalDriver": "Autonomy and Personalization",
+      "callToAction": "Shop portable solutions that make any space your own."
+    }
+  },
+  "362": {
+    "segmentId": "362",
+    "segmentName": "Household Income: $0 - $49,999",
+    "fullPath": "Demographic > Household Data > Household Income (USD) > $0 - $49,999",
+    "category": "Demographic",
+    "generatedAt": "2025-12-20T19:26:45.676Z",
+    "detailedInsight": "This segment prioritizes practicality and affordability in their purchasing decisions, often stretching their budgets to meet essential needs. They exhibit strong loyalty to retailers that consistently offer value but are willing to switch between brands to find the best deals. Their core values center around financial security and providing for their families, making them responsive to messaging that emphasizes savings and tangible benefits.",
+    "exampleAdvertisers": [
+      {
+        "name": "Walmart",
+        "type": "brand",
+        "rationale": "Walmart's 'Everyday Low Prices' strategy directly appeals to this segment's need for affordability and one-stop shopping for household essentials."
+      },
+      {
+        "name": "Dollar General",
+        "type": "brand",
+        "rationale": "With a focus on convenience and low-cost items, Dollar General is a primary destination for this audience for fill-in trips and budget-friendly purchases."
+      },
+      {
+        "name": "GoodRx",
+        "type": "brand",
+        "rationale": "As healthcare costs can be a significant burden, GoodRx's prescription savings platform provides a direct and tangible way for this audience to reduce their expenses."
+      },
+      {
+        "name": "Discount Grocery Stores",
+        "type": "category",
+        "rationale": "Retailers like Aldi and Food Lion attract this segment by offering private label brands and lower prices on groceries, a major household expenditure."
+      },
+      {
+        "name": "Prepaid Mobile Providers",
+        "type": "category",
+        "rationale": "Companies like Boost Mobile and Cricket Wireless offer no-contract, budget-friendly mobile plans that align with this segment's desire to avoid long-term financial commitments and manage monthly expenses."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "Facing a continued financial squeeze, lower- and middle-income households are increasingly open to switching brands and purchasing private label goods.",
+        "relevance": "This audience is actively seeking value and is less brand-loyal, creating opportunities for private label products and challenger brands to gain market share by highlighting affordability and quality.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Consumer spending growth is expected to slow down in 2025 and 2026, with the cooling effect being more pronounced among lower- and middle-income consumers.",
+        "relevance": "As this segment's discretionary spending tightens, they will prioritize essential goods and services, making value-based messaging and promotions even more critical for brands.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The widening income gap is polarizing spending power, leading lower-income consumers to be more receptive to own-brand products over known brands.",
+        "relevance": "This trend underscores the importance of offering affordable alternatives and demonstrates that this segment will trade down to store brands to manage their budgets effectively.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Get the most out of every dollar.",
+      "emotionalDriver": "Financial empowerment and peace of mind.",
+      "callToAction": "Show me how to save."
+    }
+  },
   "PIA_2001": {
     "segmentId": "PIA_2001",
     "segmentName": "Animals and Pet Supplies",
@@ -13729,6 +13957,2514 @@
       "headline": "Go Deeper Than the Headlines: The Stories That Shape Your World.",
       "emotionalDriver": "The desire for intellectual curiosity and the confidence that comes from being truly well-informed.",
       "callToAction": "Subscribe for exclusive access to our award-winning journalism and curated content, delivered in print and digital."
+    }
+  },
+  "PIA_4942": {
+    "segmentId": "PIA_4942",
+    "segmentName": "Music and Sound Recordings",
+    "fullPath": "Purchase Intent > Media > Music and Sound Recordings",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:11:22.392Z",
+    "detailedInsight": "This audience segment is comprised of discerning listeners who view sound as an integral component of their personal space and identity. Their primary purchase triggers are the desire for an immersive, high-fidelity audio experience that transcends casual listening, focusing on recreating the artist's original intent. They value the tangible, ritualistic nature of physical media like vinyl and are willing to invest in premium component-based systems to achieve sonic perfection and aesthetic harmony in their environment.",
+    "exampleAdvertisers": [
+      {
+        "name": "Bowers & Wilkins",
+        "type": "brand",
+        "rationale": "As a manufacturer of high-end loudspeakers and home theater systems, Bowers & Wilkins directly appeals to this segment's core desire for superior, audiophile-grade sound quality to upgrade their living spaces."
+      },
+      {
+        "name": "Pro-Ject Audio Systems",
+        "type": "brand",
+        "rationale": "Pro-Ject specializes in turntables that are highly regarded by audiophiles, catering to the segment's appreciation for vinyl and the analog experience as a deliberate choice for focused, high-quality listening."
+      },
+      {
+        "name": "Tidal",
+        "type": "brand",
+        "rationale": "Tidal's focus on high-fidelity and lossless audio streaming directly serves this audience's demand for superior sound quality in a digital format, aligning with their rejection of compressed, lower-quality music."
+      },
+      {
+        "name": "Acoustic Treatment Manufacturers",
+        "type": "category",
+        "rationale": "This audience understands that the room itself is a component of the sound system. Advertisers offering acoustic panels, bass traps, and diffusers can target their desire to optimize their listening environment for clarity and accuracy."
+      },
+      {
+        "name": "Custom Home Theater & Media Room Designers",
+        "type": "category",
+        "rationale": "For the ultimate upgrade, this segment invests in professionally designed spaces. These advertisers cater to their intent to create a perfectly integrated and acoustically ideal environment for immersive audio and visual experiences."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global market for lossless music streaming is projected to grow at a CAGR of 14.1%, reaching approximately $8.1 billion by 2032 as consumer demand for high-quality audio experiences increases.",
+        "relevance": "This trend directly reflects the core value of the 'Music and Sound Recordings' audience, who actively seek out and are willing to pay for higher fidelity audio, making them the primary market for these premium streaming tiers.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Vinyl record sales are forecasted to continue their growth trajectory, with projections showing the trend extending through at least 2035, driven by both older audiophiles and Gen Z's interest in analog experiences and aesthetic appeal.",
+        "relevance": "The sustained growth of vinyl reinforces this segment's appreciation for physical media, collectibility, and the perceived warmer sound quality, driving purchases of both records and the high-quality turntables needed to play them.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Modular and customizable home audio systems, featuring technologies like Dolby Atmos FlexConnect, are set to become more prominent, allowing for flexible speaker placement without compromising sound quality.",
+        "relevance": "This appeals to the segment's desire to furnish and organize their spaces with high-quality sound that adapts to their specific room layout and aesthetic, offering a blend of performance and practicality.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Engineer Your Personal Sound Sanctuary.",
+      "emotionalDriver": "The pursuit of the ultimate, immersive escape—a perfectly controlled and deeply personal auditory experience that shuts out the noise of the outside world.",
+      "callToAction": "Design Your Listening Room"
+    }
+  },
+  "PIA_4948": {
+    "segmentId": "PIA_4948",
+    "segmentName": "Product Manuals",
+    "fullPath": "Purchase Intent > Media > Product Manuals",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:11:37.985Z",
+    "detailedInsight": "This audience consists of proactive homeowners and DIY enthusiasts who are actively seeking to improve and maintain their living spaces. They are often driven by a desire for increased functionality, sustainability, and the integration of smart home technology to enhance convenience and property value. Their purchasing decisions are increasingly influenced by the desire for personalization and cost-effective, manageable projects they can undertake themselves.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "As a leading home improvement retailer, they provide the tools, materials, and guidance this segment needs for their DIY projects and repairs."
+      },
+      {
+        "name": "Smart Home Technology Manufacturers",
+        "type": "category",
+        "rationale": "This audience is increasingly adopting smart home devices for convenience, security, and energy efficiency, making them a prime target for manufacturers of smart lighting, thermostats, and security systems."
+      },
+      {
+        "name": "IKEA",
+        "type": "brand",
+        "rationale": "Known for its ready-to-assemble furniture and home accessories, IKEA appeals to the DIY and organizational mindset of this segment, offering stylish and functional solutions."
+      },
+      {
+        "name": "TaskRabbit",
+        "type": "brand",
+        "rationale": "For projects that are slightly beyond their skillset or available time, this audience may turn to on-demand service platforms to find skilled help for specific tasks."
+      },
+      {
+        "name": "Craftsman",
+        "type": "brand",
+        "rationale": "A trusted brand of tools and equipment, Craftsman directly caters to the hands-on, DIY nature of this audience, enabling them to complete their home improvement and repair projects."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The home improvement market is projected to grow by 2.5% in 2025, with DIY product volumes expected to rise by 1.3% as homeowners focus on smaller, manageable upgrades.",
+        "relevance": "This indicates a strong and growing market for the tools, materials, and, consequently, the product manuals this audience seeks for their projects.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Tech-integrated design is a top trend for 2026, with homeowners prioritizing smart features like connected lighting and hidden charging stations.",
+        "relevance": "As this audience incorporates more technology into their homes, the need for clear and accessible product manuals for installation and operation will increase significantly.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Sustainability is a growing driver in home improvement, with a 63% year-over-year rise in furniture upholstery projects as homeowners look to revive existing pieces.",
+        "relevance": "This trend towards repairing and upcycling suggests an increased demand for product manuals and guides for older products, as well as for new, sustainable home solutions.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Master Your Space: The Ultimate Guide to Every Project and Product in Your Home.",
+      "emotionalDriver": "Empowerment through self-sufficiency and the pride of accomplishment.",
+      "callToAction": "Access our comprehensive library of digital manuals and interactive guides to start your next project with confidence."
+    }
+  },
+  "PIA_4958": {
+    "segmentId": "PIA_4958",
+    "segmentName": "Sheet Music",
+    "fullPath": "Purchase Intent > Media > Sheet Music",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:11:57.178Z",
+    "detailedInsight": "This audience is driven by a commitment to skill development and artistic expression, often engaging in structured learning through formal education or self-teaching. Their purchases are triggered by the need for new repertoire for personal practice, ensemble performance, or educational requirements. While embracing the convenience of digital formats for portability and access to a wide library, a significant portion still values the tangible, focused experience of printed scores for in-depth learning and annotation.",
+    "exampleAdvertisers": [
+      {
+        "name": "Musicnotes",
+        "type": "brand",
+        "rationale": "As a leading online retailer of digital sheet music, their vast, officially licensed catalog directly serves the audience's need for immediate access to a wide variety of musical arrangements."
+      },
+      {
+        "name": "Tablet & E-Reader Manufacturers",
+        "type": "category",
+        "rationale": "With digital sheet music adoption representing over 58% of the market, devices that offer a clean, portable, and easy-to-read display are essential tools for this segment."
+      },
+      {
+        "name": "Hal Leonard",
+        "type": "brand",
+        "rationale": "As one of the world's largest traditional music publishers, they cater to the educational and professional sectors that still rely heavily on high-quality, printed sheet music for instruction and performance."
+      },
+      {
+        "name": "Yousician",
+        "type": "brand",
+        "rationale": "This online music education platform directly fuels the demand for sheet music by providing interactive lessons that require users to read and play along with notation, fostering a new generation of musicians."
+      },
+      {
+        "name": "Orchestras and Choral Societies",
+        "type": "category",
+        "rationale": "These organizations are significant B2B consumers, requiring licensed scores for their entire ensembles and influencing the purchasing decisions of their individual, highly-committed members."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The online music education market is projected to grow at a CAGR of 14.80%, reaching USD 6.63 billion by 2030 from an estimated USD 3.32 billion in 2025.",
+        "relevance": "This rapid growth in online learning directly fuels the demand for both digital and print sheet music, as students require materials for their virtual lessons and practice.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Digital formats are expected to account for approximately 58% of the sheet music market, with subscription-based services seeing a significant rise in adoption.",
+        "relevance": "This audience is increasingly comfortable with and actively seeking subscription models that offer broad access to a large catalog for a flat fee, mirroring trends in other media consumption.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "AI-powered learning and practice tools are becoming integrated into digital sheet music platforms, offering real-time feedback, personalized arrangements, and interactive features.",
+        "relevance": "This segment, focused on skill mastery, is highly receptive to technology that enhances the learning process, making interactive and adaptive sheet music a compelling value proposition.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "From Practice to Performance, The Score That Perfects Your Sound.",
+      "emotionalDriver": "Mastery & Accomplishment",
+      "callToAction": "Explore our library and instantly download your next challenge."
+    }
+  },
+  "PIA_4960": {
+    "segmentId": "PIA_4960",
+    "segmentName": "Book Accessories",
+    "fullPath": "Purchase Intent > Office Supplies > Book Accessories",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:12:13.287Z",
+    "detailedInsight": "This audience views reading not just as a hobby, but as a core component of their identity and a vehicle for personal growth and stress relief. They are deliberate consumers, often seeking products that enhance their reading rituals and transform their personal spaces into literary retreats. Purchase triggers are often tied to elevating their reading experience, organizing their collections, and expressing their literary passion as a design aesthetic.",
+    "exampleAdvertisers": [
+      {
+        "name": "Etsy",
+        "type": "brand",
+        "rationale": "Etsy's marketplace of handcrafted and personalized items, such as custom book embossers and unique bookmarks, directly appeals to this segment's desire for accessories that reflect their individual literary tastes."
+      },
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "Offers practical and stylish solutions for organizing and displaying book collections, catering to the audience's need to manage and showcase their personal libraries."
+      },
+      {
+        "name": "Luxury Home Goods Retailers",
+        "type": "category",
+        "rationale": "High-end brands offering items like designer bookends, premium reading chairs, and ambient lighting resonate with the segment's aspiration to create a sophisticated and comfortable reading environment."
+      },
+      {
+        "name": "Subscription Box Services for Readers",
+        "type": "category",
+        "rationale": "Services that curate books and themed accessories tap into this audience's desire for discovery and receiving items that complement their reading lifestyle."
+      },
+      {
+        "name": "Eco-conscious Lifestyle Brands",
+        "type": "category",
+        "rationale": "Brands offering sustainable products like bamboo bookmarks or organic cotton book totes align with the growing interest in environmentally friendly consumerism among thoughtful readers."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The 'Bookshelf Wealth' aesthetic, which involves creating curated, personal displays with a mix of books, mementos, and decorative items, is a prominent interior design trend.",
+        "relevance": "This trend directly fuels the demand for aesthetic book accessories like sculptural bookends, integrated lighting, and unique shelving solutions that help consumers achieve this 'lived-in' and personalized library look.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a growing demand for sustainable and eco-friendly products, with consumers willing to spend more on items made from recycled or natural materials.",
+        "relevance": "This audience is increasingly seeking book accessories like bookmarks made from recycled paper, upcycled book totes, and refillable pens, reflecting a desire for their purchasing habits to align with their values.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Smart accessories are becoming more integrated into daily life, with a focus on seamless, 'invisible' technology that enhances convenience.",
+        "relevance": "For the book accessories market, this could translate to a rising interest in tech-integrated products like smart reading lights with adjustable color temperatures, digital bookmarking devices that sync across e-readers, or even smart shelves that help catalog a physical library.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Curate Your Narrative: Accessories for the Considered Reader.",
+      "emotionalDriver": "The desire for self-expression and the creation of a personalized sanctuary.",
+      "callToAction": "Transform Your Reading Nook"
+    }
+  },
+  "PIA_4965": {
+    "segmentId": "PIA_4965",
+    "segmentName": "Desk Pads and Blotters",
+    "fullPath": "Purchase Intent > Office Supplies > Desk Pads and Blotters",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:12:28.300Z",
+    "detailedInsight": "This audience is driven by a desire to create a personalized and productive workspace, viewing desk accessories as integral to both aesthetics and efficiency. Spurred by the rise of hybrid work models, they invest in home office setups that reflect their personal style and support their well-being. This segment is increasingly focused on ergonomics and sustainable materials, indicating a value system that prioritizes long-term comfort and environmental consciousness.",
+    "exampleAdvertisers": [
+      {
+        "name": "Herman Miller",
+        "type": "brand",
+        "rationale": "As a leader in ergonomic and high-design office furniture, Herman Miller's focus on quality and productivity directly aligns with this segment's values."
+      },
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "This brand's emphasis on organization and creating clutter-free environments resonates with the audience's goal of improving workspace efficiency and aesthetics."
+      },
+      {
+        "name": "Premium Notebook & Pen Brands",
+        "type": "category",
+        "rationale": "Brands like Moleskine and Baron Fig appeal to the desire for high-quality, tactile tools that complement a curated and organized desk setup."
+      },
+      {
+        "name": "Article",
+        "type": "brand",
+        "rationale": "Article's stylish and modern furniture offerings cater to the audience's interest in creating an aesthetically pleasing and personalized home office environment."
+      },
+      {
+        "name": "Bespoke Leather Goods Makers",
+        "type": "category",
+        "rationale": "This category taps into the growing demand for personalized, high-quality, and durable desk accessories that add a touch of luxury and individuality to a workspace."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global desk accessories market is projected to grow, with one report estimating it to reach $16.5 billion by 2033, growing at a CAGR of 6.3% from 2025. Another report projects the market to reach approximately $25 billion by 2033.",
+        "relevance": "This growth, fueled by the hybrid work model, signifies a sustained demand for desk pads and blotters as consumers continue to invest in their home office environments.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Multi-functional and tech-integrated desk accessories, such as those with wireless charging capabilities, are expected to dominate in 2026.",
+        "relevance": "This audience, focused on efficiency and organization, will be drawn to products that reduce clutter and streamline their workflow by integrating technology seamlessly into their desk setup.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "There is a growing consumer demand for desk accessories made from sustainable and eco-friendly materials like cork, recycled fabrics, and bamboo.",
+        "relevance": "This aligns with the segment's value system that extends beyond pure aesthetics to include environmental responsibility, making sustainable materials a key purchasing consideration.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Desk, Elevated. The Foundation for a More Productive You.",
+      "emotionalDriver": "The feeling of control and calm that comes from a perfectly organized and personalized workspace.",
+      "callToAction": "Define Your Space. Shop curated deskscapes that inspire focus and creativity."
+    }
+  },
+  "PIA_4966": {
+    "segmentId": "PIA_4966",
+    "segmentName": "Filing and Organization",
+    "fullPath": "Purchase Intent > Office Supplies > Filing and Organization",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:12:46.347Z",
+    "detailedInsight": "This audience is primarily driven by life transitions such as moving, starting a new job with a hybrid work model, or reclaiming space in a shrinking household. Their purchase triggers are often linked to a psychological need for control and calm in their personal environment, viewing organization not as a chore, but as a form of self-care and a way to reduce anxiety. They are increasingly making decisions based on the dual priorities of aesthetic integration into their home decor and the sustainability of the materials used.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "As a specialized retailer for organization solutions, they directly cater to this segment's need for a wide variety of products to tackle any organizational challenge."
+      },
+      {
+        "name": "IKEA",
+        "type": "brand",
+        "rationale": "Offers affordable, stylish, and often multi-functional storage and filing solutions that appeal to this audience's desire for aesthetically pleasing and space-saving organization."
+      },
+      {
+        "name": "Home Improvement Retailers",
+        "type": "category",
+        "rationale": "Retailers like Home Depot and Lowe's are key for this segment when they are looking for customizable and modular solutions, such as closet systems or garage storage, to fit specific needs."
+      },
+      {
+        "name": "Professional Organizer Services",
+        "type": "category",
+        "rationale": "For consumers who are overwhelmed by the task of organizing, these services provide the expertise and hands-on help to achieve their desired level of organization, directly addressing a core pain point."
+      },
+      {
+        "name": "Yamazaki Home",
+        "type": "brand",
+        "rationale": "This brand's focus on sleek, minimalist, and space-saving designs strongly appeals to the segment's desire for products that are both functional and blend seamlessly into modern home aesthetics."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The demand for eco-friendly and sustainable organization products, made from materials like bamboo or recycled plastics, is growing as consumers become more environmentally conscious.",
+        "relevance": "This audience is increasingly aligning their purchasing decisions with their personal values, making sustainable and non-toxic materials a key consideration when choosing filing and organization products.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "With the stabilization of hybrid work models, there is a sustained demand for home office furniture and organization solutions that are ergonomic, space-efficient, and modular.",
+        "relevance": "As this audience continues to work from home, they are looking for long-term, flexible solutions to keep their dedicated workspaces productive and clutter-free, driving the need for adaptable filing and storage systems.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "There is a growing interest in smart and integrated storage solutions, such as organizers with built-in charging stations or digital tagging capabilities.",
+        "relevance": "This tech-savvy subset of the filing and organization audience is looking for ways to streamline both their physical and digital lives, making integrated solutions that offer convenience and efficiency highly appealing.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Reclaim Your Space, Reclaim Your Peace of Mind.",
+      "emotionalDriver": "The feeling of control and mental clarity that comes from a well-organized environment.",
+      "callToAction": "Start Small: Organize One Drawer, One Shelf, One Corner Today."
+    }
+  },
+  "PIA_4993": {
+    "segmentId": "PIA_4993",
+    "segmentName": "General Office Supplies",
+    "fullPath": "Purchase Intent > Office Supplies > General Office Supplies",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:13:02.628Z",
+    "detailedInsight": "The General Office Supplies audience is increasingly composed of hybrid workers and small to medium-sized businesses who are outfitting both corporate and home office spaces. This segment is driven by a dual focus on productivity and personal well-being, leading to purchases of ergonomic furniture and smart tech accessories that enhance efficiency and comfort. Their buying decisions are heavily influenced by a growing demand for sustainable and eco-friendly products, with a notable willingness to invest in items made from recycled or biodegradable materials.",
+    "exampleAdvertisers": [
+      {
+        "name": "IKEA for Business",
+        "type": "brand",
+        "rationale": "Offers affordable, stylish, and functional office furniture and organization solutions perfect for the growing number of home offices and flexible workspaces."
+      },
+      {
+        "name": "Subscription Box Services for Office Supplies",
+        "type": "category",
+        "rationale": "Caters to the need for convenient, recurring delivery of essential supplies for both small businesses and remote employees, often with a focus on curated or personalized items."
+      },
+      {
+        "name": "Best Buy for Business",
+        "type": "brand",
+        "rationale": "Targets the segment's need for tech integration in the workspace, offering everything from printers and monitors to smart office devices and networking solutions."
+      },
+      {
+        "name": "Eco-conscious Cleaning Supply Brands",
+        "type": "category",
+        "rationale": "Appeals to the audience's strong preference for sustainability by providing green and non-toxic cleaning products for a healthy work environment."
+      },
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "Directly serves the desire for organization and efficiency with a wide range of storage and desk organization products for both home and corporate offices."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global market for eco-friendly office supplies is projected to grow at a CAGR of 8%, as consumer demand for sustainable products like recycled paper and biodegradable pens continues to rise.",
+        "relevance": "This audience is actively seeking out sustainable options and is willing to pay more for products that align with their environmental values, making eco-friendly attributes a key differentiator.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Integration of AI and smart technology into office supplies is accelerating, with tools like smart notebooks, AI-augmented workflows, and intelligent lighting becoming more common to boost productivity in hybrid work environments.",
+        "relevance": "This segment is looking for ways to optimize their work environments for efficiency and seamless collaboration between in-office and remote settings, making them early adopters of smart office tech.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Workspaces are being redesigned as flexible, multi-use hubs for collaboration, moving away from assigned desks to 'workpoints' and activity-based zones that employees can use as needed.",
+        "relevance": "This trend drives the need for modular, adaptable furniture and portable office supplies that can be easily moved and reconfigured to support different tasks, from focused work to team meetings.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Workspace, Reimagined for Productivity and Well-being.",
+      "emotionalDriver": "The feeling of control and empowerment that comes from a well-organized, personalized, and efficient workspace that supports a healthy work-life balance.",
+      "callToAction": "Shop Curated Collections for Your Work Style"
+    }
+  },
+  "PIA_5031": {
+    "segmentId": "PIA_5031",
+    "segmentName": "Impulse Sealers",
+    "fullPath": "Purchase Intent > Office Supplies > Impulse Sealers",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:13:26.984Z",
+    "detailedInsight": "This audience consists of micro-entrepreneurs and serious hobbyists who are operationalizing a passion, such as launching a cottage food business, selling handmade goods online, or engaging in long-term food preservation. Their purchase of an impulse sealer is a key investment signaling a transition from amateur to professional, driven by the need for product integrity, shelf stability, and a polished, market-ready presentation. They are methodical researchers, focused on the specific capabilities of a sealer (e.g., seal width, material compatibility) to ensure it meets the requirements of their venture.",
+    "exampleAdvertisers": [
+      {
+        "name": "Uline",
+        "type": "brand",
+        "rationale": "As a primary supplier of packaging materials, Uline is a natural fit. Customers buying an impulse sealer have an immediate and ongoing need for compatible poly bags, Mylar pouches, and other shipping supplies."
+      },
+      {
+        "name": "Etsy Seller Services",
+        "type": "category",
+        "rationale": "This audience includes a significant number of small e-commerce businesses. Promoting services for shipping, label printing, and professional packaging directly addresses their need to scale operations and enhance brand presentation."
+      },
+      {
+        "name": "Food Dehydrator & Vacuum Sealer Brands",
+        "type": "category",
+        "rationale": "There is a strong overlap with individuals focused on food preservation and self-sufficiency. Brands like Excalibur or FoodSaver can target this segment to cross-sell equipment for a complete home preservation system."
+      },
+      {
+        "name": "WebstaurantStore",
+        "type": "brand",
+        "rationale": "Catering to small and home-based food businesses, this supplier is perfectly positioned. Impulse sealer purchasers are likely in the market for bulk ingredients, commercial-grade kitchen tools, and compliant food packaging."
+      },
+      {
+        "name": "Mylar Bag Manufacturers",
+        "type": "category",
+        "rationale": "This is a highly specific and relevant category. Consumers interested in long-term food storage or packaging sensitive items (like coffee or electronics) will require specialized Mylar bags, making this a direct-response advertising opportunity."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The cottage food industry is seeing sustained growth, with consumers increasingly seeking authentic, locally-made artisanal products.",
+        "relevance": "This trend directly fuels the need for impulse sealers, as home-based food producers require professional, compliant, and shelf-stable packaging to sell their goods at farmers' markets and online.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "A rising focus on food preservation and self-sufficiency, driven by economic concerns and a desire to reduce food waste, is boosting at-home food storage practices.",
+        "relevance": "Impulse sealers are a key tool for this audience, enabling long-term, airtight storage of dried goods, garden harvests, and bulk food purchases, which aligns with money-saving and waste-reduction goals.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "In e-commerce, sustainable and eco-friendly packaging is becoming a key brand differentiator, with a majority of consumers preferring brands that use recyclable or minimal packaging.",
+        "relevance": "Impulse sealer users, particularly small business owners, will be actively seeking information on compatible, eco-friendly bagging materials to meet consumer expectations and enhance their brand's reputation.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Seal in the Freshness. Lock in the Professionalism.",
+      "emotionalDriver": "Legitimacy and Self-Reliance",
+      "callToAction": "Download our guide to selecting the right sealer and bag combination for your product."
+    }
+  },
+  "PIA_5032": {
+    "segmentId": "PIA_5032",
+    "segmentName": "Lap Desks",
+    "fullPath": "Purchase Intent > Office Supplies > Lap Desks",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:13:42.858Z",
+    "detailedInsight": "The lap desk audience is largely composed of remote workers and students who prioritize creating flexible, ergonomic, and productive workspaces in non-traditional office settings like couches or beds. Their purchase decisions are driven by a need for comfort during long hours of work or study, a desire to protect their laps from device heat, and the necessity of organizing their work materials in small or multi-use living spaces. This segment is not just buying a surface; they are investing in a more comfortable and efficient work-life integration within their homes.",
+    "exampleAdvertisers": [
+      {
+        "name": "Dell Technologies",
+        "type": "brand",
+        "rationale": "As a major seller of laptops and ergonomic office accessories, Dell can target this audience to bundle lap desks with laptop purchases or promote them as essential add-ons for a comfortable home office setup."
+      },
+      {
+        "name": "Online Furniture Retailers",
+        "type": "category",
+        "rationale": "Companies that specialize in home and office furniture can effectively market lap desks as part of a broader collection of solutions for creating functional and stylish home workspaces."
+      },
+      {
+        "name": "IKEA",
+        "type": "brand",
+        "rationale": "Known for its space-saving and functional furniture, IKEA can appeal to the lap desk audience by showcasing how these products fit into a modern, multi-functional home environment."
+      },
+      {
+        "name": "Ergonomic Accessory Brands",
+        "type": "category",
+        "rationale": "Brands focused on ergonomic solutions like monitor stands, keyboards, and mice can market lap desks as a foundational component of an ergonomic home workspace."
+      },
+      {
+        "name": "Amazon",
+        "type": "brand",
+        "rationale": "As a dominant e-commerce platform with a vast selection of home office supplies, Amazon can target this segment with a wide variety of lap desk options and leverage its recommendation engine to promote related products."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global market for portable laptop desks is projected to grow at a CAGR of 6.5% to 6.9% between 2025 and 2035, driven by the increasing prevalence of remote work.",
+        "relevance": "This sustained market growth indicates a strong and ongoing demand from the \"Lap Desks\" audience as more people transition to flexible work arrangements and require solutions for creating comfortable home offices.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a growing consumer preference for multifunctional and aesthetically pleasing home office furniture that can be integrated into living spaces without disrupting the overall decor.",
+        "relevance": "This trend suggests that the \"Lap Desks\" audience is looking for products that are not only functional but also stylish and versatile, capable of serving multiple purposes within their homes.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "A rising emphasis on health and wellness is influencing purchasing decisions, with a greater demand for ergonomic furniture that promotes good posture and reduces physical strain from prolonged sitting.",
+        "relevance": "For the \"Lap Desks\" audience, this means they are actively seeking out products with adjustable features and ergonomic designs to ensure comfort and well-being while working or studying from non-traditional desks.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Upgrade Your Comfort, Elevate Your Focus: The Ultimate Lap Desk for Your At-Home Hustle.",
+      "emotionalDriver": "The desire for a seamless and comfortable integration of work and life, allowing for productivity without sacrificing personal comfort and well-being.",
+      "callToAction": "Discover Your Perfect Fit: Shop Our Collection of Ergonomic and Stylish Lap Desks Today."
+    }
+  },
+  "PIA_5033": {
+    "segmentId": "PIA_5033",
+    "segmentName": "Name Plates",
+    "fullPath": "Purchase Intent > Office Supplies > Name Plates",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:13:59.088Z",
+    "detailedInsight": "This audience is driven by a need for clear identification and personal expression within their professional and personal spaces. Purchase triggers are often linked to career milestones like promotions or new jobs, as well as business-wide upgrades aiming to reflect a new brand identity or foster a more inclusive environment. They are increasingly opting for durable and premium materials like metal and wood, indicating a desire for longevity and a professional aesthetic in their workspaces.",
+    "exampleAdvertisers": [
+      {
+        "name": "Herman Miller",
+        "type": "brand",
+        "rationale": "As a provider of high-end office furniture, their customers are invested in creating a premium and well-organized workspace, making them prime candidates for high-quality, matching nameplates."
+      },
+      {
+        "name": "WeWork",
+        "type": "brand",
+        "rationale": "Providers of flexible and shared office spaces can offer customized nameplates as a value-added service to members, enhancing the sense of a personalized and professional environment within a shared setting."
+      },
+      {
+        "name": "Commercial Real Estate Agencies",
+        "type": "category",
+        "rationale": "These agencies work with businesses setting up new offices, a primary trigger for purchasing new nameplates for doors, desks, and wayfinding."
+      },
+      {
+        "name": "Corporate Gifting Companies",
+        "type": "category",
+        "rationale": "Firms that specialize in corporate gifts can include personalized nameplates in their offerings for employee onboarding, promotions, or recognition programs."
+      },
+      {
+        "name": "Etsy",
+        "type": "brand",
+        "rationale": "The platform's focus on customized and handcrafted goods directly appeals to individuals seeking unique, personalized nameplates for their home offices or as personal gifts."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The adoption of biophilic design in offices, incorporating natural elements like wood, stone, and plants, is a key trend for creating calming and productive workspaces.",
+        "relevance": "This audience will increasingly seek nameplates made from natural and sustainable materials, such as wood or recycled plastics, to align with the aesthetic of their biophilic office design.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The rise of 'resimercial' design, blending residential comfort with commercial functionality, is shaping office aesthetics to be more welcoming and personalized.",
+        "relevance": "This leads to a demand for nameplates that are less corporate and more expressive, featuring a wider range of fonts, colors, and materials that reflect a more relaxed and individual style.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a growing demand for custom nameplates that incorporate smart technologies like QR codes or NFC chips for enhanced functionality.",
+        "relevance": "For the Name Plates audience, this means a move beyond simple identification to interactive elements that can link to a professional profile, company directory, or book a meeting room, aligning with the trend of tech-integrated workspaces.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Space, Your Identity. The Final Touch to a Professional Setting.",
+      "emotionalDriver": "Sense of Belonging and Professional Recognition",
+      "callToAction": "Customize Your Professional Identity"
+    }
+  },
+  "PIA_5034": {
+    "segmentId": "PIA_5034",
+    "segmentName": "Office and Chair Mats",
+    "fullPath": "Purchase Intent > Office Supplies > Office and Chair Mats",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:14:18.109Z",
+    "detailedInsight": "This audience is primarily driven by a desire to protect their investment in home flooring and maintain a professional, organized workspace, whether for a dedicated home office or a multi-purpose area. Their purchase is often triggered by a recent flooring upgrade, a new office chair, or the frustration of restricted movement on carpet. They are increasingly composed of long-term remote or hybrid workers who are now optimizing their established home offices for better ergonomics and efficiency, moving beyond makeshift solutions.",
+    "exampleAdvertisers": [
+      {
+        "name": "Vitrazza",
+        "type": "brand",
+        "rationale": "As a premium provider of glass chair mats, Vitrazza directly targets this segment's desire for high-quality, durable floor protection that also enhances the aesthetic of their workspace."
+      },
+      {
+        "name": "Flooring Retailers (e.g., Floor & Decor, LL Flooring)",
+        "type": "category",
+        "rationale": "These advertisers can target new homeowners or renovators at the point of sale for flooring, positioning chair mats as an essential accessory to protect their new investment from inevitable wear and tear."
+      },
+      {
+        "name": "Herman Miller",
+        "type": "brand",
+        "rationale": "A buyer investing in a high-end ergonomic chair is a prime candidate for a quality chair mat to ensure smooth movement and protect the floor, making this a logical cross-sell opportunity."
+      },
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "This audience is actively seeking to organize and optimize their spaces. The Container Store can position chair mats as a foundational element of a tidy and efficient home office system."
+      },
+      {
+        "name": "Sustainable Home Goods Marketplaces",
+        "type": "category",
+        "rationale": "As consumers increasingly prioritize eco-friendly materials, marketplaces offering mats made from recycled or sustainable content can appeal to the segment's growing environmental consciousness."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The 'Resimercial' Workspace: Home offices are being designed with commercial-grade durability but residential aesthetics, blurring the lines between home and office.",
+        "relevance": "This audience seeks chair mats that are not just functional but also visually appealing, such as clear glass or low-profile fabric mats, to complement their curated home office design instead of appearing purely utilitarian.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Prioritizing Ergonomics and Wellness: With the permanence of hybrid work, there is a sustained focus on creating home office environments that support physical well-being and reduce strain.",
+        "relevance": "Chair mats are no longer just about floor protection; they are an ergonomic tool. Marketing should highlight how reducing rolling friction by up to 80% can decrease leg and back fatigue.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Tactile Naturalism and Sustainable Materials: Design trends for 2026 show a strong preference for natural textures, earthy tones, and materials that are sustainable and tell a story.",
+        "relevance": "This signals an opportunity for chair mats made from innovative, eco-friendly materials like recycled polycarbonate, bamboo, or other natural composites, appealing to consumers who value both aesthetics and sustainability.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Preserve Your Floors. Perfect Your Flow.",
+      "emotionalDriver": "Pride of place - the satisfaction of maintaining a pristine and effortlessly functional home environment.",
+      "callToAction": "Shop the Collection by Flooring Type"
+    }
+  },
+  "PIA_5038": {
+    "segmentId": "PIA_5038",
+    "segmentName": "Office Carts",
+    "fullPath": "Purchase Intent > Office Supplies > Office Carts",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:14:40.767Z",
+    "detailedInsight": "This audience is primarily driven by a need for enhanced productivity and spatial efficiency, viewing office carts as a tool to create a more functional and less cluttered workspace. Their core values lean towards practicality and organization, often triggered by a shift to a hybrid work model or a desire to improve workflow and reduce physical strain. They are not just buying a piece of furniture, but investing in a system to streamline their tasks and create a more controlled and stress-free environment.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "As a specialist in organization solutions, The Container Store directly appeals to this segment's primary need for decluttering and creating efficient spaces."
+      },
+      {
+        "name": "Uline",
+        "type": "brand",
+        "rationale": "Uline is a major supplier of industrial and office materials, including a wide variety of utility carts, making them a natural fit for buyers with purchase intent."
+      },
+      {
+        "name": "Commercial Real Estate Companies",
+        "type": "category",
+        "rationale": "These companies can target businesses that are moving or reconfiguring their office spaces, a key trigger for purchasing new organizational furniture like office carts."
+      },
+      {
+        "name": "Professional Organizer Services",
+        "type": "category",
+        "rationale": "This audience is actively seeking to improve their organization, making them prime clients for professional organizers who can recommend and implement solutions like office carts."
+      },
+      {
+        "name": "IKEA",
+        "type": "brand",
+        "rationale": "IKEA offers affordable and stylish storage and organization solutions, attracting both individual consumers setting up home offices and businesses looking for budget-friendly options."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global ergonomic office furniture market is projected to grow, driven by an increased awareness of employee well-being and the adoption of hybrid work models.",
+        "relevance": "This audience is looking for solutions that not only organize but also contribute to a healthier and more comfortable workspace, making ergonomic features on office carts a key selling point.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Sustainability is a major trend in office furniture, with a growing demand for products made from recycled, renewable, or eco-friendly materials.",
+        "relevance": "Buyers in this segment are increasingly making purchasing decisions based on environmental values. Highlighting the use of sustainable materials in office carts can be a powerful differentiator.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Smart office furniture with integrated technology, such as built-in charging stations and seamless tech integration, is becoming increasingly common.",
+        "relevance": "For a segment focused on efficiency, office carts that incorporate smart features like integrated power or device storage offer a compelling advantage by centralizing and simplifying their workspace technology.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Master Your Workflow: The Cart to a Clutter-Free Mind.",
+      "emotionalDriver": "The feeling of control and mental clarity that comes from a perfectly organized and efficient workspace.",
+      "callToAction": "Explore curated cart solutions that fit your unique workspace and organizational style."
+    }
+  },
+  "PIA_5044": {
+    "segmentId": "PIA_5044",
+    "segmentName": "Office Equipment",
+    "fullPath": "Purchase Intent > Office Supplies > Office Equipment",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:14:57.532Z",
+    "detailedInsight": "The office equipment audience is increasingly comprised of remote and hybrid workers who prioritize creating a personalized and productive home office environment. Their purchase decisions are driven by a need for ergonomic solutions to ensure comfort during long work hours and multi-functional furniture that adapts to smaller, flexible living spaces. This segment is also highly influenced by sustainability, actively seeking products made from eco-friendly and recycled materials.",
+    "exampleAdvertisers": [
+      {
+        "name": "Herman Miller",
+        "type": "brand",
+        "rationale": "As a leader in high-end ergonomic office furniture, Herman Miller directly appeals to this segment's focus on wellness and productivity in their home office setups."
+      },
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "This brand's emphasis on organization and space-saving solutions resonates with the audience's need to create efficient and decluttered workspaces, often within a home environment."
+      },
+      {
+        "name": "Sustainable Furniture Brands",
+        "type": "category",
+        "rationale": "This category targets the growing eco-consciousness of consumers who are actively seeking office equipment made from recycled, upcycled, or sustainably sourced materials."
+      },
+      {
+        "name": "Smart Home Technology Companies",
+        "type": "category",
+        "rationale": "Companies offering smart lighting, noise-canceling technology, and integrated charging solutions can target this segment's desire to create a technologically advanced and seamless work environment."
+      },
+      {
+        "name": "Fully",
+        "type": "brand",
+        "rationale": "Known for its standing desks and ergonomic chairs, Fully caters to the health-conscious remote worker looking to create a more active and comfortable workspace."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global ergonomic office furniture market is projected to grow, with one report estimating it will reach $15 billion by 2025, driven by an increased awareness of employee well-being.",
+        "relevance": "This trend directly reflects the core values of the Office Equipment audience, who are actively seeking ergonomic solutions to improve comfort and health while working from home. Their purchase intent is high for products like adjustable desks and chairs that support better posture.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "AI-driven smart office technology is becoming mainstream, with AI-enabled building management growing at approximately 30% annually. This includes features like smart HVAC systems, AI-powered space analytics, and automated lighting.",
+        "relevance": "As this audience invests in upgrading their home offices, they are increasingly interested in smart technology that enhances productivity and comfort. This includes equipment with integrated technology like wireless charging and app-controlled adjustments.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "There is a significant shift towards sustainable and eco-friendly office supplies, with a notable increase in demand for products made from recycled and biodegradable materials.",
+        "relevance": "The Office Equipment audience is increasingly making purchasing decisions based on environmental impact. They are more likely to be attracted to brands that prioritize sustainability through recycled materials and eco-friendly packaging.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your End-of-Day Comfort is the New Measure of Productivity.",
+      "emotionalDriver": "The desire for well-being and a sense of control over one's personal workspace.",
+      "callToAction": "Explore curated home office setups designed for your well-being."
+    }
+  },
+  "PIA_5060": {
+    "segmentId": "PIA_5060",
+    "segmentName": "Office Instruments",
+    "fullPath": "Purchase Intent > Office Supplies > Office Instruments",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:15:12.820Z",
+    "detailedInsight": "This audience is proactively shaping their work environments, driven by a desire for spaces that enhance productivity and personal well-being. Their purchase decisions are increasingly influenced by the integration of smart technology for a seamless workflow and a strong preference for ergonomic and sustainable materials. They are not just buying functional items, but curating a personalized and health-conscious workspace that reflects their values.",
+    "exampleAdvertisers": [
+      {
+        "name": "Herman Miller",
+        "type": "brand",
+        "rationale": "As a leader in high-end ergonomic office furniture, their focus on design, wellness, and quality directly appeals to this segment's desire for a premium, health-conscious workspace."
+      },
+      {
+        "name": "Smart Furniture Retailers",
+        "type": "category",
+        "rationale": "This audience is actively seeking technologically advanced office solutions. Retailers offering desks with integrated charging, smart lighting, and other IoT features will capture their interest."
+      },
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "This segment values organization and clutter-control to improve focus. The Container Store's range of smart and aesthetically pleasing storage solutions aligns with this need."
+      },
+      {
+        "name": "Eco-Friendly Office Supply Brands",
+        "type": "category",
+        "rationale": "Sustainability is a key consideration for this audience. Brands offering products made from recycled, biodegradable, or renewable materials will resonate with their values."
+      },
+      {
+        "name": "Logitech",
+        "type": "brand",
+        "rationale": "Known for high-quality and ergonomic computer peripherals, Logitech's products are essential for creating the comfortable and productive desk setup this audience desires."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global ergonomic office furniture market is projected to grow at a CAGR of 8.3% from 2025 to 2033, driven by a heightened awareness of employee well-being.",
+        "relevance": "This trend directly reflects the core values of the Office Instruments audience, who are actively seeking products that support their physical health and comfort while working.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Biophilic design, which incorporates natural elements like wood, plants, and natural light, is a major trend for 2026 home offices to reduce stress and improve focus.",
+        "relevance": "This audience is looking to create a holistic and pleasant work environment. Office instruments that feature natural materials or complement a biophilic design will be highly appealing.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "There is a growing demand for multi-zonal and flexible home office layouts that adapt to different tasks and moods, moving beyond a single, static desk setup.",
+        "relevance": "This indicates a need for modular and mobile office instruments that can be easily reconfigured to create distinct zones for focused work, creative tasks, and relaxation.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Workspace, Optimized for Well-being and Peak Performance.",
+      "emotionalDriver": "The desire for a personalized, controlled, and health-conscious environment that fosters both productivity and personal satisfaction.",
+      "callToAction": "Explore curated collections of ergonomic, smart, and sustainable office instruments to build your ideal workspace."
+    }
+  },
+  "PIA_5082": {
+    "segmentId": "PIA_5082",
+    "segmentName": "Paper Handling",
+    "fullPath": "Purchase Intent > Office Supplies > Paper Handling",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:15:29.981Z",
+    "detailedInsight": "The Paper Handling segment consists of individuals who are actively seeking to create more efficient and aesthetically pleasing workspaces, whether at home or in a traditional office. Their purchase triggers are often tied to a desire for increased productivity, reduced stress, and a sense of control over their environment. This audience is increasingly moving away from purely functional items and towards solutions that integrate smart technology and reflect personal style, indicating a blend of practicality and design consciousness in their purchasing decisions.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "Specializing in organizational solutions, The Container Store directly caters to this segment's need for products that declutter and optimize their workspaces."
+      },
+      {
+        "name": "Fellowes Brands",
+        "type": "brand",
+        "rationale": "As a manufacturer of office products like shredders, laminators, and binding machines, Fellowes provides the specific tools this audience seeks for managing physical documents securely and professionally."
+      },
+      {
+        "name": "Home Office Furniture Retailers",
+        "type": "category",
+        "rationale": "This category provides the foundational elements for the organized spaces the Paper Handling segment desires, with a growing emphasis on multi-functional and stylish pieces."
+      },
+      {
+        "name": "Professional Organizer Services",
+        "type": "category",
+        "rationale": "For consumers who are overwhelmed by the task of organizing, professional services offer the expertise to create customized and functional systems, a core desire of this segment."
+      },
+      {
+        "name": "Etsy",
+        "type": "brand",
+        "rationale": "Etsy appeals to the segment's growing interest in personalized and unique organizational items, as well as supplies for creative paper-based hobbies like scrapbooking."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The integration of smart technology into home and office organization is a key trend for 2025, with features like wireless charging surfaces and AI-powered assistants becoming more common.",
+        "relevance": "This audience is looking for modern solutions that streamline their workflow and reduce clutter, making tech-integrated paper handling and storage products highly appealing.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a significant and growing consumer demand for sustainable and eco-friendly office products, with a focus on recycled, biodegradable, or sustainably sourced materials.",
+        "relevance": "The Paper Handling audience is increasingly making purchasing decisions based on environmental impact, creating a strong market for green paper products and organizational tools.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Aesthetic-driven and personalized workspaces are becoming a priority, with a move towards biophilic design (incorporating natural elements), bold colors, and curated, stylish storage solutions.",
+        "relevance": "This segment is no longer satisfied with purely utilitarian paper handling products; they are seeking items that contribute to an inspiring and visually pleasing environment that enhances their well-being and productivity.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Engineer Your Flow: Precision Tools for a Clutter-Free Mind.",
+      "emotionalDriver": "The feeling of empowerment and mental clarity that comes from a perfectly organized and efficient workspace.",
+      "callToAction": "Shop Curated Systems for Your Workflow"
+    }
+  },
+  "PIA_5089": {
+    "segmentId": "PIA_5089",
+    "segmentName": "Presentation Supplies",
+    "fullPath": "Purchase Intent > Office Supplies > Presentation Supplies",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:15:46.000Z",
+    "detailedInsight": "The Presentation Supplies segment is driven by a dual focus on aesthetics and functionality, with 70% of users preferring designer over traditional supplies for improved productivity and motivation. This audience, comprising both corporate and home office users, is increasingly influenced by the rise of hybrid work models, demanding portable and efficient solutions. A significant purchase trigger is the need to create more engaging and interactive presentations, moving beyond static slides to dynamic, data-driven storytelling.",
+    "exampleAdvertisers": [
+      {
+        "name": "Prezi",
+        "type": "brand",
+        "rationale": "As a leader in non-linear, conversational presentation software, Prezi directly appeals to the segment's growing need for more engaging and interactive communication tools."
+      },
+      {
+        "name": "3M Company",
+        "type": "brand",
+        "rationale": "Known for a wide range of office supplies including whiteboards, easels, and projectors, 3M caters to the foundational needs of this segment for both traditional and digital presentations."
+      },
+      {
+        "name": "AI-Powered Presentation Software",
+        "type": "category",
+        "rationale": "This category, including tools that automate design and generate content, targets the audience's desire for efficiency and professional-quality presentations with less effort."
+      },
+      {
+        "name": "Eco-Friendly Office Suppliers",
+        "type": "category",
+        "rationale": "With a growing number of consumers willing to pay a premium for sustainable products, this category aligns with the values of environmentally conscious businesses and individuals."
+      },
+      {
+        "name": "Logitech",
+        "type": "brand",
+        "rationale": "Logitech provides essential accessories for digital presentations, such as webcams, pointers, and headsets, which are critical for the increasing number of remote and hybrid presentations."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The integration of AI and automation in presentation tools is a major trend, with the AI presentation tools market projected to grow at a CAGR of 25% from 2025 to 2033. These tools offer features like automated slide creation and real-time audience feedback.",
+        "relevance": "This trend directly addresses the audience's need for creating visually compelling and data-driven presentations more efficiently, automating design and content suggestions to save time and enhance quality.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a significant shift towards sustainable and eco-friendly office products, with 65% of office supply buyers willing to pay more for them. The sustainable products market is expected to grow from approximately $382.6 billion in 2025 to $802.6 billion by 2035.",
+        "relevance": "This audience is increasingly making purchasing decisions based on environmental impact. Offering presentation supplies made from recycled or biodegradable materials aligns with their core values and can be a key differentiator.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Presentations are becoming more interactive and immersive, moving away from static, linear formats. There's a growing demand for features like dynamic data visualization, non-linear storytelling, and audience interaction tools.",
+        "relevance": "To capture and maintain audience attention, this segment is actively seeking tools and supplies that facilitate two-way communication and create more memorable experiences, driving the adoption of interactive software and hardware.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Beyond the Bullet Point: Craft Presentations That Captivate and Close.",
+      "emotionalDriver": "The desire to be perceived as a confident, compelling, and authoritative communicator.",
+      "callToAction": "Upgrade Your Impact. Explore our curated collection of tools for unforgettable presentations."
+    }
+  },
+  "PIA_5105": {
+    "segmentId": "PIA_5105",
+    "segmentName": "Shipping Supplies",
+    "fullPath": "Purchase Intent > Office Supplies > Shipping Supplies",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:16:02.685Z",
+    "detailedInsight": "This audience consists of pragmatists who are increasingly influenced by the total cost and environmental impact of their shipping choices. For small business owners, packaging is a direct reflection of their brand, and they are actively seeking materials that are both cost-effective and sustainable to meet growing consumer expectations. Individuals in this segment are driven by the need for convenience and reliability, often purchasing supplies in response to immediate life events like moving or sending gifts.",
+    "exampleAdvertisers": [
+      {
+        "name": "Etsy",
+        "type": "brand",
+        "rationale": "Etsy sellers are a core small business audience that requires a steady stream of shipping supplies to fulfill customer orders. They are particularly receptive to sustainable and customizable packaging options that enhance their brand's image."
+      },
+      {
+        "name": "The UPS Store",
+        "type": "brand",
+        "rationale": "As a primary shipping service provider for small businesses and individuals, they can target this audience with bundled offers on shipping services and necessary supplies like boxes, tape, and labels."
+      },
+      {
+        "name": "Subscription Box Companies",
+        "type": "category",
+        "rationale": "These companies have a recurring need for high volumes of standardized packaging. They are prime targets for bulk discounts and innovative, branded packaging solutions that create a memorable unboxing experience."
+      },
+      {
+        "name": "U-Haul",
+        "type": "brand",
+        "rationale": "U-Haul directly serves the individual consumer segment for moving, which creates a significant, time-sensitive demand for a wide variety of boxes and packing materials."
+      },
+      {
+        "name": "Eco-Friendly Packaging Suppliers",
+        "type": "category",
+        "rationale": "With a strong and growing consumer preference for sustainable options, suppliers of compostable mailers, recycled cardboard, and other green materials can directly appeal to the values of this audience."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The sustainable packaging market is projected to grow to $423.56 billion by 2029, with over 40% of companies planning to adopt sustainable packaging techniques by 2025.",
+        "relevance": "This audience is actively seeking out and willing to spend more on sustainable shipping options like recyclable and compostable materials to align with consumer values and reduce their environmental impact.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Smart packaging, incorporating elements like QR codes and NFC tags for enhanced customer interaction and supply chain transparency, is a growing trend for 2025.",
+        "relevance": "For small businesses in this segment, smart packaging offers a way to differentiate their brand, provide a better customer experience, and gather valuable post-purchase data.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Logistics market fractionalization is expected in 2026, leading to a rise in specialized, task-focused solutions for services like returns and tracking.",
+        "relevance": "Small businesses will be looking for integrated shipping supply and service providers who can simplify this increasingly complex landscape, offering end-to-end solutions that are easy to manage.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Brand's First Impression, Delivered Sustainably.",
+      "emotionalDriver": "The desire for professionalism and conscientiousness; showing their customers they are a responsible and trustworthy business.",
+      "callToAction": "Explore our eco-friendly packaging solutions."
+    }
+  },
+  "PIA_5123": {
+    "segmentId": "PIA_5123",
+    "segmentName": "Computer Software",
+    "fullPath": "Purchase Intent > Software > Computer Software",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:16:18.767Z",
+    "detailedInsight": "This audience is increasingly composed of 'prosumers' and small businesses who prioritize outcomes over features, readily adopting AI-integrated tools to boost productivity and automate workflows. They are highly attuned to flexible, value-based pricing models, such as usage-based or tiered subscriptions with customizable add-ons, rather than fixed, seat-based plans. Deeply concerned about cybersecurity, a significant majority express worry over data theft, influencing their trust in and choice of software providers.",
+    "exampleAdvertisers": [
+      {
+        "name": "NortonLifeLock Inc.",
+        "type": "brand",
+        "rationale": "As a leading provider of consumer cybersecurity solutions, their products directly address this segment's growing concerns about data breaches and identity theft."
+      },
+      {
+        "name": "AI-Powered Productivity Tool Developers",
+        "type": "category",
+        "rationale": "This segment is actively seeking and adopting AI to enhance efficiency, making them a prime audience for tools that automate tasks, generate content, and provide intelligent insights."
+      },
+      {
+        "name": "Adobe",
+        "type": "brand",
+        "rationale": "Adobe's Creative Cloud subscription model, with its increasing focus on AI features and tiered pricing, aligns perfectly with the prosumer and creative professional within this segment."
+      },
+      {
+        "name": "Low-Code/No-Code Platform Providers",
+        "type": "category",
+        "rationale": "These platforms appeal to the segment's desire for efficiency and productivity, enabling users with limited technical skills to build applications and automate processes."
+      },
+      {
+        "name": "Cloud Storage & Collaboration Suites",
+        "type": "category",
+        "rationale": "Essential for modern productivity, these services are a core part of the software toolkit for both individual power users and small businesses focused on seamless workflows."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The shift from seat-based pricing to usage-based and hybrid subscription models is accelerating, with AI features often monetized as add-ons or through credit systems.",
+        "relevance": "This audience is cost-conscious and value-driven, preferring to pay for what they actually use. Flexible pricing models that align cost with utility are more likely to convert and retain these shoppers.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "AI is becoming deeply integrated into all software categories, moving from simple assistants to 'agentic' AI that can manage entire workflows and handle complex tasks with minimal human input.",
+        "relevance": "This audience seeks a competitive edge and values efficiency. Software that leverages AI to automate complex processes and deliver tangible outcomes, not just suggestions, will capture their interest and budget.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Hyper-personalization, driven by AI and data analytics, is becoming a standard expectation in software subscriptions, tailoring features and content to individual user needs.",
+        "relevance": "Shoppers in this segment expect experiences that are relevant to their specific goals. Software that adapts to their behavior and provides customized workflows and recommendations will foster greater loyalty and engagement.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Stop Paying for Shelfware. Get the AI-Powered Tools That Actually Work for You.",
+      "emotionalDriver": "Empowerment through Efficiency: The feeling of being ahead of the curve and in control of one's productivity.",
+      "callToAction": "Start Your Free Trial and Instantly Automate Your Most Tedious Task."
+    }
+  },
+  "PIA_5124": {
+    "segmentId": "PIA_5124",
+    "segmentName": "Antivirus and Security Software",
+    "fullPath": "Purchase Intent > Software > Computer Software > Antivirus and Security Software",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:16:46.769Z",
+    "detailedInsight": "This audience is increasingly proactive and skeptical, with a growing number of users relying on free, built-in antivirus software and prioritizing safe browsing habits over paid solutions. While general security remains their primary purchase trigger, a significant driver is the rising concern over data privacy and the increasing sophistication of cyber threats like phishing and ransomware. Demographically, while those over 65 are more likely to pay for these services, there is a notable increase in first-time adoption among adults aged 18-29, indicating a growing security awareness in younger, digitally native consumers.",
+    "exampleAdvertisers": [
+      {
+        "name": "Identity Theft Protection Services",
+        "type": "category",
+        "rationale": "This audience is highly concerned with data breaches and fraud. These services directly address the fear of personal information being compromised, which is a core value for security-conscious consumers."
+      },
+      {
+        "name": "NordVPN",
+        "type": "brand",
+        "rationale": "The antivirus user base is highly motivated by privacy concerns, making VPNs a natural and complementary product. NordVPN is a leading brand in a VPN market that is seeing significant growth as consumers seek to protect their online activities from surveillance."
+      },
+      {
+        "name": "Smart Home Security Brands",
+        "type": "category",
+        "rationale": "The desire to protect devices and data extends to the physical home environment. As smart home adoption and the Internet of Things (IoT) grows, this audience is a prime target for integrated security ecosystems that protect both digital and physical assets."
+      },
+      {
+        "name": "LifeLock",
+        "type": "brand",
+        "rationale": "As a well-known brand in identity theft protection, often bundled with Norton antivirus, LifeLock appeals directly to this segment's fear of financial loss and identity fraud. The identity theft protection market is projected to grow significantly, driven by the very threats this audience seeks to mitigate."
+      },
+      {
+        "name": "Financial Institutions",
+        "type": "category",
+        "rationale": "With Business Email Compromise being the costliest cybercrime and financial fraud a major concern, banks and credit card companies can target this segment by offering security software as a value-add to protect accounts and build trust. This aligns with the audience's desire to safeguard their financial information."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The rise of AI-powered cyber threats, such as sophisticated phishing and voice-cloning vishing attacks, is expected to accelerate through 2026. In response, the cybersecurity industry is integrating AI and machine learning to provide more advanced, real-time threat detection.",
+        "relevance": "This audience's primary motivation is protection from evolving threats. The AI arms race is the new frontier of their concern, making AI-enhanced security features a critical selling point.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Consumers are shifting from standalone antivirus products to comprehensive security suites that bundle features like a VPN, password manager, and identity monitoring. This reflects a broader understanding of digital safety that encompasses privacy and identity alongside malware protection.",
+        "relevance": "This audience is looking for a holistic solution to their security concerns. They are receptive to all-in-one subscription services that offer a complete digital safety net, rather than purchasing multiple, disparate tools.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The expansion of data privacy regulations globally and within the US will continue through 2025, granting consumers greater control over their personal data. This is increasing consumer awareness and demand for tools that help manage their digital footprint.",
+        "relevance": "This regulatory landscape empowers the target audience and validates their privacy concerns. They are more likely to invest in security software that not only protects from threats but also helps them exercise their data rights.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "AI Won't Ask Nicely. Take Control of Your Digital Identity.",
+      "emotionalDriver": "Empowerment (The feeling of regaining control and security in an environment of increasingly complex and invisible digital threats).",
+      "callToAction": "Get Your Personalized Digital Risk Score"
+    }
+  },
+  "PIA_5125": {
+    "segmentId": "PIA_5125",
+    "segmentName": "Business and Productivity Software",
+    "fullPath": "Purchase Intent > Software > Computer Software > Business and Productivity Software",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:17:01.772Z",
+    "detailedInsight": "This audience consists of professionals who are meticulously focused on optimizing their workflows and quantifying their output. They are early adopters of technology, constantly seeking a competitive edge and valuing tools that offer measurable efficiency gains and seamless integration into their existing tech stack. Purchase triggers are often linked to internal company changes like new projects, team expansion, or a shift in strategy, prompting an immediate need for solutions that can streamline new processes.",
+    "exampleAdvertisers": [
+      {
+        "name": "monday.com",
+        "type": "brand",
+        "rationale": "As a comprehensive work operating system, monday.com directly appeals to this segment's desire for integrated, efficient project management and workflow automation."
+      },
+      {
+        "name": "High-Performance Laptop Manufacturers",
+        "type": "category",
+        "rationale": "This audience requires powerful and reliable hardware to run their suite of productivity applications, making them a prime target for brands like Dell (XPS series) or Apple (MacBook Pro)."
+      },
+      {
+        "name": "Zapier",
+        "type": "brand",
+        "rationale": "Zapier's focus on automating workflows between different web applications is a perfect match for this segment's goal of optimizing and connecting their digital toolset."
+      },
+      {
+        "name": "Financial Planning and Investment Platforms",
+        "type": "category",
+        "rationale": "Professionals focused on productivity and career growth are also likely to be proactive in managing their finances and investments, making them a receptive audience for fintech solutions."
+      },
+      {
+        "name": "Coursera for Business",
+        "type": "brand",
+        "rationale": "This audience is committed to continuous improvement and skill development. Coursera for Business offers targeted online courses to enhance their professional capabilities, directly aligning with their values."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "By 2026, AI is expected to own and orchestrate entire workflows, moving beyond simple task automation to autonomous decision-making in areas like procurement and compliance monitoring.",
+        "relevance": "This audience will be at the forefront of adopting these 'agentic AI' systems, seeking software that doesn't just assist, but autonomously manages complex processes to maximize productivity.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "The rise of low-code and no-code automation platforms is empowering non-technical users to create their own automated workflows, reducing dependency on IT departments.",
+        "relevance": "This trend appeals directly to the 'Business and Productivity Software' segment's desire for control and efficiency, allowing them to build custom solutions without extensive coding knowledge.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Hyperautomation, the integration of multiple automation technologies like AI, machine learning, and RPA, is becoming a business necessity to optimize operations in real-time.",
+        "relevance": "This audience will actively seek out hyperautomation solutions to create a seamless, intelligent, and highly efficient work environment, connecting disparate tools and processes.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Stop Juggling Apps. Start Orchestrating Outcomes.",
+      "emotionalDriver": "The desire for effortless control and the satisfaction of a perfectly optimized system.",
+      "callToAction": "Integrate Your Workflow in 5 Minutes"
+    }
+  },
+  "PIA_5129": {
+    "segmentId": "PIA_5129",
+    "segmentName": "Educational Software",
+    "fullPath": "Purchase Intent > Software > Computer Software > Educational Software",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:17:19.491Z",
+    "detailedInsight": "This audience is driven by a significant concern for their children's future readiness in an increasingly competitive academic and professional landscape. Their purchase decisions are triggered by a desire to mitigate academic pressure and provide supplemental learning to bridge perceived gaps in the current education system. They are actively seeking tools that offer personalized learning paths and tangible progress tracking, valuing solutions that can demonstrate a clear impact on grades and skill development.",
+    "exampleAdvertisers": [
+      {
+        "name": "Chegg",
+        "type": "brand",
+        "rationale": "Chegg's suite of student services, including homework help, textbook rentals, and test prep, directly addresses the core academic support needs of this audience."
+      },
+      {
+        "name": "Online Tutoring Platforms",
+        "type": "category",
+        "rationale": "Parents and students in this segment are actively seeking one-on-one or small group academic support, making online tutoring services a highly relevant advertiser category."
+      },
+      {
+        "name": "Byju's",
+        "type": "brand",
+        "rationale": "As a global edtech company with a focus on personalized learning, Byju's offerings align with the desire for tailored educational content that adapts to individual student needs."
+      },
+      {
+        "name": "Financial Institutions Offering Student Loans",
+        "type": "category",
+        "rationale": "Given the focus on academic achievement and future success, financial products that support higher education are a logical fit for this forward-planning audience."
+      },
+      {
+        "name": "Instructure",
+        "type": "brand",
+        "rationale": "While primarily a B2B provider to educational institutions, brand advertising can influence parent and student perception of the tools used in their schools, associating the brand with academic progress."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global education software market is projected to reach USD 45.72 billion by 2030, with a significant compound annual growth rate.",
+        "relevance": "This substantial market growth indicates a sustained and increasing demand from the 'Educational Software' audience for digital learning tools.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "AI-driven tutoring platforms are forecasted to be a high-growth segment within the educational software market.",
+        "relevance": "This trend highlights the audience's interest in advanced, personalized learning technologies that can provide adaptive and immediate academic support.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "The K-12 school segment is anticipated to hold a 42.3% share of the EdTech market, indicating a strong focus on foundational learning.",
+        "relevance": "This demonstrates that a significant portion of the 'Educational Software' audience consists of parents of younger students, who are a key target demographic.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Unlock Your Child's Full Academic Potential.",
+      "emotionalDriver": "Parental aspiration and the desire to provide their children with a competitive advantage.",
+      "callToAction": "Start a free trial to see personalized learning in action."
+    }
+  },
+  "PIA_5130": {
+    "segmentId": "PIA_5130",
+    "segmentName": "Financial, Tax and Accounting Software",
+    "fullPath": "Purchase Intent > Software > Computer Software > Financial, Tax and Accounting Software",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:17:35.150Z",
+    "detailedInsight": "This audience, comprising both individuals and small business owners, is increasingly motivated by efficiency and future-proofing their financial operations. They are moving beyond basic bookkeeping to adopt cloud-based, AI-powered solutions that offer real-time financial reporting, automated invoicing, and predictive insights to inform strategic decisions. Freelancers and sole proprietors within this segment are particularly focused on tools that simplify tax compliance and help manage irregular income streams.",
+    "exampleAdvertisers": [
+      {
+        "name": "High-Yield Savings Accounts & Robo-Advisors",
+        "type": "category",
+        "rationale": "Users actively managing their finances are prime candidates for services that help them grow their savings and investments with minimal effort, aligning with their desire for financial optimization."
+      },
+      {
+        "name": "American Express Business",
+        "type": "brand",
+        "rationale": "Their suite of business credit cards and expense management tools directly appeals to the small business and freelancer sub-segment looking to streamline spending and maximize rewards."
+      },
+      {
+        "name": "Cloud-Based Project Management Software",
+        "type": "category",
+        "rationale": "This audience values integrated solutions. Project management tools that integrate with accounting software can help them connect their financial data to project profitability and resource allocation."
+      },
+      {
+        "name": "LegalZoom",
+        "type": "brand",
+        "rationale": "Small business owners and freelancers often handle their own legal needs. LegalZoom's services for business formation, contracts, and compliance are a natural fit for this self-sufficient audience."
+      },
+      {
+        "name": "Cybersecurity Software Providers",
+        "type": "category",
+        "rationale": "As financial data increasingly moves to the cloud, this audience has a heightened awareness of and need for robust data security and fraud prevention solutions to protect sensitive information."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The integration of AI and automation is projected to be a defining trend, with expectations that 90% of finance teams will utilize at least one AI-powered solution by 2026.",
+        "relevance": "This audience will actively seek out software that leverages AI for automated invoice processing, cash flow forecasting, and fraud detection to increase efficiency and accuracy.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Autonomous finance is becoming a consumer reality, where AI agents will be authorized to find, purchase, and integrate financial plans based on real-time data.",
+        "relevance": "This tech-savvy audience will be early adopters of tools that offer hyper-personalized financial advice and automated money management, moving beyond simple tracking to proactive financial optimization.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Cloud-based accounting solutions are becoming the default standard, with the market expected to reach nearly $70 billion by 2033, enabling real-time collaboration and data access from anywhere.",
+        "relevance": "This segment, particularly those with remote teams or who work with external accountants, will prioritize cloud-native platforms that offer seamless integration with other business systems like CRM and e-commerce platforms.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Stop Managing Money. Start Optimizing It.",
+      "emotionalDriver": "Empowerment through intelligent automation and proactive financial control.",
+      "callToAction": "Start Your Free Trial and See Your Future Financials Today."
+    }
+  },
+  "PIA_5144": {
+    "segmentId": "PIA_5144",
+    "segmentName": "Network Software",
+    "fullPath": "Purchase Intent > Software > Computer Software > Network Software",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:17:53.300Z",
+    "detailedInsight": "This audience of IT professionals is primarily driven by the immense pressure to maintain network uptime, security, and performance amidst increasing complexity from hybrid work environments and cloud services. They are perpetually in a cycle of continuous learning to keep up with evolving technologies and are highly motivated by solutions that offer automation and centralized visibility to simplify their demanding workloads. Their purchase decisions are triggered by events like infrastructure upgrades, security breaches, or the need to reduce operational costs and complexity.",
+    "exampleAdvertisers": [
+      {
+        "name": "Fortinet",
+        "type": "brand",
+        "rationale": "As a leading provider of integrated and automated cybersecurity solutions, including SD-WAN, Fortinet directly addresses the core security and network performance challenges faced by this audience."
+      },
+      {
+        "name": "Cisco",
+        "type": "brand",
+        "rationale": "Cisco is a foundational name in networking, and their push into software-defined networking and SASE aligns with the audience's need to modernize and secure increasingly complex and distributed networks."
+      },
+      {
+        "name": "Cloud Service Providers (AWS, Azure, Google Cloud)",
+        "type": "category",
+        "rationale": "This audience heavily relies on cloud infrastructure, making the networking, security, and monitoring services offered by major cloud providers essential for managing their hybrid and multi-cloud environments."
+      },
+      {
+        "name": "Network Monitoring Software Vendors",
+        "type": "category",
+        "rationale": "Companies like Datadog, ManageEngine, and SolarWinds provide the critical visibility and observability tools this audience needs to troubleshoot issues, monitor performance, and prevent outages."
+      },
+      {
+        "name": "Palo Alto Networks",
+        "type": "brand",
+        "rationale": "Recognized as a leader in cybersecurity, their focus on AI-powered security platforms and Zero Trust architectures resonates with IT professionals' top priority of defending against sophisticated cyber threats."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "Enterprises are increasingly adopting Secure Access Service Edge (SASE) platforms, which converge networking and security services into a single, cloud-delivered offering.",
+        "relevance": "This trend directly impacts the Network Software audience as they are the ones responsible for evaluating and implementing SASE solutions to simplify their architecture and provide secure access for a distributed workforce.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The rise of AI is driving a major push for infrastructure modernization, with a significant percentage of enterprise AI workloads expected to run on-premises or in hybrid environments by 2026.",
+        "relevance": "This audience must procure and manage network software that can handle the massive data and performance demands of AI applications, fueling investment in private AI infrastructure and high-bandwidth networking.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "AI for IT Operations (AIOps) is moving from a buzzword to a necessity, with AI agents being developed to enable autonomous, self-healing networks that can predict and fix issues with minimal human intervention.",
+        "relevance": "For a time-strapped and understaffed IT audience, AIOps solutions are a critical trend, promising to automate routine tasks, reduce alert fatigue, and proactively optimize network performance.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Stop firefighting. Start automating network resilience.",
+      "emotionalDriver": "The desire for control and predictability in an increasingly chaotic and complex network environment.",
+      "callToAction": "Offer a free trial or a personalized demo that showcases tangible automation and visibility gains."
+    }
+  },
+  "PIA_5146": {
+    "segmentId": "PIA_5146",
+    "segmentName": "Operating Systems",
+    "fullPath": "Purchase Intent > Software > Computer Software > Operating Systems",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:18:07.165Z",
+    "detailedInsight": "This audience is actively evaluating a foundational technology purchase, driven by triggers like end-of-support notifications for their current OS, performance degradation, or the desire for new AI-powered features. They are often technically proficient, weighing factors like software compatibility, security enhancements, and cross-platform integration. Their decision-making is also influenced by a desire for seamless integration with cloud services and enhanced productivity through AI and machine learning capabilities.",
+    "exampleAdvertisers": [
+      {
+        "name": "PC and Laptop Manufacturers",
+        "type": "category",
+        "rationale": "Hardware manufacturers like Dell, HP, and Lenovo often bundle their devices with the latest operating systems and can target users whose current hardware may not support a new OS."
+      },
+      {
+        "name": "Cybersecurity Software Companies",
+        "type": "category",
+        "rationale": "Consumers upgrading their OS are highly conscious of security; advertisers like Norton or McAfee can highlight advanced protection features compatible with the new system."
+      },
+      {
+        "name": "Cloud Storage Providers",
+        "type": "category",
+        "rationale": "With the increasing integration of cloud services into operating systems, providers like Dropbox, Google Drive, and OneDrive can target users looking for seamless file access across devices."
+      },
+      {
+        "name": "Software-as-a-Service (SaaS) Productivity Tools",
+        "type": "category",
+        "rationale": "Companies like Adobe, Slack, or Asana can target this segment to showcase the enhanced performance and new integration possibilities of their applications on a new OS."
+      },
+      {
+        "name": "Intel",
+        "type": "brand",
+        "rationale": "As a key component manufacturer, Intel has a vested interest in PC hardware sales and has previously partnered with Microsoft and PC makers to fund large-scale advertising campaigns to drive upgrades."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The integration of AI and machine learning is becoming a core feature of modern operating systems, enhancing user experience through intelligent resource allocation and proactive threat detection.",
+        "relevance": "This audience is motivated by new capabilities, and AI-powered features like advanced personal assistants and automated workflows are significant upgrade incentives.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a growing emphasis on seamless cross-platform compatibility and integration with cloud services, allowing users to access files and applications from any device.",
+        "relevance": "Buyers in this segment are looking for an OS that fits into their broader ecosystem of devices and digital services, making cross-platform functionality a key decision factor.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "By 2026, Agentic AI, which can autonomously plan and execute multi-step workflows, will move from experimentation to enterprise-grade integration, acting as 'virtual coworkers'.",
+        "relevance": "Early adopters and power users within the Operating Systems segment will be highly attracted to the significant productivity gains promised by agentic AI, influencing their choice of an OS that can best support these advanced capabilities.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your PC, Reimagined. Unlock Next-Gen AI and Seamless Connectivity.",
+      "emotionalDriver": "The desire for empowerment and efficiency through cutting-edge technology.",
+      "callToAction": "Explore features that redefine productivity and creativity."
+    }
+  },
+  "PIA_5148": {
+    "segmentId": "PIA_5148",
+    "segmentName": "Digital Goods and Currency",
+    "fullPath": "Purchase Intent > Software > Digital Goods and Currency",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:18:22.786Z",
+    "detailedInsight": "This audience consists of digitally-native consumers, primarily Gen Z and Millennials, who view digital ownership and virtual items as extensions of their identity and status. Their purchase triggers are often rooted in the desire for self-expression, community belonging, and gaining a competitive edge within online environments like gaming and social metaverses. They are early adopters of new technologies and are increasingly comfortable with decentralized concepts and cryptocurrencies.",
+    "exampleAdvertisers": [
+      {
+        "name": "NVIDIA",
+        "type": "brand",
+        "rationale": "As a key provider of the hardware that powers high-fidelity gaming and metaverse experiences, NVIDIA's graphics cards are essential for this audience to fully engage with their digital goods and virtual worlds."
+      },
+      {
+        "name": "Decentraland",
+        "type": "brand",
+        "rationale": "This audience is actively participating in or exploring virtual worlds. Decentraland, a leading decentralized metaverse platform, directly offers the virtual land, wearables, and experiences they are looking to purchase."
+      },
+      {
+        "name": "Online Gaming Platforms",
+        "type": "category",
+        "rationale": "Platforms like Steam, Epic Games Store, and Roblox are primary marketplaces where this segment purchases in-game items, currencies, and downloadable content, making them a core destination for their spending."
+      },
+      {
+        "name": "Coinbase",
+        "type": "brand",
+        "rationale": "A significant portion of this audience uses cryptocurrency to purchase digital assets. Coinbase provides the necessary on-ramp to convert fiat money into the digital currencies required for these transactions."
+      },
+      {
+        "name": "High-End PC and Peripheral Manufacturers",
+        "type": "category",
+        "rationale": "Companies like Alienware, Razer, and Corsair cater directly to the high-performance needs of this audience, who require powerful hardware to render and interact with their digital goods and virtual environments seamlessly."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The tokenization of real-world assets (RWAs) is gaining significant traction, bridging traditional finance with the digital economy.",
+        "relevance": "This trend expands the definition of 'digital goods' for this audience, allowing them to purchase fractional ownership of physical assets like real estate or art as NFTs, appealing to their investment and digital ownership interests.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "AI-powered and intelligent NFTs (iNFTs) are emerging, allowing for digital assets that can evolve, learn, and interact.",
+        "relevance": "This audience seeks unique and dynamic digital experiences. iNFTs offer a new level of personalization and engagement, moving beyond static collectibles to interactive digital companions or assets that change based on user interaction or external data.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The creator economy is projected to nearly double, reaching almost $500 billion by 2027, with a growing emphasis on creators as direct-to-consumer brands.",
+        "relevance": "This audience is not just consuming digital goods but is also increasingly creating and monetizing them. They are active participants in the creator economy, buying from and supporting individual creators who produce unique virtual items, skins, and experiences.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Digital Identity, Unleashed. Own the Unownable.",
+      "emotionalDriver": "Status and Exclusivity",
+      "callToAction": "Secure Your Limited Edition Digital Asset Now"
+    }
+  },
+  "PIA_5156": {
+    "segmentId": "PIA_5156",
+    "segmentName": "Video Game Software",
+    "fullPath": "Purchase Intent > Software > Video Game Software",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:18:41.056Z",
+    "detailedInsight": "This audience consists of dedicated players who are increasingly concentrating their playtime on fewer, high-engagement titles, making them selective in their purchasing decisions. Their core values revolve around fair play, teamwork, and dedication, viewing gaming as a lifestyle that requires skill and commitment. Purchase triggers are less about impulse and more about major franchise releases, anticipated sequels, and games that offer deep, ongoing live-service content.",
+    "exampleAdvertisers": [
+      {
+        "name": "G-FUEL",
+        "type": "brand",
+        "rationale": "As a brand synonymous with esports and gaming culture, their energy drinks directly appeal to the audience's desire for sustained focus and performance during long gameplay sessions."
+      },
+      {
+        "name": "High-Performance PC Component Manufacturers",
+        "type": "category",
+        "rationale": "This audience invests in hardware to ensure optimal gameplay experiences for the software they purchase, making them a prime target for graphics cards, processors, and peripherals."
+      },
+      {
+        "name": "Secretlab",
+        "type": "brand",
+        "rationale": "Providers of ergonomic gaming chairs that cater to the lifestyle of spending significant time playing, addressing the audience's need for comfort and physical well-being during extended gaming."
+      },
+      {
+        "name": "Subscription Box Services for Gamers",
+        "type": "category",
+        "rationale": "Curated boxes with gaming merchandise and collectibles tap into the audience's identity as gamers and their passion for the culture surrounding their favorite titles."
+      },
+      {
+        "name": "HelloFresh",
+        "type": "brand",
+        "rationale": "Meal kit delivery services appeal to this audience's lifestyle by offering convenient and healthy food options that minimize time away from gaming, aligning with their focus on efficiency."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The vast majority of game sales (95%) are now digital, with the global digital game distribution platform market projected to grow significantly by 2026.",
+        "relevance": "This audience is the primary driver of the trend, preferring the convenience of digital downloads over physical media for their PC and console games.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Cloud gaming is becoming a mainstream alternative to traditional downloads, eliminating wait times and storage limitations, with significant growth projected through 2026.",
+        "relevance": "This offers a new, frictionless way for the audience to access and play new software, potentially leading to more subscription-based purchases over individual title buys.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Cross-platform play and progression are now standard expectations for major new releases, allowing players to interact seamlessly across PC, console, and mobile.",
+        "relevance": "This audience values the flexibility to play with friends regardless of their chosen platform, making cross-play a critical feature influencing their software purchase decisions.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Next Legend Awaits. Master the Game.",
+      "emotionalDriver": "Mastery & Competitive Edge",
+      "callToAction": "Pre-order now for exclusive early access and dominate from day one."
+    }
+  },
+  "PIA_5158": {
+    "segmentId": "PIA_5158",
+    "segmentName": "Athletics",
+    "fullPath": "Purchase Intent > Sporting Goods > Athletics",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:18:56.976Z",
+    "detailedInsight": "The Athletics segment consists of dedicated fitness enthusiasts who view an active lifestyle as a core part of their identity rather than just a hobby. They are digitally savvy, often beginning their purchase journey on social media or through online search, and are heavily influenced by recommendations from friends and family. This audience is increasingly adopting a hybrid workout model, splitting time between traditional gyms and well-equipped home fitness spaces, driving demand for compact and connected equipment.",
+    "exampleAdvertisers": [
+      {
+        "name": "Wearable Technology Brands",
+        "type": "category",
+        "rationale": "This audience is data-driven and seeks to optimize performance. Wearable technology was named the #1 fitness trend for 2025, making brands that offer smartwatches, fitness trackers, and performance sensors highly relevant."
+      },
+      {
+        "name": "Tonal",
+        "type": "brand",
+        "rationale": "As consumers continue to invest in at-home gym equipment, Tonal's smart, space-saving strength training system directly appeals to the segment's need for efficient and effective home workout solutions."
+      },
+      {
+        "name": "Sustainable Activewear Brands",
+        "type": "category",
+        "rationale": "There is a growing demand for sustainability in sportswear, with consumers rewarding transparency in materials and supply chains. Brands that prioritize and prove their eco-friendly practices will resonate strongly."
+      },
+      {
+        "name": "MyFitnessPal",
+        "type": "brand",
+        "rationale": "This audience is focused on holistic wellness, integrating mental health and nutrition with physical fitness. MyFitnessPal's platform for tracking nutrition and exercise aligns perfectly with this comprehensive approach to health."
+      },
+      {
+        "name": "Sports Recovery Tech Companies",
+        "type": "category",
+        "rationale": "With a heightened focus on optimizing performance and preventing injuries, recovery services like cryotherapy and compression therapy are seen as necessities, not luxuries. Advertisers in this space cater directly to the athlete's goal of maintaining peak physical condition."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The rise of AI-powered personalization and 'Agentic Shopping Intelligence' is transforming the retail experience, with smart sizing tools and product quizzes becoming standard expectations.",
+        "relevance": "The Athletics audience expects a seamless, personalized digital experience that mirrors their adaptive training routines. They will gravitate towards brands that use AI to provide tailored product recommendations and responsive customer service.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Longevity and 'biohacking' services, such as biomarker blood testing and personalized health plans, are moving from niche sectors into mainstream fitness centers and consumer products.",
+        "relevance": "This segment is proactive about health and seeks to optimize both physical and mental performance. They are early adopters of services and products that promise improved longevity and scientifically-backed wellness.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Multifunctional and adaptable products that serve both athletic and everyday lifestyle needs are in high demand, reflecting a broader integration of wellness into daily life.",
+        "relevance": "This audience seeks value and versatility in their purchases. Apparel and gear that can transition from a workout to casual wear or be used for various activities (like trail running and outdoor micro-adventures) will have a strong appeal.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Engineered for Your Peak. Personalized for Your Life.",
+      "emotionalDriver": "Aspiration & Optimization",
+      "callToAction": "Unlock Your Potential"
+    }
+  },
+  "PIA_5317": {
+    "segmentId": "PIA_5317",
+    "segmentName": "Exercise and Fitness",
+    "fullPath": "Purchase Intent > Sporting Goods > Exercise and Fitness",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:19:20.125Z",
+    "detailedInsight": "This audience consists heavily of homeowners (69%) who are creating dedicated fitness spaces to save time and maintain consistent workout routines. They are digitally native, using mobile apps as their 'wellness command centers' and streaming health-related video content. Their purchase decisions are driven by a desire for efficiency and personalization, valuing the ability to tailor workouts to their specific goals without being constrained by traditional gym hours.",
+    "exampleAdvertisers": [
+      {
+        "name": "Tonal",
+        "type": "brand",
+        "rationale": "Tonal's AI-powered strength training system directly appeals to this segment's desire for data-driven, personalized, and space-efficient home workout solutions."
+      },
+      {
+        "name": "Meal Delivery Subscription Services",
+        "type": "category",
+        "rationale": "This audience prioritizes health and convenience, making them prime customers for services that offer nutritious, pre-planned meals that align with their fitness goals."
+      },
+      {
+        "name": "Garmin",
+        "type": "brand",
+        "rationale": "As tech-savvy individuals who track their progress, this segment is a core market for Garmin's advanced fitness trackers and smartwatches that monitor detailed health metrics."
+      },
+      {
+        "name": "Athleisure Apparel Brands",
+        "type": "category",
+        "rationale": "Given their commitment to an active lifestyle that integrates with their home life, this audience invests in comfortable and functional athletic wear for their workouts and daily activities."
+      },
+      {
+        "name": "Hydrow",
+        "type": "brand",
+        "rationale": "Hydrow's connected rowing machine offers an immersive, full-body workout experience that caters to the segment's interest in high-tech, engaging, and low-impact home fitness options."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global smart home gym equipment market is projected to grow, with some forecasts expecting it to reach USD 4.5 billion by 2034, growing at a CAGR of 4.8%.",
+        "relevance": "This indicates a sustained and growing commitment from the 'Exercise and Fitness' segment to invest in technologically advanced, connected equipment for their home gyms.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "AI-powered hyper-personalization is a dominant trend, with AI systems analyzing movement, biometrics, and sleep to adjust workouts in real-time for optimized results and injury prevention.",
+        "relevance": "This audience will increasingly expect and seek out equipment and platforms that offer adaptive training plans, moving beyond static, pre-recorded classes to truly individualized fitness coaching.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "There is a growing focus on holistic health and longevity, with consumers demanding interpretation of their health data (like HRV and sleep scores) to make informed decisions about training and recovery.",
+        "relevance": "This segment is looking for more than just a workout; they want integrated solutions that connect their exercise, recovery, and overall well-being, creating opportunities for services that analyze and guide their health journey.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Peak Performance, Engineered at Home.",
+      "emotionalDriver": "Empowerment - the feeling of taking control over one's fitness journey with precision, data, and convenience.",
+      "callToAction": "Upgrade Your Training OS: Explore intelligent equipment and personalized plans designed to evolve with you."
+    }
+  },
+  "PIA_5353": {
+    "segmentId": "PIA_5353",
+    "segmentName": "Yoga and Pilates",
+    "fullPath": "Purchase Intent > Sporting Goods > Exercise and Fitness > Yoga and Pilates",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:19:36.757Z",
+    "detailedInsight": "This audience prioritizes a holistic approach to wellness, viewing yoga and pilates not just as exercise, but as a practice for mental and spiritual well-being. Their purchase decisions are driven by a desire for apparel and equipment that support performance, comfort, and self-expression, often favoring brands with a strong community and authentic connection to the practice. They are increasingly drawn to low-impact workouts that offer both physical strength and mental health benefits like stress reduction and mindfulness.",
+    "exampleAdvertisers": [
+      {
+        "name": "Lululemon",
+        "type": "brand",
+        "rationale": "As a dominant player in the yoga apparel market, Lululemon has built a strong community around its high-quality, stylish activewear that seamlessly transitions from the studio to everyday life."
+      },
+      {
+        "name": "Alo Yoga",
+        "type": "brand",
+        "rationale": "Alo Yoga appeals to this segment with its fashion-forward designs and strong online presence, effectively leveraging social media to create an aspirational lifestyle brand centered around yoga."
+      },
+      {
+        "name": "Beyond Yoga",
+        "type": "brand",
+        "rationale": "Known for its inclusive sizing and exceptionally soft fabrics, Beyond Yoga resonates with the audience's desire for comfort and body positivity in their activewear choices."
+      },
+      {
+        "name": "Sustainable Home Goods Brands",
+        "type": "category",
+        "rationale": "This audience's focus on wellness and mindfulness extends to their living spaces, making them receptive to brands offering eco-friendly and natural home products that promote a serene environment."
+      },
+      {
+        "name": "Mental Wellness Apps",
+        "type": "category",
+        "rationale": "Given their emphasis on mental clarity and stress reduction, this segment is a prime audience for meditation and mindfulness apps that complement their physical practice."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The fusion of nature and technology in activewear, featuring botanical-inspired motifs and eco-friendly materials alongside smart fabrics and futuristic finishes.",
+        "relevance": "This trend aligns with the audience's appreciation for both the natural, holistic aspects of their practice and the performance benefits of innovative apparel technology.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "The rise of 'All-Day Athleisure,' with a focus on elevated, matching sets made from ultra-soft, stretchy fabrics designed for seamless transitions between workouts and daily activities.",
+        "relevance": "This reflects the segment's desire for versatile, comfortable, and stylish apparel that fits their active and multifaceted lifestyles.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "A growing emphasis on mindful movement, which connects physical exercise with mental clarity and stress reduction, is becoming a primary driver for participation in activities like yoga and pilates.",
+        "relevance": "This trend directly speaks to the core values of the Yoga and Pilates audience, who seek practices that benefit both their physical and mental well-being.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Flow Through Your Day, Inside and Out.",
+      "emotionalDriver": "The desire for inner balance and a sense of calm amidst a busy life.",
+      "callToAction": "Discover apparel and gear designed to support your practice and your life."
+    }
+  },
+  "PIA_5359": {
+    "segmentId": "PIA_5359",
+    "segmentName": "Indoor Games",
+    "fullPath": "Purchase Intent > Sporting Goods > Indoor Games",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:19:52.694Z",
+    "detailedInsight": "This audience prioritizes tangible, social experiences as a counterbalance to an increasingly digital world. Their purchases are often driven by a desire for nostalgic connection to childhood and the creation of shared memories with family and friends. This segment is characterized by \"kidults\" who seek playful, stress-reducing activities and families looking to foster stronger bonds through shared entertainment.",
+    "exampleAdvertisers": [
+      {
+        "name": "Brunswick Billiards",
+        "type": "brand",
+        "rationale": "As a premium, historic brand in pool tables and game room furniture, Brunswick appeals to this segment's investment in creating a dedicated home entertainment space."
+      },
+      {
+        "name": "Nintendo",
+        "type": "brand",
+        "rationale": "Nintendo's focus on family-friendly, social, and interactive console games aligns perfectly with this audience's desire for shared entertainment experiences."
+      },
+      {
+        "name": "Snack and Beverage Companies",
+        "type": "category",
+        "rationale": "Indoor gaming sessions are prime occasions for snacking and drinking, making brands that offer shareable treats and beverages highly relevant."
+      },
+      {
+        "name": "Home Furnishing Retailers",
+        "type": "category",
+        "rationale": "Retailers specializing in comfortable seating, multi-purpose tables, and storage solutions can target this segment's need to create functional and inviting game rooms."
+      },
+      {
+        "name": "Hasbro",
+        "type": "brand",
+        "rationale": "A leading manufacturer of iconic board games, Hasbro directly caters to this segment's interest in classic and new tabletop gaming experiences for all ages."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The 'Kidult' movement, where adults purchase toys and games for themselves for nostalgia and fun, is a significant market driver.",
+        "relevance": "This trend directly fuels the demand for board games, retro arcade games, and other indoor entertainment products as adults seek to reconnect with their childhood.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a growing integration of technology in traditional board games, including companion apps, augmented reality (AR), and virtual reality (VR) elements.",
+        "relevance": "This audience, while seeking tangible experiences, is also intrigued by how technology can enhance and add new dimensions to classic indoor games.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "The demand for social and collaborative gaming experiences is on the rise, with a focus on activities that foster teamwork and interaction.",
+        "relevance": "This directly aligns with the core motivation of the Indoor Games audience to connect with others and build relationships through shared play.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Weekend Just Got an Upgrade. Unbox the Fun.",
+      "emotionalDriver": "The joy of connection and shared laughter with loved ones.",
+      "callToAction": "Build Your Ultimate Game Night."
+    }
+  },
+  "PIA_5401": {
+    "segmentId": "PIA_5401",
+    "segmentName": "Outdoor Recreation",
+    "fullPath": "Purchase Intent > Sporting Goods > Outdoor Recreation",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:20:09.405Z",
+    "detailedInsight": "The Outdoor Recreation segment is increasingly motivated by a desire for personal growth, freedom, and connection with others, often seeking escape from digital saturation. Younger consumers, particularly Millennials and Gen Z, are a significant driving force, viewing outdoor activities as integral to their identity and lifestyle, not just a hobby. This audience prioritizes sustainability and inclusivity, expecting brands to demonstrate genuine environmental responsibility and cater to diverse participants.",
+    "exampleAdvertisers": [
+      {
+        "name": "Subaru",
+        "type": "brand",
+        "rationale": "Subaru has built its brand around adventure, reliability, and a love for the outdoors, which directly aligns with the core values of this segment. Their vehicle capabilities and marketing consistently feature outdoor recreational activities."
+      },
+      {
+        "name": "Sustainable Food & Beverage Brands",
+        "type": "category",
+        "rationale": "This audience's heightened environmental awareness makes them receptive to food and beverage companies that emphasize sustainable sourcing, organic ingredients, and eco-friendly packaging."
+      },
+      {
+        "name": "Garmin",
+        "type": "brand",
+        "rationale": "As outdoor activities become more technologically integrated, Garmin's GPS devices, smartwatches, and communication tools are essential for navigation, safety, and performance tracking, making them a natural fit."
+      },
+      {
+        "name": "Adventure Tourism & Travel Companies",
+        "type": "category",
+        "rationale": "This segment actively seeks new experiences and challenges. Travel companies offering curated outdoor adventures like guided hikes, kayaking trips, and eco-tours can directly appeal to their desire for exploration."
+      },
+      {
+        "name": "Cotopaxi",
+        "type": "brand",
+        "rationale": "Cotopaxi's commitment to sustainability, ethical production, and vibrant, functional design resonates strongly with the values of younger, eco-conscious outdoor enthusiasts."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The rise of 'micro-adventures' and van life is blurring the lines between everyday life and outdoor functionality, increasing demand for versatile and multi-use gear.",
+        "relevance": "This trend indicates a shift from occasional, intensive expeditions to more frequent, accessible outdoor experiences. Brands should focus on products that seamlessly transition from urban environments to the trail, catering to a lifestyle where the outdoors is integrated daily.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "A growing emphasis on wellness and mental rejuvenation is driving participation in outdoor activities as a form of 'analog detox' and stress reduction.",
+        "relevance": "This audience is looking for more than just physical challenge; they are seeking mental clarity and a connection with nature. Messaging that highlights the restorative and meditative aspects of outdoor recreation will be highly effective.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Overlanding and bikepacking are experiencing significant growth, with participation in overlanding expected to reach 12 million Americans.",
+        "relevance": "These self-sufficient, vehicle-based exploration trends create demand for a wide range of specialized equipment, from vehicle modifications and rooftop tents to lightweight, compact camping gear. This indicates a willingness to invest in high-value, durable goods for extended, off-grid travel.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Escape Route is Ready. Gear Up for the Recharge.",
+      "emotionalDriver": "Anticipation for restorative freedom and disconnection.",
+      "callToAction": "Explore curated gear lists for your next weekend escape."
+    }
+  },
+  "PIA_5412": {
+    "segmentId": "PIA_5412",
+    "segmentName": "Camping and Hiking",
+    "fullPath": "Purchase Intent > Sporting Goods > Outdoor Recreation > Camping and Hiking",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:20:32.134Z",
+    "detailedInsight": "This audience is increasingly composed of solo travelers and digital detoxers seeking authentic, disconnected experiences. They are not just buying gear; they are investing in enablers of self-reliance and tranquility, with a strong preference for sustainable, durable, and lightweight products that facilitate deeper immersion in nature. Purchase decisions are heavily influenced by online research and a desire for gear that is multifunctional, serving both intense expeditions and casual 'micro-adventures'.",
+    "exampleAdvertisers": [
+      {
+        "name": "Subaru",
+        "type": "brand",
+        "rationale": "Subaru's brand identity is deeply intertwined with outdoor adventure and reliability, making their vehicles a natural fit for transporting gear to remote trailheads and campsites."
+      },
+      {
+        "name": "Garmin",
+        "type": "brand",
+        "rationale": "As campers seek both disconnection and safety, Garmin's satellite communicators and GPS devices appeal to the need for reliable off-grid connectivity and navigation."
+      },
+      {
+        "name": "Sustainable Food & Beverage Brands",
+        "type": "category",
+        "rationale": "This audience values sustainability and requires portable, high-energy nutrition. Brands offering ethically sourced, minimal-waste food and drinks align with their core values."
+      },
+      {
+        "name": "Thule",
+        "type": "brand",
+        "rationale": "Thule's innovative products, like hitch-mounted tents, cater directly to the desire for convenient and accessible car camping solutions that don't require a large RV."
+      },
+      {
+        "name": "Financial Services specializing in Travel Rewards",
+        "type": "category",
+        "rationale": "Given their propensity for travel and experiences over material goods, credit cards and financial products that offer travel rewards and perks for outdoor-related purchases are highly relevant."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The solo travel movement is surging, with a notable increase in solo campers. In 2025, solo travel is one of the fastest-growing travel trends, with a significant portion of travelers planning trips alone.",
+        "relevance": "This signals a need for single-person tents, lightweight gear, and safety-oriented products. Messaging should emphasize freedom, self-discovery, and empowerment.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Sustainability is becoming a baseline expectation, with a focus on circular retail models (repairs and used gear) and eco-friendly materials. Consumers are actively seeking high-quality, multifunctional products designed for longevity to reduce their environmental impact.",
+        "relevance": "Brands that transparently communicate their sustainable practices and offer durable, repairable gear will resonate. This audience is willing to invest more in products that align with their environmental values.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "The integration of smart technology and lightweight, modular design in camping equipment is accelerating. Innovations include app-controlled gear, solar charging capabilities, and advanced materials making gear more compact and efficient.",
+        "relevance": "This audience, while seeking to disconnect, appreciates technology that enhances safety, convenience, and comfort without detracting from the outdoor experience. Products that are both high-tech and user-friendly are in high demand.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Engineered for the Unplugged. Gear That Takes You Further In, Not Further Away.",
+      "emotionalDriver": "Self-Reliance",
+      "callToAction": "Equip Your Escape"
+    }
+  },
+  "PIA_5447": {
+    "segmentId": "PIA_5447",
+    "segmentName": "Cycling",
+    "fullPath": "Purchase Intent > Sporting Goods > Outdoor Recreation > Cycling",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:20:52.313Z",
+    "detailedInsight": "Cycling enthusiasts are often affluent millennials who prioritize experiences and personal well-being over material possessions, viewing cycling as a core component of their identity and lifestyle. Their primary purchase triggers are technology-driven performance enhancements, the desire for adventure and exploration fueling the gravel bike trend, and a growing demand for sustainable and eco-friendly products.",
+    "exampleAdvertisers": [
+      {
+        "name": "GoPro",
+        "type": "brand",
+        "rationale": "Cyclists are driven by a sense of adventure and accomplishment. GoPro enables them to capture and share their experiences, from scenic road routes to challenging mountain trails, aligning perfectly with the community's value of shared experiences."
+      },
+      {
+        "name": "High-Performance Nutrition Brands",
+        "type": "category",
+        "rationale": "This audience is highly attuned to personal health and performance optimization. Brands offering energy gels, hydration mixes, and recovery supplements can directly address their need to fuel rides and improve physical output."
+      },
+      {
+        "name": "Sustainable Tourism & Travel Companies",
+        "type": "category",
+        "rationale": "With a strong interest in exploration and environmental consciousness, cycling enthusiasts are an ideal audience for travel companies that offer eco-friendly tours and cycling-focused vacation packages."
+      },
+      {
+        "name": "Garmin",
+        "type": "brand",
+        "rationale": "This segment is data-driven and seeks to track and improve performance. Garmin's range of GPS computers, smartwatches, and power meters directly caters to this desire for precise measurement and analysis of their rides."
+      },
+      {
+        "name": "Electric Vehicle Manufacturers",
+        "type": "category",
+        "rationale": "Cycling enthusiasts often have a heightened environmental awareness and an appreciation for innovative technology. This makes them a receptive audience for electric vehicle brands that share values of sustainability and cutting-edge engineering."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The gravel biking segment is experiencing a significant surge, with a 55% year-over-year increase in recorded gravel rides. This is driving innovation in wider tire clearances (up to 50-60mm) and gravel-specific suspension systems.",
+        "relevance": "This trend reflects the audience's desire for versatility and adventure beyond paved roads, opening up a market for more durable and adaptable bikes and accessories.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The e-bike market is projected to grow at a CAGR of over 10% from 2025 to 2030, driven by advancements in battery technology and motor efficiency. City commuters currently dominate the market share.",
+        "relevance": "E-bikes are expanding the cycling audience by making it more accessible to a wider range of fitness levels and age groups, particularly for commuting and recreational purposes.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Smart technology integration is becoming a standard in performance cycling, with AI-powered features in accessories like sunglasses and fully wireless electronic drivetrains expected to be prominent.",
+        "relevance": "This tech-savvy audience is eager to adopt innovations that enhance safety, provide detailed performance data, and improve the overall riding experience.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Engineered for Your Escape, Not Just the Ride.",
+      "emotionalDriver": "The pursuit of freedom and personal accomplishment.",
+      "callToAction": "Showcase gear that enables exploration and pushes boundaries, with a focus on user-generated content from epic rides."
+    }
+  },
+  "PIA_5479": {
+    "segmentId": "PIA_5479",
+    "segmentName": "Golf",
+    "fullPath": "Purchase Intent > Sporting Goods > Outdoor Recreation > Golf",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:21:14.717Z",
+    "detailedInsight": "This audience is increasingly data-obsessed, leveraging personal launch monitors and AI-powered analytics to gain a competitive edge and refine their performance. [1, 9, 11] Their purchase cycle is frequent and category-specific, often involving new balls and gloves quarterly and apparel bi-annually, indicating a continuous investment in their game. [3] More than half of these consumers take at least one dedicated golf trip annually, blending their sport with leisure and luxury travel experiences. [15]",
+    "exampleAdvertisers": [
+      {
+        "name": "Rolex",
+        "type": "brand",
+        "rationale": "As a major sponsor of golf tours and players, Rolex aligns with the precision, heritage, and affluent lifestyle associated with the sport's core audience. [22]"
+      },
+      {
+        "name": "Luxury SUV Manufacturers",
+        "type": "category",
+        "rationale": "This category appeals to the practical needs and lifestyle of affluent golfers who require space for equipment and value comfort and performance for travel to courses and resorts."
+      },
+      {
+        "name": "Peter Millar",
+        "type": "brand",
+        "rationale": "A leading brand in luxury golf apparel, Peter Millar caters to the golfer's desire for high-performance fabrics and sophisticated style that transitions seamlessly from the course to the clubhouse. [6]"
+      },
+      {
+        "name": "Financial Services & Wealth Management",
+        "type": "category",
+        "rationale": "The 'serious golfer' demographic often consists of high-net-worth individuals, making them a prime audience for investment services, private banking, and financial planning."
+      },
+      {
+        "name": "Troon Golf Vacations",
+        "type": "brand",
+        "rationale": "With a significant portion of golfers taking multiple golf-specific trips per year, curated travel and experience packages that offer access to premier courses are highly relevant. [15]"
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The mainstream adoption of personal, data-driven performance technology, such as portable launch monitors and AI-powered swing analyzers, is accelerating. [1, 9]",
+        "relevance": "This audience is actively shopping for smart golf equipment, including sensor-equipped clubs and GPS watches, to gain real-time feedback and tangible improvement in their game. [4, 11]",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Equipment personalization is becoming a standard expectation, moving beyond basic adjustments to AI-driven custom club fitting and aesthetic customization. [10, 12]",
+        "relevance": "Golfers are seeking equipment tailored to their specific biomechanics and personal style, creating opportunities for bespoke fitting services and customized gear. [10]",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Off-course 'golf-tainment' experiences, like high-tech simulators and social driving ranges, are surging in popularity, attracting a younger and more diverse demographic. [2, 8]",
+        "relevance": "This creates a new entry point for the sport and an incremental market for more casual golf apparel and equipment suited for these social, tech-driven environments.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Swing, Optimized. The Data Behind Your Best Round.",
+      "emotionalDriver": "Mastery & Competitive Edge",
+      "callToAction": "Get fitted with the same technology the pros use."
+    }
+  },
+  "PIA_5538": {
+    "segmentId": "PIA_5538",
+    "segmentName": "Game Timers",
+    "fullPath": "Purchase Intent > Toys and Games > Game Timers",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:21:54.706Z",
+    "detailedInsight": "The 'Game Timers' audience consists largely of millennial and Gen Z hobbyist board gamers, with a significant portion aged 25-44, who are deeply invested in the social and strategic aspects of tabletop gaming. They are not just casual players; a substantial number own more than 25 games and play weekly, indicating a commitment to the hobby that justifies purchasing specialized accessories like game timers to enhance and formalize their gameplay. Their primary purchase triggers are the desire to elevate the social experience, introduce a competitive or structured element to their games, and a drive for mastery and cognitive challenge.",
+    "exampleAdvertisers": [
+      {
+        "name": "Top Shelf Gamer",
+        "type": "brand",
+        "rationale": "This audience is actively looking to upgrade their game components for a more premium experience, which is exactly what Top Shelf Gamer provides. They are willing to invest in high-quality accessories to enhance their hobby."
+      },
+      {
+        "name": "Smart Home Technology Brands (e.g., Philips Hue, Google Nest)",
+        "type": "category",
+        "rationale": "A growing niche of this audience is integrating smart home technology to create immersive gaming experiences with dynamic lighting and sound, making them a prime target for smart device manufacturers."
+      },
+      {
+        "name": "Kickstarter",
+        "type": "brand",
+        "rationale": "This segment is highly engaged with crowdfunding for new and innovative games and accessories. They are early adopters who actively seek out unique and independent creations, making Kickstarter a natural platform for them."
+      },
+      {
+        "name": "Subscription Box Services for Board Games",
+        "type": "category",
+        "rationale": "Given their frequent gameplay and desire for new experiences, subscription boxes that offer new games and accessories cater directly to their hobbyist nature and drive for discovery."
+      },
+      {
+        "name": "Eagle-Gryphon Games",
+        "type": "brand",
+        "rationale": "As a publisher known for producing high-quality, deluxe board games and premium accessories, they directly appeal to the 'kidult' segment of this audience that values collectible and aesthetically pleasing game components."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global board games market is projected to reach over $15 billion in 2025, with a compound annual growth rate of over 5.5%, indicating a continuously expanding customer base for accessories.",
+        "relevance": "This strong market growth signifies a larger and more engaged audience for 'Game Timers,' who are purchasing accessories to complement their growing game collections and enhance their frequent gameplay sessions.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "A rising consumer demand for sustainability is pushing manufacturers towards eco-friendly board game production, utilizing materials like recycled cardboard, bamboo, and biodegradable plastics.",
+        "relevance": "As 'Game Timers' invest in premium accessories, their purchasing decisions will increasingly be influenced by the sustainability and eco-conscious credentials of the products, including timers made from renewable materials.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Hybrid gaming, which integrates digital companion apps with physical board games, is becoming more common to enhance immersion and streamline gameplay elements like scoring and timers.",
+        "relevance": "This trend presents an opportunity for both physical and digital game timers. 'Game Timers' may seek out well-designed physical timers to reduce screen time, or conversely, adopt sophisticated timer apps that integrate with their favorite hybrid games.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Master the Fourth Dimension of Your Game Night.",
+      "emotionalDriver": "The desire for fair, competitive, and smoothly orchestrated social gameplay.",
+      "callToAction": "Explore timers that bring precision and excitement to every turn."
+    }
+  },
+  "PIA_5539": {
+    "segmentId": "PIA_5539",
+    "segmentName": "Games",
+    "fullPath": "Purchase Intent > Toys and Games > Games",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:22:14.230Z",
+    "detailedInsight": "This audience is largely composed of adults, with the average gamer being 36 years old, and demonstrates a near-equal gender split. They are driven by a desire for social connection, with 55% of players engaging with others weekly, and view gaming as a primary social activity. Purchase triggers are often tied to relaxation, mental stimulation, and the appeal of immersive, narrative-driven experiences.",
+    "exampleAdvertisers": [
+      {
+        "name": "Rockstar Games",
+        "type": "brand",
+        "rationale": "As the publisher of highly anticipated AAA titles like Grand Theft Auto VI, they directly target consumers with high purchase intent for premium, immersive gaming experiences."
+      },
+      {
+        "name": "Board Game Cafes",
+        "type": "category",
+        "rationale": "These venues appeal to the segment's desire for social and interactive entertainment, offering a curated selection of games and a community atmosphere that drives trial and purchase."
+      },
+      {
+        "name": "Kickstarter",
+        "type": "brand",
+        "rationale": "This crowdfunding platform is a major channel for dedicated board game hobbyists to discover and fund new, innovative, and often exclusive games, tapping directly into high-intent purchasing behavior."
+      },
+      {
+        "name": "Nintendo",
+        "type": "brand",
+        "rationale": "With a strong portfolio of family-friendly and social games, Nintendo targets households looking for shared entertainment experiences, a key component of this segment."
+      },
+      {
+        "name": "Gaming Accessory Manufacturers",
+        "type": "category",
+        "rationale": "This category, including companies that produce specialized controllers, headsets, and ergonomic furniture, targets gamers looking to upgrade their setup for a more immersive and comfortable experience."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The integration of digital apps and technology into physical board games (hybrid gaming) is expanding, with the market expected to reach approximately $1.2 billion by 2025.",
+        "relevance": "This audience is increasingly interested in games that offer enhanced replayability and streamlined gameplay through companion apps, augmented reality, and AI-driven storytelling.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The convergence of gaming platforms is becoming standard, with cross-platform play evolving from a perk to an expectation for new releases in 2026.",
+        "relevance": "This trend directly impacts purchasing decisions, as the ability to play with friends regardless of their console or device becomes a key factor for this socially-driven audience.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Base prices for AAA video games are solidifying at the $70 mark, with some high-profile titles potentially pushing towards an $80 price point in 2026.",
+        "relevance": "This audience will face higher upfront costs for premium gaming experiences, influencing their budget allocation and potentially increasing the value they place on in-game purchases and subscription services.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Next Shared Adventure Awaits.",
+      "emotionalDriver": "The joy of connection and collaborative achievement.",
+      "callToAction": "Explore curated collections for your next game night."
+    }
+  },
+  "PIA_5556": {
+    "segmentId": "PIA_5556",
+    "segmentName": "Outdoor Play Equipment",
+    "fullPath": "Purchase Intent > Toys and Games > Outdoor Play Equipment",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:22:39.300Z",
+    "detailedInsight": "This audience views outdoor play equipment not merely as a toy, but as a long-term investment in their children's physical and cognitive development. Primary purchase triggers are the desire to encourage active, imaginative play as an alternative to screen time and to enhance their home's value and utility for family life. They are increasingly prioritizing sustainable, eco-friendly materials and designs that can be adapted as their children grow, reflecting a core value of conscious consumption and future-proofing their investment.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "This audience is already engaged in home and backyard improvement projects, making them prime customers for playsets and related landscaping products."
+      },
+      {
+        "name": "Family SUV Manufacturers",
+        "type": "category",
+        "rationale": "Brands like Honda, Toyota, and Subaru target families with an active lifestyle. Associating their vehicles with the creation of a family-centric, outdoor home environment is a natural extension of their brand promise."
+      },
+      {
+        "name": "Landscape Design Services",
+        "type": "category",
+        "rationale": "Homeowners investing in significant outdoor play structures are often also considering how to integrate them aesthetically into their overall garden and patio design, making them ideal clients for professional landscaping."
+      },
+      {
+        "name": "Bass Pro Shops",
+        "type": "brand",
+        "rationale": "This retailer caters to a broader outdoor and family recreation lifestyle. A family purchasing a large playset is highly aligned with their target demographic for camping, fishing, and other outdoor gear."
+      },
+      {
+        "name": "Children's Health Insurance Providers",
+        "type": "category",
+        "rationale": "These providers can promote preventative health and wellness by aligning their brand with the physical and mental benefits of active outdoor play, a key purchase driver for this segment."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "There is a significant shift towards biophilic, nature-inspired playgrounds built with sustainable and recycled materials like reclaimed plastics and bamboo. [1, 3, 5]",
+        "relevance": "This audience is increasingly eco-conscious and seeks to provide children with a deeper connection to nature. Equipment that is both environmentally friendly and aesthetically blends with the natural landscape strongly appeals to their values.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Inclusive and accessible design is becoming a top priority, with a focus on creating play spaces for children of all physical and cognitive abilities. [2, 4, 8, 10]",
+        "relevance": "Modern parents and community planners are highly attuned to the importance of inclusivity. Equipment featuring wheelchair-accessible ramps, adaptive swings, and sensory-rich panels resonates with a desire for community and ensuring no child is left out.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The integration of smart technology, including augmented reality (AR) elements and interactive play panels, is set to become more mainstream in playground design. [3, 9, 11]",
+        "relevance": "For a generation of digital-native children, tech-integrated play offers a compelling bridge between screen time and physical activity. This appeals to parents looking for innovative ways to keep kids engaged, active, and learning outdoors.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "The Backyard Revolution: Invest in Play, Watch Them Grow.",
+      "emotionalDriver": "Parental Pride: The profound satisfaction of providing a safe, stimulating, and joyful environment that fosters a child's holistic development.",
+      "callToAction": "Explore Customizable Playscapes"
+    }
+  },
+  "PIA_5575": {
+    "segmentId": "PIA_5575",
+    "segmentName": "Puzzles",
+    "fullPath": "Purchase Intent > Toys and Games > Puzzles",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:23:09.345Z",
+    "detailedInsight": "The puzzle audience is driven by a desire for mindful solo activity and a sense of accomplishment, viewing puzzles as a form of stress relief and a break from digital screens. They are often methodical and patient individuals who appreciate aesthetics and the cognitive challenge of problem-solving. Purchase triggers are frequently tied to the desire for a calming and meditative experience, as well as the appeal of visually engaging or artistically unique puzzle designs.",
+    "exampleAdvertisers": [
+      {
+        "name": "Coffee and Tea Brands",
+        "type": "category",
+        "rationale": "Puzzle solving is often a relaxing, at-home activity. Premium coffee and tea brands can position their products as the perfect accompaniment to a cozy and focused puzzle session, enhancing the overall experience of mindful leisure."
+      },
+      {
+        "name": "Audible",
+        "type": "brand",
+        "rationale": "Puzzle enthusiasts are engaged in a hands-on, visual activity that allows for simultaneous audio consumption. Audiobooks and podcasts are a natural fit, providing entertainment and intellectual stimulation that complements the quiet focus of puzzling."
+      },
+      {
+        "name": "Travel and Tourism Companies",
+        "type": "category",
+        "rationale": "Puzzles featuring beautiful travel destinations can inspire wanderlust and serve as a form of escapism. Travel companies can use puzzles to showcase scenic locations, creating a tangible connection with potential travelers and keeping their destinations top-of-mind."
+      },
+      {
+        "name": "Subscription Box Services (e.g., FabFitFun, Cratejoy)",
+        "type": "category",
+        "rationale": "The puzzle audience's interest in curated experiences and hobbies aligns with the subscription box model. These services can include puzzles as part of a larger lifestyle offering or create dedicated boxes for hobbyists, tapping into the desire for new and engaging activities delivered to their door."
+      },
+      {
+        "name": "Direct-to-Consumer Furniture Brands (e.g., Article, Burrow)",
+        "type": "category",
+        "rationale": "Puzzling is an activity that takes place within the home, often in comfortable living spaces. Furniture brands can target this audience by showcasing their products as creating the ideal cozy and organized environment for enjoying hobbies like puzzles."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global jigsaw puzzle market is projected to grow, with some forecasts predicting a CAGR of 4.52% between 2025 and 2032, and another report suggesting a CAGR of 13.6% from 2023 to 2030. This indicates a sustained interest in non-digital forms of entertainment.",
+        "relevance": "This growing market signifies an expanding and engaged audience for advertisers to target. The continued interest in puzzles suggests a receptive market for products and services that align with a lifestyle centered around home-based hobbies and mindfulness.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Augmented reality (AR) is an emerging trend in the puzzle industry, with AR features allowing users to scan completed puzzles to unlock animations and interactive experiences. This integration of digital elements with a physical hobby is expected to attract new, tech-savvy consumers.",
+        "relevance": "For the 'Puzzles' audience, this trend offers a new layer of engagement and novelty. Advertisers can leverage this by associating their brands with innovation and a modern approach to traditional hobbies, potentially through sponsored AR content or puzzles.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "There is a growing consumer preference for sustainable and premium puzzle materials, such as wood and recycled cardboard. Brands that emphasize eco-friendly practices and high-quality, durable materials are gaining favor among environmentally conscious consumers.",
+        "relevance": "This audience is increasingly making purchasing decisions based on their values. Brands that highlight their commitment to sustainability can resonate with this segment, building brand loyalty through shared principles.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Find Your Focus: The Perfect Companion to Your Next Puzzle Escape.",
+      "emotionalDriver": "The desire for a serene and mentally stimulating escape from the everyday.",
+      "callToAction": "Enhance your moment of mindfulness."
+    }
+  },
+  "PIA_5580": {
+    "segmentId": "PIA_5580",
+    "segmentName": "Toys",
+    "fullPath": "Purchase Intent > Toys and Games > Toys",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:23:36.059Z",
+    "detailedInsight": "This audience is sharply divided into two key personas: parents focused on child development and the burgeoning 'kidult' market. Parents, particularly of Gen Alpha, are driven by a toy's ability to foster emotional intelligence and STEM skills, with a growing insistence on sustainable materials. Kidults, primarily Millennials and Gen Z, purchase for themselves, motivated by nostalgia, the thrill of collecting limited editions, and finding stress relief through tangible connections to beloved entertainment franchises.",
+    "exampleAdvertisers": [
+      {
+        "name": "LEGO",
+        "type": "brand",
+        "rationale": "LEGO effectively targets both parents with its focus on STEM learning and creativity, and the high-spending kidult segment with complex, licensed collectibles from franchises like Star Wars and Marvel."
+      },
+      {
+        "name": "Entertainment Studios (e.g., Disney, Universal)",
+        "type": "category",
+        "rationale": "Film and streaming content are primary drivers of toy sales. These studios can leverage their intellectual property to create demand for licensed merchandise that appeals to both children's current interests and adult nostalgia."
+      },
+      {
+        "name": "Nintendo",
+        "type": "brand",
+        "rationale": "With iconic, multi-generational franchises like Pokémon, Nintendo drives significant sales in collectibles and trading cards, directly catering to the kidult market's focus on fandom and collectability."
+      },
+      {
+        "name": "Toy Subscription Boxes",
+        "type": "category",
+        "rationale": "This model appeals directly to parents by offering convenience, reducing clutter, and providing a continuous stream of curated, age-appropriate toys, aligning with values of sustainability and ongoing engagement."
+      },
+      {
+        "name": "Funko",
+        "type": "brand",
+        "rationale": "Funko specializes in pop culture collectibles that are central to the kidult trend. Their business model is built on licensing, limited releases, and fandom, which are the core purchase triggers for adult collectors."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The 'kidult' market, adults buying toys for themselves, has become a primary driver of growth, accounting for a significant percentage of total toy sales and fueling the demand for collectibles and licensed products.",
+        "relevance": "This trend is redefining the audience, proving that a large portion of shoppers are purchasing for their own use, driven by nostalgia and fandom, rather than for children.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Sustainability is shifting from a niche preference to a standard expectation, with parents increasingly demanding toys made from eco-friendly, recycled, or biodegradable materials and favoring durable, long-lasting products over disposable ones.",
+        "relevance": "For the parent segment of this audience, a brand's environmental commitment is a critical factor in the purchase decision, influencing brand loyalty and willingness to buy.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Tech in toys is bifurcating; while AI-powered interactive and personalized toys are growing, a strong counter-trend of 'calm technology' is emerging, where parents seek screen-free smart toys that use tech to enhance physical play rather than dominate it.",
+        "relevance": "This audience is not uniformly adopting technology. Messaging must be tailored, as one part of the segment seeks advanced digital integration while another is actively trying to reduce their children's screen time.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "For Their Next Chapter. For Your First Edition.",
+      "emotionalDriver": "Identity Formation",
+      "callToAction": "Discover Curated Collections"
+    }
+  },
+  "PIA_5608": {
+    "segmentId": "PIA_5608",
+    "segmentName": "Dolls, Playsets and Toy Figures",
+    "fullPath": "Purchase Intent > Toys and Games > Toys > Dolls, Playsets and Toy Figures",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:23:54.969Z",
+    "detailedInsight": "This audience is increasingly comprised of Millennial parents and \"kidults\" driven by nostalgia, purchasing toys for themselves or to share beloved childhood franchises with their own children (Gen Alpha). Purchase decisions are heavily influenced by major entertainment franchises from movies and streaming services, with licensed toys consistently outperforming the overall market. Beyond the franchise appeal, there is a strong preference for toys that offer skill-building, promote mental and emotional health, or allow for personalization and self-expression.",
+    "exampleAdvertisers": [
+      {
+        "name": "The LEGO Group",
+        "type": "brand",
+        "rationale": "LEGO successfully targets both children and the growing 'kidult' market with complex, licensed sets from franchises like Star Wars and Marvel, directly appealing to the collector and nostalgia-driven segments."
+      },
+      {
+        "name": "Streaming Services (e.g., Disney+, Netflix)",
+        "type": "category",
+        "rationale": "These platforms are the primary source for the intellectual property that fuels the lucrative licensed toy market, creating continuous demand for dolls and figures based on their hit shows and movies."
+      },
+      {
+        "name": "Funko",
+        "type": "brand",
+        "rationale": "As a dominant force in the pop culture collectibles market, Funko's entire business model is based on turning characters from entertainment into collectible figures, a core interest of this purchase-intent segment."
+      },
+      {
+        "name": "Video Game Publishers (e.g., Nintendo, Epic Games)",
+        "type": "category",
+        "rationale": "Popular gaming franchises are a significant driver of licensed toy sales, with characters from games like Pokémon and Fortnite being highly sought after as figures and playsets."
+      },
+      {
+        "name": "Hasbro",
+        "type": "brand",
+        "rationale": "A legacy toy company that owns iconic, nostalgia-rich brands like Transformers and G.I. Joe, allowing them to capitalize on the 'Newstalgia' trend by marketing to both parents and their children."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The 'Newstalgia' wave: 73% of parents have purchased toys for themselves, often to connect with their children by sharing classics from their own childhood, leading to a resurgence of vintage toy lines.",
+        "relevance": "This directly fuels the market for both classic doll/figure re-releases and new products tied to legacy franchises, as Millennial parents are a primary purchasing demographic.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Phygital Play integration: The convergence of physical toys and digital experiences through AR and AI is a key innovation driver, with the AR toy market projected to reach $3.71 billion.",
+        "relevance": "This audience, particularly Gen Alpha, expects interactive experiences. Dolls and figures that unlock digital content or interact with apps offer a compelling, value-added play pattern that aligns with this expectation.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The Kidult Collector Boom: Adults now account for one-fourth of all toy sales, driving growth in the market with a focus on high-end collectibles, limited editions, and franchise-specific merchandise.",
+        "relevance": "This trend shifts the target audience for many dolls and figures from purely children to a dual market of kids and adult collectors, influencing product design, marketing, and price points.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "The Characters That Raised You, Ready to Inspire Your Kids.",
+      "emotionalDriver": "Generational Connection",
+      "callToAction": "Introduce the next generation to the heroes you grew up with. Shop the Legacy Collection."
+    }
+  },
+  "PIA_5621": {
+    "segmentId": "PIA_5621",
+    "segmentName": "Educational Toys",
+    "fullPath": "Purchase Intent > Toys and Games > Toys > Educational Toys",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:24:10.299Z",
+    "detailedInsight": "This audience consists of parents and educators who are actively seeking toys that provide tangible developmental benefits, moving beyond mere entertainment. They are often influenced by a desire to prepare children for a future focused on STEM, driving a significant portion of the market's growth. This consumer is also increasingly environmentally conscious, showing a growing preference for sustainable and non-toxic materials in their purchases.",
+    "exampleAdvertisers": [
+      {
+        "name": "LEGO",
+        "type": "brand",
+        "rationale": "LEGO's focus on creativity, problem-solving, and STEM skills directly aligns with the core values of this audience. Their expansion into robotics and coding kits further solidifies their position as a leader in the educational toy space."
+      },
+      {
+        "name": "Subscription Box Services for Kids (e.g., KiwiCo, Lovevery)",
+        "type": "category",
+        "rationale": "These services cater to the desire for curated, age-appropriate developmental toys delivered conveniently. They appeal to busy parents who value expert-selected products that support specific learning stages."
+      },
+      {
+        "name": "VTech",
+        "type": "brand",
+        "rationale": "VTech specializes in electronic learning toys that introduce technology to young children in an educational context. Their products, like AI-driven tablets for preschoolers, appeal to parents looking to familiarize their children with digital tools for learning."
+      },
+      {
+        "name": "Financial Services for Children's Education (e.g., 529 Plan Providers)",
+        "type": "category",
+        "rationale": "This audience is heavily invested in their children's future success and long-term education. Financial products that support educational savings goals would resonate with their forward-thinking mindset."
+      },
+      {
+        "name": "Melissa & Doug",
+        "type": "brand",
+        "rationale": "Known for their focus on wooden toys and imaginative play, Melissa & Doug appeals to the segment's desire for durable, screen-free, and developmentally beneficial toys. Their emphasis on quality and traditional play patterns is a key differentiator."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global STEM toys market is projected to grow at a CAGR of 7.2% from 2025 to 2030, reaching USD 1.83 billion by 2030.",
+        "relevance": "This indicates a sustained and growing demand for toys that develop science, technology, engineering, and math skills, a core purchase driver for the Educational Toys audience.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a significant shift towards sustainability, with a rising demand for eco-friendly toys made from materials like bamboo, wood, and recycled plastics.",
+        "relevance": "This audience is increasingly making purchasing decisions based on environmental impact and the safety of materials, making sustainable practices a key brand differentiator.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Integration of technology, such as AI and AR, into physical toys is a growing trend, creating more interactive and personalized play experiences.",
+        "relevance": "Parents are looking for innovative toys that can keep children engaged while teaching them valuable skills. Smart toys that blend physical and digital play are becoming increasingly popular.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Give Them the Tools to Build Tomorrow, Today.",
+      "emotionalDriver": "Parental aspiration and the desire to provide their children with a competitive advantage for the future.",
+      "callToAction": "Explore our curated collection of toys designed to foster critical thinking and creativity."
+    }
+  },
+  "PIA_5682": {
+    "segmentId": "PIA_5682",
+    "segmentName": "Sports Toys",
+    "fullPath": "Purchase Intent > Toys and Games > Toys > Sports Toys",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:24:27.346Z",
+    "detailedInsight": "This audience, primarily composed of parents of Gen Alpha, is driven by a desire to foster physical activity and skill development in their children. Purchase triggers are often tied to seasonal sports schedules, a child's evolving interests, and the influence of digital trends, with 63% of Gen Alpha discovering sports through gaming first. They are increasingly gravitating towards non-traditional and individual sports like gymnastics and golf, valuing fun and personal achievement over the rigid structure of traditional team sports.",
+    "exampleAdvertisers": [
+      {
+        "name": "GoPro",
+        "type": "brand",
+        "rationale": "Parents are eager to capture their children's developmental milestones and sporting achievements. GoPro offers a durable, kid-friendly way to document these moments from a first-person perspective, aligning with the desire for authentic memories."
+      },
+      {
+        "name": "Healthy Snack & Beverage Brands",
+        "type": "category",
+        "rationale": "With a focus on health and wellness, parents of active children are a prime market for convenient, nutritious snacks and drinks that fuel performance and recovery. Brands emphasizing natural ingredients and low sugar content will resonate strongly."
+      },
+      {
+        "name": "Dick's Sporting Goods",
+        "type": "brand",
+        "rationale": "As a one-stop shop for a wide range of sporting equipment, Dick's appeals to families with children exploring various sports. Their broad selection caters to the Gen Alpha trend of sampling multiple sports rather than specializing early."
+      },
+      {
+        "name": "Video Game Publishers (e.g., EA Sports, 2K Sports)",
+        "type": "category",
+        "rationale": "The line between virtual and real sports is blurring for Gen Alpha, with gaming often being the entry point to a sport. Collaborations, such as in-game items unlocking discounts on real-world equipment, can create a powerful digital-to-physical sales pipeline."
+      },
+      {
+        "name": "Family-Friendly Automotive Brands",
+        "type": "category",
+        "rationale": "Transporting children and their equipment to practices and games is a major part of the youth sports lifestyle. Automotive brands that emphasize cargo space, safety, and durability can effectively target these families."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The 'Phygital' blend of physical and digital play is becoming prominent, with tech-enhanced toys like smart soccer balls seeing a surge in interest.",
+        "relevance": "This audience is looking for toys that are both active and engaging. Sports toys that incorporate technology for feedback, virtual challenges, or connectivity with online platforms will be highly appealing to the digitally native Gen Alpha.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a growing emphasis on individual and alternative sports over traditional team sports, with activities like gymnastics, golf, and even e-sports gaining popularity among Gen Alpha.",
+        "relevance": "This signals a shift in the types of sports toys that will be in demand. Products that cater to skill development in individual sports or offer a more casual, fun-oriented experience will resonate more than those focused solely on competitive team play.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Sustainability is becoming a key consideration in purchasing decisions, with a rising demand for eco-friendly and durable sports toys.",
+        "relevance": "Parents are increasingly conscious of the environmental impact of their purchases. Brands that use recycled materials, offer durable products that can be passed down, and have transparent, ethical manufacturing processes will have a competitive advantage.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "The Gear for Their Unforgettable First Goal. And the Thousand That Follow.",
+      "emotionalDriver": "Parental Pride and Nostalgia",
+      "callToAction": "Shop by Sport, Dream by Milestone."
+    }
+  },
+  "PIA_5705": {
+    "segmentId": "PIA_5705",
+    "segmentName": "Vehicle Parts and Accessories",
+    "fullPath": "Purchase Intent > Vehicles and Parts > Vehicle Parts and Accessories",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:24:43.510Z",
+    "detailedInsight": "This audience is increasingly hands-on, driven by a desire for personalization and cost savings, leading to a surge in DIY maintenance and customization. They are not just replacing parts out of necessity but are actively seeking upgrades that reflect their personality and support specific lifestyle activities like overlanding. This trend is amplified by the growing average age of vehicles, which necessitates more frequent repairs and opens up more opportunities for discretionary upgrades.",
+    "exampleAdvertisers": [
+      {
+        "name": "4x4 and Off-Road Parts Retailers",
+        "type": "category",
+        "rationale": "This segment has a strong interest in functional, purpose-driven modifications for off-road adventures and overlanding, making retailers specializing in armor, suspension, and storage solutions highly relevant."
+      },
+      {
+        "name": "Advance Auto Parts",
+        "type": "brand",
+        "rationale": "As a key destination for DIY customers, they can cater to the growing trend of consumers performing their own maintenance and repairs to save money."
+      },
+      {
+        "name": "EV-Specific Accessory Manufacturers",
+        "type": "category",
+        "rationale": "With the rapid growth of the EV market, there is a surging demand for specialized aftermarket accessories tailored to electric vehicles, such as unique charging solutions and battery care products."
+      },
+      {
+        "name": "WeatherTech",
+        "type": "brand",
+        "rationale": "Their focus on durable, custom-fit interior and exterior protection aligns with the audience's desire to maintain and enhance their vehicles for longevity and specific lifestyle uses."
+      },
+      {
+        "name": "Online Mega-Marketplaces (e.g., Amazon)",
+        "type": "category",
+        "rationale": "A significant portion of this audience, 50% of enthusiasts, makes their final purchase on large e-commerce platforms, making these marketplaces a critical sales channel."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The 'Built for Use' movement is gaining momentum, with a focus on practical, durable, and field-tested off-road components over purely aesthetic upgrades.",
+        "relevance": "This audience is increasingly composed of genuine off-road enthusiasts who demand functionality and reliability for real-world adventures, moving away from cosmetic modifications.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The market for EV-specific aftermarket parts and accessories is experiencing rapid growth, driven by increasing EV adoption and the need for specialized components like battery replacements, upgrades, and innovative charging solutions.",
+        "relevance": "As more consumers in this segment transition to electric vehicles, they will actively seek out accessories and parts designed to enhance the performance, functionality, and aesthetics of their EVs.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "A significant portion of consumers (57%) now prefer Independent Aftermarket (IAM) parts over Original Equipment (OE) brands due to price sensitivity.",
+        "relevance": "This cost-conscious audience is actively seeking value, making them receptive to high-quality, non-branded parts that offer a better price point for their DIY projects and upgrades.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Ride, Your Rules: Upgrade, Don't Just Replace.",
+      "emotionalDriver": "Empowerment through Customization",
+      "callToAction": "Shop performance parts and build your ultimate vehicle."
+    }
+  },
+  "PIA_5773": {
+    "segmentId": "PIA_5773",
+    "segmentName": "Vehicles",
+    "fullPath": "Purchase Intent > Vehicles and Parts > Vehicles",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:25:00.003Z",
+    "detailedInsight": "The 2025-2026 vehicle shopper is increasingly pragmatic and digitally savvy, conducting extensive online research (92% of consumers) before ever visiting a dealership. While still valuing in-person experiences for the final purchase, they are highly price-sensitive, with 43% willing to switch brands for a better price, indicating a significant decline in traditional brand loyalty. This audience is also increasingly open to alternative ownership models and powertrains, showing strong interest in hybrid vehicles and growing curiosity about subscription services that bundle insurance and maintenance.",
+    "exampleAdvertisers": [
+      {
+        "name": "Major Auto Insurance Providers",
+        "type": "category",
+        "rationale": "This audience is actively engaged in a high-value purchase, making it a prime opportunity to message competitive insurance rates and seamless digital policy integration at the point of sale."
+      },
+      {
+        "name": "Carvana",
+        "type": "brand",
+        "rationale": "Carvana's digital-first, transparent pricing model directly appeals to this segment's preference for online research and frustration with traditional dealership negotiation tactics."
+      },
+      {
+        "name": "Hybrid Vehicle Manufacturers",
+        "type": "category",
+        "rationale": "With a significant slowdown in all-electric vehicle sales growth, hybrids have surged in popularity, accounting for a majority of electrified vehicle sales by late 2024, making them a key area of interest for this audience."
+      },
+      {
+        "name": "Auto Loan & Financing Aggregators",
+        "type": "category",
+        "rationale": "Given the high price sensitivity and focus on affordability, these advertisers can capture shoppers looking for the most competitive financing options before they commit to a dealership's offer."
+      },
+      {
+        "name": "SiriusXM",
+        "type": "brand",
+        "rationale": "As shoppers prioritize in-car technology and infotainment as 'must-have' features, SiriusXM can effectively target them with trial offers and highlight the premium, ad-free experience in their new vehicle."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global vehicle subscription market is projected to grow from $6.61 billion in 2025 to $8.48 billion in 2026, reflecting a significant shift in consumer views on vehicle ownership.",
+        "relevance": "This audience is moving beyond traditional purchasing and leasing, showing increased interest in flexible, all-inclusive subscription models that offer convenience and cost-effectiveness, especially among younger demographics.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Connected car technology is becoming standard, with the market expected to grow from $105.67 billion in 2025 to over $185 billion by 2029, driven by demand for enhanced safety, infotainment, and convenience.",
+        "relevance": "This audience expects advanced connectivity and is influenced by features like wireless CarPlay, over-the-air updates, and integrated apps, making tech a critical factor in their purchase decision.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Hybrid vehicle registrations surged to 13.6% in early 2025, continuing a strong upward trajectory and significantly outpacing the growth of new retail EV registrations.",
+        "relevance": "As consumers weigh the practicalities of electrification, this audience is increasingly choosing hybrid models as a 'best of both worlds' solution that addresses fuel costs without the range and charging anxieties associated with pure EVs.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Next Vehicle, On Your Terms. Transparent Pricing, Flexible Ownership.",
+      "emotionalDriver": "Empowerment",
+      "callToAction": "Compare real-time inventory and pricing to build your perfect deal online."
     }
   }
 }

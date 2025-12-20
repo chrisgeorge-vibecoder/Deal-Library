@@ -897,15 +897,15 @@ function MarketInsightsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 p-6">
+    <div className="min-h-screen bg-neutral-50 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <TrendingUp className="w-8 h-8 text-brand-gold" />
-            <h1 className="text-3xl font-bold text-brand-charcoal">U.S. Market Insights</h1>
+        <div className="mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-brand-gold" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-brand-charcoal">U.S. Market Insights</h1>
           </div>
-          <p className="text-neutral-600">
+          <p className="text-sm sm:text-base text-neutral-600">
             Actionable market intelligence based on U.S. Census data.
           </p>
         </div>
@@ -970,68 +970,75 @@ function MarketInsightsContent() {
         </div>
 
         {/* Top Section: Top Market Identification */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold text-brand-charcoal">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <h2 className="text-lg sm:text-xl font-bold text-brand-charcoal">
                 Top Market Identification
               </h2>
               {/* Show filter results indicator */}
               {filteredMarkets.length !== topMarkets.length && (
-                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded">
+                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium rounded">
                   {filteredMarkets.length} of {topMarkets.length} markets
                 </span>
               )}
             </div>
             
             {/* Actions: Comparison Counter, View Mode Toggle & Export */}
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center">
               {(selectedMarketProfile || comparisonProfiles.length > 0) && (
-                <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border-2 border-blue-500 text-blue-700 rounded-lg font-medium">
-                  <GitCompare className="w-4 h-4" />
-                  <span className="text-sm">{(selectedMarketProfile ? 1 : 0) + comparisonProfiles.length} in comparison</span>
+                <div className="flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-50 border-2 border-blue-500 text-blue-700 rounded-lg font-medium text-xs sm:text-sm">
+                  <GitCompare className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">{(selectedMarketProfile ? 1 : 0) + comparisonProfiles.length} in comparison</span>
+                  <span className="sm:hidden">{(selectedMarketProfile ? 1 : 0) + comparisonProfiles.length}</span>
                 </div>
               )}
               <button
                 onClick={handleExportCSV}
                 disabled={filteredMarkets.length === 0}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all bg-neutral-100 text-neutral-600 hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 min-h-[44px] rounded-lg font-medium text-sm transition-all bg-neutral-100 text-neutral-600 hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:scale-95"
                 title="Export top markets to CSV"
               >
                 <Download className="w-4 h-4" />
-                Export Markets
+                <span className="hidden sm:inline">Export Markets</span>
+                <span className="sm:hidden">Export</span>
               </button>
               <button
                 onClick={handleDownloadZipCodes}
                 disabled={!selectedMetric}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all bg-brand-gold text-white hover:bg-brand-gold/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 min-h-[44px] rounded-lg font-medium text-sm transition-all bg-brand-gold text-white hover:bg-brand-gold/90 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:scale-95"
                 title="Download top 5,000 ZIP codes for campaign targeting"
               >
                 <Download className="w-4 h-4" />
-                Top 5K ZIPs
+                <span className="hidden sm:inline">Top 5K ZIPs</span>
+                <span className="sm:hidden">ZIPs</span>
               </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                  viewMode === 'list'
-                    ? 'bg-brand-gold text-white shadow-md'
-                    : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-                }`}
-              >
-                <List className="w-4 h-4" />
-                List View
-              </button>
-              <button
-                onClick={() => setViewMode('map')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                  viewMode === 'map'
-                    ? 'bg-brand-gold text-white shadow-md'
-                    : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-                }`}
-              >
-                <Map className="w-4 h-4" />
-                Map View
-              </button>
+              <div className="flex gap-2 border border-neutral-200 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 min-h-[44px] rounded font-medium text-sm transition-all touch-manipulation active:scale-95 ${
+                    viewMode === 'list'
+                      ? 'bg-brand-gold text-white shadow-md'
+                      : 'bg-transparent text-neutral-600 hover:bg-neutral-100'
+                  }`}
+                  aria-label="List view"
+                >
+                  <List className="w-4 h-4" />
+                  <span className="hidden sm:inline">List</span>
+                </button>
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 min-h-[44px] rounded font-medium text-sm transition-all touch-manipulation active:scale-95 ${
+                    viewMode === 'map'
+                      ? 'bg-brand-gold text-white shadow-md'
+                      : 'bg-transparent text-neutral-600 hover:bg-neutral-100'
+                  }`}
+                  aria-label="Map view"
+                >
+                  <Map className="w-4 h-4" />
+                  <span className="hidden sm:inline">Map</span>
+                </button>
+              </div>
             </div>
           </div>
           
@@ -1063,9 +1070,9 @@ function MarketInsightsContent() {
         </div>
 
         {/* Middle Section: Market Profile Deep Dive */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-brand-charcoal">
+            <h2 className="text-lg sm:text-xl font-bold text-brand-charcoal">
               Market Profile Deep Dive
             </h2>
           </div>
@@ -1100,15 +1107,16 @@ function MarketInsightsContent() {
         </div>
 
         {/* Bottom Section: Side-by-Side Market Comparison */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <GitCompare className="w-6 h-6 text-brand-gold" />
-              <h2 className="text-xl font-bold text-brand-charcoal">
-                Side-by-Side Market Comparison
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <GitCompare className="w-5 h-5 sm:w-6 sm:h-6 text-brand-gold" />
+              <h2 className="text-lg sm:text-xl font-bold text-brand-charcoal">
+                <span className="hidden sm:inline">Side-by-Side Market Comparison</span>
+                <span className="sm:hidden">Market Comparison</span>
               </h2>
             </div>
-            <div className="text-sm text-neutral-600">
+            <div className="text-xs sm:text-sm text-neutral-600">
               {selectedMarketProfile ? '1 primary' : '0'} + {comparisonProfiles.length}/2 additional
             </div>
           </div>

@@ -2988,18 +2988,69 @@ Return ONLY valid JSON in this exact format:
       console.log(`   Calling Gemini Pro model...`);
       
       // Use Pro model for quality-critical competitive analysis
-      const response = await this.proModel.generateContent(prompt);
+      let response;
+      try {
+        response = await this.proModel.generateContent(prompt);
+      } catch (apiError) {
+        console.error('❌ Gemini API call failed:', apiError);
+        this.logModelPerformance('pro', 'Competitive Intel', startTime, false);
+        
+        // Check if it's an API key or authentication error
+        if (apiError instanceof Error) {
+          const errorMessage = apiError.message.toLowerCase();
+          if (errorMessage.includes('api key') || errorMessage.includes('authentication') || errorMessage.includes('permission')) {
+            return {
+              success: false,
+              error: 'Gemini API authentication failed. Please check your GEMINI_API_KEY environment variable.',
+              errorType: 'AuthenticationError'
+            };
+          }
+          if (errorMessage.includes('quota') || errorMessage.includes('rate limit')) {
+            return {
+              success: false,
+              error: 'Gemini API quota exceeded. Please try again later.',
+              errorType: 'QuotaError'
+            };
+          }
+          if (errorMessage.includes('model') || errorMessage.includes('not found')) {
+            return {
+              success: false,
+              error: 'Gemini Pro model is not available. Please check your API access.',
+              errorType: 'ModelError'
+            };
+          }
+        }
+        
+        return {
+          success: false,
+          error: apiError instanceof Error ? apiError.message : 'Gemini API call failed',
+          errorType: apiError instanceof Error ? apiError.constructor.name : typeof apiError
+        };
+      }
       
       if (!response || !response.response) {
         console.error('❌ Gemini API returned empty or invalid response');
+        this.logModelPerformance('pro', 'Competitive Intel', startTime, false);
         return {
           success: false,
           error: 'Empty response from Gemini API'
         };
       }
       
-      const responseText = response.response.text();
-      this.logModelPerformance('pro', 'Competitive Intel', startTime);
+      let responseText: string;
+      try {
+        responseText = response.response.text();
+      } catch (textError) {
+        console.error('❌ Failed to extract text from Gemini response:', textError);
+        this.logModelPerformance('pro', 'Competitive Intel', startTime, false);
+        return {
+          success: false,
+          error: 'Failed to extract text from Gemini API response',
+          errorType: textError instanceof Error ? textError.constructor.name : typeof textError
+        };
+      }
+      
+      this.logModelPerformance('pro', 'Competitive Intel', startTime, true);
       
       console.log(`   Response received (${responseText.length} chars), parsing JSON...`);
       
@@ -3016,7 +3067,19 @@ Return ONLY valid JSON in this exact format:
         };
       }
       
-      const result = JSON.parse(jsonText);
+      let result: any;
+      try {
+        result = JSON.parse(jsonText);
+      } catch (parseError) {
+        console.error('❌ JSON parsing failed:', parseError);
+        console.error('   Attempted to parse:', jsonText.substring(0, 500));
+        return {
+          success: false,
+          error: 'Failed to parse JSON response from Gemini',
+          errorType: parseError instanceof Error ? parseError.constructor.name : typeof parseError,
+          rawResponse: jsonText.substring(0, 1000)
+        };
+      }
       
       // Validate result structure
       if (!result.success) {
@@ -3038,7 +3101,9 @@ Return ONLY valid JSON in this exact format:
       return result;
       
     } catch (error) {
-      console.error('❌ Error generating competitive intelligence:', error);
+      console.error('❌ Unexpected error generating competitive intelligence:', error);
+      this.logModelPerformance('pro', 'Competitive Intel', startTime, false);
+      
       if (error instanceof SyntaxError) {
         console.error('   JSON parsing error - response may not be valid JSON');
         console.error('   Error details:', error.message);

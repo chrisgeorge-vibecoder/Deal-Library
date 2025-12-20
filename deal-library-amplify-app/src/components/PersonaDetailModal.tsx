@@ -93,7 +93,8 @@ export default function PersonaDetailModal({
                   e.stopPropagation();
                   onClose();
                 }}
-                className="p-2 bg-black/10 hover:bg-black/20 rounded-lg transition-colors"
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-black/10 hover:bg-black/20 rounded-lg transition-colors touch-manipulation active:scale-95"
+                aria-label="Close modal"
               >
                 <X className="w-5 h-5 text-[#282828]" />
               </button>

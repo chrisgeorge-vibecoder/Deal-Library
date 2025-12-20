@@ -114,14 +114,14 @@ export default function AudienceExplorer({
       icon: Users,
       subcategories: [
         { id: 'all-personas', name: 'All Personas', description: 'View all available personas', cardType: 'personas' },
+        { id: 'entertainment-personas', name: 'Entertainment & Gaming', description: 'Entertainment and gaming-focused personas', cardType: 'personas' },
         { id: 'family-personas', name: 'Family & Home', description: 'Family-focused audience personas', cardType: 'personas' },
         { id: 'fashion-personas', name: 'Fashion & Style', description: 'Style-conscious and fashion-focused personas', cardType: 'personas' },
         { id: 'food-personas', name: 'Food & Beverage', description: 'Culinary and beverage-focused personas', cardType: 'personas' },
-        { id: 'entertainment-personas', name: 'Entertainment & Gaming', description: 'Entertainment and gaming-focused personas', cardType: 'personas' },
-        { id: 'sports-personas', name: 'Sports & Athletics', description: 'Athletic and sports-focused personas', cardType: 'personas' },
+        { id: 'lifestyle-personas', name: 'Lifestyle & Wellness', description: 'Health, fitness, and lifestyle personas', cardType: 'personas' },
         { id: 'pet-personas', name: 'Pet Care', description: 'Pet owners and animal care personas', cardType: 'personas' },
         { id: 'professional-personas', name: 'Professional', description: 'Career and business-focused personas', cardType: 'personas' },
-        { id: 'lifestyle-personas', name: 'Lifestyle & Wellness', description: 'Health, fitness, and lifestyle personas', cardType: 'personas' },
+        { id: 'sports-personas', name: 'Sports & Athletics', description: 'Athletic and sports-focused personas', cardType: 'personas' },
         { id: 'tech-personas', name: 'Technology & Digital', description: 'Tech-savvy and digital-first personas', cardType: 'personas' }
       ]
     },
@@ -503,18 +503,9 @@ export default function AudienceExplorer({
             });
             
             clearTimeout(timeoutId);
-            if (sizingResponse.ok) {
-              const sizingData = await sizingResponse.json();
-              console.log(`📊 Loaded market sizing data:`, sizingData);
-              if (sizingData.marketSizing && sizingData.marketSizing.length > 0) {
-                sizingData.marketSizing.forEach((sizing: MarketSizing) => {
-                  results.push({ type: 'market-sizing', data: sizing });
-                });
-                console.log(`✅ Added ${sizingData.marketSizing.length} market sizing cards`);
-              } else {
-                console.log('⚠️ No market sizing data found in response');
-              }
-            } else {
+            
+            // Check response status first
+            if (!sizingResponse.ok) {
               console.error(`❌ Failed to fetch market sizing: ${sizingResponse.status} ${sizingResponse.statusText}`);
               try {
                 const errorData = await sizingResponse.json();
@@ -522,12 +513,42 @@ export default function AudienceExplorer({
                 // Show specific error message to user
                 if (sizingResponse.status === 503) {
                   setError('AI service is temporarily unavailable. Please check if Gemini API is configured correctly.');
+                } else if (sizingResponse.status === 504) {
+                  setError(errorData.message || 'Request timed out. Market sizing analysis can be complex - please try again with a more specific query or try later.');
                 } else {
-                  setError(`Failed to load market sizing: ${errorData.message || 'Please try again.'}`);
+                  setError(`Failed to load market sizing: ${errorData.message || errorData.error || 'Please try again.'}`);
                 }
               } catch (e) {
                 console.error('Could not parse error response');
                 setError('Failed to load market sizing. Please try again.');
+              }
+              return;
+            }
+            
+            // Parse successful response
+            const sizingData = await sizingResponse.json();
+            console.log(`📊 Loaded market sizing data:`, sizingData);
+            
+            // Check if the response indicates failure even with 200 status
+            if (sizingData.success === false) {
+              const errorMessage = sizingData.message || sizingData.error || 'Please try again.';
+              setError(`Failed to generate market sizing: ${errorMessage}`);
+              console.error('❌ Market sizing generation failed:', errorMessage);
+              return;
+            }
+            
+            // Check if we have valid market sizing data
+            if (sizingData.marketSizing && sizingData.marketSizing.length > 0) {
+              sizingData.marketSizing.forEach((sizing: MarketSizing) => {
+                results.push({ type: 'market-sizing', data: sizing });
+              });
+              console.log(`✅ Added ${sizingData.marketSizing.length} market sizing cards`);
+            } else {
+              console.log('⚠️ No market sizing data found in response');
+              // Only set error if the response explicitly indicates failure
+              // Otherwise, let the empty state UI handle it
+              if (sizingData.error || sizingData.message) {
+                setError(`Failed to generate market sizing: ${sizingData.message || sizingData.error || 'Please try again.'}`);
               }
             }
           } catch (error) {

@@ -158,10 +158,11 @@ export default function CampaignPlannerForm({ onSubmit, disabled = false }: Camp
         <button
           type="button"
           onClick={() => setShowBriefImporter(true)}
-          className="flex items-center gap-2 px-4 py-2 text-purple-600 border-2 border-purple-600 rounded-lg hover:bg-purple-50 transition-colors font-medium"
+          className="flex items-center gap-2 px-4 py-2 min-h-[44px] text-purple-600 border-2 border-purple-600 rounded-lg hover:bg-purple-50 transition-colors font-medium touch-manipulation active:scale-95"
         >
           <FileText className="w-4 h-4" />
-          Import from Brief
+          <span className="hidden sm:inline">Import from Brief</span>
+          <span className="sm:hidden">Import</span>
         </button>
       </div>
 
@@ -213,7 +214,7 @@ export default function CampaignPlannerForm({ onSubmit, disabled = false }: Camp
             <button
               type="button"
               onClick={handleAddAudience}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+              className="px-4 py-2 min-h-[44px] bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 touch-manipulation active:scale-95"
               disabled={disabled}
             >
               <Plus className="w-4 h-4" />
@@ -251,13 +252,13 @@ export default function CampaignPlannerForm({ onSubmit, disabled = false }: Camp
             Campaign Objectives
             <span className="text-gray-400 ml-1">(Optional)</span>
           </label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
             {OBJECTIVE_OPTIONS.map((objective) => (
               <button
                 key={objective}
                 type="button"
                 onClick={() => handleObjectiveToggle(objective)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 py-2 min-h-[44px] rounded-lg text-sm font-medium transition-colors touch-manipulation active:scale-95 ${
                   formData.campaignObjectives?.includes(objective)
                     ? 'bg-purple-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -326,7 +327,7 @@ export default function CampaignPlannerForm({ onSubmit, disabled = false }: Camp
             <button
               type="button"
               onClick={handleAddProduct}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
+              className="px-4 py-2 min-h-[44px] bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2 touch-manipulation active:scale-95"
               disabled={disabled}
             >
               <Plus className="w-4 h-4" />
@@ -388,11 +389,11 @@ export default function CampaignPlannerForm({ onSubmit, disabled = false }: Camp
         </div>
 
         {/* Form Actions */}
-        <div className="flex gap-4 pt-4 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200">
           <button
             type="submit"
             disabled={disabled || formData.targetAudiences.length === 0}
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 min-h-[44px] bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:scale-95"
           >
             {disabled ? (
               <>
@@ -409,7 +410,7 @@ export default function CampaignPlannerForm({ onSubmit, disabled = false }: Camp
           <button
             type="button"
             onClick={handleReset}
-            className="px-6 py-3 bg-white text-gray-700 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+            className="px-6 py-3 min-h-[44px] bg-white text-gray-700 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium touch-manipulation active:scale-95"
             disabled={disabled}
           >
             Clear Form

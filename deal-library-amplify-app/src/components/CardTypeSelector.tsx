@@ -151,7 +151,7 @@ export default function CardTypeSelector({
                 key={cardType.id}
                 onClick={() => toggleCardType(cardType.id)}
                 className={`
-                  relative group p-2.5 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95
+                  relative group p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation
                   ${isSelected 
                     ? 'bg-blue-600 text-white shadow-md' 
                     : 'bg-white border border-neutral-200 text-neutral-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600'
@@ -185,7 +185,7 @@ export default function CardTypeSelector({
                 key={cardType.id}
                 onClick={() => toggleCardType(cardType.id)}
                 className={`
-                  relative group p-2.5 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95
+                  relative group p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation
                   ${isSelected 
                     ? 'bg-orange-600 text-white shadow-md' 
                     : 'bg-white border border-orange-200 text-orange-600 hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700'
@@ -219,14 +219,14 @@ export default function CardTypeSelector({
           <div className="flex gap-1">
             <button
               onClick={selectAllCards}
-              className="text-xs text-blue-600 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors"
+              className="text-xs text-blue-600 hover:text-blue-700 font-medium px-3 py-2 min-h-[44px] rounded hover:bg-blue-50 transition-colors touch-manipulation active:scale-95"
             >
               Select All
             </button>
             {selectedTypes.length > 0 && (
               <button
                 onClick={clearAllCards}
-                className="text-xs text-neutral-500 hover:text-neutral-700 font-medium px-2 py-1 rounded hover:bg-neutral-50 transition-colors"
+                className="text-xs text-neutral-500 hover:text-neutral-700 font-medium px-3 py-2 min-h-[44px] rounded hover:bg-neutral-50 transition-colors touch-manipulation active:scale-95"
               >
                 Clear
               </button>

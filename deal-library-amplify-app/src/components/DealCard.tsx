@@ -117,7 +117,7 @@ export default function DealCard({
               e.stopPropagation();
               onRemoveFromCart?.();
             }}
-            className={`w-full flex items-center justify-center gap-2 ${buttonPadding} bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors ${buttonTextSize} font-medium`}
+            className={`w-full flex items-center justify-center gap-2 ${buttonPadding} min-h-[44px] bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors ${buttonTextSize} font-medium touch-manipulation active:scale-95`}
           >
             <Trash2 className={iconSize} />
             Remove from Cart
@@ -128,7 +128,7 @@ export default function DealCard({
               e.stopPropagation();
               onAddToCart?.();
             }}
-            className={`w-full flex items-center justify-center gap-2 ${buttonPadding} rounded-lg transition-colors ${buttonTextSize} font-medium bg-brand-gold/10 text-brand-charcoal hover:bg-brand-gold/20`}
+            className={`w-full flex items-center justify-center gap-2 ${buttonPadding} min-h-[44px] rounded-lg transition-colors ${buttonTextSize} font-medium bg-brand-gold/10 text-brand-charcoal hover:bg-brand-gold/20 touch-manipulation active:scale-95`}
           >
             <ShoppingCart className={iconSize} />
             Add to Cart

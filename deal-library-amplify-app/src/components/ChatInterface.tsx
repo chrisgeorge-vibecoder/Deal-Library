@@ -900,7 +900,7 @@ export default function ChatInterface({
       </div>
 
       {/* Chat Input */}
-      <div className={`border-t border-neutral-200 bg-white shadow-lg fixed bottom-0 right-0 z-50 transition-all duration-300 ${sidebarOpen ? 'left-80' : 'left-16'}`}>
+      <div className={`border-t border-neutral-200 bg-white shadow-lg fixed bottom-0 right-0 left-0 lg:transition-all lg:duration-300 z-50 ${sidebarOpen ? 'lg:left-80' : 'lg:left-16'}`}>
         {/* Example Prompts */}
         {messages.length === 1 && messages[0]?.type === 'assistant' && (
           <div className="px-4 pt-4 pb-2">
@@ -911,7 +911,7 @@ export default function ChatInterface({
                   <button
                     key={index}
                     onClick={() => handleExampleClick(prompt)}
-                    className="px-3 py-2 bg-white text-neutral-700 rounded-lg text-sm hover:bg-neutral-100 transition-colors border border-neutral-200"
+                    className="px-3 py-2 min-h-[44px] bg-white text-neutral-700 rounded-lg text-sm hover:bg-neutral-100 transition-colors border border-neutral-200 touch-manipulation active:scale-95"
                   >
                     {prompt}
                   </button>
@@ -928,7 +928,7 @@ export default function ChatInterface({
               value={externalInputValue !== undefined ? externalInputValue : (inputValue || '')}
               onChange={(e) => handleSetInputValue(e.target.value)}
               placeholder="Ask me about deals, targeting, or campaign strategies..."
-              className="w-full min-h-[60px] max-h-32 p-4 pr-12 text-sm border-2 rounded-xl bg-white focus:ring-4 focus:outline-none transition-all duration-200 resize-none border-neutral-200 focus:border-brand-gold focus:ring-brand-gold/20"
+              className="w-full min-h-[60px] max-h-32 p-4 pr-14 text-base sm:text-sm border-2 rounded-xl bg-white focus:ring-4 focus:outline-none transition-all duration-200 resize-none border-neutral-200 focus:border-brand-gold focus:ring-brand-gold/20 touch-manipulation"
               rows={1}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -940,9 +940,10 @@ export default function ChatInterface({
             <button
               type="submit"
               disabled={!(externalInputValue !== undefined ? externalInputValue : inputValue).trim() || loading}
-              className="absolute bottom-3 right-3 p-2 bg-brand-gold text-brand-charcoal rounded-lg shadow-sovrn hover:bg-brand-orange hover:shadow-sovrn-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="absolute bottom-3 right-3 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center bg-brand-gold text-brand-charcoal rounded-lg shadow-sovrn hover:bg-brand-orange hover:shadow-sovrn-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 touch-manipulation active:scale-95"
+              aria-label="Send message"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5" />
             </button>
           </div>
         </form>

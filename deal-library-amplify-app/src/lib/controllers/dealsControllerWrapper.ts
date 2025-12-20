@@ -1195,19 +1195,51 @@ export class DealsControllerWrapper extends DealsController {
   async generateCompetitiveIntelligenceDirect(body: any): Promise<any> {
     try {
       console.log('⚔️ generateCompetitiveIntelligenceDirect called with:', body);
-      const gemini = getGeminiService();
+      
+      // Validate input
+      if (!body || (!body.query && !body.company)) {
+        console.error('❌ Missing query parameter');
+        return {
+          success: false,
+          error: 'Query parameter is required'
+        };
+      }
+      
+      let gemini;
+      try {
+        gemini = getGeminiService();
+      } catch (initError) {
+        console.error('❌ Failed to initialize GeminiService:', initError);
+        return {
+          success: false,
+          error: initError instanceof Error ? initError.message : 'Failed to initialize AI service. Please check GEMINI_API_KEY environment variable.',
+          errorType: 'InitializationError'
+        };
+      }
+      
       const query = body.query || body.company || 'technology industry';
+      console.log(`⚔️ Generating competitive intelligence for query: "${query}"`);
       
       const result = await gemini.generateCompetitiveIntelligence(query);
       
-      console.log('✅ Competitive intelligence generated for:', query);
+      // Log result status
+      if (result && result.success) {
+        console.log('✅ Competitive intelligence generated successfully for:', query);
+      } else {
+        console.error('❌ Competitive intelligence generation failed:', result);
+      }
       
       return result;
     } catch (error) {
-      console.error('❌ Error generating competitive intelligence:', error);
+      console.error('❌ Unexpected error in generateCompetitiveIntelligenceDirect:', error);
+      if (error instanceof Error) {
+        console.error('   Error message:', error.message);
+        console.error('   Error stack:', error.stack);
+      }
       return { 
         success: false, 
-        error: String(error) 
+        error: error instanceof Error ? error.message : String(error),
+        errorType: error instanceof Error ? error.constructor.name : typeof error
       };
     }
   }

@@ -65,11 +65,11 @@ export default function Sidebar({
         isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
       {/* Header */}
-      <div className="p-4 border-b border-neutral-200">
+      <div className="p-4 border-b border-neutral-200 relative">
         <div className="flex items-center justify-end">
           <button
             onClick={onToggle}
-            className="p-2 rounded hover:bg-neutral-100 transition-colors touch-manipulation active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="p-2 rounded hover:bg-neutral-100 transition-colors touch-manipulation active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center relative z-[60]"
             aria-label="Close sidebar"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

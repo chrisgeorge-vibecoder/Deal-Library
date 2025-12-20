@@ -55,7 +55,7 @@ export default function DealDetailModal({
                 e.stopPropagation();
                 onClose();
               }}
-              className="text-neutral-500 hover:text-neutral-700 touch-target"
+              className="text-neutral-500 hover:text-neutral-700 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-neutral-100 transition-colors touch-manipulation active:scale-95"
               aria-label="Close modal"
             >
               <X className="w-6 h-6" />
@@ -176,11 +176,11 @@ export default function DealDetailModal({
           <div className="text-sm text-neutral-600">
             Deal ID: {deal.id}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             {isInCart(deal.id) ? (
               <button
                 onClick={() => onRemoveFromCart(deal.id)}
-                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 min-h-[44px] bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors touch-manipulation active:scale-95"
               >
                 <Trash2 className="w-4 h-4" />
                 Remove from Cart
@@ -188,7 +188,7 @@ export default function DealDetailModal({
             ) : (
               <button
                 onClick={() => onAddToCart(deal)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors bg-brand-gold/10 text-brand-charcoal hover:bg-brand-gold/20"
+                className="flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-lg transition-colors bg-brand-gold/10 text-brand-charcoal hover:bg-brand-gold/20 touch-manipulation active:scale-95"
               >
                 <ShoppingCart className="w-4 h-4" />
                 Add to Cart
@@ -199,7 +199,7 @@ export default function DealDetailModal({
                 e.stopPropagation();
                 onClose();
               }}
-              className="px-4 py-2 bg-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-300 transition-colors"
+              className="px-4 py-2 min-h-[44px] bg-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-300 transition-colors touch-manipulation active:scale-95"
             >
               Close
             </button>

@@ -31,7 +31,7 @@ export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, 
       }}
     >
       <div 
-        className="relative bg-white rounded-lg shadow-xl w-full max-w-full sm:max-w-4xl h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto"
+        className="relative bg-white w-full h-full sm:h-auto sm:rounded-lg shadow-xl sm:max-w-4xl sm:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Minimalist Header */}
@@ -72,7 +72,8 @@ export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, 
               )}
               <button
                 onClick={onClose}
-                className="p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-lg transition-colors"
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-lg transition-colors touch-manipulation active:scale-95"
+                aria-label="Close modal"
               >
                 <X className="w-5 h-5" />
               </button>

@@ -46,37 +46,35 @@ export default function DealBrowser({
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const categories = [
-    { id: 'all', name: 'All Categories' },
-    { id: 'pets', name: 'Pets & Animals' },
-    { id: 'entertainment', name: 'Entertainment & Gaming' },
-    { id: 'food', name: 'Food & Beverage' },
-    { id: 'fashion', name: 'Fashion & Beauty' },
-    { id: 'family', name: 'Family & Parenting' },
-    { id: 'sports', name: 'Sports & Fitness' },
-    { id: 'home', name: 'Home & Garden' },
-    { id: 'tech', name: 'Technology & Digital' },
     { id: 'automotive', name: 'Automotive' },
+    { id: 'business', name: 'Business & Finance' },
+    { id: 'entertainment', name: 'Entertainment & Gaming' },
+    { id: 'family', name: 'Family & Parenting' },
+    { id: 'fashion', name: 'Fashion & Beauty' },
+    { id: 'food', name: 'Food & Beverage' },
     { id: 'health', name: 'Health & Wellness' },
-    { id: 'travel', name: 'Travel' },
-    { id: 'business', name: 'Business & Finance' }
+    { id: 'home', name: 'Home & Garden' },
+    { id: 'pets', name: 'Pets & Animals' },
+    { id: 'sports', name: 'Sports & Fitness' },
+    { id: 'tech', name: 'Technology & Digital' },
+    { id: 'travel', name: 'Travel' }
   ];
 
   const channels = [
-    { id: 'all', name: 'All Channels' },
-    { id: 'Web', name: 'Web' },
     { id: 'App', name: 'Mobile App' },
     { id: 'CTV', name: 'CTV' },
-    { id: 'Multi', name: 'Multi-Channel' }
+    { id: 'Multi', name: 'Multi-Channel' },
+    { id: 'Web', name: 'Web' }
   ];
 
   const formats = [
-    { id: 'all', name: 'All Formats' },
     { id: 'Display', name: 'Display' },
-    { id: 'Video', name: 'Video' },
+    { id: 'Multi-format', name: 'Multi-Format' },
     { id: 'Native', name: 'Native' },
-    { id: 'Multi-format', name: 'Multi-Format' }
+    { id: 'Video', name: 'Video' }
   ];
 
   // Load deals on component mount
@@ -127,7 +125,7 @@ export default function DealBrowser({
     let filtered = [...deals];
 
     // Filter by categories (business verticals)
-    if (selectedCategories.length > 0 && !selectedCategories.includes('all')) {
+    if (selectedCategories.length > 0) {
       // For now, we'll use a simple keyword matching approach
       // In a real implementation, deals would have category metadata
       const categoryKeywords = {
@@ -160,7 +158,7 @@ export default function DealBrowser({
     }
 
     // Filter by channels (environment)
-    if (selectedChannels.length > 0 && !selectedChannels.includes('all')) {
+    if (selectedChannels.length > 0) {
       filtered = filtered.filter(deal => {
         const environmentLower = deal.environment?.toLowerCase() || '';
         
@@ -202,7 +200,7 @@ export default function DealBrowser({
     }
 
     // Filter by formats (media type)
-    if (selectedFormats.length > 0 && !selectedFormats.includes('all')) {
+    if (selectedFormats.length > 0) {
       filtered = filtered.filter(deal => {
         if (selectedFormats.includes('Multi-format')) {
           return deal.mediaType?.toLowerCase().includes('multi') || 
@@ -233,39 +231,27 @@ export default function DealBrowser({
 
   // Helper functions for filter management
   const toggleCategory = (categoryId: string) => {
-    if (categoryId === 'all') {
-      setSelectedCategories([]);
-    } else {
-      setSelectedCategories(prev => 
-        prev.includes(categoryId) 
-          ? prev.filter(id => id !== categoryId)
-          : [...prev, categoryId]
-      );
-    }
+    setSelectedCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
   };
 
   const toggleChannel = (channelId: string) => {
-    if (channelId === 'all') {
-      setSelectedChannels([]);
-    } else {
-      setSelectedChannels(prev => 
-        prev.includes(channelId) 
-          ? prev.filter(id => id !== channelId)
-          : [...prev, channelId]
-      );
-    }
+    setSelectedChannels(prev => 
+      prev.includes(channelId) 
+        ? prev.filter(id => id !== channelId)
+        : [...prev, channelId]
+    );
   };
 
   const toggleFormat = (formatId: string) => {
-    if (formatId === 'all') {
-      setSelectedFormats([]);
-    } else {
-      setSelectedFormats(prev => 
-        prev.includes(formatId) 
-          ? prev.filter(id => id !== formatId)
-          : [...prev, formatId]
-      );
-    }
+    setSelectedFormats(prev => 
+      prev.includes(formatId) 
+        ? prev.filter(id => id !== formatId)
+        : [...prev, formatId]
+    );
   };
 
   const toggleSection = (section: 'categories' | 'channels' | 'formats') => {
@@ -301,24 +287,18 @@ export default function DealBrowser({
     const activeFilters: { type: string; id: string; name: string }[] = [];
     
     selectedCategories.forEach(categoryId => {
-      if (categoryId !== 'all') {
-        const category = categories.find(c => c.id === categoryId);
-        if (category) activeFilters.push({ type: 'category', id: categoryId, name: category.name });
-      }
+      const category = categories.find(c => c.id === categoryId);
+      if (category) activeFilters.push({ type: 'category', id: categoryId, name: category.name });
     });
     
     selectedChannels.forEach(channelId => {
-      if (channelId !== 'all') {
-        const channel = channels.find(c => c.id === channelId);
-        if (channel) activeFilters.push({ type: 'channel', id: channelId, name: channel.name });
-      }
+      const channel = channels.find(c => c.id === channelId);
+      if (channel) activeFilters.push({ type: 'channel', id: channelId, name: channel.name });
     });
     
     selectedFormats.forEach(formatId => {
-      if (formatId !== 'all') {
-        const format = formats.find(f => f.id === formatId);
-        if (format) activeFilters.push({ type: 'format', id: formatId, name: format.name });
-      }
+      const format = formats.find(f => f.id === formatId);
+      if (format) activeFilters.push({ type: 'format', id: formatId, name: format.name });
     });
     
     return activeFilters;
@@ -374,49 +354,104 @@ export default function DealBrowser({
   console.log('🔍 DealBrowser Debug: expandedSections:', expandedSections);
 
   return (
-    <div 
-      className="h-screen flex flex-col"
-      onScroll={(e) => {
-        console.log('🚨 MAIN CONTAINER SCROLLING DETECTED:', e.target);
-        console.log('🚨 Main scroll position:', e.currentTarget.scrollTop);
-      }}
-    >
-      {/* Header */}
-      <div className="bg-white border-b border-neutral-200 px-6 py-4 flex-shrink-0 sticky top-0 z-10">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-neutral-900 flex items-center gap-3">
-              <ShoppingCart className="w-7 h-7 text-brand-orange" />
-              Deal Library
-            </h1>
-            <p className="text-neutral-600 mt-1">
-              Browse and discover advertising deals from the Sovrn Exchange
-            </p>
+    <>
+      {/* Mobile filter backdrop */}
+      <div 
+        className={`fixed inset-0 bg-black transition-opacity lg:hidden z-40 ${
+          mobileFiltersOpen ? 'bg-opacity-50' : 'bg-opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setMobileFiltersOpen(false)}
+        aria-hidden="true"
+      />
+      
+      <div 
+        className="h-screen flex flex-col"
+        onScroll={(e) => {
+          console.log('🚨 MAIN CONTAINER SCROLLING DETECTED:', e.target);
+          console.log('🚨 Main scroll position:', e.currentTarget.scrollTop);
+        }}
+      >
+        {/* Header */}
+        <div className="bg-white border-b border-neutral-200 px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0 sticky top-0 z-10">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex-1">
+              <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 flex items-center gap-2 sm:gap-3">
+                <ShoppingCart className="w-5 h-5 sm:w-7 sm:h-7 text-brand-orange" />
+                Deal Library
+              </h1>
+              <p className="text-sm sm:text-base text-neutral-600 mt-1 hidden sm:block">
+                Browse and discover advertising deals from the Sovrn Exchange
+              </p>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Mobile filter button */}
+              <button
+                onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+                className="lg:hidden flex items-center gap-2 px-4 py-2 min-h-[44px] bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors touch-manipulation active:scale-95"
+                aria-label="Toggle filters"
+              >
+                <Filter className="w-4 h-4" />
+                <span className="text-sm font-medium">Filters</span>
+                {getActiveFiltersCount() > 0 && (
+                  <span className="px-2 py-0.5 bg-brand-orange text-white text-xs rounded-full min-w-[20px] text-center">
+                    {getActiveFiltersCount()}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={onRequestCustomDeal}
+                className="btn-primary flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 min-h-[44px] text-sm sm:text-base touch-manipulation active:scale-95"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Request Custom Deal</span>
+                <span className="sm:hidden">Request</span>
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onRequestCustomDeal}
-              className="btn-primary flex items-center gap-2 px-6 py-3"
-            >
-              <Plus className="w-4 h-4" />
-              Request Custom Deal
-            </button>
+          
+          {/* Mobile search bar */}
+          <div className="mt-3 lg:hidden">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search deals..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 min-h-[44px] border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-brand-orange text-base touch-manipulation"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - Three-Section Filters */}
         <div 
-          className="w-80 bg-white border-r border-neutral-200 flex flex-col h-full overflow-hidden"
+          className={`fixed lg:static left-0 top-0 w-80 h-screen lg:h-full bg-white border-r border-neutral-200 flex flex-col z-50 shadow-lg lg:shadow-none transform transition-transform duration-300 ${
+            mobileFiltersOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }`}
           onWheel={(e) => {
             // Prevent scroll event from bubbling up to the main page
             e.stopPropagation();
             console.log('🚨 SIDEBAR WHEEL EVENT DETECTED - PREVENTING BUBBLE:', e.target);
           }}
         >
-          {/* Search */}
-          <div className="p-4 border-b border-neutral-200 flex-shrink-0">
+          {/* Mobile filter header */}
+          <div className="lg:hidden p-4 border-b border-neutral-200 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-neutral-900">Filters</h2>
+            <button
+              onClick={() => setMobileFiltersOpen(false)}
+              className="p-2 rounded hover:bg-neutral-100 transition-colors touch-manipulation active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Close filters"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Desktop Search */}
+          <div className="hidden lg:block p-4 border-b border-neutral-200 flex-shrink-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <input
@@ -442,7 +477,7 @@ export default function DealBrowser({
             <div className="border-b border-neutral-200">
               <button
                 onClick={() => toggleSection('categories')}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-neutral-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-neutral-50 transition-colors touch-manipulation active:bg-neutral-100 min-h-[44px]"
               >
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-neutral-900">Categories</span>
@@ -463,16 +498,16 @@ export default function DealBrowser({
               </button>
               
               {expandedSections.categories && (
-                <div className="px-4 pb-4 space-y-1">
+                <div className="px-4 pb-4 space-y-2">
                   {categories.map((category) => (
-                    <label key={category.id} className="flex items-center gap-2 cursor-pointer">
+                    <label key={category.id} className="flex items-center gap-3 cursor-pointer py-2 min-h-[44px] touch-manipulation">
                       <input
                         type="checkbox"
                         checked={selectedCategories.includes(category.id)}
                         onChange={() => toggleCategory(category.id)}
-                        className="text-brand-orange focus:ring-brand-orange rounded"
+                        className="w-5 h-5 text-brand-orange focus:ring-brand-orange rounded border-neutral-300 cursor-pointer"
                       />
-                      <span className="text-sm text-neutral-600">{category.name}</span>
+                      <span className="text-sm text-neutral-600 select-none">{category.name}</span>
                     </label>
                   ))}
                 </div>
@@ -483,7 +518,7 @@ export default function DealBrowser({
             <div className="border-b border-neutral-200">
               <button
                 onClick={() => toggleSection('channels')}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-neutral-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-neutral-50 transition-colors touch-manipulation active:bg-neutral-100 min-h-[44px]"
               >
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-neutral-900">Channels</span>
@@ -504,16 +539,16 @@ export default function DealBrowser({
               </button>
               
               {expandedSections.channels && (
-                <div className="px-4 pb-4 space-y-1">
+                <div className="px-4 pb-4 space-y-2">
                   {channels.map((channel) => (
-                    <label key={channel.id} className="flex items-center gap-2 cursor-pointer">
+                    <label key={channel.id} className="flex items-center gap-3 cursor-pointer py-2 min-h-[44px] touch-manipulation">
                       <input
                         type="checkbox"
                         checked={selectedChannels.includes(channel.id)}
                         onChange={() => toggleChannel(channel.id)}
-                        className="text-brand-orange focus:ring-brand-orange rounded"
+                        className="w-5 h-5 text-brand-orange focus:ring-brand-orange rounded border-neutral-300 cursor-pointer"
                       />
-                      <span className="text-sm text-neutral-600">{channel.name}</span>
+                      <span className="text-sm text-neutral-600 select-none">{channel.name}</span>
                     </label>
                   ))}
                 </div>
@@ -524,7 +559,7 @@ export default function DealBrowser({
             <div className="border-b border-neutral-200">
               <button
                 onClick={() => toggleSection('formats')}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-neutral-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-neutral-50 transition-colors touch-manipulation active:bg-neutral-100 min-h-[44px]"
               >
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-neutral-900">Formats</span>
@@ -545,16 +580,16 @@ export default function DealBrowser({
               </button>
               
               {expandedSections.formats && (
-                <div className="px-4 pb-4 space-y-1">
+                <div className="px-4 pb-4 space-y-2">
                   {formats.map((format) => (
-                    <label key={format.id} className="flex items-center gap-2 cursor-pointer">
+                    <label key={format.id} className="flex items-center gap-3 cursor-pointer py-2 min-h-[44px] touch-manipulation">
                       <input
                         type="checkbox"
                         checked={selectedFormats.includes(format.id)}
                         onChange={() => toggleFormat(format.id)}
-                        className="text-brand-orange focus:ring-brand-orange rounded"
+                        className="w-5 h-5 text-brand-orange focus:ring-brand-orange rounded border-neutral-300 cursor-pointer"
                       />
-                      <span className="text-sm text-neutral-600">{format.name}</span>
+                      <span className="text-sm text-neutral-600 select-none">{format.name}</span>
                     </label>
                   ))}
                 </div>
@@ -565,7 +600,7 @@ export default function DealBrowser({
 
         {/* Main Content - Deal Grid */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {/* Active Filters */}
             {getActiveFiltersCount() > 0 && (
               <div className="mb-6">
@@ -573,7 +608,7 @@ export default function DealBrowser({
                   <h3 className="text-sm font-medium text-neutral-700">Active Filters</h3>
                   <button
                     onClick={clearAllFilters}
-                    className="text-sm text-brand-orange hover:text-brand-orange/80 font-medium"
+                    className="text-sm text-brand-orange hover:text-brand-orange/80 font-medium min-h-[44px] px-2 touch-manipulation active:scale-95"
                   >
                     Clear All
                   </button>
@@ -587,7 +622,8 @@ export default function DealBrowser({
                       <span>{filter.name}</span>
                       <button
                         onClick={() => removeFilter(filter.type, filter.id)}
-                        className="hover:bg-brand-orange/20 rounded-full p-0.5"
+                        className="hover:bg-brand-orange/20 rounded-full p-1 min-w-[24px] min-h-[24px] flex items-center justify-center touch-manipulation active:scale-95"
+                        aria-label={`Remove ${filter.name} filter`}
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -629,14 +665,14 @@ export default function DealBrowser({
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="btn-secondary"
+                    className="btn-secondary min-h-[44px] px-4 touch-manipulation active:scale-95"
                   >
                     Clear Search
                   </button>
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 max-w-4xl">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4 max-w-4xl">
                 {filteredDeals.map((deal, index) => (
                   <DealCard
                     key={`deal-${deal.id}-${index}`}
@@ -656,5 +692,6 @@ export default function DealBrowser({
         </div>
       </div>
     </div>
+    </>
   );
 }

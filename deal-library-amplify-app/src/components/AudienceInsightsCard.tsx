@@ -4,6 +4,7 @@ import { Users, TrendingUp, MapPin, Smartphone, DollarSign, Eye } from 'lucide-r
 export interface AudienceInsights {
   id: string;
   audienceName: string;
+  segment?: string;  // Preserves original query/segment for deal search context
   sources?: Array<{ title: string; url?: string; note?: string }>;
   demographics: {
     ageRange: string;

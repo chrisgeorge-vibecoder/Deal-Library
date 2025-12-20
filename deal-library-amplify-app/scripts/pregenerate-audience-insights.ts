@@ -671,46 +671,119 @@ function loadExistingReports(outputPath: string): Record<string, any> {
     // Actually, let's use a safer approach - parse segment by segment
     const existingReports: Record<string, any> = {};
     
-    // Find all segment entries using regex
-    const segmentPattern = /"([^"]+)":\s*\{/g;
+    // Simpler approach: Use regex to find segment entries and verify they're top-level
+    // Look for pattern: "Segment Name": { ... "segment": "Segment Name" ... }
+    const segmentEntryPattern = /"([^"]+)":\s*\{([^}]*"segment":\s*"\1"[^}]*)\}/g;
     let match;
-    const segments: Array<{ name: string; start: number }> = [];
     
-    while ((match = segmentPattern.exec(objectContent)) !== null) {
-      segments.push({ name: match[1], start: match.index });
+    // First pass: find all potential segment entries
+    const potentialSegments: Array<{ name: string; fullMatch: string; start: number; end: number }> = [];
+    
+    // Use a simpler approach: find segments by looking for the pattern
+    // "SegmentName": { ... "segment": "SegmentName" ... }
+    const lines = objectContent.split('\n');
+    let inSegment = false;
+    let currentSegmentName = '';
+    let segmentStart = 0;
+    let segmentBraceCount = 0;
+    let segmentLines: string[] = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // Check if this line starts a new segment entry
+      const segmentMatch = line.match(/^\s+"([^"]+)":\s*\{/);
+      if (segmentMatch && !inSegment) {
+        // Start of a new segment
+        inSegment = true;
+        currentSegmentName = segmentMatch[1];
+        segmentStart = i;
+        segmentBraceCount = (line.match(/\{/g) || []).length - (line.match(/\}/g) || []).length;
+        segmentLines = [line];
+      } else if (inSegment) {
+        segmentLines.push(line);
+        segmentBraceCount += (line.match(/\{/g) || []).length - (line.match(/\}/g) || []).length;
+        
+        // Check if this segment has the matching "segment" field
+        if (line.includes(`"segment": "${currentSegmentName}"`)) {
+          // This is a valid segment entry
+          // Continue until we close all braces
+        }
+        
+        if (segmentBraceCount === 0 && segmentLines.length > 0) {
+          // Segment complete
+          const segmentText = segmentLines.join('\n');
+          // Verify it has the segment field matching the key
+          if (segmentText.includes(`"segment": "${currentSegmentName}"`)) {
+            try {
+              // Try to parse as JSON (may need cleanup)
+              const cleaned = segmentText.replace(/,\s*$/, '').trim();
+              // Wrap in braces if needed
+              const jsonStr = cleaned.startsWith('{') ? cleaned : `{${cleaned}}`;
+              const parsed = JSON.parse(jsonStr);
+              existingReports[currentSegmentName] = parsed;
+            } catch (e) {
+              // Skip if parsing fails
+            }
+          }
+          inSegment = false;
+          segmentLines = [];
+        }
+      }
     }
     
-    // For each segment, extract its JSON object
-    for (let i = 0; i < segments.length; i++) {
-      const segment = segments[i];
-      const nextSegmentStart = i < segments.length - 1 ? segments[i + 1].start : objectContent.length;
+    // Fallback: Use the original regex approach if the line-by-line didn't work
+    if (Object.keys(existingReports).length === 0) {
+      const segmentPattern = /"([^"]+)":\s*\{/g;
+      let regexMatch;
+      const segments: Array<{ name: string; start: number }> = [];
       
-      // Find the matching closing brace for this segment
-      let segmentBraceCount = 0;
-      let segmentStart = segment.start + segment.name.length + 4; // Skip "name": {
-      let segmentEnd = segmentStart;
-      
-      for (let j = segmentStart; j < nextSegmentStart; j++) {
-        if (objectContent[j] === '{') segmentBraceCount++;
-        if (objectContent[j] === '}') {
-          segmentBraceCount--;
-          if (segmentBraceCount === 0) {
-            segmentEnd = j + 1;
-            break;
-          }
+      while ((regexMatch = segmentPattern.exec(objectContent)) !== null) {
+        const segName = regexMatch[1];
+        // Filter out known nested keys
+        const knownNested = ['keyMetrics', 'demographics', 'ethnicity', 'lifestyle', 'strategicInsights',
+          'geographicHotspots', 'overlappingSegments', 'executiveSummary', 'personaName',
+          'personaEmoji', 'personaDescription', 'segment', 'category'];
+        if (!knownNested.includes(segName)) {
+          segments.push({ name: segName, start: regexMatch.index });
         }
       }
       
-      if (segmentEnd > segmentStart) {
-        try {
-          const segmentJson = objectContent.substring(segment.start, segmentEnd);
-          // Clean up the JSON (remove trailing comma if present)
-          const cleanedJson = segmentJson.replace(/,\s*$/, '');
-          const parsed = JSON.parse(cleanedJson);
-          existingReports[segment.name] = parsed;
-        } catch (e) {
-          // Skip this segment if parsing fails
-          console.warn(`   ⚠️  Could not parse segment "${segment.name}" from existing file`);
+      // For each segment, try to extract using a simpler method
+      for (let i = 0; i < segments.length; i++) {
+        const segment = segments[i];
+        const segStart = objectContent.indexOf(`"${segment.name}":`, segment.start);
+        if (segStart === -1) continue;
+        
+        // Find the matching closing brace
+        let braceCount = 0;
+        let objStart = -1;
+        let objEnd = -1;
+        
+        for (let j = segStart; j < Math.min(segStart + 100000, objectContent.length); j++) {
+          if (objectContent[j] === '{') {
+            if (objStart === -1) objStart = j;
+            braceCount++;
+          } else if (objectContent[j] === '}') {
+            braceCount--;
+            if (braceCount === 0 && objStart !== -1) {
+              objEnd = j + 1;
+              break;
+            }
+          }
+        }
+        
+        if (objStart !== -1 && objEnd !== -1) {
+          try {
+            const segmentJson = objectContent.substring(objStart, objEnd);
+            const parsed = JSON.parse(segmentJson);
+            // Verify it's actually this segment
+            if (parsed.segment === segment.name) {
+              existingReports[segment.name] = parsed;
+            }
+          } catch (e) {
+            // Skip if parsing fails
+          }
         }
       }
     }

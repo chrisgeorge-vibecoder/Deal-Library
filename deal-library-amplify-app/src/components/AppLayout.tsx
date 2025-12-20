@@ -720,11 +720,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
           setSelectedAudienceInsights(null);
         }}
         onViewDeals={(insights) => {
-          console.log('🎯 Finding deals for audience:', insights.audienceName);
+          // Use segment if available (preserves original query context), fallback to audienceName
+          const searchTerm = insights.segment || insights.audienceName;
+          console.log('🎯 Finding deals for audience:', searchTerm);
           setIsAudienceInsightsModalOpen(false);
           setSelectedAudienceInsights(null);
           // Navigate to main chat with pre-populated prompt
-          const dealPrompt = `Find relevant deals for the ${insights.audienceName} audience`;
+          const dealPrompt = `Find relevant deals for the ${searchTerm} audience`;
           window.location.href = `/?prompt=${encodeURIComponent(dealPrompt)}`;
         }}
         onSaveCard={handleSaveCard}

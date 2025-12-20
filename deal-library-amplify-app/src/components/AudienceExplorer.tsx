@@ -1763,7 +1763,9 @@ export default function AudienceExplorer({
             setIsAudienceInsightsModalOpen(false);
             setSelectedAudienceInsights(null);
             if (onSwitchToChat) {
-              onSwitchToChat(`request deals for ${insights.audienceName} audience`);
+              // Use segment if available (preserves original query context), fallback to audienceName
+              const searchTerm = insights.segment || insights.audienceName;
+              onSwitchToChat(`request deals for ${searchTerm} audience`);
             }
           }}
           onSaveCard={onSaveCard}

@@ -1,5 +1,30 @@
-import { X, Target, ShoppingBag, Info, ShoppingCart, Trash2 } from 'lucide-react';
+import { X, Target, ShoppingBag, Info, ShoppingCart, Trash2, TrendingUp, Lightbulb, Sparkles, Loader2 } from 'lucide-react';
 import { AudienceSegment } from '@/types/audience';
+import { useState, useEffect } from 'react';
+
+interface MarketIntelligencePack {
+  segmentId: string;
+  segmentName: string;
+  fullPath: string;
+  category: string;
+  generatedAt: string;
+  detailedInsight: string;
+  exampleAdvertisers: Array<{
+    name: string;
+    type: "brand" | "category";
+    rationale: string;
+  }>;
+  currentTrends: Array<{
+    trend: string;
+    relevance: string;
+    timeframe: "2025" | "2026";
+  }>;
+  strategicHook: {
+    headline: string;
+    emotionalDriver: string;
+    callToAction: string;
+  };
+}
 
 interface AudienceDetailModalProps {
   isOpen: boolean;
@@ -18,6 +43,48 @@ export default function AudienceDetailModal({
   onRemoveFromCart,
   isInCart
 }: AudienceDetailModalProps) {
+  const [enrichedData, setEnrichedData] = useState<MarketIntelligencePack | null>(null);
+  const [loadingEnriched, setLoadingEnriched] = useState(false);
+  const [enrichedError, setEnrichedError] = useState<string | null>(null);
+
+  // Load enriched data when segment changes
+  useEffect(() => {
+    if (!isOpen || !segment) {
+      setEnrichedData(null);
+      setEnrichedError(null);
+      return;
+    }
+
+    const loadEnrichedData = async () => {
+      setLoadingEnriched(true);
+      setEnrichedError(null);
+      
+      try {
+        const response = await fetch(`/api/audiences/enriched?segmentId=${segment.sovrnSegmentId}`);
+        
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            setEnrichedData(result.data);
+          } else {
+            setEnrichedError('Enriched data not available for this segment');
+          }
+        } else if (response.status === 404) {
+          setEnrichedError('Enriched data not available for this segment');
+        } else {
+          setEnrichedError('Failed to load enriched data');
+        }
+      } catch (error) {
+        console.error('Error loading enriched data:', error);
+        setEnrichedError('Failed to load enriched data');
+      } finally {
+        setLoadingEnriched(false);
+      }
+    };
+
+    loadEnrichedData();
+  }, [isOpen, segment]);
+
   if (!isOpen || !segment) return null;
 
   const isCommerceAudience = segment.segmentType === 'Commerce Audience';
@@ -165,6 +232,111 @@ export default function AudienceDetailModal({
                 {segment.fullPath}
               </p>
             </div>
+
+            {/* Market Intelligence Pack */}
+            {loadingEnriched && (
+              <div className="card p-6">
+                <div className="flex items-center gap-3 text-neutral-600">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Loading market intelligence...</span>
+                </div>
+              </div>
+            )}
+
+            {enrichedData && !loadingEnriched && (
+              <div className="space-y-6">
+                {/* Detailed Insight */}
+                <div className="card p-6 bg-gradient-to-br from-brand-gold/5 to-transparent border-l-4 border-brand-gold">
+                  <h3 className="font-semibold text-neutral-900 mb-3 flex items-center gap-2">
+                    <Lightbulb className="w-5 h-5 text-brand-gold" />
+                    Market Intelligence Insight
+                  </h3>
+                  <p className="text-neutral-700 leading-relaxed">
+                    {enrichedData.detailedInsight}
+                  </p>
+                </div>
+
+                {/* Example Advertisers */}
+                {enrichedData.exampleAdvertisers && enrichedData.exampleAdvertisers.length > 0 && (
+                  <div className="card p-6">
+                    <h3 className="font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                      <Target className="w-5 h-5 text-brand-orange" />
+                      Example Advertisers
+                    </h3>
+                    <div className="space-y-4">
+                      {enrichedData.exampleAdvertisers.map((advertiser, index) => (
+                        <div key={index} className="border-l-4 border-neutral-200 pl-4 py-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold text-neutral-900">{advertiser.name}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded ${
+                              advertiser.type === 'brand' 
+                                ? 'bg-blue-100 text-blue-700' 
+                                : 'bg-purple-100 text-purple-700'
+                            }`}>
+                              {advertiser.type}
+                            </span>
+                          </div>
+                          <p className="text-sm text-neutral-600">{advertiser.rationale}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Current Trends */}
+                {enrichedData.currentTrends && enrichedData.currentTrends.length > 0 && (
+                  <div className="card p-6">
+                    <h3 className="font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-brand-orange" />
+                      Current Trends (2025-2026)
+                    </h3>
+                    <div className="space-y-4">
+                      {enrichedData.currentTrends.map((trend, index) => (
+                        <div key={index} className="border-l-4 border-brand-orange pl-4 py-2">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xs font-semibold px-2 py-1 bg-brand-orange/10 text-brand-orange rounded">
+                              {trend.timeframe}
+                            </span>
+                          </div>
+                          <p className="font-medium text-neutral-900 mb-2">{trend.trend}</p>
+                          <p className="text-sm text-neutral-600">{trend.relevance}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Strategic Hook */}
+                {enrichedData.strategicHook && (
+                  <div className="card p-6 bg-gradient-to-br from-brand-gold/10 to-transparent border-l-4 border-brand-gold">
+                    <h3 className="font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-brand-gold" />
+                      Strategic Messaging Hook
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="text-sm text-neutral-600 mb-1">Headline</div>
+                        <p className="font-semibold text-neutral-900 text-lg">{enrichedData.strategicHook.headline}</p>
+                      </div>
+                      <div>
+                        <div className="text-sm text-neutral-600 mb-1">Emotional Driver</div>
+                        <p className="text-neutral-700">{enrichedData.strategicHook.emotionalDriver}</p>
+                      </div>
+                      <div>
+                        <div className="text-sm text-neutral-600 mb-1">Call to Action</div>
+                        <p className="text-neutral-700 font-medium">{enrichedData.strategicHook.callToAction}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {enrichedError && !loadingEnriched && (
+              <div className="card p-4 bg-neutral-50 border border-neutral-200">
+                <p className="text-sm text-neutral-500 italic">{enrichedError}</p>
+              </div>
+            )}
           </div>
 
           {/* Footer Actions */}

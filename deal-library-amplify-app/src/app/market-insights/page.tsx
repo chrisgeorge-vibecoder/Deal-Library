@@ -24,6 +24,11 @@ function MarketInsightsContent() {
   const searchParams = useSearchParams();
   const { onSaveCard, onUnsaveCard, isSaved } = useSaveCard();
 
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // State management
   const [metrics, setMetrics] = useState<MarketInsightsMetric[]>([]);
   const [selectedMetric, setSelectedMetric] = useState<string>('');

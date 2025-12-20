@@ -7,7 +7,9 @@
     "dev": "cross-env PORT=3000 next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "pregenerate:insights": "tsx scripts/pregenerate-audience-insights.ts",
+    "build:with-insights": "npm run pregenerate:insights && next build"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -59,6 +61,7 @@
     "eslint": "^8.56.0",
     "eslint-config-next": "14.2.7",
     "ignore-loader": "^0.1.2",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   },
   "engines": {

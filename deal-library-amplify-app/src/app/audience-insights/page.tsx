@@ -11,6 +11,7 @@ import DealDetailModal from '@/components/DealDetailModal';
 import { Deal } from '@/types/deal';
 import LoadingState from '@/components/LoadingState';
 import ErrorDisplay from '@/components/ErrorDisplay';
+import { audienceInsightsReports } from '@/data/audienceInsightsReports';
 
 // Dynamically import map component - must be client-side only due to Leaflet
 const AudienceInsightsMap = dynamic(
@@ -84,8 +85,38 @@ interface AudienceInsightsReport {
   }>;
   strategicInsights: {
     targetPersona: string;
-    messagingRecommendations: string[];
-    channelRecommendations: string[];
+    messagingRecommendations: Array<string | {
+      valueProposition: string;
+      dataBacking: string;
+      emotionalBenefit: string;
+      campaignReady: boolean;
+    }>;
+    channelRecommendations: Array<string | {
+      platform: string;
+      targeting: string;
+      contentType: string;
+      timing: string;
+      rationale: string;
+      estimatedPerformance: {
+        expectedCTR: string;
+        targetCPM: string;
+        conversionRate: string;
+      };
+    }>;
+    implementationRoadmap?: {
+      phase1: { duration: string; budget: string; actions: string[]; successMetrics: any };
+      phase2: { duration: string; budget: string; actions: string[]; successMetrics: any };
+    };
+    competitiveIntelligence?: {
+      marketPosition: string;
+      whiteSpaceOpportunities: string[];
+      differentiationAdvantages: string[];
+    };
+    seasonalOptimization?: {
+      peakPeriods: string[];
+      opportunityWindows: string[];
+      budgetAllocation: string[];
+    };
   };
 }
 
@@ -755,172 +786,75 @@ export default function AudienceInsightsPage() {
     setReport(null);
     setRecommendedDeals([]);
 
-    // Create an AbortController for timeout - report generation can take 60-90 seconds
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout
-
     try {
-      console.log('🔍 [DEBUG] Generating report for:', { selectedCategory, selectedSegment });
+      console.log('🔍 Loading pre-generated report for:', { selectedCategory, selectedSegment });
       
-      // Generate report without strategic content (Gemini calls) for faster initial load
-      const response = await fetch('/api/audience-insights/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          segment: selectedSegment,
-          category: selectedCategory,
-          includeCommercialZips,
-          skipStrategicContent: true  // Skip Gemini calls for faster response
-        }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-      console.log('📡 [DEBUG] API Response status:', response.status);
+      // Use static pre-generated data for instant loading
+      const preGeneratedReport = audienceInsightsReports[selectedSegment];
       
-      // Check content-type header early
-      const contentType = response.headers.get('content-type');
-      
-      // Handle 504 timeout specifically - infrastructure timeout may not have proper headers
-      // Also handle cases where status is 504 OR (status >= 500 AND content-type is null)
-      // This covers infrastructure-level timeouts that don't set proper headers
-      if (response.status === 504 || (response.status >= 500 && !contentType)) {
-        console.error('❌ API request timed out or server error (status:', response.status, ', content-type:', contentType, ')');
-        setError('Request timed out. The report generation took too long. Please try again with a different segment or contact support if the issue persists.');
+      if (!preGeneratedReport) {
+        console.error('❌ No pre-generated report found for segment:', selectedSegment);
+        setError(`Report not found for "${selectedSegment}". Please ensure all segments have been pre-generated.`);
+        setLoading(false);
         return;
       }
       
-      // If content-type exists but is not JSON, that's an error
-      if (contentType && !contentType.includes('application/json')) {
-        console.error('❌ API returned non-JSON response:', contentType);
-        setError('Failed to generate report: Invalid response format. Please try again.');
-        return;
-      }
+      console.log('✅ Found pre-generated report, loading instantly');
       
-      // If content-type is null but status is OK (200-299), try to read the response
-      if (!contentType) {
-        console.warn('⚠️ Response has no content-type header but status is OK, attempting to read response body');
-        // Continue to try reading the response text below
-      }
-
-      // Get response text first to check if it's empty
-      let responseText: string;
+      // Convert pre-generated report to the format expected by the component
+      // The types should match, but we ensure compatibility
+      const report: AudienceInsightsReport = {
+        segment: preGeneratedReport.segment,
+        category: preGeneratedReport.category,
+        executiveSummary: preGeneratedReport.executiveSummary,
+        personaName: preGeneratedReport.personaName,
+        personaEmoji: preGeneratedReport.personaEmoji,
+        personaDescription: preGeneratedReport.personaDescription,
+        keyMetrics: preGeneratedReport.keyMetrics,
+        geographicHotspots: preGeneratedReport.geographicHotspots,
+        demographics: preGeneratedReport.demographics,
+        behavioralOverlap: preGeneratedReport.behavioralOverlap,
+        strategicInsights: preGeneratedReport.strategicInsights
+      };
+      
+      // Still fetch recommended deals (this is fast and doesn't require AI)
       try {
-        responseText = await response.text();
-      } catch (textError) {
-        console.error('❌ Failed to read response text:', textError);
-        setError('Failed to read response from server. Please try again.');
-        return;
-      }
-      
-      if (!responseText || responseText.trim().length === 0) {
-        console.error('❌ API returned empty response');
-        // If we got here and status is not 504, we already handled 504 above
-        // This is for other status codes with empty responses
-        if (response.status >= 500) {
-          setError('Server error. The report generation encountered an issue. Please try again or contact support if the issue persists.');
-        } else {
-          setError('Failed to generate report: Empty response. Please try again.');
+        const dealsResponse = await fetch('/api/audience-insights/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            segment: selectedSegment,
+            category: selectedCategory,
+            includeCommercialZips,
+            skipStrategicContent: true  // We already have strategic content from static data
+          }),
+        });
+
+        if (dealsResponse.ok) {
+          const dealsData = await dealsResponse.json();
+          if (dealsData.recommendedDeals && Array.isArray(dealsData.recommendedDeals)) {
+            setRecommendedDeals(dealsData.recommendedDeals);
+            console.log(`🎯 Loaded ${dealsData.recommendedDeals.length} recommended deals`);
+          }
         }
-        return;
+      } catch (dealsError) {
+        console.warn('⚠️ Could not fetch recommended deals:', dealsError);
+        // Non-fatal - continue without deals
       }
 
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('❌ Failed to parse API response JSON:', parseError);
-        console.error('Response text:', responseText.substring(0, 500));
-        setError('Failed to generate report: Invalid response format. Please try again.');
-        return;
-      }
+      // Set the report immediately (instant loading!)
+      setReport(report);
+      setLoading(false);
       
-      console.log('📦 [DEBUG] Full API Response:', JSON.stringify(data, null, 2));
-
-      if (data.success && data.report) {
-        console.log('✅ [DEBUG] Report received successfully (without strategic content)');
-        console.log('📊 [DEBUG] Geographic Hotspots:', {
-          count: data.report.geographicHotspots?.length,
-          sample: data.report.geographicHotspots?.[0],
-          hasPopulation: data.report.geographicHotspots?.[0]?.population !== undefined,
-          hasOverIndex: data.report.geographicHotspots?.[0]?.overIndex !== undefined
-        });
-        console.log('📊 [DEBUG] Demographics:', {
-          incomeDistribution: data.report.demographics?.incomeDistribution,
-          educationLevels: data.report.demographics?.educationLevels,
-          ageDistribution: data.report.demographics?.ageDistribution
-        });
-        console.log('📊 [DEBUG] Key Metrics:', data.report.keyMetrics);
-        
-        // Set the initial report (without strategic content)
-        console.log('📋 [DEBUG] Initial report persona values:', {
-          personaName: data.report.personaName,
-          personaEmoji: data.report.personaEmoji,
-          personaDescription: data.report.personaDescription,
-          hasStrategicInsights: !!data.report.strategicInsights,
-          strategicInsightsKeys: data.report.strategicInsights ? Object.keys(data.report.strategicInsights) : []
-        });
-        setReport(data.report);
-        setLoading(false); // Show the report immediately
-        
-        // Reset strategic content state when new report is generated
-        setStrategicContentGenerated(false);
-        setStrategicContentError(null);
-        
-        // Set recommended deals if available
-        if (data.recommendedDeals && Array.isArray(data.recommendedDeals)) {
-          setRecommendedDeals(data.recommendedDeals);
-          console.log(`🎯 [DEBUG] Loaded ${data.recommendedDeals.length} recommended deals`);
-        } else {
-          setRecommendedDeals([]);
-          console.log('⚠️ [DEBUG] No recommended deals in response');
-        }
-        
-        // Strategic content will be loaded on-demand when user clicks the button
-        
-        console.log(`✅ [DEBUG] Report generated successfully`);
-      } else {
-        console.error('❌ [DEBUG] Report generation failed:', data);
-        const errorMessage = data.message || data.error || 'Failed to generate report';
-        setError(errorMessage);
-        
-        // Log additional details for debugging
-        if (data.error) {
-          console.error('   Error type:', data.error);
-        }
-        if (response.status !== 200) {
-          console.error('   HTTP Status:', response.status);
-        }
-      }
+      // Reset strategic content state (already included in pre-generated report)
+      setStrategicContentGenerated(true); // Mark as generated since it's in static data
+      setStrategicContentError(null);
+      
+      console.log(`✅ Report loaded instantly from pre-generated data`);
+      
     } catch (error) {
-      clearTimeout(timeoutId);
-      console.error('❌ [DEBUG] Error generating report:', error);
-      
-      let errorMessage = 'Failed to generate report. Please try again.';
-      
-      if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          errorMessage = 'Request timed out. The report generation took too long. Please try again with a different segment.';
-        } else if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
-          errorMessage = 'Unable to connect to the server. Please check your connection and try again.';
-        } else if (error.message.includes('timeout')) {
-          errorMessage = 'Request timed out. The report generation took too long. Please try again.';
-        } else {
-          // Try to extract a meaningful error message
-          errorMessage = error.message || errorMessage;
-        }
-      } else if (typeof error === 'object' && error !== null) {
-        // Handle error objects
-        const err = error as any;
-        if (err.message) {
-          errorMessage = err.message;
-        } else if (err.error) {
-          errorMessage = err.error;
-        }
-      }
-      
-      setError(errorMessage);
-    } finally {
+      console.error('❌ Error loading report:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load report');
       setLoading(false);
     }
   };

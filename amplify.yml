@@ -5,7 +5,15 @@ applications:
       phases:
         preBuild:
           commands:
-            - npm ci
+            # Configure npm for better network reliability (fixes sharp timeout issues)
+            - npm config set fetch-retries 5
+            - npm config set fetch-retry-mintimeout 60000
+            - npm config set fetch-retry-maxtimeout 300000
+            - npm config set fetch-timeout 600000
+            # Set sharp to skip global libvips and download its own
+            - export SHARP_IGNORE_GLOBAL_LIBVIPS=1
+            # Install dependencies with increased timeout
+            - npm ci || (echo "First npm ci failed, retrying..." && npm cache clean --force && npm ci)
             # Generate pre-built audience insights reports (if GEMINI_API_KEY is available)
             - |
               if [ -n "$GEMINI_API_KEY" ]; then

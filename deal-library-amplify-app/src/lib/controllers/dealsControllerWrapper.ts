@@ -599,8 +599,10 @@ export class DealsControllerWrapper extends DealsController {
       const queryTrimmed = query.trim();
       
       try {
-        // Add timeout wrapper at the wrapper level as well (100 seconds - slightly longer than Gemini timeout)
-        const WRAPPER_TIMEOUT_MS = 100000;
+        // Add timeout wrapper at the wrapper level
+        // AWS Amplify has a 60s limit, and the API route has a 55s limit
+        // Set this to 45s to leave buffer for response processing
+        const WRAPPER_TIMEOUT_MS = process.env.NODE_ENV === 'production' ? 45000 : 90000;
         const wrapperTimeoutPromise = new Promise<never>((_, reject) => {
           setTimeout(() => {
             reject(new Error('Request timeout - Gemini API call exceeded maximum time limit'));

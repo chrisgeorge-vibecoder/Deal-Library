@@ -137,8 +137,24 @@ export async function POST(request: NextRequest) {
     
     // Return successful result
     return NextResponse.json(responseData);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error generating audience insights:', error);
+    
+    // Check if it's a timeout error
+    if (error.message?.includes('timeout')) {
+      console.error('⏰ Request timed out in outer handler');
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Request timeout',
+          message: 'The audience insights generation took too long. Please try a simpler query or try again.',
+          audienceInsights: [],
+          aiResponse: ''
+        },
+        { status: 504 } // Gateway Timeout
+      );
+    }
+    
     return NextResponse.json(
       { 
         success: false,

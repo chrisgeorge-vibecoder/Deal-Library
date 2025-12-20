@@ -2202,7 +2202,9 @@ Return ONLY valid JSON:
       if (firstBrace !== -1 && lastBrace !== -1) {
         const jsonStr = responseText.substring(firstBrace, lastBrace + 1);
         const persona = JSON.parse(jsonStr);
-        console.log(`✅ AI Persona: "${persona.name}" ${persona.emoji}`);
+        // Override AI-generated emoji with hardcoded segment-specific emoji
+        persona.emoji = this.getEmojiForCategory(category, segment);
+        console.log(`✅ AI Persona: "${persona.name}" ${persona.emoji} (using hardcoded emoji)`);
         this.aiResponseCache.set(cacheKey, persona);
         return persona;
       }

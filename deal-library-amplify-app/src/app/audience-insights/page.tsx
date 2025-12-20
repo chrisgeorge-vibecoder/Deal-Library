@@ -1051,13 +1051,17 @@ export default function AudienceInsightsPage() {
             messagingRecsCount: aiStrategicInsights.messagingRecommendations?.length || 0
           });
           
+          // Preserve existing persona if it already exists (from pre-generated cache) to avoid unnecessary regeneration
+          const preserveExistingPersona = prevReport.personaName && prevReport.personaEmoji && prevReport.personaDescription;
+          
           return {
             ...prevReport,
             executiveSummary: data.executiveSummary || prevReport.executiveSummary,
             strategicInsights: aiStrategicInsights, // Use AI-generated content, not fallback
-            personaName: data.personaName || prevReport.personaName,
-            personaEmoji: data.personaEmoji || prevReport.personaEmoji,
-            personaDescription: data.personaDescription || prevReport.personaDescription
+            // Only update persona if we don't already have one (preserve pre-generated personas)
+            personaName: preserveExistingPersona ? prevReport.personaName : (data.personaName || prevReport.personaName),
+            personaEmoji: preserveExistingPersona ? prevReport.personaEmoji : (data.personaEmoji || prevReport.personaEmoji),
+            personaDescription: preserveExistingPersona ? prevReport.personaDescription : (data.personaDescription || prevReport.personaDescription)
           };
         });
         
@@ -1484,7 +1488,6 @@ export default function AudienceInsightsPage() {
                       <th className="text-left py-3 px-2 font-medium text-gray-700">ZIP Code</th>
                       <th className="text-left py-3 px-2 font-medium text-gray-700">City, State</th>
                       <th className="text-left py-3 px-2 font-medium text-gray-700">Population</th>
-                      <th className="text-left py-3 px-2 font-medium text-gray-700">Volume</th>
                       <th className="text-left py-3 px-2 font-medium text-gray-700">Over-Index</th>
                     </tr>
                   </thead>
@@ -1512,17 +1515,6 @@ export default function AudienceInsightsPage() {
                         <td className="py-3 px-2">{hotspot.city}, {hotspot.state}</td>
                         <td className="py-3 px-2 text-gray-600">
                           {hotspot.population ? hotspot.population.toLocaleString() : 'N/A'}
-                        </td>
-                        <td className="py-3 px-2">
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 bg-gray-200 rounded-full h-2 max-w-[80px]">
-                              <div
-                                className="bg-blue-500 h-2 rounded-full"
-                                style={{ width: `${Math.min(100, (hotspot.density / Math.max(...report.geographicHotspots.map(h => h.density))) * 100)}%` }}
-                              ></div>
-                            </div>
-                            <span className="text-gray-600 text-xs">{hotspot.density.toLocaleString()}</span>
-                          </div>
                         </td>
                         <td className="py-3 px-2">
                           {hotspot.overIndex !== undefined ? (
@@ -1905,18 +1897,6 @@ export default function AudienceInsightsPage() {
                           </div>
                         )}
 
-                        {/* Campaign Ready Indicator */}
-                        {msgObj.campaignReady !== undefined && (
-                          <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              msgObj.campaignReady 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-gray-100 text-gray-600'
-                            }`}>
-                              {msgObj.campaignReady ? '✅ Campaign Ready' : '⏳ In Development'}
-                            </span>
-                          </div>
-                        )}
                       </div>
                     );
                     })

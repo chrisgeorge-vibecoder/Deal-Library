@@ -660,7 +660,7 @@ class AudienceInsightsService {
    * Generate only the strategic content (Gemini AI parts) for an existing report
    * This is used to load strategic insights asynchronously after the initial report
    */
-  async generateStrategicContent(segment: string, category: string, demographics: any, overlaps: any[], geoIntelligence: any, commerceBaseline: any): Promise<{
+  async generateStrategicContent(segment: string, category: string, demographics: any, overlaps: any[], geoIntelligence: any, commerceBaseline: any, existingPersona?: { name: string; emoji: string; description: string }): Promise<{
     executiveSummary: string;
     strategicInsights: any;
     personaName: string;
@@ -744,20 +744,26 @@ class AudienceInsightsService {
       return `The ${trimmedSegment} audience shows strong market potential with ${demographics.medianHHI ? '$' + demographics.medianHHI.toLocaleString() : 'above-average'} household income and ${demographics.educationBachelors ? demographics.educationBachelors.toFixed(0) + '%' : 'high'} education levels.`;
     });
 
-    const personaResultPromise = this.withRetry(
-      () => this.generateAIPersona(trimmedSegment, category || 'General', demographics, overlaps, geoIntelligence, commerceBaseline),
-      2,
-      GEMINI_CALL_TIMEOUT_MS,
-      'AI persona generation'
-    ).catch(error => {
-      console.error('❌ Failed to generate AI persona after retries:', error);
-      // Use segment-specific emoji instead of generic
-      return {
-        name: trimmedSegment,
-        emoji: this.getSegmentEmoji(trimmedSegment, category || 'General'),
-        description: `The ${trimmedSegment} audience`
-      };
-    });
+    // Reuse existing persona if provided (from pre-generated cache) to avoid regenerating
+    const personaResultPromise = existingPersona 
+      ? Promise.resolve(existingPersona).then(persona => {
+          console.log(`💨 Reusing existing persona for ${trimmedSegment}: "${persona.name}"`);
+          return persona;
+        })
+      : this.withRetry(
+          () => this.generateAIPersona(trimmedSegment, category || 'General', demographics, overlaps, geoIntelligence, commerceBaseline),
+          2,
+          GEMINI_CALL_TIMEOUT_MS,
+          'AI persona generation'
+        ).catch(error => {
+          console.error('❌ Failed to generate AI persona after retries:', error);
+          // Use segment-specific emoji instead of generic
+          return {
+            name: trimmedSegment,
+            emoji: this.getEmojiForCategory(category || 'General', trimmedSegment),
+            description: `The ${trimmedSegment} audience`
+          };
+        });
 
     const [strategicInsights, humanizedPersona, executiveSummary, personaResult] = await Promise.all([
       strategicInsightsPromise,
@@ -2611,7 +2617,9 @@ Return ONLY valid JSON:
       if (firstBrace !== -1 && lastBrace !== -1) {
         const jsonStr = responseText.substring(firstBrace, lastBrace + 1);
         const persona = JSON.parse(jsonStr);
-        console.log(`✅ AI Persona: "${persona.name}" ${persona.emoji}`);
+        // Override AI-generated emoji with hardcoded segment-specific emoji
+        persona.emoji = this.getEmojiForCategory(category, segment);
+        console.log(`✅ AI Persona: "${persona.name}" ${persona.emoji} (using hardcoded emoji)`);
         this.aiResponseCache.set(cacheKey, persona);
         return persona;
       }

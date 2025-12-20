@@ -240,7 +240,7 @@ function generateInsightsFromData(): SovrnInsight[] {
         headline: `${topSpot.city}: ${(topSpot.overIndex / 100).toFixed(0)}x Over-Index for ${segmentName}`,
         didYouKnow: `${topSpot.city}, ${topSpot.state} over-indexes for ${segmentName} shoppers by ${topSpot.overIndex.toLocaleString()}%—that's ${(topSpot.overIndex / 100).toFixed(0)}x the national average. This ZIP (${topSpot.zipCode}) has a concentration of ${topSpot.density.toLocaleString()} active buyers.`,
         marketingImplication: `Hyperlocal targeting in ${topSpot.city} will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.`,
-        category: 'Regional Markets',
+        category: 'Geographic Markets',
         tags: [segmentName.toLowerCase(), topSpot.city.toLowerCase(), topSpot.state.toLowerCase(), 'geographic', 'over-index'],
       });
     }
@@ -347,7 +347,7 @@ function generateInsightsFromData(): SovrnInsight[] {
       headline: `${city}: Top Market for ${data.segments.length} Categories`,
       didYouKnow: `${city}, ${state} is a geographic hotspot for ${data.segments.slice(0, 4).join(', ')}${data.segments.length > 4 ? ` and ${data.segments.length - 4} more categories` : ''}. Average shopper income: ${formatMoney(data.avgIncome)}.`,
       marketingImplication: `${city} is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.`,
-      category: 'City Insights',
+      category: 'Geographic Markets',
       tags: [city.toLowerCase(), state.toLowerCase(), 'geographic', 'hotspot', 'multi-category'],
     });
   }

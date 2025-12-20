@@ -14,23 +14,20 @@ export interface SovrnInsight {
 export type InsightCategory = 
   | 'Consumer Profiles'
   | 'Lifestyle & Values'
-  | 'Regional Markets'
-  | 'City Insights'
+  | 'Geographic Markets'
   | 'Data Discoveries';
 
 export const CATEGORY_COLORS: Record<InsightCategory, { bg: string; text: string; border: string }> = {
   'Consumer Profiles': { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-300' },
   'Lifestyle & Values': { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-300' },
-  'Regional Markets': { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-300' },
-  'City Insights': { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-300' },
+  'Geographic Markets': { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-300' },
   'Data Discoveries': { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-300' },
 };
 
 export const CATEGORY_ICONS: Record<InsightCategory, string> = {
   'Consumer Profiles': '👤',
   'Lifestyle & Values': '💡',
-  'Regional Markets': '🗺️',
-  'City Insights': '🏙️',
+  'Geographic Markets': '🗺️',
   'Data Discoveries': '🔍',
 };
 
@@ -222,7 +219,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'The College Town Paradox',
     didYouKnow: 'College towns have twice the concentration of 20-somethings (30.3%) compared to the national average (13.2%), yet they earn more than the average American—with median household incomes of $87,594 vs. the national $84,386.',
     marketingImplication: 'College towns are renter-heavy (only 36.7% homeownership) with high disposable income—prime markets for subscription services, fashion, electronics, and convenience products.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['college', 'young-adults', 'subscriptions', 'high-income'],
     featured: true,
   },
@@ -231,7 +228,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Ann Arbor: America\'s Entrepreneurial College Town',
     didYouKnow: 'Ann Arbor, Michigan has 16.1% self-employment—nearly 40% higher than the national average. Combined with 76.1% college-educated residents and a 33.5% charitable giving rate, it\'s one of America\'s most entrepreneurial and socially conscious markets.',
     marketingImplication: 'B2E (business-to-entrepreneur) products, sustainable brands, and premium local goods resonate strongly here.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['ann-arbor', 'entrepreneur', 'sustainable', 'educated'],
   },
   {
@@ -239,7 +236,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Boulder: Where Everyone Starts a Business',
     didYouKnow: 'Boulder, Colorado has the highest self-employment rate among college towns at 19.5%—nearly double the national average. With 76.3% college educated, it\'s a hotbed for outdoor gear, sustainable products, and premium fitness brands.',
     marketingImplication: 'Performance-oriented, sustainability-focused products with premium price points perform exceptionally well.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['boulder', 'outdoor', 'fitness', 'sustainable', 'premium'],
   },
   {
@@ -247,7 +244,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'State College: America\'s Youngest ZIP Codes',
     didYouKnow: 'State College, Pennsylvania (home of Penn State) has 33.7% of its population in their 20s—2.5x the national average. It\'s one of America\'s youngest significant markets with a median age of just 28.6.',
     marketingImplication: 'Ideal test market for Gen Z products, student services, and affordable premium brands.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['state-college', 'gen-z', 'students', 'test-market'],
   },
 
@@ -257,7 +254,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'The Coastal Premium: 24% Higher Income',
     didYouKnow: 'Coastal Americans (East + West Coast) earn $95,144 median income—24% more than the heartland\'s $76,688. But the real difference? Home values: $534K coastal vs. $265K inland—more than double.',
     marketingImplication: 'Coastal markets can support 2x higher price points for home goods, furniture, and lifestyle products. But focus messaging on space efficiency—their dollars stretch differently.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['coastal', 'premium', 'home-values', 'pricing'],
     featured: true,
   },
@@ -266,7 +263,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'West Coast: The Self-Employment Capital',
     didYouKnow: 'West Coast residents have a 14% self-employment rate—the highest in the nation. Combined with 49% STEM education and $100,290 median income, this creates a unique "tech freelancer" consumer profile.',
     marketingImplication: 'Target with productivity tools, home office equipment, and business-casual lifestyle products. These buyers value efficiency and premium quality.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['west-coast', 'self-employed', 'tech', 'freelancer'],
   },
   {
@@ -274,7 +271,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'The 4-Minute Coastal Commute Gap',
     didYouKnow: 'Coastal Americans spend 28.9 minutes commuting vs. 24.8 minutes in the heartland—that\'s 17% more drive time. Over a year, that\'s 35 extra hours in transit.',
     marketingImplication: 'Podcast advertising, mobile commerce, and audio content reach coastal audiences during their extended commute windows.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['commute', 'podcasts', 'audio', 'mobile'],
   },
   {
@@ -282,7 +279,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Gulf Coast: The Homeownership Belt',
     didYouKnow: 'The Gulf Coast has 66% homeownership—higher than both the East Coast (varies) and West Coast. Combined with lower home values ($314K median), these markets represent excellent opportunity for home improvement, outdoor living, and family products.',
     marketingImplication: 'Focus on value-oriented messaging, DIY products, and outdoor/patio living. These are practical buyers with established homes.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['gulf-coast', 'homeowners', 'DIY', 'outdoor'],
   },
 
@@ -292,7 +289,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Silicon Valley: Where 75% Have STEM Degrees',
     didYouKnow: 'In Cupertino, California (Apple HQ), 75.1% of residents hold STEM degrees—more than double the national average. These hyper-technical consumers respond to data-backed claims and feature-rich products.',
     marketingImplication: 'Lead with specifications, technical details, and performance metrics. Traditional emotional marketing underperforms in these markets.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['silicon-valley', 'STEM', 'tech', 'data-driven'],
   },
   {
@@ -300,7 +297,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'The Creative Class in Sherman Oaks',
     didYouKnow: 'Sherman Oaks, California has 26.6% self-employment—the highest of any major U.S. market. Combined with 65.2% college education, this is America\'s "creative class capital."',
     marketingImplication: 'Premium freelancer and creative professional products, from home studios to luxury athleisure, perform exceptionally well.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['sherman-oaks', 'creative', 'freelancer', 'self-employed'],
   },
   {
@@ -308,7 +305,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'The Villages: 65% Are 65+',
     didYouKnow: 'The Villages, Florida has the nation\'s oldest population—64.9% are 65 or older with a median age of 72.4. This concentrated senior market represents $billions in healthcare, leisure, and lifestyle spending.',
     marketingImplication: 'Accessibility-focused products, health and wellness, and premium leisure goods. Avoid digital-only marketing—direct mail and traditional media still dominate.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['the-villages', 'seniors', 'healthcare', 'traditional-media'],
   },
   {
@@ -316,7 +313,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'The Super Commuter Cities',
     didYouKnow: 'Queens neighborhoods like South Ozone Park average 46-minute one-way commutes—that\'s nearly 2 hours daily, 10 hours weekly, and 21 full days per year spent commuting.',
     marketingImplication: 'Audio entertainment, mobile gaming, language learning apps, and podcast advertising reach these captive audiences. Consider time-saving products and delivery services.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['queens', 'commuters', 'audio', 'podcasts', 'time-saving'],
   },
   {
@@ -324,7 +321,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'NYC: The Renter Nation',
     didYouKnow: 'Astoria, New York has just 18.3% homeownership—the lowest of any major market. Yet median rent is $2,145/month, creating a unique "wealthy renter" segment with high disposable income.',
     marketingImplication: 'Apartment-friendly products, space-saving solutions, and high-end rental lifestyle items (vs. home improvement) resonate. These consumers invest in experiences and possessions, not property.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['nyc', 'renters', 'urban', 'space-saving', 'experiences'],
   },
 
@@ -334,7 +331,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'The Affluent Renter Phenomenon',
     didYouKnow: 'Nearly 4.6 million Americans earn over $100K but rent rather than own. Concentrated in NYC, SF, DC, and Chicago, this "affluent renter" segment is 72.1% college-educated with massive discretionary spending power.',
     marketingImplication: 'Premium subscription services, luxury experiences, and high-end consumables (vs. durables) perform well. These consumers invest in lifestyle, not property equity.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['affluent-renters', 'urban', 'subscriptions', 'luxury'],
     featured: true,
   },
@@ -343,7 +340,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'The DINK Market: 70% Dual-Income, Tiny Households',
     didYouKnow: 'Markets like Chantilly, VA (72.8% dual-income) and Seattle represent America\'s concentrated "DINK" (Dual Income, No Kids) population—earning $126K+ with just 2.3 people per household.',
     marketingImplication: 'Premium travel, luxury experiences, high-end dining, and lifestyle products. These consumers prioritize quality over quantity with significant discretionary income.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['DINK', 'dual-income', 'travel', 'luxury', 'experiences'],
   },
   {
@@ -351,7 +348,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Danville: America\'s Most Philanthropic City',
     didYouKnow: 'Danville, California has the nation\'s highest charitable giving rate at 59.7%—nearly 3x the national average. These values-driven consumers respond strongly to cause marketing and brand purpose.',
     marketingImplication: 'Lead with sustainability, social impact, and ethical sourcing. Partnerships with nonprofits and "give back" programs drive conversion.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['danville', 'philanthropy', 'cause-marketing', 'values'],
   },
 
@@ -361,7 +358,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'The Family Stronghold: Sammamish, WA',
     didYouKnow: 'Sammamish, Washington has America\'s highest marriage rate (71.8%) combined with large families (3.29 average)—and a stunning median income of $241,206. This is America\'s wealthiest family market.',
     marketingImplication: 'Premium family products, education services, and large-format goods. These families buy quality over price and invest heavily in children\'s development.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['sammamish', 'family', 'premium', 'education', 'wealthy'],
   },
   {
@@ -369,7 +366,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'High Net Worth Families: 9.7 Million Strong',
     didYouKnow: 'Nearly 10 million Americans live in households earning $150K+, with 3+ family members, and 75%+ homeownership. Their average home value? $791,570.',
     marketingImplication: 'Family-size premium products, home investment goods, and multi-generational services. Brand loyalty is high—acquisition costs are worth it for lifetime value.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['high-net-worth', 'family', 'premium', 'loyalty'],
   },
 
@@ -379,7 +376,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Silicon Valley vs. Austin: The STEM Gap',
     didYouKnow: 'Silicon Valley has 63.5% STEM-educated residents vs. Austin\'s 47.8%—but Austin has 16% self-employment vs. Silicon Valley\'s 13.2%. Same tech industry, different consumer profiles.',
     marketingImplication: 'Silicon Valley buyers are feature-driven analysts; Austin buyers are entrepreneurial risk-takers. Adjust messaging accordingly.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['silicon-valley', 'austin', 'tech', 'STEM', 'entrepreneurs'],
   },
   {
@@ -387,7 +384,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'The Boston Tech Anomaly',
     didYouKnow: 'Boston\'s tech corridor has the lowest self-employment rate among major tech hubs at just 2.3% (vs. 13%+ elsewhere). These are corporate tech workers, not founders—different buying psychology.',
     marketingImplication: 'Premium corporate lifestyle products, commuter goods, and family services resonate. Less "hustle culture," more work-life balance positioning.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['boston', 'corporate', 'tech', 'work-life-balance'],
   },
 
@@ -397,7 +394,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Boulder: 11,400% Over-Index for Yoga',
     didYouKnow: 'Boulder, Colorado over-indexes for yoga equipment purchases by 11,400% compared to national average. With 67% college-educated residents earning $98K median income, this 105,000-person market punches 114x above its weight in wellness spending.',
     marketingImplication: 'Micro-market targeting in Boulder delivers ROI that national campaigns can\'t match. A single Boulder ZIP code can outperform entire states for wellness brands.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['boulder', 'yoga', 'wellness', 'over-index', 'micro-targeting'],
   },
   {
@@ -405,7 +402,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Napa Valley: 9,800% Over-Index for Wine Accessories',
     didYouKnow: 'Napa Valley ZIPs over-index for wine accessory purchases by 9,800%—nearly 100x the national average. These 82,000 residents spend $127K median income on wine culture, storage, and lifestyle products.',
     marketingImplication: 'Wine brands can achieve national-scale results from a single California county. Hyper-local campaigns in Napa deliver premium customers at a fraction of broad targeting costs.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['napa', 'wine', 'luxury', 'over-index', 'premium'],
   },
   {
@@ -413,7 +410,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Jackson Hole: 12,300% Over-Index for Ski Gear',
     didYouKnow: 'Jackson Hole, Wyoming over-indexes for ski and winter sports equipment by 12,300%. Despite a population of just 11,000, this market generates more ski gear revenue per capita than any other U.S. location—with $134K median household income.',
     marketingImplication: 'Outdoor and ski brands should treat Jackson Hole as a flagship market. One targeted campaign here builds brand credibility for the entire category.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['jackson-hole', 'skiing', 'outdoor', 'over-index', 'affluent'],
   },
   {
@@ -421,7 +418,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Austin Tech Corridor: 8,900% Over-Index for Smart Home',
     didYouKnow: 'Austin\'s tech corridor (78701-78759) over-indexes for smart home device purchases by 8,900%. These 340,000 residents are 52% STEM-educated with $112K median income—early adopters who influence national tech trends.',
     marketingImplication: 'Launch smart home products in Austin first. Success here predicts national adoption, and Austin influencers drive organic word-of-mouth across tech communities.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['austin', 'smart-home', 'tech', 'over-index', 'early-adopters'],
   },
   {
@@ -429,7 +426,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Scottsdale: 10,200% Over-Index for Golf',
     didYouKnow: 'Scottsdale, Arizona over-indexes for golf equipment and apparel by 10,200%. With 258,000 residents, 23% age 60+, and $89K median income, this is America\'s most concentrated golf market—102x the national purchase rate.',
     marketingImplication: 'Golf brands can capture more qualified leads from Scottsdale than from entire regions. Local partnerships and geo-targeted campaigns deliver exceptional CAC efficiency.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['scottsdale', 'golf', 'seniors', 'over-index', 'retirement'],
   },
   {
@@ -437,7 +434,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Portland: 9,100% Over-Index for Craft Coffee',
     didYouKnow: 'Portland, Oregon over-indexes for specialty coffee equipment by 9,100%. These 654,000 residents are 47% college-educated, 18% self-employed, and spend 91x the national average on coffee grinders, pour-over gear, and specialty beans.',
     marketingImplication: 'Coffee brands should treat Portland as a test market. Products that succeed here have proven appeal to the specialty coffee segment nationwide.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['portland', 'coffee', 'specialty', 'over-index', 'test-market'],
   },
   {
@@ -445,7 +442,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Williamsburg Brooklyn: 11,800% Over-Index for Vinyl',
     didYouKnow: 'Williamsburg, Brooklyn over-indexes for vinyl records and turntables by 11,800%—nearly 118x national average. This 78,000-person neighborhood has more vinyl spending per capita than any U.S. market, driven by 31% in their 20s earning $94K median.',
     marketingImplication: 'Music and audio brands can build cult followings through Williamsburg-first launches. Success here creates authenticity that resonates with music enthusiasts nationally.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['williamsburg', 'vinyl', 'music', 'over-index', 'hipster'],
   },
   {
@@ -453,7 +450,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Marin County: 10,500% Over-Index for Organic',
     didYouKnow: 'Marin County, California over-indexes for organic food purchases by 10,500%. These 260,000 residents earn $137K median income with 58% college education—spending 105x the national average on organic and natural products.',
     marketingImplication: 'Organic and natural brands should prioritize Marin County distribution. Shelf presence here signals premium positioning to the entire natural foods market.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['marin', 'organic', 'natural', 'over-index', 'premium'],
   },
   {
@@ -461,7 +458,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Miami Beach: 9,400% Over-Index for Swimwear',
     didYouKnow: 'Miami Beach over-indexes for swimwear and resort wear by 9,400%—94x national average. This 92,000-person market drives more swimwear revenue per capita than any other U.S. location, with year-round beach culture and $78K median income.',
     marketingImplication: 'Swimwear brands can generate national buzz through Miami Beach influencer partnerships. This single market sets trends that cascade through resort retail nationwide.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['miami-beach', 'swimwear', 'resort', 'over-index', 'fashion'],
   },
   {
@@ -469,7 +466,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Aspen: 14,200% Over-Index for Luxury Outerwear',
     didYouKnow: 'Aspen, Colorado over-indexes for luxury outerwear ($500+) by 14,200%—the highest over-index of any U.S. micro-market. These 7,500 residents with $147K median income spend 142x the national average on premium winter apparel.',
     marketingImplication: 'Luxury outerwear brands should treat Aspen as a flagship retail destination. Presence here defines premium positioning for the entire winter apparel category.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['aspen', 'luxury', 'outerwear', 'over-index', 'flagship'],
   },
   {
@@ -477,7 +474,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'San Francisco Marina: 10,800% Over-Index for Fitness Tech',
     didYouKnow: 'San Francisco\'s Marina District over-indexes for fitness technology (Peloton, Whoop, Oura) by 10,800%. These 38,000 residents are 71% college-educated, 67% in their 20s-30s, earning $142K median—spending 108x national average on connected fitness.',
     marketingImplication: 'Fitness tech brands should geo-fence the Marina District for launch campaigns. Early adoption here drives social proof that accelerates national growth.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['sf-marina', 'fitness-tech', 'connected', 'over-index', 'early-adopter'],
   },
   {
@@ -485,7 +482,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Nashville: 8,700% Over-Index for Musical Instruments',
     didYouKnow: 'Nashville, Tennessee over-indexes for musical instrument purchases by 8,700%. These 689,000 residents spend 87x the national average on guitars, recording equipment, and music production gear—driven by the city\'s $84K median income creative class.',
     marketingImplication: 'Music gear brands can achieve category dominance through Nashville partnerships. Success in "Music City" translates to credibility with musicians nationwide.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['nashville', 'music', 'instruments', 'over-index', 'creative'],
   },
   {
@@ -493,7 +490,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Hamptons: 11,100% Over-Index for Outdoor Furniture',
     didYouKnow: 'The Hamptons (Long Island, NY) over-indexes for outdoor furniture by 11,100%. These 65,000 year-round residents (plus 400,000 seasonal) with $168K median income spend 111x national average on premium patio and outdoor living products.',
     marketingImplication: 'Outdoor living brands should treat the Hamptons as a showroom market. Visibility here influences purchase decisions among affluent consumers nationally.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['hamptons', 'outdoor-furniture', 'seasonal', 'over-index', 'luxury'],
   },
   {
@@ -501,7 +498,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Seattle Capitol Hill: 9,600% Over-Index for Plant-Based',
     didYouKnow: 'Seattle\'s Capitol Hill over-indexes for plant-based food products by 9,600%. These 42,000 residents are 64% college-educated, 29% in their 20s, and spend 96x national average on vegan and plant-based alternatives.',
     marketingImplication: 'Plant-based brands should pilot new products in Capitol Hill. Success here predicts adoption among health-conscious urban consumers nationwide.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['seattle', 'plant-based', 'vegan', 'over-index', 'urban'],
   },
   {
@@ -509,7 +506,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Greenwich CT: 12,700% Over-Index for Private Education',
     didYouKnow: 'Greenwich, Connecticut over-indexes for private education spending (K-12, tutoring, enrichment) by 12,700%. These 63,000 residents earn $212K median income and spend 127x national average on children\'s educational services.',
     marketingImplication: 'Education brands can capture ultra-premium positioning through Greenwich presence. Parents here set spending standards that influence affluent families nationally.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['greenwich', 'education', 'private-school', 'over-index', 'affluent'],
   },
   {
@@ -517,7 +514,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Denver Highlands: 10,100% Over-Index for Craft Beer',
     didYouKnow: 'Denver\'s Highlands neighborhood over-indexes for craft beer purchases by 10,100%. These 28,000 residents are 59% college-educated, 34% in their 30s, and spend 101x national average on local and craft brewery products.',
     marketingImplication: 'Craft breweries can build national brand awareness through Denver Highlands distribution. This market punches far above its weight in beer influencer reach.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['denver', 'craft-beer', 'brewery', 'over-index', 'local'],
   },
   {
@@ -525,7 +522,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Sedona: 13,500% Over-Index for Wellness Retreats',
     didYouKnow: 'Sedona, Arizona over-indexes for wellness retreat and spa services by 13,500%. These 10,000 residents plus 3 million annual visitors spend 135x national average on meditation, healing, and spiritual wellness experiences.',
     marketingImplication: 'Wellness brands can establish category authority through Sedona partnerships. This market\'s spiritual positioning creates brand associations that resonate with wellness seekers nationally.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['sedona', 'wellness', 'spa', 'over-index', 'spiritual'],
   },
   {
@@ -533,7 +530,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Savannah: 9,300% Over-Index for Antiques',
     didYouKnow: 'Savannah, Georgia over-indexes for antique and vintage furniture purchases by 9,300%. These 147,000 residents are 41% college-educated with $52K median income—but spend 93x national average on period furniture and collectibles.',
     marketingImplication: 'Antique and vintage brands can build regional dominance through Savannah. This market\'s design influence extends throughout the Southeast home décor segment.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['savannah', 'antiques', 'vintage', 'over-index', 'design'],
   },
   {
@@ -541,7 +538,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Palo Alto: 11,900% Over-Index for Electric Vehicles',
     didYouKnow: 'Palo Alto, California over-indexes for electric vehicle purchases by 11,900%. These 68,000 residents are 81% college-educated, 58% STEM, earning $174K median—spending 119x national average on EVs and charging infrastructure.',
     marketingImplication: 'EV and clean tech brands should treat Palo Alto as ground zero. Early adoption here creates the social proof that drives mainstream EV consideration.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['palo-alto', 'ev', 'electric-vehicles', 'over-index', 'tech'],
   },
   {
@@ -549,7 +546,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Key West: 10,400% Over-Index for Water Sports',
     didYouKnow: 'Key West, Florida over-indexes for water sports equipment (kayaks, paddleboards, snorkel gear) by 10,400%. These 25,000 residents spend 104x national average on aquatic recreation, creating America\'s most concentrated water sports market.',
     marketingImplication: 'Water sports brands can dominate their category through Key West presence. This market\'s lifestyle influence extends throughout the coastal recreation segment.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['key-west', 'water-sports', 'kayak', 'over-index', 'coastal'],
   },
   {
@@ -557,7 +554,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Park City: 11,600% Over-Index for Adventure Gear',
     didYouKnow: 'Park City, Utah over-indexes for adventure and outdoor gear by 11,600%. These 8,500 year-round residents (plus 2 million annual visitors) spend 116x national average on hiking, climbing, and backcountry equipment.',
     marketingImplication: 'Adventure brands should establish Park City as a flagship market. Credibility here translates to authority with outdoor enthusiasts nationwide.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['park-city', 'adventure', 'outdoor', 'over-index', 'backcountry'],
   },
   {
@@ -565,7 +562,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Charleston SC: 9,800% Over-Index for Home Décor',
     didYouKnow: 'Charleston, South Carolina over-indexes for home décor purchases by 9,800%. These 150,000 residents are 52% college-educated, 68% homeowners, and spend 98x national average on interior design, furniture, and home accessories.',
     marketingImplication: 'Home décor brands can build Southern market dominance through Charleston. This city\'s design aesthetic influences home trends throughout the Southeast.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['charleston', 'home-decor', 'interior-design', 'over-index', 'southern'],
   },
   {
@@ -573,7 +570,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Carmel-by-the-Sea: 14,800% Over-Index for Fine Art',
     didYouKnow: 'Carmel-by-the-Sea, California over-indexes for fine art purchases by 14,800%—the highest cultural spending over-index in America. These 3,900 residents earn $108K median and spend 148x national average on gallery art and collectibles.',
     marketingImplication: 'Art galleries and luxury collectible brands should treat Carmel as a destination market. Presence here signals premier positioning to art collectors nationally.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['carmel', 'fine-art', 'gallery', 'over-index', 'collectors'],
   },
   {
@@ -581,7 +578,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Bend Oregon: 10,700% Over-Index for Cycling',
     didYouKnow: 'Bend, Oregon over-indexes for cycling equipment purchases by 10,700%. These 102,000 residents are 51% college-educated, 14% self-employed, and spend 107x national average on bikes, components, and cycling apparel.',
     marketingImplication: 'Cycling brands can achieve cult status through Bend-first launches. Success in this passionate cycling community drives word-of-mouth that reaches enthusiasts nationally.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['bend', 'cycling', 'bikes', 'over-index', 'outdoor'],
   },
   {
@@ -589,7 +586,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Martha\'s Vineyard: 12,100% Over-Index for Boating',
     didYouKnow: 'Martha\'s Vineyard over-indexes for boating and marine equipment by 12,100%. These 17,000 year-round residents (plus 200,000 seasonal) with $89K median income spend 121x national average on boats, marine accessories, and nautical lifestyle.',
     marketingImplication: 'Marine and boating brands should establish flagship presence on the Vineyard. This market\'s affluent boating culture influences purchase decisions among coastal consumers nationwide.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['marthas-vineyard', 'boating', 'marine', 'over-index', 'coastal'],
   },
 
@@ -765,7 +762,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'NYC Gives 60% More to Charity',
     didYouKnow: 'New York City residents are 35.4% charitable givers—compared to just 22.1% nationally. Combined with 63.6% college-educated (nearly double national average) and $111,654 median income (+32% vs national), Manhattan is America\'s most generous, educated urban market.',
     marketingImplication: 'Cause marketing and social impact messaging will outperform discount-driven promotions in NYC. These consumers want brands that stand for something.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['NYC', 'charity', 'cause-marketing', 'educated', 'affluent'],
     featured: true,
   },
@@ -774,7 +771,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: '76% of New Yorkers Rent',
     didYouKnow: 'Only 24% of New York City residents own their homes—less than half the national average of 65.4%. Yet home values are $955,095 (2.5x national) and rent averages $2,267/month. This is a market of wealthy renters with no equity—all disposable income goes to lifestyle, not property.',
     marketingImplication: 'Skip home improvement; focus on experiences, fashion, dining, and portable luxury. NYC consumers invest in themselves, not their homes.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['NYC', 'renters', 'luxury', 'lifestyle', 'experiences'],
   },
 
@@ -784,7 +781,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: '1 in 5 LA Workers Is a Boss',
     didYouKnow: 'Los Angeles has a 20.2% self-employment rate—71% higher than the national average of 11.8%. Combined with the largest family sizes among major metros (3.47 people), LA is a city of entrepreneurial families running side businesses.',
     marketingImplication: 'B2E (business-to-entrepreneur) messaging resonates strongly. Position products as business tools, not just personal items.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['LA', 'entrepreneurs', 'self-employed', 'families', 'B2B'],
   },
   {
@@ -792,7 +789,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'LA Families Rent, Don\'t Buy',
     didYouKnow: 'Only 29.2% of Angelenos own homes—lower than even Brooklyn (30%). Yet average family size is 3.47—the largest among top 10 cities. LA families are renting large apartments and houses, not buying. Home values hit $972K.',
     marketingImplication: 'Focus on flexible, rental-friendly products. No permanent installations. Emphasize family utility in limited space.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['LA', 'renters', 'families', 'housing', 'flexible'],
   },
 
@@ -802,7 +799,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Chicago\'s 34-Minute Commutes',
     didYouKnow: 'Chicago\'s average commute is 33.7 minutes—26% longer than the national average of 26.7 minutes. That\'s 58 extra hours per year stuck in transit. Combined with 17.2% in their 20s, Chicago has young professionals losing time to commutes.',
     marketingImplication: 'Podcast advertising, mobile commerce, and time-saving products dominate here. Audio content reaches Chicago audiences during their extended L train rides.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Chicago', 'commute', 'podcasts', 'mobile', 'young-professionals'],
   },
   {
@@ -810,7 +807,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Chicago: Smart But Single',
     didYouKnow: 'Chicago residents are 41.8% college-educated (+21% vs national) but only 35.7% married (-25% vs national). This is a city of educated singles and unmarried partners—the opposite of suburban family life.',
     marketingImplication: 'Singles marketing, dating apps, and individual-focused products outperform family positioning. Emphasize personal growth and social life.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Chicago', 'singles', 'educated', 'dating', 'urban'],
   },
 
@@ -820,7 +817,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Houston\'s Big Family Culture',
     didYouKnow: 'Houston\'s average family size is 3.35 people—the second-largest among top 10 cities. Combined with 15.5% in their 20s and a median age of just 34.4 (5 years younger than national), Houston is a city of young, growing families.',
     marketingImplication: 'Family-size products, bulk buying, and kid-focused marketing will overperform. Position for the whole household.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Houston', 'families', 'young', 'bulk', 'kids'],
   },
   {
@@ -828,7 +825,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Houston: Hustle City USA',
     didYouKnow: 'Houston\'s self-employment rate is 17.4%—47% higher than the 11.8% national average. Despite below-average incomes ($69,772), Houstonians are starting businesses at exceptional rates.',
     marketingImplication: 'Side-hustle messaging and business tools resonate. Position as investments in future success, not luxury indulgences.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Houston', 'entrepreneurs', 'side-hustle', 'business', 'hustle'],
   },
 
@@ -838,7 +835,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: '$963K Homes, 70% Renters',
     didYouKnow: 'Brooklyn median home values are $962,843—2.5x the national average—yet only 30% of residents own homes. This is a borough of million-dollar properties occupied by renters paying $1,865/month.',
     marketingImplication: 'Luxury lifestyle products work—but not home-focused ones. Brooklyn consumers want experiences, fashion, and food.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Brooklyn', 'renters', 'luxury', 'lifestyle', 'expensive'],
   },
   {
@@ -846,7 +843,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Brooklyn\'s 42-Min Commutes',
     didYouKnow: 'Brooklyn\'s average commute is 42.1 minutes—the longest of any major city, 58% above national average. That\'s 137 extra hours per year—nearly 6 full days—lost to commuting.',
     marketingImplication: 'Audio content, mobile apps, and commuter-friendly products dominate. Brooklyn audiences are captive on the subway.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Brooklyn', 'commute', 'subway', 'mobile', 'audio'],
   },
 
@@ -856,7 +853,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Miami: 22% Self-Employed',
     didYouKnow: 'Miami\'s self-employment rate is 22.2%—the highest of any top 10 city—88% above national average. Combined with an older population (23.3% over 60), Miami is a city of established entrepreneurs.',
     marketingImplication: 'Business-owner messaging works at scale. Miami consumers are decision-makers, not employees.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Miami', 'entrepreneurs', 'self-employed', 'established', 'B2B'],
   },
   {
@@ -864,7 +861,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Miami Is the Oldest Big City',
     didYouKnow: 'Miami\'s median age is 41.2 years—nearly 2 years older than the national average of 39.3. It\'s the only major city with an older-than-average population. Combined with 53.8% homeownership, this is established wealth.',
     marketingImplication: 'Don\'t over-index on youth marketing in Miami. Quality, reliability, and luxury resonate more than trends.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Miami', 'seniors', 'established', 'wealth', 'luxury'],
   },
 
@@ -874,7 +871,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Phoenix Has 27% Fewer Seniors',
     didYouKnow: 'Only 17.1% of Phoenix residents are 60+—compared to 23.3% nationally. Combined with a median age of 35.1, Phoenix is rapidly becoming a young professional magnet, not a retirement destination.',
     marketingImplication: 'Pivot from senior-focused marketing. Phoenix is attracting young families and remote workers.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Phoenix', 'young', 'remote-work', 'growth', 'families'],
   },
   {
@@ -882,7 +879,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Phoenix: Dual-Income Boom',
     didYouKnow: 'Phoenix\'s dual-income household rate is 55.7%—4% above national average. Combined with 15.5% in their 20s and larger families (3.33), Phoenix is a city of young working couples starting families.',
     marketingImplication: 'Time-saving and family convenience products dominate. Both parents work—efficiency is the value proposition.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Phoenix', 'dual-income', 'families', 'convenience', 'efficiency'],
   },
 
@@ -892,7 +889,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Philly: Lowest Major City Income',
     didYouKnow: 'Philadelphia\'s median household income is just $61,810—27% below the national average of $84,386. Only 28.1% earn six figures (vs. 39.2% nationally). Philly is a value-conscious market.',
     marketingImplication: 'Price sensitivity is real. Lead with value, deals, and affordability. Premium positioning will underperform.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Philadelphia', 'budget', 'value', 'deals', 'affordability'],
   },
   {
@@ -900,7 +897,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Philly: Only 32% Married',
     didYouKnow: 'Only 31.9% of Philadelphians are married—the lowest of any top 10 city, 33% below the national average. Combined with lower incomes and 15.9% in their 20s, this is a young, single, budget-conscious market.',
     marketingImplication: 'Singles and young professional marketing works. Skip family-oriented messaging. Emphasize affordability.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Philadelphia', 'singles', 'young', 'budget', 'affordable'],
   },
 
@@ -910,7 +907,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Cheapest Homes, Biggest Families',
     didYouKnow: 'San Antonio\'s median home value is just $246,721—35% below national average. Yet family sizes are 3.37—the largest of any top 10 city. Affordable housing + big families = value-driven households.',
     marketingImplication: 'Family-size value packs and bulk offerings will dominate. These are budget-conscious families maximizing value.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['San Antonio', 'affordable', 'families', 'bulk', 'value'],
   },
   {
@@ -918,7 +915,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'San Antonio Gives 25% Less',
     didYouKnow: 'Only 16.5% of San Antonians give to charity—compared to 22.1% nationally. This isn\'t a values-driven market. Combined with lower incomes ($73,438), practical concerns outweigh cause marketing.',
     marketingImplication: 'Skip cause marketing and social impact messaging. Focus on practical benefits and savings instead.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['San Antonio', 'practical', 'value', 'savings', 'budget'],
   },
 
@@ -928,7 +925,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Vegas: Fewest College Grads',
     didYouKnow: 'Only 26.4% of Las Vegas residents are college-educated—the lowest of any top 10 city, 24% below national average. This is a trade and service economy, not a knowledge economy.',
     marketingImplication: 'Skip intellectual or aspirational messaging. Practical, entertainment-focused marketing resonates. Keep it simple.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Las Vegas', 'practical', 'entertainment', 'simple', 'service'],
   },
   {
@@ -936,7 +933,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Vegas Has Shortest Commutes',
     didYouKnow: 'Vegas commuters spend just 25.1 minutes in transit—6% below national average. Combined with 54.3% homeownership and affordable housing ($379,684), Vegas offers suburban convenience with urban entertainment.',
     marketingImplication: 'Time savings isn\'t the value proposition here—people already have time. Focus on experience and entertainment instead.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['Las Vegas', 'entertainment', 'convenience', 'affordable', 'experience'],
   },
 
@@ -1387,7 +1384,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Phoenix: 1159x Over-Index for 3D Printers',
     didYouKnow: 'Phoenix, Arizona over-indexes for 3D Printers shoppers by 115,932.136%—that\'s 1159x the national average. This ZIP (85003) has a concentration of 985 active buyers.',
     marketingImplication: 'Hyperlocal targeting in Phoenix will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['3d printers', 'phoenix', 'arizona', 'geographic', 'over-index'],
   },
 
@@ -1397,7 +1394,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Miami: 201x Over-Index for Activewear',
     didYouKnow: 'Miami, Florida over-indexes for Activewear shoppers by 20,093.888%—that\'s 201x the national average. This ZIP (33125) has a concentration of 987 active buyers.',
     marketingImplication: 'Hyperlocal targeting in Miami will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['activewear', 'miami', 'florida', 'geographic', 'over-index'],
   },
 
@@ -1407,7 +1404,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Seattle: 725x Over-Index for Agriculture',
     didYouKnow: 'Seattle, Washington over-indexes for Agriculture shoppers by 72,489.668%—that\'s 725x the national average. This ZIP (98101) has a concentration of 941 active buyers.',
     marketingImplication: 'Hyperlocal targeting in Seattle will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['agriculture', 'seattle', 'washington', 'geographic', 'over-index'],
   },
 
@@ -1417,7 +1414,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'New York: 230x Over-Index for Alcoholic Beverages',
     didYouKnow: 'New York, New York over-indexes for Alcoholic Beverages shoppers by 22,953.763%—that\'s 230x the national average. This ZIP (10003) has a concentration of 997 active buyers.',
     marketingImplication: 'Hyperlocal targeting in New York will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['alcoholic beverages', 'new york', 'new york', 'geographic', 'over-index'],
   },
 
@@ -1427,7 +1424,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'New York: 224x Over-Index for Animals & Pet Supplies',
     didYouKnow: 'New York, New York over-indexes for Animals & Pet Supplies shoppers by 22,413.126%—that\'s 224x the national average. This ZIP (10003) has a concentration of 996 active buyers.',
     marketingImplication: 'Hyperlocal targeting in New York will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['animals & pet supplies', 'new york', 'new york', 'geographic', 'over-index'],
   },
 
@@ -1437,7 +1434,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'San Francisco: 328x Over-Index for Antivirus & Security Software',
     didYouKnow: 'San Francisco, California over-indexes for Antivirus & Security Software shoppers by 32,787.185%—that\'s 328x the national average. This ZIP (94102) has a concentration of 995 active buyers.',
     marketingImplication: 'Hyperlocal targeting in San Francisco will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['antivirus & security software', 'san francisco', 'california', 'geographic', 'over-index'],
   },
 
@@ -1447,7 +1444,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Los Angeles: 285x Over-Index for Arcade Equipment',
     didYouKnow: 'Los Angeles, California over-indexes for Arcade Equipment shoppers by 28,538.742%—that\'s 285x the national average. This ZIP (90005) has a concentration of 993 active buyers.',
     marketingImplication: 'Hyperlocal targeting in Los Angeles will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['arcade equipment', 'los angeles', 'california', 'geographic', 'over-index'],
   },
 
@@ -1457,7 +1454,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Dallas: 414x Over-Index for Arts & Entertainment',
     didYouKnow: 'Dallas, Texas over-indexes for Arts & Entertainment shoppers by 41,441.936%—that\'s 414x the national average. This ZIP (75205) has a concentration of 978 active buyers.',
     marketingImplication: 'Hyperlocal targeting in Dallas will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['arts & entertainment', 'dallas', 'texas', 'geographic', 'over-index'],
   },
 
@@ -1467,7 +1464,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Miami: 222x Over-Index for Athletics',
     didYouKnow: 'Miami, Florida over-indexes for Athletics shoppers by 22,178.759%—that\'s 222x the national average. This ZIP (33125) has a concentration of 969 active buyers.',
     marketingImplication: 'Hyperlocal targeting in Miami will dramatically outperform broad geo-targeting. Consider OOH, local partnerships, and geo-fenced digital campaigns.',
-    category: 'Regional Markets',
+    category: 'Geographic Markets',
     tags: ['athletics', 'miami', 'florida', 'geographic', 'over-index'],
   },
 
@@ -1617,7 +1614,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Seattle: Top Market for 9 Categories',
     didYouKnow: 'Seattle, Washington is a geographic hotspot for Activewear, Agriculture, Agriculture, Alcoholic Beverages and 5 more categories. Average shopper income: $100,240.',
     marketingImplication: 'Seattle is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['seattle', 'washington', 'geographic', 'hotspot', 'multi-category'],
   },
 
@@ -1627,7 +1624,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Dallas: Top Market for 7 Categories',
     didYouKnow: 'Dallas, Texas is a geographic hotspot for 3D Printers, Agriculture, Alcoholic Beverages, Animals & Pet Supplies and 3 more categories. Average shopper income: $96,638.',
     marketingImplication: 'Dallas is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['dallas', 'texas', 'geographic', 'hotspot', 'multi-category'],
   },
 
@@ -1637,7 +1634,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'San Francisco: Top Market for 7 Categories',
     didYouKnow: 'San Francisco, California is a geographic hotspot for 3D Printers, Animals & Pet Supplies, Antivirus & Security Software, Arcade Equipment and 3 more categories. Average shopper income: $99,009.',
     marketingImplication: 'San Francisco is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['san francisco', 'california', 'geographic', 'hotspot', 'multi-category'],
   },
 
@@ -1647,7 +1644,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Los Angeles: Top Market for 7 Categories',
     didYouKnow: 'Los Angeles, California is a geographic hotspot for Alcoholic Beverages, Alcoholic Beverages, Antivirus & Security Software, Antivirus & Security Software and 3 more categories. Average shopper income: $96,900.',
     marketingImplication: 'Los Angeles is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['los angeles', 'california', 'geographic', 'hotspot', 'multi-category'],
   },
 
@@ -1657,7 +1654,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'New York: Top Market for 5 Categories',
     didYouKnow: 'New York, New York is a geographic hotspot for 3D Printers, Agriculture, Alcoholic Beverages, Animals & Pet Supplies and 1 more categories. Average shopper income: $97,214.',
     marketingImplication: 'New York is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['new york', 'new york', 'geographic', 'hotspot', 'multi-category'],
   },
 
@@ -1667,7 +1664,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Miami: Top Market for 4 Categories',
     didYouKnow: 'Miami, Florida is a geographic hotspot for Activewear, Animals & Pet Supplies, Arcade Equipment, Athletics. Average shopper income: $94,073.',
     marketingImplication: 'Miami is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['miami', 'florida', 'geographic', 'hotspot', 'multi-category'],
   },
 
@@ -1677,7 +1674,7 @@ export const sovrnInsights: SovrnInsight[] = [
     headline: 'Philadelphia: Top Market for 3 Categories',
     didYouKnow: 'Philadelphia, Pennsylvania is a geographic hotspot for 3D Printers, Activewear, Agriculture. Average shopper income: $84,343.',
     marketingImplication: 'Philadelphia is a high-value market for multi-category advertisers. Test campaigns here before broader rollout.',
-    category: 'City Insights',
+    category: 'Geographic Markets',
     tags: ['philadelphia', 'pennsylvania', 'geographic', 'hotspot', 'multi-category'],
   },
 ];

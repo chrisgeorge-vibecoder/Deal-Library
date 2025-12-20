@@ -35,8 +35,9 @@ export default function InsightCard({
   const formatDidYouKnow = (text: string) => {
     // Highlight numbers, percentages, and dollar amounts
     // Also captures K, +, or K+ suffixes that directly follow the metric
+    // Excludes numbers followed by "D" (like "3D") to avoid highlighting "3" in "3D Printers"
     return text.replace(
-      /(\$[\d,]+(?:\.\d+)?[K]?[+]?|\d+(?:\.\d+)?%?(?:x)?[K]?[+]?|\d+(?:,\d+)*(?:\.\d+)?[K]?[+]?)/g,
+      /(\$[\d,]+(?:\.\d+)?[K]?[+]?|\d+(?:\.\d+)?%(?:x)?[K]?[+]?|\d+(?:,\d+)+(?:\.\d+)?[K]?[+]?)(?![D])/g,
       '<span class="font-bold text-brand-orange">$1</span>'
     );
   };

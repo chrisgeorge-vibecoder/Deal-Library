@@ -348,11 +348,6 @@ export default function DealBrowser({
   }
 
 
-  // Debug logging
-  console.log('🔍 DealBrowser Debug: Component rendering');
-  console.log('🔍 DealBrowser Debug: filteredDeals.length:', filteredDeals.length);
-  console.log('🔍 DealBrowser Debug: expandedSections:', expandedSections);
-
   return (
     <>
       {/* Mobile filter backdrop */}
@@ -364,13 +359,7 @@ export default function DealBrowser({
         aria-hidden="true"
       />
       
-      <div 
-        className="h-screen flex flex-col"
-        onScroll={(e) => {
-          console.log('🚨 MAIN CONTAINER SCROLLING DETECTED:', e.target);
-          console.log('🚨 Main scroll position:', e.currentTarget.scrollTop);
-        }}
-      >
+      <div className="h-screen flex flex-col">
         {/* Header */}
         <div className="bg-white border-b border-neutral-200 px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0 sticky top-0 z-10">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -427,14 +416,9 @@ export default function DealBrowser({
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - Three-Section Filters */}
         <div 
-          className={`fixed lg:static left-0 top-0 w-80 h-screen lg:h-full bg-white border-r border-neutral-200 flex flex-col z-50 shadow-lg lg:shadow-none transform transition-transform duration-300 ${
+          className={`fixed lg:static left-0 top-0 w-72 h-screen lg:h-full bg-white border-r border-neutral-200 flex flex-col z-50 shadow-lg lg:shadow-none transform transition-transform duration-300 ${
             mobileFiltersOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
-          onWheel={(e) => {
-            // Prevent scroll event from bubbling up to the main page
-            e.stopPropagation();
-            console.log('🚨 SIDEBAR WHEEL EVENT DETECTED - PREVENTING BUBBLE:', e.target);
-          }}
         >
           {/* Mobile filter header */}
           <div className="lg:hidden p-4 border-b border-neutral-200 flex items-center justify-between">
@@ -464,20 +448,13 @@ export default function DealBrowser({
             </div>
           </div>
 
-          {/* Filter Sections */}
-          <div 
-            className="flex-1"
-            onWheel={(e) => {
-              // Prevent scroll event from bubbling up to the main page
-              e.stopPropagation();
-              console.log('🚨 FILTER SECTIONS WHEEL EVENT DETECTED - PREVENTING BUBBLE:', e.target);
-            }}
-          >
+          {/* Filter Sections - scrollable container */}
+          <div className="flex-1 overflow-y-auto">
             {/* Categories Section */}
             <div className="border-b border-neutral-200">
               <button
                 onClick={() => toggleSection('categories')}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-neutral-50 transition-colors touch-manipulation active:bg-neutral-100 min-h-[44px]"
+                className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-neutral-50 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-neutral-900">Categories</span>
@@ -498,14 +475,14 @@ export default function DealBrowser({
               </button>
               
               {expandedSections.categories && (
-                <div className="px-4 pb-4 space-y-2">
+                <div className="px-4 pb-3 space-y-0.5">
                   {categories.map((category) => (
-                    <label key={category.id} className="flex items-center gap-3 cursor-pointer py-2 min-h-[44px] touch-manipulation">
+                    <label key={category.id} className="flex items-center gap-2.5 cursor-pointer py-1.5 hover:bg-neutral-50 rounded px-1 -mx-1">
                       <input
                         type="checkbox"
                         checked={selectedCategories.includes(category.id)}
                         onChange={() => toggleCategory(category.id)}
-                        className="w-5 h-5 text-brand-orange focus:ring-brand-orange rounded border-neutral-300 cursor-pointer"
+                        className="w-4 h-4 text-brand-orange focus:ring-brand-orange rounded border-neutral-300 cursor-pointer"
                       />
                       <span className="text-sm text-neutral-600 select-none">{category.name}</span>
                     </label>
@@ -518,7 +495,7 @@ export default function DealBrowser({
             <div className="border-b border-neutral-200">
               <button
                 onClick={() => toggleSection('channels')}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-neutral-50 transition-colors touch-manipulation active:bg-neutral-100 min-h-[44px]"
+                className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-neutral-50 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-neutral-900">Channels</span>
@@ -539,14 +516,14 @@ export default function DealBrowser({
               </button>
               
               {expandedSections.channels && (
-                <div className="px-4 pb-4 space-y-2">
+                <div className="px-4 pb-3 space-y-0.5">
                   {channels.map((channel) => (
-                    <label key={channel.id} className="flex items-center gap-3 cursor-pointer py-2 min-h-[44px] touch-manipulation">
+                    <label key={channel.id} className="flex items-center gap-2.5 cursor-pointer py-1.5 hover:bg-neutral-50 rounded px-1 -mx-1">
                       <input
                         type="checkbox"
                         checked={selectedChannels.includes(channel.id)}
                         onChange={() => toggleChannel(channel.id)}
-                        className="w-5 h-5 text-brand-orange focus:ring-brand-orange rounded border-neutral-300 cursor-pointer"
+                        className="w-4 h-4 text-brand-orange focus:ring-brand-orange rounded border-neutral-300 cursor-pointer"
                       />
                       <span className="text-sm text-neutral-600 select-none">{channel.name}</span>
                     </label>
@@ -559,7 +536,7 @@ export default function DealBrowser({
             <div className="border-b border-neutral-200">
               <button
                 onClick={() => toggleSection('formats')}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-neutral-50 transition-colors touch-manipulation active:bg-neutral-100 min-h-[44px]"
+                className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-neutral-50 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-neutral-900">Formats</span>
@@ -580,14 +557,14 @@ export default function DealBrowser({
               </button>
               
               {expandedSections.formats && (
-                <div className="px-4 pb-4 space-y-2">
+                <div className="px-4 pb-3 space-y-0.5">
                   {formats.map((format) => (
-                    <label key={format.id} className="flex items-center gap-3 cursor-pointer py-2 min-h-[44px] touch-manipulation">
+                    <label key={format.id} className="flex items-center gap-2.5 cursor-pointer py-1.5 hover:bg-neutral-50 rounded px-1 -mx-1">
                       <input
                         type="checkbox"
                         checked={selectedFormats.includes(format.id)}
                         onChange={() => toggleFormat(format.id)}
-                        className="w-5 h-5 text-brand-orange focus:ring-brand-orange rounded border-neutral-300 cursor-pointer"
+                        className="w-4 h-4 text-brand-orange focus:ring-brand-orange rounded border-neutral-300 cursor-pointer"
                       />
                       <span className="text-sm text-neutral-600 select-none">{format.name}</span>
                     </label>

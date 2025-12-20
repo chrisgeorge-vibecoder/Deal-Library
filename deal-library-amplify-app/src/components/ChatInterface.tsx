@@ -807,21 +807,23 @@ export default function ChatInterface({
 
                 {message.contentStrategy && message.contentStrategy.length > 0 && (
                   <div className="mt-4">
-                    <p className="text-xs font-medium text-neutral-600 mb-3">Content strategy:</p>
+                    <p className="text-xs font-medium text-slate-600 mb-3">Content strategy:</p>
                     <div className="grid grid-cols-1 gap-3">
                       {message.contentStrategy.map((strategy) => (
-                        <div key={strategy.id} className="bg-white border border-neutral-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                        <div key={strategy.id} className="bg-white border border-slate-200/60 rounded-lg p-6 shadow-sm hover:shadow-[0_1px_3px_0_rgba(0,0,0,0.05),0_1px_2px_-1px_rgba(0,0,0,0.05)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
                           onClick={() => {
                             console.log('Content Strategy card clicked:', strategy);
                             const event = new CustomEvent('openContentStrategyModal', { detail: { contentStrategy: strategy } });
                             window.dispatchEvent(event);
                           }}
                         >
-                          <div className="flex items-center gap-3 mb-2">
-                            <FileText className="w-5 h-5 text-cyan-600" />
-                            <h4 className="font-semibold text-neutral-900">{strategy.industryOrTopic}</h4>
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100">
+                              <FileText className="w-4 h-4 text-slate-600" />
+                            </div>
+                            <h4 className="font-semibold text-slate-900 tracking-tight leading-tight">{strategy.industryOrTopic}</h4>
                           </div>
-                          <p className="text-sm text-neutral-600 line-clamp-2">
+                          <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">
                             {strategy.contentRecommendations?.join(', ') || 'Content strategy recommendations available'}
                           </p>
                         </div>
@@ -832,21 +834,23 @@ export default function ChatInterface({
 
                 {message.brandStrategy && message.brandStrategy.length > 0 && (
                   <div className="mt-4">
-                    <p className="text-xs font-medium text-neutral-600 mb-3">Brand strategy:</p>
+                    <p className="text-xs font-medium text-slate-600 mb-3">Brand strategy:</p>
                     <div className="grid grid-cols-1 gap-3">
                       {message.brandStrategy.map((strategy) => (
-                        <div key={strategy.id} className="bg-white border border-neutral-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                        <div key={strategy.id} className="bg-white border border-slate-200/60 rounded-lg p-6 shadow-sm hover:shadow-[0_1px_3px_0_rgba(0,0,0,0.05),0_1px_2px_-1px_rgba(0,0,0,0.05)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
                           onClick={() => {
                             console.log('Brand Strategy card clicked:', strategy);
                             const event = new CustomEvent('openBrandStrategyModal', { detail: { brandStrategy: strategy } });
                             window.dispatchEvent(event);
                           }}
                         >
-                          <div className="flex items-center gap-3 mb-2">
-                            <Award className="w-5 h-5 text-violet-600" />
-                            <h4 className="font-semibold text-neutral-900">{strategy.brandOrCategory}</h4>
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100">
+                              <Award className="w-4 h-4 text-slate-600" />
+                            </div>
+                            <h4 className="font-semibold text-slate-900 tracking-tight leading-tight">{strategy.brandOrCategory}</h4>
                           </div>
-                          <p className="text-sm text-neutral-600 line-clamp-2">
+                          <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">
                             {strategy.positioning?.targetPosition || strategy.positioning?.currentPerception || strategy.valueProposition || 'Brand positioning strategy available'}
                           </p>
                         </div>

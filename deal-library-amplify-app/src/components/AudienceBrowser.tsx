@@ -163,7 +163,17 @@ export default function AudienceBrowser({
       );
     }
 
-    setFilteredSegments(filtered);
+    // Deduplicate by sovrnSegmentId as a safety measure
+    // This prevents duplicate segments from appearing even if they somehow get through
+    const deduplicatedMap = new Map<string, AudienceSegment>();
+    for (const segment of filtered) {
+      if (!deduplicatedMap.has(segment.sovrnSegmentId)) {
+        deduplicatedMap.set(segment.sovrnSegmentId, segment);
+      }
+    }
+    const deduplicated = Array.from(deduplicatedMap.values());
+
+    setFilteredSegments(deduplicated);
   }, [segments, selectedDemographicCategories, selectedInterestCategories, selectedCommerceCategories, selectedDeviceCategories, searchQuery]);
 
   const toggleSection = (section: keyof typeof expandedSections) => {

@@ -112,8 +112,32 @@ function loadTaxonomyFromCSV(): AudienceSegment[] {
       }
     }
     
-    console.log(`✅ Loaded ${segments.length} audience segments from CSV`);
-    return segments;
+    // Deduplicate segments by sovrnSegmentId
+    // If duplicates exist, keep the first one with better data quality (prefer activelyGenerated, then longer description)
+    const segmentMap = new Map<string, AudienceSegment>();
+    for (const segment of segments) {
+      const existing = segmentMap.get(segment.sovrnSegmentId);
+      if (!existing) {
+        segmentMap.set(segment.sovrnSegmentId, segment);
+      } else {
+        // Prefer segment with better data quality
+        const preferNew = 
+          (!existing.activelyGenerated && segment.activelyGenerated) ||
+          (existing.activelyGenerated === segment.activelyGenerated && 
+           segment.segmentDescription.length > existing.segmentDescription.length);
+        if (preferNew) {
+          segmentMap.set(segment.sovrnSegmentId, segment);
+        }
+      }
+    }
+    
+    const deduplicatedSegments = Array.from(segmentMap.values());
+    const duplicateCount = segments.length - deduplicatedSegments.length;
+    if (duplicateCount > 0) {
+      console.log(`⚠️ Found ${duplicateCount} duplicate segments by sovrnSegmentId, deduplicated to ${deduplicatedSegments.length} unique segments`);
+    }
+    console.log(`✅ Loaded ${deduplicatedSegments.length} audience segments from CSV`);
+    return deduplicatedSegments;
   } catch (error) {
     console.error('Error loading taxonomy CSV:', error);
     return [];
@@ -142,6 +166,7 @@ export async function GET() {
     );
   }
 }
+
 
 
 

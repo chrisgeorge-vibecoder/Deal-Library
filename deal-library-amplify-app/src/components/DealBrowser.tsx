@@ -162,13 +162,42 @@ export default function DealBrowser({
     // Filter by channels (environment)
     if (selectedChannels.length > 0 && !selectedChannels.includes('all')) {
       filtered = filtered.filter(deal => {
-        if (selectedChannels.includes('Multi')) {
-          return deal.environment?.toLowerCase().includes('multi') || 
-                 deal.environment?.toLowerCase().includes('cross');
-        }
-        return selectedChannels.some(channel => 
-          deal.environment?.toLowerCase() === channel.toLowerCase()
-        );
+        const environmentLower = deal.environment?.toLowerCase() || '';
+        
+        // Check if deal matches any selected channel
+        return selectedChannels.some(channel => {
+          const channelLower = channel.toLowerCase();
+          
+          // Multi-Channel filter: match deals with "multi", "cross", "all", or multiple channels (contains "/")
+          if (channelLower === 'multi') {
+            return environmentLower.includes('multi') || 
+                   environmentLower.includes('cross') ||
+                   environmentLower === 'all' ||
+                   environmentLower.includes('/');
+          }
+          
+          // Web channel: match "web" or "desktop" (but not as part of other words)
+          if (channelLower === 'web') {
+            // Use word boundary checks to avoid false matches
+            return /\bweb\b/.test(environmentLower) || 
+                   environmentLower.includes('desktop');
+          }
+          
+          // App channel: match "app" or "mobile app"
+          if (channelLower === 'app') {
+            return environmentLower.includes('app') || 
+                   environmentLower.includes('mobile');
+          }
+          
+          // CTV channel: match "ctv" or "connected tv"
+          if (channelLower === 'ctv') {
+            return environmentLower.includes('ctv') || 
+                   environmentLower.includes('connected tv');
+          }
+          
+          // Fallback: exact match (shouldn't reach here for standard channels)
+          return environmentLower === channelLower;
+        });
       });
     }
 

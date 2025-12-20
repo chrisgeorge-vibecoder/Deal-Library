@@ -1222,16 +1222,41 @@ export class DealsControllerWrapper extends DealsController {
       const query = body.query || body.company || 'technology industry';
       console.log(`⚔️ Generating competitive intelligence for query: "${query}"`);
       
-      const result = await gemini.generateCompetitiveIntelligence(query);
-      
-      // Log result status
-      if (result && result.success) {
-        console.log('✅ Competitive intelligence generated successfully for:', query);
-      } else {
-        console.error('❌ Competitive intelligence generation failed:', result);
+      try {
+        // Add timeout wrapper at the wrapper level
+        // AWS Amplify has a 60s limit, and the API route has a 55s limit
+        // Set this to 45s to leave buffer for response processing
+        const WRAPPER_TIMEOUT_MS = process.env.NODE_ENV === 'production' ? 45000 : 90000;
+        const wrapperTimeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => {
+            reject(new Error('Competitive intelligence generation timeout - Gemini API call exceeded maximum time limit'));
+          }, WRAPPER_TIMEOUT_MS);
+        });
+
+        const geminiPromise = gemini.generateCompetitiveIntelligence(query);
+        const result = await Promise.race([geminiPromise, wrapperTimeoutPromise]);
+        
+        // Log result status
+        if (result && result.success) {
+          console.log('✅ Competitive intelligence generated successfully for:', query);
+        } else {
+          console.error('❌ Competitive intelligence generation failed:', result);
+        }
+        
+        return result;
+      } catch (timeoutError) {
+        // Handle timeout specifically
+        if (timeoutError instanceof Error && timeoutError.message.includes('timeout')) {
+          console.error('❌ Competitive intelligence generation timed out');
+          return {
+            success: false,
+            error: 'Competitive intelligence generation timed out. The request took too long to process. Please try again with a simpler query.',
+            errorType: 'TimeoutError'
+          };
+        }
+        // Re-throw other errors to be caught by outer catch
+        throw timeoutError;
       }
-      
-      return result;
     } catch (error) {
       console.error('❌ Unexpected error in generateCompetitiveIntelligenceDirect:', error);
       if (error instanceof Error) {

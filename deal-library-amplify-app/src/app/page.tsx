@@ -911,14 +911,29 @@ export default function HomePage() {
         'industry statistics', 'market data', 'size of the market'
       ];
       
+      // General knowledge/analysis questions should be handled conversationally, NOT routed to market sizing
+      // These patterns indicate the user wants analysis/opinion, not data cards
+      const generalAnalysisPatterns = [
+        'outlook', 'forecast', 'predict', 'will', 'would', 'should', 'could', 'impact', 'affect', 
+        'what do you think', 'how will', 'what will', 'future of', 'opinion on', 'thoughts on',
+        'inflation', 'recession', 'economy', 'economic', 'gdp', 'interest rate', 'fed ', 'federal reserve',
+        '2025', '2026', '2027', '2028', '2029', '2030' // future year questions are typically asking for analysis
+      ];
+      const isGeneralAnalysisQuestion = generalAnalysisPatterns.some(pattern => queryLower.includes(pattern));
+      
       // Only use keyword detection when no card types are explicitly selected
-      const isMarketSizingSearch = (!cardTypes || cardTypes.length === 0) && marketSizingKeywords.some(keyword => queryLower.includes(keyword));
+      // AND the query is NOT a general analysis question (which should go to conversational AI)
+      const isMarketSizingSearch = (!cardTypes || cardTypes.length === 0) && 
+        marketSizingKeywords.some(keyword => queryLower.includes(keyword)) &&
+        !isGeneralAnalysisQuestion;
 
       console.log('🔍 Market sizing check:', {
         query: query,
         queryLower: queryLower,
         isMarketSizingSearch: isMarketSizingSearch,
-        matchedKeywords: marketSizingKeywords.filter(keyword => queryLower.includes(keyword))
+        isGeneralAnalysisQuestion: isGeneralAnalysisQuestion,
+        matchedKeywords: marketSizingKeywords.filter(keyword => queryLower.includes(keyword)),
+        matchedAnalysisPatterns: generalAnalysisPatterns.filter(pattern => queryLower.includes(pattern))
       });
 
       if (isMarketSizingSearch) {

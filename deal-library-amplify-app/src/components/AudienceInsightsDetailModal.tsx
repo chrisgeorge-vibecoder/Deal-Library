@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { X, ShoppingCart, Users, Target, Lightbulb, TrendingUp, Smartphone, Bookmark, BookmarkCheck } from 'lucide-react';
+import { X, ShoppingCart, Users, Target, Lightbulb, TrendingUp, Smartphone, Bookmark, BookmarkCheck, Copy, Download, Printer, CheckCircle2 } from 'lucide-react';
 import { AudienceInsights } from './AudienceInsightsCard';
 import { getStrategyCardStyle, usesSovrnData } from '@/data/strategyCardStyles';
 import { HighlightedText } from './HighlightedText';
+import { useCardExport } from '@/hooks/useCardExport';
 
 interface AudienceInsightsDetailModalProps {
   insights: AudienceInsights | null;
@@ -25,8 +26,12 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
   onUnsaveCard,
   isSaved
 }) => {
+  const { handleCopyAsHTML, handleDownloadAsImage, handlePrint, isExporting, exportSuccess } = useCardExport();
+
   if (!isOpen || !insights) return null;
   
+  const modalId = 'audience-insights-modal-content';
+  const filename = `audience-insights-${insights.audienceName?.replace(/[^a-zA-Z0-9]/g, '-')}`;
   const style = getStrategyCardStyle('Audience Insights');
   const isSovrnCard = usesSovrnData('Audience Insights');
 
@@ -40,26 +45,21 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
       }}
     >
       <div 
-        className="bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-sovrn-lg sm:max-w-3xl sm:max-h-[90vh] overflow-y-auto"
+        className="relative bg-white rounded-lg shadow-xl w-full max-w-full sm:max-w-4xl h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Colored Header - Gold for Sovrn data */}
-        <div className={`${style.headerBg} p-6 sm:rounded-t-xl relative`}>
-          {/* Sovrn logo for Gold header cards */}
-          {isSovrnCard && (
-            <div className="absolute top-4 left-4">
-              <img src="/Sovrn_Logo.png" alt="Sovrn" className="h-5 w-auto opacity-80" />
-            </div>
-          )}
-          
-          <div className="flex items-center justify-between mt-4">
+        {/* Minimalist Header */}
+        <div className="bg-white border-b border-slate-200/50 p-6 sm:rounded-t-lg">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-black/10 rounded-xl">
-                <Users className="w-6 h-6 text-[#282828]" />
+              <div className="w-9 h-9 bg-slate-50/80 rounded-lg flex items-center justify-center border border-slate-100/80">
+                <Users className="w-5 h-5 text-slate-600" />
               </div>
-              <div className="text-[#282828]">
-                <h2 className="text-xl sm:text-2xl font-bold">{insights.audienceName}</h2>
-                <p className="text-[#282828]/70 text-sm">Audience Insights</p>
+              <div>
+                <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 -tracking-[0.01em]">
+                  {insights.audienceName}
+                </h3>
+                <p className="text-sm text-slate-400 mt-0.5">Audience Insights</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -75,8 +75,8 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
                   }}
                   className={`p-2 rounded-lg transition-colors ${
                     isSaved(`audience-insights-${insights.audienceName}`)
-                      ? 'bg-white text-[#FFD42B]'
-                      : 'bg-black/10 text-[#282828] hover:bg-black/20'
+                      ? 'text-slate-700 hover:bg-slate-100'
+                      : 'text-slate-300 hover:bg-slate-100 hover:text-slate-500'
                   }`}
                 >
                   {isSaved(`audience-insights-${insights.audienceName}`) ? (
@@ -91,48 +91,76 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
                   e.stopPropagation();
                   onClose();
                 }}
-                className="p-2 bg-black/10 hover:bg-black/20 rounded-lg transition-colors"
+                className="p-2 text-slate-300 hover:bg-slate-100 hover:text-slate-500 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5 text-[#282828]" />
+                <X className="w-5 h-5" />
               </button>
             </div>
           </div>
+          
+          {/* Export Toolbar */}
+          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100/80">
+            <span className="text-xs text-slate-400 font-medium mr-2">Export:</span>
+            <button
+              onClick={() => handleCopyAsHTML(`#${modalId}`)}
+              disabled={isExporting}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg transition-colors disabled:opacity-50 border border-slate-200/50"
+            >
+              {exportSuccess ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{exportSuccess ? 'Copied!' : 'Copy'}</span>
+            </button>
+            <button
+              onClick={() => handleDownloadAsImage(`#${modalId}`, filename)}
+              disabled={isExporting}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg transition-colors disabled:opacity-50 border border-slate-200/50"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Image</span>
+            </button>
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg transition-colors border border-slate-200/50"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Print</span>
+            </button>
+          </div>
         </div>
 
-        {/* Content - Simplified 3-Section Structure */}
-        <div className="p-6 space-y-6">
+        {/* Content */}
+        <div id={modalId} className="p-6 space-y-6">
           
           {/* Section 1: Who They Are - Demographics Summary */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className={`p-1.5 ${style.bg} rounded-lg`}>
-                <Target className={`w-4 h-4 ${style.text}`} />
+              <div className="p-1.5 bg-slate-50/60 rounded-lg border border-slate-100/60">
+                <Target className="w-4 h-4 text-slate-600" />
               </div>
-              <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide">Who They Are</h3>
+              <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Who They Are</h4>
             </div>
             
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-neutral-50 p-3 rounded-lg">
-                <div className="text-xs font-medium text-neutral-500 mb-1">Age Range</div>
-                <div className="text-neutral-900 font-semibold">
+              <div className="bg-slate-50/60 p-3 rounded-lg border border-slate-200/50">
+                <div className="text-xs font-medium text-slate-400 mb-1">Age Range</div>
+                <div className="text-slate-900 font-semibold">
                   <HighlightedText text={insights.demographics?.ageRange || 'N/A'} />
                 </div>
               </div>
-              <div className="bg-neutral-50 p-3 rounded-lg">
-                <div className="text-xs font-medium text-neutral-500 mb-1">Income Range</div>
-                <div className="text-neutral-900 font-semibold">
+              <div className="bg-slate-50/60 p-3 rounded-lg border border-slate-200/50">
+                <div className="text-xs font-medium text-slate-400 mb-1">Income Range</div>
+                <div className="text-slate-900 font-semibold">
                   <HighlightedText text={insights.demographics?.incomeRange || 'N/A'} />
                 </div>
               </div>
-              <div className="bg-neutral-50 p-3 rounded-lg">
-                <div className="text-xs font-medium text-neutral-500 mb-1">Gender Split</div>
-                <div className="text-neutral-900 font-semibold">
+              <div className="bg-slate-50/60 p-3 rounded-lg border border-slate-200/50">
+                <div className="text-xs font-medium text-slate-400 mb-1">Gender Split</div>
+                <div className="text-slate-900 font-semibold">
                   <HighlightedText text={insights.demographics?.genderSplit || 'N/A'} />
                 </div>
               </div>
-              <div className="bg-neutral-50 p-3 rounded-lg">
-                <div className="text-xs font-medium text-neutral-500 mb-1">Top Locations</div>
-                <div className="text-neutral-900 font-semibold text-sm">
+              <div className="bg-slate-50/60 p-3 rounded-lg border border-slate-200/50">
+                <div className="text-xs font-medium text-slate-400 mb-1">Top Locations</div>
+                <div className="text-slate-900 font-semibold text-sm">
                   {insights.demographics?.topLocations?.slice(0, 2).join(', ') || 'N/A'}
                 </div>
               </div>
@@ -140,8 +168,8 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
 
             {/* Device Usage - Compact */}
             {insights.behavior?.deviceUsage && (
-              <div className="mt-4 flex items-center gap-4 bg-neutral-50 p-3 rounded-lg">
-                <Smartphone className="w-4 h-4 text-neutral-500" />
+              <div className="mt-4 flex items-center gap-4 bg-slate-50/60 p-3 rounded-lg border border-slate-200/50">
+                <Smartphone className="w-4 h-4 text-slate-600" />
                 <div className="flex gap-4 text-sm">
                   <span><span className="font-bold text-brand-orange">{insights.behavior.deviceUsage.mobile}%</span> Mobile</span>
                   <span><span className="font-bold text-brand-orange">{insights.behavior.deviceUsage.desktop}%</span> Desktop</span>
@@ -152,29 +180,29 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
           </div>
 
           {/* Section 2: What Drives Them - Key Insights */}
-          <div className={`${style.bg} border ${style.border} rounded-xl p-5`}>
+          <div className="bg-slate-50/60 border border-slate-200/50 rounded-lg p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Lightbulb className={`w-5 h-5 ${style.text}`} />
-              <h3 className={`font-semibold ${style.text}`}>What Drives Them</h3>
+              <Lightbulb className="w-5 h-5 text-slate-600" />
+              <h4 className="font-semibold text-slate-900 -tracking-[0.01em]">What Drives Them</h4>
             </div>
             
             {/* Key Characteristics */}
             <div className="space-y-2 mb-4">
               {insights.insights?.keyCharacteristics?.slice(0, 4).map((char, index) => (
                 <div key={index} className="flex items-start gap-2">
-                  <span className={`w-1.5 h-1.5 ${style.bgSolid} rounded-full mt-2 flex-shrink-0`}></span>
-                  <span className="text-neutral-700"><HighlightedText text={char} /></span>
+                  <span className="w-1.5 h-1.5 bg-slate-600 rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="text-slate-700 leading-relaxed"><HighlightedText text={char} /></span>
                 </div>
               ))}
             </div>
             
             {/* Interests Tags */}
             {insights.insights?.interests && insights.insights.interests.length > 0 && (
-              <div className="pt-4 border-t border-sky-200">
-                <div className="text-xs font-semibold text-neutral-500 uppercase mb-2">Interests</div>
+              <div className="pt-4 border-t border-slate-200/50">
+                <div className="text-xs font-semibold text-slate-400 uppercase mb-2">Interests</div>
                 <div className="flex flex-wrap gap-2">
                   {insights.insights.interests.slice(0, 6).map((interest, index) => (
-                    <span key={index} className="px-2.5 py-1 bg-white text-sky-700 text-xs font-medium rounded-full border border-sky-200">
+                    <span key={index} className="px-2.5 py-1 bg-slate-100/80 text-slate-700 text-xs font-medium rounded-full border border-slate-200/60">
                       {interest}
                     </span>
                   ))}
@@ -184,13 +212,13 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
             
             {/* Pain Points */}
             {insights.insights?.painPoints && insights.insights.painPoints.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-sky-200">
-                <div className="text-xs font-semibold text-neutral-500 uppercase mb-2">Pain Points</div>
+              <div className="mt-4 pt-4 border-t border-slate-200/50">
+                <div className="text-xs font-semibold text-slate-400 uppercase mb-2">Pain Points</div>
                 <div className="space-y-1">
                   {insights.insights.painPoints.slice(0, 3).map((pain, index) => (
                     <div key={index} className="flex items-start gap-2 text-sm">
                       <span className="w-1.5 h-1.5 bg-red-400 rounded-full mt-1.5 flex-shrink-0"></span>
-                      <span className="text-neutral-700">{pain}</span>
+                      <span className="text-slate-700 leading-relaxed">{pain}</span>
                     </div>
                   ))}
                 </div>
@@ -201,30 +229,30 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
           {/* Section 3: How to Reach Them - Media Strategy */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className={`p-1.5 ${style.bg} rounded-lg`}>
-                <TrendingUp className={`w-4 h-4 ${style.text}`} />
+              <div className="p-1.5 bg-slate-50/60 rounded-lg border border-slate-100/60">
+                <TrendingUp className="w-4 h-4 text-slate-600" />
               </div>
-              <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide">How to Reach Them</h3>
+              <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">How to Reach Them</h4>
             </div>
             
             {/* Creative Guidance */}
             {insights.creativeGuidance && (
               <div className="space-y-4">
-                <div className="bg-neutral-50 p-4 rounded-lg">
-                  <div className="text-xs font-semibold text-neutral-500 uppercase mb-2">Messaging Tone</div>
-                  <p className="text-neutral-700">{insights.creativeGuidance.messagingTone}</p>
+                <div className="bg-slate-50/60 p-4 rounded-lg border border-slate-200/50">
+                  <div className="text-xs font-semibold text-slate-400 uppercase mb-2">Messaging Tone</div>
+                  <p className="text-slate-700 leading-relaxed">{insights.creativeGuidance.messagingTone}</p>
                 </div>
                 
                 {insights.creativeGuidance.keyMessages && (
                   <div>
-                    <div className="text-xs font-semibold text-neutral-500 uppercase mb-2">Key Messages</div>
+                    <div className="text-xs font-semibold text-slate-400 uppercase mb-2">Key Messages</div>
                     <div className="space-y-2">
                       {insights.creativeGuidance.keyMessages.slice(0, 3).map((msg, index) => (
-                        <div key={index} className="flex items-start gap-2 bg-green-50 p-3 rounded-lg border border-green-200">
-                          <span className="w-5 h-5 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                        <div key={index} className="flex items-start gap-2 bg-white p-3 rounded-lg border border-slate-200/50">
+                          <span className="w-5 h-5 bg-slate-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                             {index + 1}
                           </span>
-                          <span className="text-neutral-700">{msg}</span>
+                          <span className="text-slate-700 leading-relaxed">{msg}</span>
                         </div>
                       ))}
                     </div>
@@ -237,11 +265,11 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
             {insights.mediaStrategy && (
               <div className="mt-4 grid grid-cols-2 gap-3">
                 {insights.mediaStrategy.preferredChannels && (
-                  <div className="bg-neutral-50 p-3 rounded-lg">
-                    <div className="text-xs font-semibold text-neutral-500 uppercase mb-2">Channels</div>
+                  <div className="bg-slate-50/60 p-3 rounded-lg border border-slate-200/50">
+                    <div className="text-xs font-semibold text-slate-400 uppercase mb-2">Channels</div>
                     <div className="flex flex-wrap gap-1">
                       {insights.mediaStrategy.preferredChannels.slice(0, 4).map((ch, index) => (
-                        <span key={index} className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">
+                        <span key={index} className="px-2 py-0.5 bg-slate-100/80 text-slate-700 text-xs rounded-full border border-slate-200/60">
                           {ch}
                         </span>
                       ))}
@@ -249,11 +277,11 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
                   </div>
                 )}
                 {insights.mediaStrategy.optimalTiming && (
-                  <div className="bg-neutral-50 p-3 rounded-lg">
-                    <div className="text-xs font-semibold text-neutral-500 uppercase mb-2">Best Times</div>
+                  <div className="bg-slate-50/60 p-3 rounded-lg border border-slate-200/50">
+                    <div className="text-xs font-semibold text-slate-400 uppercase mb-2">Best Times</div>
                     <div className="flex flex-wrap gap-1">
                       {insights.mediaStrategy.optimalTiming.slice(0, 3).map((time, index) => (
-                        <span key={index} className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                        <span key={index} className="px-2 py-0.5 bg-slate-100/80 text-slate-700 text-xs rounded-full border border-slate-200/60">
                           {time}
                         </span>
                       ))}
@@ -266,20 +294,20 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
 
           {/* Sources */}
           {insights.sources && insights.sources.length > 0 && (
-            <div className="pt-4 border-t border-neutral-200">
-              <h4 className="text-xs font-semibold text-neutral-500 uppercase mb-2">Sources</h4>
+            <div className="pt-4 border-t border-slate-200/50">
+              <h4 className="text-xs font-semibold text-slate-400 uppercase mb-2 tracking-wide">Sources</h4>
               <div className="space-y-1">
                 {insights.sources.map((src, idx) => (
-                  <div key={idx} className="text-xs text-neutral-600 flex items-center gap-2">
-                    <span className="text-neutral-400">•</span>
+                  <div key={idx} className="text-xs text-slate-600 flex items-center gap-2">
+                    <span className="text-slate-400">•</span>
                     {src.url ? (
-                      <a href={src.url} target="_blank" rel="noreferrer" className="text-sky-600 hover:underline">
+                      <a href={src.url} target="_blank" rel="noreferrer" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors">
                         {src.title || src.url}
                       </a>
                     ) : (
                       <span>{src.title}</span>
                     )}
-                    {src.note && <span className="text-neutral-400">— {src.note}</span>}
+                    {src.note && <span className="text-slate-400">— {src.note}</span>}
                   </div>
                 ))}
               </div>
@@ -288,9 +316,9 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-white border-t border-neutral-200 px-6 py-4 sm:rounded-b-xl">
+        <div className="sticky bottom-0 bg-white border-t border-slate-200/50 px-6 py-4 sm:rounded-b-lg">
           <div className="flex items-center justify-between">
-            <div className="text-xs text-neutral-500">
+            <div className="text-xs text-slate-400">
               AI-generated insights
             </div>
             <div className="flex gap-3">
@@ -299,7 +327,7 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
                   e.stopPropagation();
                   onClose();
                 }}
-                className="px-4 py-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-colors font-medium"
+                className="px-4 py-2 bg-slate-50 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium border border-slate-200/50"
               >
                 Close
               </button>

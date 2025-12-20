@@ -100,15 +100,15 @@ export function ContentStrategyDetailModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Minimalist Header */}
-        <div className="bg-white border-b border-slate-200/60 p-6 sm:rounded-t-lg">
+        <div className="bg-white border-b border-slate-200/50 p-6 sm:rounded-t-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100">
+              <div className="w-9 h-9 bg-slate-50/80 rounded-lg flex items-center justify-center border border-slate-100/80">
                 <FileText className="w-5 h-5 text-slate-600" />
               </div>
               <div>
-                <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">{contentStrategy.industryOrTopic}</h3>
-                <p className="text-sm text-slate-500 mt-0.5">Content Strategy</p>
+                <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 -tracking-[0.01em]">{contentStrategy.industryOrTopic}</h3>
+                <p className="text-sm text-slate-400 mt-0.5">Content Strategy</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -126,7 +126,7 @@ export function ContentStrategyDetailModal({
                   className={`p-2 rounded-lg transition-colors ${
                     isSaved(`content-strategy-${contentStrategy.industryOrTopic || 'untitled'}`)
                       ? 'text-slate-700 hover:bg-slate-100'
-                      : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
+                      : 'text-slate-300 hover:bg-slate-100 hover:text-slate-500'
                   }`}
                 >
                   {isSaved(`content-strategy-${contentStrategy.industryOrTopic || 'untitled'}`) ? (
@@ -136,15 +136,15 @@ export function ContentStrategyDetailModal({
                   )}
                 </button>
               )}
-              <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-lg transition-colors">
+              <button onClick={onClose} className="p-2 text-slate-300 hover:bg-slate-100 hover:text-slate-500 rounded-lg transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
           </div>
           
           {/* Export Toolbar */}
-          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
-            <span className="text-xs text-slate-500 font-medium mr-2">Export:</span>
+          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100/80">
+            <span className="text-xs text-slate-400 font-medium mr-2">Export:</span>
             <button onClick={() => handleCopyAsHTML(`#${modalId}`)} disabled={isExporting}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg transition-colors disabled:opacity-50 border border-slate-200/60">
               {exportSuccess ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -167,19 +167,19 @@ export function ContentStrategyDetailModal({
           {/* Section 1: Trending Topics - The Insight */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-1.5 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="p-1.5 bg-slate-50/60 rounded-lg border border-slate-100/60">
                 <TrendingUp className="w-4 h-4 text-slate-600" />
               </div>
-              <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Trending Topics</h4>
+              <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Trending Topics</h4>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {trendingTopics.slice(0, 4).map((topic, index) => (
-                <div key={index} className="bg-slate-50 border border-slate-200/60 rounded-lg p-4">
+                <div key={index} className="bg-slate-50/60 border border-slate-200/50 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h5 className="font-semibold text-slate-900 tracking-tight">{topic.topic}</h5>
+                    <h5 className="font-semibold text-slate-900 -tracking-[0.01em]">{topic.topic}</h5>
                     {topic.momentum && (
-                      <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-slate-100 text-slate-700 border border-slate-200/60">
+                      <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-slate-100/80 text-slate-700 border border-slate-200/60">
                         {topic.momentum}
                       </span>
                     )}
@@ -201,19 +201,19 @@ export function ContentStrategyDetailModal({
           </div>
 
           {/* Section 2: Content Recommendations - The Opportunity */}
-          <div className="bg-slate-50 border border-slate-200/60 rounded-lg p-6">
+          <div className="bg-slate-50/60 border border-slate-200/50 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-4">
               <Target className="w-5 h-5 text-slate-600" />
-              <h4 className="font-semibold text-slate-900 tracking-tight">Content Recommendations</h4>
+              <h4 className="font-semibold text-slate-900 -tracking-[0.01em]">Content Recommendations</h4>
             </div>
             
             <div className="space-y-4">
               {contentTypes.slice(0, 3).map((type, index) => (
-                <div key={index} className="bg-white p-4 rounded-lg border border-slate-200/60">
+                <div key={index} className="bg-white p-4 rounded-lg border border-slate-200/50">
                   <div className="flex items-center justify-between mb-2">
-                    <h5 className="font-semibold text-slate-900 tracking-tight">{type.type}</h5>
+                    <h5 className="font-semibold text-slate-900 -tracking-[0.01em]">{type.type}</h5>
                     {type.priority && (
-                      <span className="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-700 rounded-full border border-slate-200/60">
+                      <span className="text-xs font-medium px-2 py-1 bg-slate-100/80 text-slate-700 rounded-full border border-slate-200/60">
                         {type.priority} priority
                       </span>
                     )}
@@ -230,8 +230,8 @@ export function ContentStrategyDetailModal({
             
             {/* Voice & Tone */}
             {voiceAndTone && (
-              <div className="mt-4 pt-4 border-t border-slate-200/60">
-                <h5 className="text-xs font-semibold text-slate-500 uppercase mb-2 tracking-wide">Voice & Tone</h5>
+              <div className="mt-4 pt-4 border-t border-slate-200/50">
+                <h5 className="text-xs font-semibold text-slate-400 uppercase mb-2 tracking-wide">Voice & Tone</h5>
                 <p className="text-sm text-slate-700 leading-relaxed">{voiceAndTone}</p>
               </div>
             )}
@@ -240,10 +240,10 @@ export function ContentStrategyDetailModal({
           {/* Section 3: Editorial Calendar & SEO - The Action */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-1.5 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="p-1.5 bg-slate-50/60 rounded-lg border border-slate-100/60">
                 <Calendar className="w-4 h-4 text-slate-600" />
               </div>
-              <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Editorial Calendar</h4>
+              <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Editorial Calendar</h4>
             </div>
             
             {editorialCalendar.length > 0 ? (
@@ -281,8 +281,8 @@ export function ContentStrategyDetailModal({
 
             {/* SEO Opportunities */}
             {(seoOpportunities.targetKeywords.length > 0 || seoOpportunities.contentGaps.length > 0) && (
-              <div className="mt-6 bg-slate-50 p-4 rounded-lg border border-slate-200/60">
-                <h5 className="text-xs font-semibold text-slate-500 uppercase mb-3 tracking-wide">SEO Opportunities</h5>
+              <div className="mt-6 bg-slate-50/60 p-4 rounded-lg border border-slate-200/50">
+                <h5 className="text-xs font-semibold text-slate-400 uppercase mb-3 tracking-wide">SEO Opportunities</h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {seoOpportunities.targetKeywords.length > 0 && (
                     <div>
@@ -316,8 +316,8 @@ export function ContentStrategyDetailModal({
 
           {/* Sources */}
           {contentStrategy.sources && contentStrategy.sources.length > 0 && (
-            <div className="pt-4 border-t border-slate-200/60">
-              <h4 className="text-xs font-semibold text-slate-500 uppercase mb-2 tracking-wide">Sources</h4>
+            <div className="pt-4 border-t border-slate-200/50">
+              <h4 className="text-xs font-semibold text-slate-400 uppercase mb-2 tracking-wide">Sources</h4>
               <div className="space-y-1">
                 {contentStrategy.sources.map((src, idx) => (
                   <div key={idx} className="text-xs text-slate-600 flex items-center gap-2">
@@ -337,9 +337,9 @@ export function ContentStrategyDetailModal({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-white border-t border-slate-200/60 px-6 py-4 sm:rounded-b-lg">
+        <div className="sticky bottom-0 bg-white border-t border-slate-200/50 px-6 py-4 sm:rounded-b-lg">
           <div className="flex items-center justify-between">
-            <div className="text-xs text-slate-500">AI-generated content strategy</div>
+            <div className="text-xs text-slate-400">AI-generated content strategy</div>
             <button onClick={onClose}
               className="px-4 py-2 bg-slate-50 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium border border-slate-200/60">
               Close

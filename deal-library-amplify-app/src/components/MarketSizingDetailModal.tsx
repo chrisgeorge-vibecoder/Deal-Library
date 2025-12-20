@@ -35,15 +35,15 @@ export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Minimalist Header */}
-        <div className="bg-white border-b border-slate-200/60 p-6 sm:rounded-t-lg">
+        <div className="bg-white border-b border-slate-200/50 p-6 sm:rounded-t-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100">
+              <div className="w-9 h-9 bg-slate-50/80 rounded-lg flex items-center justify-center border border-slate-100/80">
                 <BarChart3 className="w-5 h-5 text-slate-600" />
               </div>
               <div>
-                <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">{sizing.marketName}</h3>
-                <p className="text-sm text-slate-500 mt-0.5">Market Intelligence</p>
+                <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 -tracking-[0.01em]">{sizing.marketName}</h3>
+                <p className="text-sm text-slate-400 mt-0.5">Market Intelligence</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -60,7 +60,7 @@ export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, 
                   className={`p-2 rounded-lg transition-colors ${
                     isSaved(`market-sizing-${sizing.marketName}`)
                       ? 'text-slate-700 hover:bg-slate-100'
-                      : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
+                      : 'text-slate-300 hover:bg-slate-100 hover:text-slate-500'
                   }`}
                 >
                   {isSaved(`market-sizing-${sizing.marketName}`) ? (
@@ -72,7 +72,7 @@ export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, 
               )}
               <button
                 onClick={onClose}
-                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-lg transition-colors touch-manipulation active:scale-95"
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-300 hover:bg-slate-100 hover:text-slate-500 rounded-lg transition-colors touch-manipulation active:scale-95"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" />
@@ -87,16 +87,16 @@ export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, 
           {/* Section 1: The Insight - Market Size */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-1.5 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="p-1.5 bg-slate-50/60 rounded-lg border border-slate-100/60">
                 <DollarSign className="w-4 h-4 text-slate-600" />
               </div>
-              <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Market Overview</h4>
+              <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Market Overview</h4>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200/60">
+              <div className="bg-slate-50/60 p-4 rounded-lg border border-slate-200/50">
                 <h5 className="text-xs font-semibold text-slate-600 uppercase mb-2 tracking-wide">Total Market Size</h5>
-                <div className="text-2xl font-semibold text-slate-900 mb-1 tracking-tight">
+                <div className="text-2xl font-semibold text-slate-900 mb-1 -tracking-[0.01em]">
                   <HighlightedText text={sizing.totalMarketSize || 'N/A'} />
                 </div>
                 <div className="flex items-center gap-2 text-sm text-slate-600">
@@ -105,9 +105,9 @@ export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, 
                 </div>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200/60">
+              <div className="bg-slate-50/60 p-4 rounded-lg border border-slate-200/50">
                 <h5 className="text-xs font-semibold text-slate-600 uppercase mb-2 tracking-wide">Addressable Market</h5>
-                <div className="text-xl font-semibold text-slate-900 mb-1 tracking-tight">
+                <div className="text-xl font-semibold text-slate-900 mb-1 -tracking-[0.01em]">
                   <HighlightedText text={sizing.addressableValue || 'N/A'} />
                 </div>
                 <p className="text-sm text-slate-600 leading-relaxed">{sizing.addressableMarket}</p>
@@ -116,18 +116,18 @@ export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, 
 
             {/* Demographics Row */}
             <div className="grid grid-cols-3 gap-3 mt-4">
-              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/60">
-                <div className="text-xs font-medium text-slate-500 mb-1">Population</div>
+              <div className="bg-slate-50/60 p-3 rounded-lg border border-slate-200/50">
+                <div className="text-xs font-medium text-slate-400 mb-1">Population</div>
                 <div className="text-slate-900 font-semibold text-sm">
                   <HighlightedText text={sizing.demographics?.population || 'N/A'} />
                 </div>
               </div>
-              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/60">
-                <div className="text-xs font-medium text-slate-500 mb-1">Target Age</div>
+              <div className="bg-slate-50/60 p-3 rounded-lg border border-slate-200/50">
+                <div className="text-xs font-medium text-slate-400 mb-1">Target Age</div>
                 <div className="text-slate-900 font-semibold text-sm">{sizing.demographics?.targetAge || 'N/A'}</div>
               </div>
-              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/60">
-                <div className="text-xs font-medium text-slate-500 mb-1">Penetration</div>
+              <div className="bg-slate-50/60 p-3 rounded-lg border border-slate-200/50">
+                <div className="text-xs font-medium text-slate-400 mb-1">Penetration</div>
                 <div className="text-slate-900 font-semibold text-sm">
                   <HighlightedText text={sizing.demographics?.penetration || 'N/A'} />
                 </div>
@@ -136,10 +136,10 @@ export function MarketSizingDetailModal({ sizing, isOpen, onClose, onViewDeals, 
           </div>
 
           {/* Section 2: The Opportunity - Key Insights */}
-          <div className="bg-slate-50 border border-slate-200/60 rounded-lg p-6">
+          <div className="bg-slate-50/60 border border-slate-200/50 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-4">
               <Lightbulb className="w-5 h-5 text-slate-600" />
-              <h4 className="font-semibold text-slate-900 tracking-tight">Market Insights</h4>
+              <h4 className="font-semibold text-slate-900 -tracking-[0.01em]">Market Insights</h4>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

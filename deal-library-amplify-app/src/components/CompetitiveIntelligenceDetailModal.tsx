@@ -51,17 +51,17 @@ export function CompetitiveIntelligenceDetailModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Minimalist Header */}
-        <div className="bg-white border-b border-slate-200/60 p-6 sm:rounded-t-lg">
+        <div className="bg-white border-b border-slate-200/50 p-6 sm:rounded-t-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100">
+              <div className="w-9 h-9 bg-slate-50/80 rounded-lg flex items-center justify-center border border-slate-100/80">
                 <Target className="w-5 h-5 text-slate-600" />
               </div>
               <div>
-                <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 -tracking-[0.01em]">
                   {cleanMarkdown(competitiveIntel.competitorOrIndustry || '')}
                 </h3>
-                <p className="text-sm text-slate-500 mt-0.5">Competitive Intelligence</p>
+                <p className="text-sm text-slate-400 mt-0.5">Competitive Intelligence</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -78,7 +78,7 @@ export function CompetitiveIntelligenceDetailModal({
                   className={`p-2 rounded-lg transition-colors ${
                     isSaved(`competitive-intelligence-${competitiveIntel.competitorOrIndustry}`)
                       ? 'text-slate-700 hover:bg-slate-100'
-                      : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
+                      : 'text-slate-300 hover:bg-slate-100 hover:text-slate-500'
                   }`}
                 >
                   {isSaved(`competitive-intelligence-${competitiveIntel.competitorOrIndustry}`) ? (
@@ -88,15 +88,15 @@ export function CompetitiveIntelligenceDetailModal({
                   )}
                 </button>
               )}
-              <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-lg transition-colors">
+              <button onClick={onClose} className="p-2 text-slate-300 hover:bg-slate-100 hover:text-slate-500 rounded-lg transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
           </div>
           
           {/* Export Toolbar */}
-          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
-            <span className="text-xs text-slate-500 font-medium mr-2">Export:</span>
+          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100/80">
+            <span className="text-xs text-slate-400 font-medium mr-2">Export:</span>
             <button onClick={() => handleCopyAsHTML(`#${modalId}`)} disabled={isExporting}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg transition-colors disabled:opacity-50 border border-slate-200/60">
               {exportSuccess ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -119,31 +119,31 @@ export function CompetitiveIntelligenceDetailModal({
           {/* Section 1: Market Position - The Insight */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-1.5 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="p-1.5 bg-slate-50/60 rounded-lg border border-slate-100/60">
                 <TrendingUp className="w-4 h-4 text-slate-600" />
               </div>
-              <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Market Position</h4>
+              <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Market Position</h4>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200/60">
+              <div className="bg-slate-50/60 p-4 rounded-lg border border-slate-200/50">
                 <h5 className="text-xs font-semibold text-slate-600 uppercase mb-2 tracking-wide">Market Share</h5>
-                <div className="text-xl font-semibold text-slate-900 tracking-tight">
+                <div className="text-xl font-semibold text-slate-900 -tracking-[0.01em]">
                   <HighlightedText text={competitiveIntel.marketPosition?.marketShare || 'N/A'} />
                 </div>
               </div>
-              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200/60">
+              <div className="bg-slate-50/60 p-4 rounded-lg border border-slate-200/50">
                 <h5 className="text-xs font-semibold text-slate-600 uppercase mb-2 tracking-wide">Growth Trajectory</h5>
-                <div className="text-xl font-semibold text-slate-900 tracking-tight">{competitiveIntel.marketPosition?.growthTrajectory || 'N/A'}</div>
+                <div className="text-xl font-semibold text-slate-900 -tracking-[0.01em]">{competitiveIntel.marketPosition?.growthTrajectory || 'N/A'}</div>
               </div>
             </div>
 
             {/* Key Differentiators */}
             <div>
-              <h5 className="text-xs font-semibold text-slate-500 uppercase mb-2 tracking-wide">Key Differentiators</h5>
+              <h5 className="text-xs font-semibold text-slate-400 uppercase mb-2 tracking-wide">Key Differentiators</h5>
               <div className="flex flex-wrap gap-2">
                 {competitiveIntel.marketPosition?.keyDifferentiators?.slice(0, 4).map((diff, index) => (
-                  <span key={index} className="px-3 py-1.5 bg-slate-100 text-slate-700 text-sm rounded-full border border-slate-200/60">
+                  <span key={index} className="px-3 py-1.5 bg-slate-100/80 text-slate-700 text-sm rounded-full border border-slate-200/60">
                     {cleanMarkdown(diff)}
                   </span>
                 ))}

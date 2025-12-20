@@ -55,17 +55,17 @@ export function BrandStrategyDetailModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Minimalist Header */}
-        <div className="bg-white border-b border-slate-200/60 p-6 sm:rounded-t-lg">
+        <div className="bg-white border-b border-slate-200/50 p-6 sm:rounded-t-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100">
+              <div className="w-9 h-9 bg-slate-50/80 rounded-lg flex items-center justify-center border border-slate-100/80">
                 <Award className="w-5 h-5 text-slate-600" />
               </div>
               <div>
-                <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 -tracking-[0.01em]">
                   {brandStrategy.brandOrCategory || 'Brand Strategy'}
                 </h3>
-                <p className="text-sm text-slate-500 mt-0.5">Brand Strategy</p>
+                <p className="text-sm text-slate-400 mt-0.5">Brand Strategy</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -83,7 +83,7 @@ export function BrandStrategyDetailModal({
                   className={`p-2 rounded-lg transition-colors ${
                     isSaved(`brand-strategy-${brandStrategy.brandOrCategory || 'untitled'}`)
                       ? 'text-slate-700 hover:bg-slate-100'
-                      : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
+                      : 'text-slate-300 hover:bg-slate-100 hover:text-slate-500'
                   }`}
                 >
                   {isSaved(`brand-strategy-${brandStrategy.brandOrCategory || 'untitled'}`) ? (
@@ -95,7 +95,7 @@ export function BrandStrategyDetailModal({
               )}
               <button
                 onClick={onClose}
-                className="p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-lg transition-colors"
+                className="p-2 text-slate-300 hover:bg-slate-100 hover:text-slate-500 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -103,8 +103,8 @@ export function BrandStrategyDetailModal({
           </div>
           
           {/* Export Toolbar */}
-          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
-            <span className="text-xs text-slate-500 font-medium mr-2">Export:</span>
+          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100/80">
+            <span className="text-xs text-slate-400 font-medium mr-2">Export:</span>
             <button
               onClick={() => handleCopyAsHTML(`#${modalId}`)}
               disabled={isExporting}
@@ -137,20 +137,20 @@ export function BrandStrategyDetailModal({
           {/* Section 1: The Insight - Brand Positioning */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-1.5 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="p-1.5 bg-slate-50/60 rounded-lg border border-slate-100/60">
                 <Target className="w-4 h-4 text-slate-600" />
               </div>
-              <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Brand Positioning</h4>
+              <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Brand Positioning</h4>
             </div>
             
             <div className="grid gap-4 md:grid-cols-2 mb-4">
-              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200/60">
+              <div className="bg-slate-50/60 p-4 rounded-lg border border-slate-200/50">
                 <h5 className="text-xs font-semibold text-slate-600 uppercase mb-2 tracking-wide">Current Perception</h5>
                 <p className="text-slate-700 leading-relaxed">
                   <HighlightedText text={brandStrategy.positioning?.currentPerception || 'Not specified'} />
                 </p>
               </div>
-              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200/60">
+              <div className="bg-slate-50/60 p-4 rounded-lg border border-slate-200/50">
                 <h5 className="text-xs font-semibold text-slate-600 uppercase mb-2 tracking-wide">Target Position</h5>
                 <p className="text-slate-700 leading-relaxed">
                   <HighlightedText text={brandStrategy.positioning?.targetPosition || 'Not specified'} />
@@ -160,9 +160,9 @@ export function BrandStrategyDetailModal({
 
             {/* Key Differentiators */}
             <div className="space-y-2">
-              <h5 className="text-xs font-semibold text-neutral-500 uppercase">Key Differentiators</h5>
+              <h5 className="text-xs font-semibold text-slate-400 uppercase">Key Differentiators</h5>
               {(brandStrategy.positioning?.differentiators || []).map((diff, index) => (
-                <div key={index} className="flex items-start gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200/60">
+                <div key={index} className="flex items-start gap-3 bg-slate-50/60 p-3 rounded-lg border border-slate-200/50">
                   <Target className="w-4 h-4 text-slate-600 mt-0.5 flex-shrink-0" />
                   <span className="text-slate-700 leading-relaxed"><HighlightedText text={diff || ''} /></span>
                 </div>
@@ -171,18 +171,18 @@ export function BrandStrategyDetailModal({
           </div>
 
           {/* Section 2: The Opportunity - Core Message */}
-          <div className="bg-slate-50 border border-slate-200/60 rounded-lg p-6">
+          <div className="bg-slate-50/60 border border-slate-200/50 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-4">
               <MessageSquare className="w-5 h-5 text-slate-600" />
-              <h4 className="font-semibold text-slate-900 tracking-tight">Core Message</h4>
+              <h4 className="font-semibold text-slate-900 -tracking-[0.01em]">Core Message</h4>
             </div>
-            <p className="text-xl font-semibold text-slate-900 leading-relaxed text-center mb-4 tracking-tight">
+            <p className="text-xl font-semibold text-slate-900 leading-relaxed text-center mb-4 -tracking-[0.01em]">
               "{brandStrategy.messagingFramework?.coreMessage || 'No core message available'}"
             </p>
             
             {/* Supporting Messages */}
-            <div className="space-y-2 pt-4 border-t border-slate-200/60">
-              <h5 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Supporting Messages</h5>
+            <div className="space-y-2 pt-4 border-t border-slate-200/50">
+              <h5 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Supporting Messages</h5>
               {(brandStrategy.messagingFramework?.supportingMessages || []).map((msg, index) => (
                 <p key={index} className="text-slate-700 pl-4 border-l-2 border-slate-300 leading-relaxed">
                   <HighlightedText text={msg || ''} />
@@ -191,9 +191,9 @@ export function BrandStrategyDetailModal({
             </div>
             
             {/* Proof Points */}
-            <div className="mt-4 pt-4 border-t border-slate-200/60 grid gap-2 md:grid-cols-2">
+            <div className="mt-4 pt-4 border-t border-slate-200/50 grid gap-2 md:grid-cols-2">
               {(brandStrategy.messagingFramework?.proofPoints || []).map((proof, index) => (
-                <div key={index} className="flex items-start gap-2 bg-white p-3 rounded-lg border border-slate-200/60">
+                <div key={index} className="flex items-start gap-2 bg-white p-3 rounded-lg border border-slate-200/50">
                   <CheckCircle className="w-4 h-4 text-slate-600 mt-0.5 flex-shrink-0" />
                   <span className="text-sm text-slate-700 leading-relaxed">{proof}</span>
                 </div>
@@ -204,29 +204,29 @@ export function BrandStrategyDetailModal({
           {/* Section 3: The Action - Brand Voice & Recommendations */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-1.5 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="p-1.5 bg-slate-50/60 rounded-lg border border-slate-100/60">
                 <Volume2 className="w-4 h-4 text-slate-600" />
               </div>
-              <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Brand Voice</h4>
+              <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Brand Voice</h4>
             </div>
             
             {/* Tone Attributes */}
             <div className="flex flex-wrap gap-2 mb-4">
               {(brandStrategy.brandVoice?.toneAttributes || []).map((attr, index) => (
-                <span key={index} className="px-3 py-1 bg-slate-100 text-slate-700 text-sm font-medium rounded-full border border-slate-200/60">
+                <span key={index} className="px-3 py-1 bg-slate-100/80 text-slate-700 text-sm font-medium rounded-full border border-slate-200/60">
                   {attr}
                 </span>
               ))}
             </div>
             
             {/* Voice Guidelines */}
-            <p className="text-slate-700 bg-slate-50 p-4 rounded-lg border border-slate-200/60 mb-4 leading-relaxed">
+            <p className="text-slate-700 bg-slate-50/60 p-4 rounded-lg border border-slate-200/50 mb-4 leading-relaxed">
               {brandStrategy.brandVoice?.voiceGuidelines || 'No voice guidelines available'}
             </p>
             
             {/* Do's and Don'ts in compact format */}
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="bg-slate-50 border border-slate-200/60 rounded-lg p-4">
+              <div className="bg-slate-50/60 border border-slate-200/50 rounded-lg p-4">
                 <h5 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-slate-600" /> Do's
                 </h5>
@@ -236,7 +236,7 @@ export function BrandStrategyDetailModal({
                   ))}
                 </ul>
               </div>
-              <div className="bg-slate-50 border border-slate-200/60 rounded-lg p-4">
+              <div className="bg-slate-50/60 border border-slate-200/50 rounded-lg p-4">
                 <h5 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
                   <XCircle className="w-4 h-4 text-slate-600" /> Don'ts
                 </h5>
@@ -250,14 +250,14 @@ export function BrandStrategyDetailModal({
           </div>
 
           {/* Strategic Recommendations */}
-          <div className="bg-slate-50 border border-slate-200/60 rounded-lg p-6">
+          <div className="bg-slate-50/60 border border-slate-200/50 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-4">
               <Award className="w-5 h-5 text-slate-600" />
-              <h4 className="font-semibold text-slate-900 tracking-tight">Strategic Recommendations</h4>
+              <h4 className="font-semibold text-slate-900 -tracking-[0.01em]">Strategic Recommendations</h4>
             </div>
             <div className="space-y-3">
               {(brandStrategy.strategicRecommendations || []).map((rec, index) => (
-                <div key={index} className="flex items-start gap-3 bg-white p-4 rounded-lg border border-slate-200/60">
+                <div key={index} className="flex items-start gap-3 bg-white p-4 rounded-lg border border-slate-200/50">
                   <div className="w-6 h-6 bg-slate-600 text-white rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">
                     {index + 1}
                   </div>
@@ -269,8 +269,8 @@ export function BrandStrategyDetailModal({
 
           {/* Sources */}
           {brandStrategy.sources && brandStrategy.sources.length > 0 && (
-            <div className="pt-4 border-t border-slate-200/60">
-              <h4 className="text-xs font-semibold text-slate-500 uppercase mb-3 tracking-wide">Sources</h4>
+            <div className="pt-4 border-t border-slate-200/50">
+              <h4 className="text-xs font-semibold text-slate-400 uppercase mb-3 tracking-wide">Sources</h4>
               <div className="space-y-2">
                 {brandStrategy.sources.map((source, index) => (
                   <div key={index} className="flex items-start gap-3 text-sm">

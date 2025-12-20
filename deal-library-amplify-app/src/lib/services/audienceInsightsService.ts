@@ -3177,7 +3177,17 @@ Write 3-4 analytical sentences that connect data points to reveal purchasing mot
         // Baby & Toddler
         'Baby & Toddler': '👶',
         'Baby & Toddler Clothing': '👶',
+        'Baby & Toddler Furniture': '🛏️',
         'Baby Safety': '👶',
+        'Baby Bathing': '🛁',
+        'Baby Gift Sets': '🎁',
+        'Baby Health': '💊',
+        'Baby Toys & Activity Equipment': '🧸',
+        'Baby Transport': '👶',
+        'Baby Transport Accessories': '👶',
+        'Diapering': '👶',
+        'Potty Training': '🚽',
+        'Swaddling & Receiving Blankets': '🧸',
         'Nursing & Feeding': '🍼',
         
         // Health & Beauty
@@ -3193,14 +3203,45 @@ Write 3-4 analytical sentences that connect data points to reveal purchasing mot
         'Shaving & Grooming': '🪒',
         'Bath & Body': '🛁',
         
+        // Furniture
+        'Furniture': '🛋️',
+        'Beds & Accessories': '🛏️',
+        'Mattresses': '🛏️',
+        'Office Furniture': '🪑',
+        
         // Home & Garden
         'Gardening': '🌱',
         'Outdoor Living': '🏡',
         'Kitchen': '🍳',
+        'Kitchen & Dining': '🍽️',
+        'Kitchen Appliances': '🔌',
+        'Cookware & Bakeware': '🍳',
         'Laundry Supplies': '🧺',
         'Cleaning Supplies': '🧹',
+        'Bathroom Accessories': '🚿',
+        'Lighting': '💡',
+        'Plants': '🌿',
+        'Pool & Spa': '🏊',
+        
+        // Apparel
+        'Clothing': '👔',
+        'Outerwear': '🧥',
+        
+        // Arts & Entertainment
+        'Books': '📚',
+        'Music & Sound Recordings': '🎵',
+        'Games': '🎲',
+        'Toys': '🧸',
+        'Puzzles': '🧩',
+        
+        // Food & Beverages
+        'Beverages': '🥤',
+        'Juice': '🧃',
+        'Water': '💧',
         
         // Vehicles
+        'Vehicles': '🚗',
+        'Vehicles & Parts': '🚗',
         'Motorcycles': '🏍️',
         'Marine Vehicles': '⛵',
         'Bicycles': '🚴',

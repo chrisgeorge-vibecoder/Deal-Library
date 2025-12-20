@@ -60,3 +60,6 @@ coverage/
 
 # Large CSV files (>100MB)
 **/commerce_audience_segments.csv
+
+# Enrichment pipeline checkpoint
+**/scripts/progress.json

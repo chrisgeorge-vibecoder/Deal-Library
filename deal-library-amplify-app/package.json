@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "pregenerate:insights": "tsx scripts/pregenerate-audience-insights.ts",
-    "build:with-insights": "npm run pregenerate:insights && next build"
+    "build:with-insights": "npm run pregenerate:insights && next build",
+    "enrich:audiences": "tsx scripts/enrich-audience-intelligence.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

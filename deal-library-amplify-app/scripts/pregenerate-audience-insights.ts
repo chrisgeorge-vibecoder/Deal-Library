@@ -624,6 +624,8 @@ function formatReportForExport(report: any): string {
  */
 /**
  * Load existing reports from TypeScript file for merging
+ * 
+ * Uses a robust approach: extract the JSON object and parse it directly
  */
 function loadExistingReports(outputPath: string): Record<string, any> {
   if (!fs.existsSync(outputPath)) {
@@ -633,170 +635,65 @@ function loadExistingReports(outputPath: string): Record<string, any> {
   try {
     const fileContent = fs.readFileSync(outputPath, 'utf8');
     
-    // Find the start of the reports object
-    const reportsStart = fileContent.indexOf('export const audienceInsightsReports');
-    if (reportsStart === -1) {
+    // Find the export statement and extract the object
+    const exportMatch = fileContent.match(/export const audienceInsightsReports[^=]*=\s*(\{[\s\S]*\});?\s*$/);
+    if (!exportMatch) {
+      console.warn('   ⚠️  Could not find audienceInsightsReports export');
       return {};
     }
     
-    // Extract the JSON-like object content
-    // Find the opening brace after the assignment
-    let braceCount = 0;
-    let startPos = -1;
-    let endPos = -1;
+    // Extract just the object part
+    const objectStr = exportMatch[1].replace(/;?\s*$/, '');
     
-    for (let i = reportsStart; i < fileContent.length; i++) {
-      if (fileContent[i] === '{') {
-        if (startPos === -1) {
-          startPos = i;
-        }
-        braceCount++;
-      } else if (fileContent[i] === '}') {
-        braceCount--;
-        if (braceCount === 0 && startPos !== -1) {
-          endPos = i + 1;
-          break;
-        }
-      }
-    }
+    // Use Function constructor to safely evaluate the object
+    const existingReports = new Function('return ' + objectStr)();
     
-    if (startPos === -1 || endPos === -1) {
-      return {};
-    }
-    
-    // Extract the object content
-    const objectContent = fileContent.substring(startPos, endPos);
-    
-    // Parse using eval in a safe way (since we control the file format)
-    // Actually, let's use a safer approach - parse segment by segment
-    const existingReports: Record<string, any> = {};
-    
-    // Simpler approach: Use regex to find segment entries and verify they're top-level
-    // Look for pattern: "Segment Name": { ... "segment": "Segment Name" ... }
-    const segmentEntryPattern = /"([^"]+)":\s*\{([^}]*"segment":\s*"\1"[^}]*)\}/g;
-    let match;
-    
-    // First pass: find all potential segment entries
-    const potentialSegments: Array<{ name: string; fullMatch: string; start: number; end: number }> = [];
-    
-    // Use a simpler approach: find segments by looking for the pattern
-    // "SegmentName": { ... "segment": "SegmentName" ... }
-    const lines = objectContent.split('\n');
-    let inSegment = false;
-    let currentSegmentName = '';
-    let segmentStart = 0;
-    let segmentBraceCount = 0;
-    let segmentLines: string[] = [];
-    
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      
-      // Check if this line starts a new segment entry
-      const segmentMatch = line.match(/^\s+"([^"]+)":\s*\{/);
-      if (segmentMatch && !inSegment) {
-        // Start of a new segment
-        inSegment = true;
-        currentSegmentName = segmentMatch[1];
-        segmentStart = i;
-        segmentBraceCount = (line.match(/\{/g) || []).length - (line.match(/\}/g) || []).length;
-        segmentLines = [line];
-      } else if (inSegment) {
-        segmentLines.push(line);
-        segmentBraceCount += (line.match(/\{/g) || []).length - (line.match(/\}/g) || []).length;
-        
-        // Check if this segment has the matching "segment" field
-        if (line.includes(`"segment": "${currentSegmentName}"`)) {
-          // This is a valid segment entry
-          // Continue until we close all braces
-        }
-        
-        if (segmentBraceCount === 0 && segmentLines.length > 0) {
-          // Segment complete
-          const segmentText = segmentLines.join('\n');
-          // Verify it has the segment field matching the key
-          if (segmentText.includes(`"segment": "${currentSegmentName}"`)) {
-            try {
-              // Try to parse as JSON (may need cleanup)
-              const cleaned = segmentText.replace(/,\s*$/, '').trim();
-              // Wrap in braces if needed
-              const jsonStr = cleaned.startsWith('{') ? cleaned : `{${cleaned}}`;
-              const parsed = JSON.parse(jsonStr);
-              existingReports[currentSegmentName] = parsed;
-            } catch (e) {
-              // Skip if parsing fails
-            }
-          }
-          inSegment = false;
-          segmentLines = [];
+    // Validate the loaded reports - ensure each entry is a proper report, not nested
+    const validatedReports: Record<string, any> = {};
+    for (const [key, value] of Object.entries(existingReports)) {
+      // Check if it's a valid report with required fields at the top level
+      const report = value as any;
+      if (report && typeof report === 'object' && report.segment && report.keyMetrics && report.demographics) {
+        validatedReports[key] = report;
+      } else {
+        // If nested incorrectly, try to extract the actual report
+        const actualReport = findActualReport(report, key);
+        if (actualReport) {
+          validatedReports[key] = actualReport;
+        } else {
+          console.warn(`   ⚠️  Skipping invalid report entry: ${key}`);
         }
       }
     }
     
-    // Fallback: Use the original regex approach if the line-by-line didn't work
-    if (Object.keys(existingReports).length === 0) {
-      const segmentPattern = /"([^"]+)":\s*\{/g;
-      let regexMatch;
-      const segments: Array<{ name: string; start: number }> = [];
-      
-      while ((regexMatch = segmentPattern.exec(objectContent)) !== null) {
-        const segName = regexMatch[1];
-        // Filter out known nested keys
-        const knownNested = ['keyMetrics', 'demographics', 'ethnicity', 'lifestyle', 'strategicInsights',
-          'geographicHotspots', 'overlappingSegments', 'executiveSummary', 'personaName',
-          'personaEmoji', 'personaDescription', 'segment', 'category'];
-        if (!knownNested.includes(segName)) {
-          segments.push({ name: segName, start: regexMatch.index });
-        }
-      }
-      
-      // For each segment, try to extract using a simpler method
-      for (let i = 0; i < segments.length; i++) {
-        const segment = segments[i];
-        const segStart = objectContent.indexOf(`"${segment.name}":`, segment.start);
-        if (segStart === -1) continue;
-        
-        // Find the matching closing brace
-        let braceCount = 0;
-        let objStart = -1;
-        let objEnd = -1;
-        
-        for (let j = segStart; j < Math.min(segStart + 100000, objectContent.length); j++) {
-          if (objectContent[j] === '{') {
-            if (objStart === -1) objStart = j;
-            braceCount++;
-          } else if (objectContent[j] === '}') {
-            braceCount--;
-            if (braceCount === 0 && objStart !== -1) {
-              objEnd = j + 1;
-              break;
-            }
-          }
-        }
-        
-        if (objStart !== -1 && objEnd !== -1) {
-          try {
-            const segmentJson = objectContent.substring(objStart, objEnd);
-            const parsed = JSON.parse(segmentJson);
-            // Verify it's actually this segment
-            if (parsed.segment === segment.name) {
-              existingReports[segment.name] = parsed;
-            }
-          } catch (e) {
-            // Skip if parsing fails
-          }
-        }
-      }
+    if (Object.keys(validatedReports).length > 0) {
+      console.log(`   📦 Loaded ${Object.keys(validatedReports).length} existing reports for merging`);
     }
     
-    if (Object.keys(existingReports).length > 0) {
-      console.log(`   📦 Loaded ${Object.keys(existingReports).length} existing reports for merging`);
-    }
-    
-    return existingReports;
+    return validatedReports;
   } catch (error) {
-    console.warn('   ⚠️  Could not load existing reports, starting fresh');
+    console.warn('   ⚠️  Could not load existing reports, starting fresh:', error instanceof Error ? error.message : error);
     return {};
   }
+}
+
+/**
+ * Helper function to find actual report in potentially nested structure
+ */
+function findActualReport(obj: any, segmentName: string): any {
+  if (!obj || typeof obj !== 'object') return null;
+  
+  // Check for actual report structure
+  if (obj.segment && obj.keyMetrics && obj.demographics) {
+    return obj;
+  }
+  
+  // If it has a key matching the segment name, dig deeper
+  if (obj[segmentName]) {
+    return findActualReport(obj[segmentName], segmentName);
+  }
+  
+  return null;
 }
 
 function exportReportsToTypeScript(

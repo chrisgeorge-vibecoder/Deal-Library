@@ -9802,5 +9802,2280 @@
       "emotionalDriver": "Peace of mind through long-term reliability and financial predictability.",
       "callToAction": "Get a free quote and see how much you can save with current rebates."
     }
+  },
+  "PIA_3601": {
+    "segmentId": "PIA_3601",
+    "segmentName": "Locks and Keys",
+    "fullPath": "Purchase Intent > Hardware > Locks and Keys",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:49:02.610Z",
+    "detailedInsight": "This audience is increasingly comprised of proactive 'self-improvers' who view locks and keys as an integral part of their broader smart home ecosystem, rather than a standalone security measure. Their purchase is often triggered by a recent move, a desire to integrate new technology, or as part of a larger DIY home renovation project. They are moving beyond basic keyless entry and are drawn to features like biometric access, remote guest management, and seamless integration with voice assistants and other smart devices.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "As a primary destination for DIY home improvement projects, The Home Depot is a natural fit for this audience who are actively seeking to upgrade their homes and are likely already purchasing other materials for their projects."
+      },
+      {
+        "name": "SimpliSafe",
+        "type": "brand",
+        "rationale": "SimpliSafe's customizable and DIY-friendly home security systems appeal to this segment's desire for integrated, user-friendly security solutions that they can control and install themselves."
+      },
+      {
+        "name": "Smart Home Technology Brands",
+        "type": "category",
+        "rationale": "Companies like Google (Nest) and Amazon (Ring) should target this segment as they are prime candidates for adopting interconnected devices that enhance both security and convenience within a smart home ecosystem."
+      },
+      {
+        "name": "Interior Design and Home Organization Retailers",
+        "type": "category",
+        "rationale": "Retailers focused on aesthetics and organization, such as Pottery Barn or The Container Store, can appeal to this audience's desire to not only secure but also enhance the overall look and feel of their living spaces."
+      },
+      {
+        "name": "Real Estate Agencies",
+        "type": "category",
+        "rationale": "Real estate agencies can target recent homebuyers within this segment, offering information and partnerships for upgrading the security of their new properties as a value-added service."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global smart lock market is projected to grow from USD 3.28 billion in 2025 to USD 14.90 billion by 2033, reflecting a compound annual growth rate of 20.88%. This growth is largely driven by the increasing adoption of smart home ecosystems and IoT-enabled devices.",
+        "relevance": "This rapid market expansion indicates a significant and growing demand within the 'Locks and Keys' segment for technologically advanced security solutions, moving beyond traditional mechanical locks.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Integration of biometric authentication, such as fingerprint and facial recognition, is a key driver in the smart lock market, with the biometric segment expected to grow at a CAGR of over 20%. This is coupled with a rising consumer preference for mobile app-based control and monitoring.",
+        "relevance": "This trend highlights the audience's desire for enhanced, convenient, and personalized security. They are moving towards solutions that offer more than just keyless entry, valuing the heightened security and ease of use that biometrics and mobile integration provide.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "There is a growing emphasis on the integration of smart locks with broader smart home platforms, with a notable trend towards interoperability through standards like Matter-over-Thread. This allows for seamless communication between locks and other smart devices like lights and voice assistants.",
+        "relevance": "This audience is not just buying a lock; they are investing in a connected home. The ability of a lock to integrate with their existing smart home ecosystem is a critical purchasing factor, signaling a move towards holistic home automation and security.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Home, Smarter and More Secure. The Upgrade You Control.",
+      "emotionalDriver": "Peace of Mind through Empowerment",
+      "callToAction": "Explore integrated smart lock solutions and customize your home's security today."
+    }
+  },
+  "PIA_3606": {
+    "segmentId": "PIA_3606",
+    "segmentName": "Plumbing",
+    "fullPath": "Purchase Intent > Hardware > Plumbing",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:49:20.517Z",
+    "detailedInsight": "This audience is increasingly motivated by a blend of practicality and forward-thinking values, driven by rising water costs and a desire for home resilience. Their purchase decisions are triggered by a need to upgrade worn-out systems, a desire for energy efficiency, and the aspiration to create spa-like, hygienic, and technologically advanced living spaces. They are moving beyond basic functionality, prioritizing smart water monitoring, leak detection, and eco-friendly fixtures that offer long-term savings and environmental benefits.",
+    "exampleAdvertisers": [
+      {
+        "name": "Moen",
+        "type": "brand",
+        "rationale": "Moen's focus on smart home integration, with products like app-controlled faucets and leak detection systems, directly appeals to this segment's growing interest in home automation and water management."
+      },
+      {
+        "name": "Kohler",
+        "type": "brand",
+        "rationale": "Kohler's brand positioning around luxury, wellness, and sophisticated design resonates with the segment's aspiration for spa-like bathroom experiences and high-end fixtures."
+      },
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "As a primary destination for both DIY enthusiasts and professional contractors, The Home Depot captures a broad spectrum of this audience, from those undertaking minor upgrades to full-scale renovations."
+      },
+      {
+        "name": "WaterSense Certified Product Manufacturers",
+        "type": "category",
+        "rationale": "This category of advertisers appeals to the segment's increasing eco-consciousness and desire for water conservation, which is driven by both environmental concerns and the potential for utility cost savings."
+      },
+      {
+        "name": "Home Warranty and Insurance Companies",
+        "type": "category",
+        "rationale": "Given the concern over water damage from leaks and aging infrastructure, companies offering protection plans for home systems and appliances are highly relevant to this audience's desire for security and financial protection."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The smart plumbing market is projected to experience significant growth, with the smart bathroom market size expected to grow at a CAGR of 12.1% through 2030. This includes increased adoption of smart toilets, leak detection systems, and app-controlled fixtures.",
+        "relevance": "This trend directly aligns with the 'Plumbing' audience's growing interest in home automation, water conservation, and preventing costly water damage. They are actively seeking products that offer convenience, control, and peace of mind.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Sustainability and water conservation are major drivers of plumbing innovations in 2026, with a focus on greywater recycling systems, rainwater harvesting, and low-flow fixtures becoming standard in green-certified buildings. Home listings mentioning WaterSense fixtures, which reduce water use by at least 20%, have seen a dramatic increase.",
+        "relevance": "This audience is increasingly eco-conscious and financially motivated to reduce water consumption. Products and services that align with sustainability and offer long-term savings on utility bills will strongly resonate.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Homeowners are increasingly investing in luxury bathroom upgrades to create spa-like experiences, including features like heated floors, rainfall showers, and high-tech bidets. This is part of a broader trend of remodeling for lifestyle enrichment and wellness.",
+        "relevance": "The 'Plumbing' audience is looking to enhance their living spaces for comfort and relaxation. High-end fixtures and systems that contribute to a sense of personal retreat and well-being are highly appealing.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Upgrade Your Flow: Smart, Sustainable, and Serene Water for Your Home.",
+      "emotionalDriver": "The desire for a sanctuary – a home that is not only efficient and secure but also a personalized haven of comfort and well-being.",
+      "callToAction": "Discover personalized plumbing solutions that elevate your home's IQ and your peace of mind. Explore our 2025 lookbook for inspiration."
+    }
+  },
+  "PIA_3647": {
+    "segmentId": "PIA_3647",
+    "segmentName": "Power and Electrical Supplies",
+    "fullPath": "Purchase Intent > Hardware > Power and Electrical Supplies",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:49:37.619Z",
+    "detailedInsight": "This audience is increasingly motivated by a desire for control over their energy consumption and a reduction in utility costs, which is a primary driver for upgrading electrical supplies. They are often homeowners engaged in renovation projects, prioritizing not just aesthetics but also the integration of smart home technology and energy-efficient solutions. Their purchasing decisions are influenced by long-term value and the appeal of creating a more sustainable and automated living environment.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "As a primary destination for DIY and professional renovation projects, The Home Depot is a key supplier for this audience's electrical upgrade and furnishing needs."
+      },
+      {
+        "name": "Smart Thermostat Manufacturers",
+        "type": "category",
+        "rationale": "This audience is actively seeking ways to manage and reduce energy consumption, making smart thermostats a highly relevant and desirable product category."
+      },
+      {
+        "name": "Schneider Electric",
+        "type": "brand",
+        "rationale": "Known for its innovations in home energy management systems, Schneider Electric's products directly align with the audience's interest in smart home technology and energy efficiency."
+      },
+      {
+        "name": "Solar Panel Installation Companies",
+        "type": "category",
+        "rationale": "With a growing interest in sustainability and renewable energy, this segment represents a prime target for companies offering residential solar solutions."
+      },
+      {
+        "name": "Leviton",
+        "type": "brand",
+        "rationale": "Offering a wide range of residential electrical devices, including smart switches and outlets, Leviton caters to this audience's need for both basic electrical supplies and smart home upgrades."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global home energy management systems market is projected to grow at a CAGR of 13.8% from 2025 to 2034, indicating a significant increase in consumer adoption of smart energy solutions.",
+        "relevance": "This trend directly reflects the core motivation of the 'Power and Electrical Supplies' audience to invest in technologies that provide greater control over their home's energy usage and efficiency.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Home electrification is a major trend, with homeowners increasingly replacing gas appliances with electrical ones and integrating renewable energy sources like solar panels.",
+        "relevance": "This shift necessitates significant electrical upgrades, from wiring to panel capacity, directly driving demand for a wide range of products within the power and electrical supplies category.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "By 2026, the integration of AI-driven home maintenance systems is expected to become more prevalent, with systems that can predict and diagnose electrical issues before they become major problems.",
+        "relevance": "This forward-looking trend appeals to the audience's desire for a technologically advanced and secure home, creating an opportunity for smart electrical components that can integrate with these AI systems.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Upgrade Your Home's IQ: Smart Power for a More Efficient Life.",
+      "emotionalDriver": "The desire for empowerment and peace of mind that comes from having control over one's home environment and finances.",
+      "callToAction": "Discover personalized energy-saving solutions for your home."
+    }
+  },
+  "PIA_3679": {
+    "segmentId": "PIA_3679",
+    "segmentName": "Small Engines",
+    "fullPath": "Purchase Intent > Hardware > Small Engines",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:49:53.559Z",
+    "detailedInsight": "This audience consists of hands-on individuals who derive satisfaction from repairing, upgrading, and maintaining their own equipment. They are often homeowners with a keen interest in DIY projects, particularly in landscaping and gardening, and value the ability to customize and improve their tools. Their purchase triggers are frequently tied to seasonal needs for outdoor power equipment and the desire for more power, efficiency, or replacing a worn-out engine.",
+    "exampleAdvertisers": [
+      {
+        "name": "Briggs & Stratton",
+        "type": "brand",
+        "rationale": "As a leading manufacturer of small engines, they are a primary supplier for this audience's core need for replacement and upgrade engines for various outdoor power equipment."
+      },
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "A key retailer for this segment, offering a wide range of outdoor power equipment, replacement engines, and the necessary tools and accessories for their DIY projects."
+      },
+      {
+        "name": "John Deere",
+        "type": "brand",
+        "rationale": "This brand appeals to the segment's interest in high-quality, durable outdoor power equipment, and they are a trusted name for lawn and garden care."
+      },
+      {
+        "name": "Craftsman",
+        "type": "brand",
+        "rationale": "Known for its tools and hardware, Craftsman resonates with the DIY ethos of this audience, who rely on quality tools for their engine replacement and maintenance projects."
+      },
+      {
+        "name": "Outdoor Power Equipment Manufacturers",
+        "type": "category",
+        "rationale": "This category directly serves the audience's need for new and upgraded equipment for lawn care, landscaping, and other outdoor maintenance tasks."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global small engine market is projected to grow, with the gasoline engine segment expected to hold a significant market share in 2025.",
+        "relevance": "This indicates a sustained demand for the core products this audience purchases, ensuring a stable market for advertisers. The continued prevalence of gasoline engines aligns with the existing knowledge and skills of many in this DIY-focused segment.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "A growing trend in home improvement for 2026 is the creation of dedicated outdoor relaxation and entertainment spaces, moving beyond simple lawn maintenance.",
+        "relevance": "This trend expands the scope of projects for the 'Small Engines' audience. They will be sourcing engines not just for mowers and trimmers, but potentially for outdoor kitchen appliances, water features, or custom-built recreational equipment, opening new avenues for advertisers.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "There is an increasing consumer interest in more energy-efficient and sustainable home and garden equipment, with a notable shift towards electric and hybrid models.",
+        "relevance": "While many in this segment are proficient with gasoline engines, the growing interest in electric options presents an opportunity for advertisers to market electric conversion kits, high-efficiency electric motors, and battery-powered equipment as an upgrade path. This appeals to their desire for improvement and tinkering with new technology.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "The Power to Perfect Your Project is in Your Hands.",
+      "emotionalDriver": "Empowerment and Accomplishment",
+      "callToAction": "Shop replacement engines and parts to unleash the full potential of your equipment."
+    }
+  },
+  "PIA_3680": {
+    "segmentId": "PIA_3680",
+    "segmentName": "Storage Tanks",
+    "fullPath": "Purchase Intent > Hardware > Storage Tanks",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:50:13.997Z",
+    "detailedInsight": "This audience is largely comprised of proactive homeowners who view storage tanks as an investment in self-sufficiency and property value. Key purchase triggers are rooted in a desire for resilience against infrastructure failures and climate-related uncertainties like droughts, leading them to prioritize water security for gardening, emergency preparedness, or reducing municipal reliance. They are often hands-on individuals, engaging in DIY home improvement projects and seeking to optimize their living spaces for both functionality and sustainability.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "As a primary destination for DIY home improvement, they can target this segment with content about rainwater harvesting system installation and integrated home water solutions."
+      },
+      {
+        "name": "Loomis Tanks",
+        "type": "brand",
+        "rationale": "As a specialized manufacturer, they can directly target users searching for specific tank types, such as those for fire protection or drought resilience, emphasizing durability and reliability."
+      },
+      {
+        "name": "Sustainable Agriculture & Gardening Suppliers",
+        "type": "category",
+        "rationale": "This category can appeal to the segment's interest in self-sufficiency and eco-friendly living by positioning storage tanks as essential for irrigation and year-round gardening."
+      },
+      {
+        "name": "Emergency Preparedness Kit Retailers",
+        "type": "category",
+        "rationale": "These advertisers can bundle water storage solutions with other preparedness products, targeting the audience's desire for security and peace of mind in case of natural disasters or utility disruptions."
+      },
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "While focused on interior organization, they can target the broader 'home organization' interest of this segment, especially those looking to organize garages or utility spaces where a water tank might be housed."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The integration of smart technology into water management systems is a key trend, with a focus on real-time monitoring of water levels, quality, and usage patterns through IoT sensors and analytics.",
+        "relevance": "This audience, often tech-savvy and efficiency-focused, will be drawn to smart tanks that offer greater control over their water resources, optimize usage, and provide data-driven insights for conservation.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a growing emphasis on sustainable home design, with a significant push towards using eco-friendly, recycled materials and implementing water conservation strategies like rainwater harvesting.",
+        "relevance": "This directly aligns with the core values of a large portion of the storage tank audience, who are motivated by environmental concerns and the desire to reduce their ecological footprint.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The home organization market is projected to see continued growth, with a compound annual growth rate (CAGR) of around 4-5%, driven by a consumer shift towards decluttering, maximizing smaller living spaces, and DIY home projects.",
+        "relevance": "For the subset of this audience focused on home improvement and organization, storage tanks for purposes other than water (e.g., tools, supplies) fit into the broader trend of optimizing home functionality and space.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Secure Your Water Independence: Be Prepared for Anything.",
+      "emotionalDriver": "Peace of Mind",
+      "callToAction": "Explore customizable water storage solutions to fit your home and needs."
+    }
+  },
+  "PIA_3681": {
+    "segmentId": "PIA_3681",
+    "segmentName": "Tool Accessories",
+    "fullPath": "Purchase Intent > Hardware > Tool Accessories",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:51:01.865Z",
+    "detailedInsight": "The Tool Accessories audience is a blend of professional contractors and avid DIY enthusiasts, driven by a desire for efficiency, precision, and project accomplishment. Their purchasing decisions are increasingly influenced by the compatibility of accessories with their existing cordless power tool platforms and innovations that promise enhanced durability and performance. This segment is actively engaged in online research, valuing educational content like tutorials and project inspiration, which directly informs their purchasing choices for both home improvement and professional construction projects.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "As a primary destination for both professionals and DIYers, The Home Depot is a crucial retailer for tool accessories, offering a wide range of brands and products that cater to this segment's project-based needs."
+      },
+      {
+        "name": "DeWalt",
+        "type": "brand",
+        "rationale": "Recognized as a top trusted brand by professionals, DeWalt's extensive ecosystem of power tools and accessories makes it a go-to choice for users invested in a reliable and durable platform."
+      },
+      {
+        "name": "Ryobi",
+        "type": "brand",
+        "rationale": "Ryobi effectively targets the DIY and homeowner segment with its affordable and extensive ONE+ battery platform, making its accessories a popular choice for a wide array of home and garden projects."
+      },
+      {
+        "name": "Automotive Aftermarket Retailers",
+        "type": "category",
+        "rationale": "A growing trend in DIY automotive repairs creates a significant market for tool accessories within this retail category, as consumers purchase tools and accessories for vehicle maintenance and upgrades."
+      },
+      {
+        "name": "Construction Technology & Software Providers",
+        "type": "category",
+        "rationale": "As professional contractors increasingly adopt digital tools for project management, bidding, and scheduling, companies in this space can target this segment to enhance job site efficiency and integration."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global power tool accessories market is projected to reach USD 5.00 Billion by 2030, with a CAGR of 7.17%. A significant driver is the expanding DIY culture and an increase in residential remodeling activities.",
+        "relevance": "This growth indicates a sustained and increasing demand from the Tool Accessories audience for new and innovative products to support their home improvement and professional projects.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The adoption of cordless power tool accessories saw a 45% increase between 2020 and 2023, with a strong preference for cordless tools among new construction hires. This is driven by innovations in Li-ion batteries and brushless motors.",
+        "relevance": "This highlights the critical importance of battery ecosystem compatibility for the Tool Accessories audience. Their purchasing decisions for accessories are heavily tied to the cordless power tool platforms they already own.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "By 2026, the use of digital tools in construction, such as Building Information Modeling (BIM), project management software, and drones, is expected to become standard for improving efficiency and reducing waste.",
+        "relevance": "The professional segment of the Tool Accessories audience is increasingly integrating technology into their workflow. This creates an opportunity to market 'smart' accessories and solutions that are compatible with these digital construction technologies.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "The Right Accessory for the Perfect Finish: Elevate Your Project from Good to Great.",
+      "emotionalDriver": "The pride and satisfaction of a job well done, enabled by precision and mastery of one's craft.",
+      "callToAction": "Explore our curated accessory guides and project tutorials to find the perfect match for your next endeavor."
+    }
+  },
+  "PIA_3747": {
+    "segmentId": "PIA_3747",
+    "segmentName": "Tools",
+    "fullPath": "Purchase Intent > Hardware > Tools",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:51:20.774Z",
+    "detailedInsight": "This audience is motivated by a blend of pragmatism and creative fulfillment, viewing tool acquisition as an investment in self-sufficiency and the ability to achieve professional-quality results on their own terms. They are methodical researchers, with a significant portion conducting extensive online research before purchasing, prioritizing quality, durability, and reliability over the lowest price. This segment is not monolithic by age, encompassing a wide demographic from millennials to baby boomers who are increasingly undertaking larger and more complex home improvement projects.",
+    "exampleAdvertisers": [
+      {
+        "name": "DeWalt",
+        "type": "brand",
+        "rationale": "DeWalt is consistently ranked as a top-trusted brand by both professionals and consumers, making it a prime choice for those aspiring to professional-grade results in their projects. Their reputation for durability and extensive battery compatibility appeals to this segment's desire for long-term value."
+      },
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "As the world's largest home improvement retailer, The Home Depot is a primary destination for this audience, offering a vast selection of tools and materials for any project. Their in-store and online presence caters to the segment's research-heavy purchasing process."
+      },
+      {
+        "name": "Modular Storage System Manufacturers",
+        "type": "category",
+        "rationale": "This audience invests in organizing their workspaces for efficiency. Brands like Milwaukee with their Packout system appeal to the desire for a streamlined and functional environment, which is a core value for this segment."
+      },
+      {
+        "name": "YouTube DIY Channels",
+        "type": "category",
+        "rationale": "A significant portion of this audience, particularly younger demographics, turns to online video platforms for project inspiration and step-by-step guidance. These channels are a key touchpoint for learning new skills and discovering new tools and techniques."
+      },
+      {
+        "name": "Tool Rental Companies",
+        "type": "category",
+        "rationale": "For specialized or one-off projects, this audience will turn to rental services to access high-end equipment without the significant upfront cost. This aligns with their pragmatic and cost-conscious approach to larger-scale renovations."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The market is seeing a significant shift towards cordless power tools, with brushless motors becoming mainstream in 2025, offering 30-50% longer runtime and increased power.",
+        "relevance": "This audience values efficiency and convenience; cordless tools with longer battery life and higher power output directly address the desire to complete projects with greater ease and fewer limitations.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Smart home technology is becoming a baseline expectation in 2026 home renovations, with a focus on integrated systems for security, lighting, and energy management.",
+        "relevance": "As this audience invests in upgrading their living spaces, they are increasingly likely to incorporate smart home features. This creates an opportunity to market tools that facilitate the installation and integration of these technologies.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Sustainability is a growing driver of purchasing decisions, with consumers showing a willingness to pay more for eco-friendly products and brands that demonstrate environmental responsibility.",
+        "relevance": "This audience is making considered purchases and will be receptive to tools made from recycled materials, energy-efficient manufacturing processes, and brands with clear sustainability commitments.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Master Your Space: The Tools Behind a Job Done Right.",
+      "emotionalDriver": "Empowerment and Pride of Craftsmanship",
+      "callToAction": "Explore project guides and tool recommendations to start your next masterpiece."
+    }
+  },
+  "PIA_3921": {
+    "segmentId": "PIA_3921",
+    "segmentName": "Health Care",
+    "fullPath": "Purchase Intent > Health and Beauty > Health Care",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:51:35.883Z",
+    "detailedInsight": "This audience is actively engaged in self-directed healthcare, driven by a desire for immediate relief and a proactive approach to well-being. Their purchase decisions are heavily influenced by previous personal experience with a product, followed closely by price and value. They are increasingly turning to digital platforms and wearable technology to monitor their health in real-time, indicating a shift towards integrating technology into their daily wellness routines.",
+    "exampleAdvertisers": [
+      {
+        "name": "GoodRx",
+        "type": "brand",
+        "rationale": "As consumers in this segment are price-conscious, GoodRx's prescription savings platform directly addresses their need for affordable healthcare solutions."
+      },
+      {
+        "name": "Wearable Health Tech Brands",
+        "type": "category",
+        "rationale": "This audience is adopting wearable technology for continuous health monitoring, making brands like Fitbit and Oura highly relevant for tracking wellness metrics."
+      },
+      {
+        "name": "Telehealth Service Providers",
+        "type": "category",
+        "rationale": "The convenience of virtual consultations aligns with this segment's desire for accessible and immediate healthcare, making telehealth platforms a key service."
+      },
+      {
+        "name": "Nature Made",
+        "type": "brand",
+        "rationale": "Recognized as a top recommended brand by pharmacists, Nature Made appeals to this segment's trust in expert-endorsed vitamins and supplements for preventative care."
+      },
+      {
+        "name": "Probiotic and Gut Health Supplements",
+        "type": "category",
+        "rationale": "With a growing consumer focus on gut health as foundational to overall wellness, advertisers in this category can meet a specific and increasing demand within this segment."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The integration of AI and digital health platforms is accelerating, with consumers increasingly using AI-driven symptom checkers and mobile health apps to inform their OTC purchasing decisions.",
+        "relevance": "This trend directly impacts how the Health Care audience researches and selects products, emphasizing the need for a strong digital presence and educational content from brands.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a significant movement towards holistic and preventative health, with a focus on longevity, metabolic health, and mental fitness. Consumers are prioritizing functional nutrition and products that support long-term vitality.",
+        "relevance": "This audience is looking beyond immediate symptom relief to products that contribute to their overall and future health, creating opportunities for supplements and health aids that support these goals.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Personalized wellness is becoming mainstream, with consumers leveraging at-home testing for gut microbiome and metabolic data to tailor their health routines.",
+        "relevance": "This indicates a shift from one-size-fits-all products to a demand for customized solutions, suggesting that brands offering personalized recommendations or products will resonate strongly.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Proactive Partner in Everyday Wellness.",
+      "emotionalDriver": "Empowerment through self-care and informed health choices.",
+      "callToAction": "Discover personalized solutions for your health goals."
+    }
+  },
+  "PIA_3943": {
+    "segmentId": "PIA_3943",
+    "segmentName": "Condoms",
+    "fullPath": "Purchase Intent > Health and Beauty > Health Care > Condoms",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:51:50.900Z",
+    "detailedInsight": "This audience prioritizes sexual health and wellness as an integral part of their overall well-being, moving beyond the traditional focus on solely pregnancy and STD prevention. They are digitally native, comfortable purchasing online for discretion and convenience, and are increasingly influenced by educational content and destigmatized conversations on social media. This segment is also becoming more discerning, showing interest in product innovations like ultra-thin materials, non-latex alternatives, and features that enhance pleasure.",
+    "exampleAdvertisers": [
+      {
+        "name": "Hims & Hers",
+        "type": "brand",
+        "rationale": "This telehealth company normalizes conversations around sensitive health topics, aligning with the audience's desire for destigmatized sexual wellness information and convenient access to health products."
+      },
+      {
+        "name": "Dating Apps (e.g., Tinder, Bumble, Hinge)",
+        "type": "category",
+        "rationale": "As platforms that facilitate new sexual encounters, they have a direct interest in promoting safe sex practices to their user base, making condom advertising a natural and responsible fit."
+      },
+      {
+        "name": "LELO",
+        "type": "brand",
+        "rationale": "Positioned as a luxury self-care brand rather than just a sex toy company, LELO's focus on pleasure, innovation, and high-end design resonates with the segment's expanding view of sexual wellness."
+      },
+      {
+        "name": "Direct-to-Consumer Subscription Services",
+        "type": "category",
+        "rationale": "This model offers the discretion, convenience, and replenishment that aligns with the purchasing habits of a digitally-savvy audience seeking to routinize their sexual health needs."
+      },
+      {
+        "name": "Music Festivals and Live Events",
+        "type": "category",
+        "rationale": "These events attract a high concentration of the target demographic (young, socially active adults) and provide an opportune environment for brand activations and distributing promotional materials focused on safe sex."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global condom market is projected to grow to USD 13.73 billion in 2025, with a compound annual growth rate of 8.7% from 2025 to 2034.",
+        "relevance": "This indicates a sustained and growing demand for condoms, driven by increasing awareness of sexual health and the normalization of contraceptive use.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a significant rise in demand for non-latex condoms, with this segment expected to grow at a CAGR of 8.5% between 2025 and 2034.",
+        "relevance": "This audience is actively seeking alternatives to latex due to allergies and a preference for materials perceived as more modern or pleasure-enhancing, such as polyisoprene.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Sexual wellness is increasingly viewed as a holistic part of overall health, integrating physical, emotional, and mental well-being.",
+        "relevance": "This audience is receptive to messaging that positions condom use not just as a preventative measure, but as a component of a healthy and fulfilling intimate life, aligning with broader self-care trends.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Confidence in Every Connection.",
+      "emotionalDriver": "Empowerment - the feeling of being in control of one's sexual health and choices, free from shame or anxiety.",
+      "callToAction": "Explore our range of choices for your pleasure and protection."
+    }
+  },
+  "PIA_3953": {
+    "segmentId": "PIA_3953",
+    "segmentName": "Fitness and Nutrition",
+    "fullPath": "Purchase Intent > Health and Beauty > Health Care > Fitness and Nutrition",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:52:08.219Z",
+    "detailedInsight": "This audience segment is increasingly data-driven, utilizing wearable technology and wellness apps to monitor detailed health metrics like heart rate variability and sleep quality. Their purchase decisions are heavily influenced by a desire for hyper-personalized fitness and nutrition plans tailored to their unique biological data. This goes beyond simple calorie counting to include a focus on preventative health and longevity, with a willingness to invest in premium products that offer clean labels and scientifically-backed ingredients.",
+    "exampleAdvertisers": [
+      {
+        "name": "WHOOP",
+        "type": "brand",
+        "rationale": "As a leader in the wearable technology space, WHOOP provides the detailed biometric data this segment craves to optimize their training and recovery. Their focus on personalized health insights aligns directly with the audience's data-driven approach to fitness."
+      },
+      {
+        "name": "Smart Home Gym Equipment Manufacturers",
+        "type": "category",
+        "rationale": "Companies like Tonal and Peloton appeal to this segment's desire for convenient, tech-integrated workouts that provide real-time feedback and personalized routines. The demand for connected, at-home fitness solutions that adapt to individual performance is a key characteristic of this audience."
+      },
+      {
+        "name": "Glanbia Plc",
+        "type": "brand",
+        "rationale": "As a global leader in sports nutrition with brands like Optimum Nutrition and BSN, Glanbia's commitment to quality and innovation in protein supplements and performance-driven products directly meets the needs of this health-conscious consumer. Their extensive product lines cater to the specific dietary requirements of fitness enthusiasts."
+      },
+      {
+        "name": "Personalized Vitamin & Supplement Subscription Services",
+        "type": "category",
+        "rationale": "This audience is moving beyond generic multivitamins and seeking personalized supplement stacks based on their specific health goals and even biometric data. Services that offer customized daily vitamin packs are well-positioned to capture this market."
+      },
+      {
+        "name": "Sprouts Farmers Market",
+        "type": "brand",
+        "rationale": "Retailers like Sprouts, which focus on natural and organic foods, cater to this segment's preference for clean eating and high-quality ingredients. Their emphasis on health and wellness aligns with the core values of the Fitness and Nutrition audience."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The convergence of mental and physical wellness is leading to integrated fitness platforms that combine exercise with stress and anxiety management. There is a growing consumer focus on how diet and exercise can be used to manage mental and emotional health.",
+        "relevance": "This audience is looking for holistic health solutions that address both their physical and mental well-being. They are receptive to products and services that offer an integrated approach to health, such as fitness apps with mindfulness features or supplements that support cognitive function.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Hyper-personalization in fitness and nutrition is accelerating, with AI-driven platforms using genomic and microbiome data to create tailored plans. The market for hyper-personalized fitness is projected to reach USD 2.9 billion by 2035.",
+        "relevance": "This segment is eager to adopt technologies that provide highly individualized health recommendations. They are early adopters of services that use personal health data to optimize their fitness routines and dietary intake for better results.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "The use of GLP-1-based weight loss medications is on the rise, with usage among US consumers increasing from 10% in 2024 to 18% in 2025. This is creating a demand for nutrient-dense products, particularly those high in protein, vitamins, and fiber, to support individuals on these medications.",
+        "relevance": "A portion of this audience may be utilizing these medications and will be actively seeking nutritional products that complement their weight management journey. This presents an opportunity for supplements and food products designed to meet these specific nutritional needs.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Body's Data, Decoded. Your Nutrition, Perfected.",
+      "emotionalDriver": "The desire for control and optimization over one's personal health and performance.",
+      "callToAction": "Unlock Your Personalized Health Blueprint"
+    }
+  },
+  "PIA_3994": {
+    "segmentId": "PIA_3994",
+    "segmentName": "Jewelry Cleaning and Care",
+    "fullPath": "Purchase Intent > Health and Beauty > Jewelry Cleaning and Care",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:52:23.756Z",
+    "detailedInsight": "This audience views their jewelry not just as accessories, but as investments and sentimental heirlooms requiring preservation. Their purchase intent is driven by a desire to maintain the aesthetic appeal and longevity of these valuable items, often triggered by noticing dullness or dirt, or after receiving a new piece as a gift. They are increasingly technologically savvy, showing a strong preference for at-home, professional-grade cleaning solutions like ultrasonic cleaners for their efficiency and convenience over traditional methods.",
+    "exampleAdvertisers": [
+      {
+        "name": "Luxury Watch Brands (e.g., Rolex, Omega)",
+        "type": "category",
+        "rationale": "Owners of high-end timepieces are meticulous about maintenance and preservation, making them a prime audience for premium cleaning and care products that protect their investment."
+      },
+      {
+        "name": "Bridal & Engagement Ring Retailers (e.g., Blue Nile, James Allen)",
+        "type": "category",
+        "rationale": "New recipients of engagement rings and wedding bands are highly motivated to keep their significant new possessions sparkling, representing a key life event trigger for purchasing jewelry care products."
+      },
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "This audience is concerned with the proper care and organization of their valuables. The Container Store's focus on organizational solutions for high-value items aligns perfectly with the need to store jewelry safely to prevent damage and tarnish."
+      },
+      {
+        "name": "High-End Insurance Providers (e.g., Chubb, PURE Insurance)",
+        "type": "category",
+        "rationale": "Individuals who insure their jewelry are demonstrating a clear intent to protect their valuable assets. They are a natural audience for products that help maintain the condition and value of those insured items."
+      },
+      {
+        "name": "Connoisseurs",
+        "type": "brand",
+        "rationale": "As a leading brand specifically for jewelry care, Connoisseurs directly targets this audience's core need with a range of specialized cleaning products, from wipes to ultrasonic cleaners."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global market for ultrasonic jewelry cleaners is projected to grow, with the digital ultrasonic cleaner segment expected to expand at a CAGR of 10.6% between 2025 and 2035.",
+        "relevance": "This indicates a strong and growing preference within the Jewelry Cleaning and Care segment for technologically advanced, effective at-home cleaning solutions that offer professional results.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a significant consumer shift towards sustainable and eco-friendly jewelry care products, with a rising demand for non-toxic, biodegradable, and plant-based cleaning formulations.",
+        "relevance": "This audience is increasingly making conscious purchasing decisions and will be drawn to brands that offer safe and environmentally responsible cleaning options for their precious items.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Development of specialized cleaning formulas for specific metals and gemstones (e.g., gold, silver, diamonds, pearls) is a growing market trend.",
+        "relevance": "Owners of diverse jewelry collections are seeking targeted solutions that provide optimal and safe cleaning for the specific materials of each piece, minimizing the risk of damage.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Preserve the Moment. Protect the Investment.",
+      "emotionalDriver": "Pride of Ownership",
+      "callToAction": "Discover the professional secret to lasting brilliance. Shop our specialized care collections."
+    }
+  },
+  "PIA_4000": {
+    "segmentId": "PIA_4000",
+    "segmentName": "Personal Care",
+    "fullPath": "Purchase Intent > Health and Beauty > Personal Care",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:52:46.757Z",
+    "detailedInsight": "The Personal Care audience is increasingly driven by a 'skinimalism' mindset, prioritizing product efficacy and multi-functional benefits over complex routines. Their purchase decisions are heavily influenced by ingredient transparency and a product's alignment with their personal health and wellness values, viewing skincare as an integral part of their overall well-being. This segment is digitally native, relying on AI-powered diagnostic tools and AR virtual try-ons to inform their choices, indicating a strong preference for data-backed personalization.",
+    "exampleAdvertisers": [
+      {
+        "name": "Function of Beauty",
+        "type": "brand",
+        "rationale": "This brand's hyper-personalized hair, skin, and body care products, formulated based on individual quizzes, directly cater to the segment's demand for customized solutions."
+      },
+      {
+        "name": "Dermatological Skincare Brands",
+        "type": "category",
+        "rationale": "Brands that emphasize science-backed formulations and clinically proven results, such as those recommended by dermatologists, resonate with this audience's focus on product efficacy and health-conscious choices."
+      },
+      {
+        "name": "Lush",
+        "type": "brand",
+        "rationale": "Lush's commitment to fresh, handmade cosmetics with minimal and sustainable packaging appeals to the eco-conscious values and desire for natural ingredients within this segment."
+      },
+      {
+        "name": "Direct-to-Consumer (DTC) Subscription Services",
+        "type": "category",
+        "rationale": "Services like Billie and Prose offer convenience and a continuous supply of personalized personal care items, which aligns with the routine-oriented and digitally-savvy nature of this audience."
+      },
+      {
+        "name": "The Nue Co.",
+        "type": "brand",
+        "rationale": "This brand effectively bridges the gap between personal care and wellness supplements, attracting consumers who view their beauty routine as a holistic part of their overall health."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global personalized beauty products market is projected to grow from USD 4.6 billion in 2025 to USD 6.5 billion in 2026, fueled by a 42% increase in the use of AI-based skin analysis tools.",
+        "relevance": "This trend directly reflects the Personal Care audience's demand for tailored products that address their specific needs, leveraging technology for customized recommendations and formulations.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Metabolic Beauty, the convergence of beauty and metabolic health, will become a key pillar of the personal care industry, with consumers seeking products that offer measurable wellness outcomes.",
+        "relevance": "This aligns with the segment's holistic view of health, where external personal care is seen as a reflection of internal well-being, driving interest in products with scientifically validated health benefits.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "The sustainable personal care products market is expected to reach USD 56.44 billion in 2025, with a compound annual growth rate of 6.96%.",
+        "relevance": "This audience is increasingly making purchasing decisions based on a brand's environmental and ethical practices, favoring products with eco-friendly packaging and clean, natural ingredients.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your body's intelligence, bottled. Personalized formulas backed by science.",
+      "emotionalDriver": "The desire for mastery and control over one's personal health and appearance through informed, data-driven choices.",
+      "callToAction": "Scan to analyze your skin's needs and receive your personalized routine."
+    }
+  },
+  "PIA_4003": {
+    "segmentId": "PIA_4003",
+    "segmentName": "Cosmetics",
+    "fullPath": "Purchase Intent > Health and Beauty > Personal Care > Cosmetics",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:53:04.753Z",
+    "detailedInsight": "This audience is increasingly driven by a 'skinimalism' ethos, prioritizing skincare-makeup hybrids that offer long-term benefits over temporary coverage. They are digitally-native researchers, influenced by user-generated content and AI-powered personalization tools to make informed, value-driven purchases across multiple price points. Their purchase triggers are rooted in a desire for self-expression and emotional well-being, viewing cosmetics as a tool for both confidence and self-care rituals.",
+    "exampleAdvertisers": [
+      {
+        "name": "Fenty Beauty",
+        "type": "brand",
+        "rationale": "Fenty's emphasis on inclusivity and diverse shade ranges directly appeals to this segment's desire for authentic self-expression and representation."
+      },
+      {
+        "name": "Subscription Box Services",
+        "type": "category",
+        "rationale": "This audience enjoys discovery and personalization. Subscription boxes cater to their desire to sample new, trending products in a curated and convenient way."
+      },
+      {
+        "name": "Dermatological Skincare Brands",
+        "type": "category",
+        "rationale": "With a focus on efficacy and ingredient transparency, brands that bridge the gap between beauty and dermatology resonate with this segment's 'skincare-first' mentality."
+      },
+      {
+        "name": "Rare Beauty",
+        "type": "brand",
+        "rationale": "Rare Beauty's mission of self-acceptance and mental well-being aligns with this audience's holistic view of beauty as a component of self-care and emotional wellness."
+      },
+      {
+        "name": "Wearable Tech & Wellness Apps",
+        "type": "category",
+        "rationale": "This audience is increasingly connecting beauty with overall health. Advertisers in the wellness tech space can appeal to their data-driven approach to self-care and desire for holistic well-being."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "Neurocosmetics and sensorial wellness are gaining traction, with products designed to positively impact mood and emotional well-being through scent and texture.",
+        "relevance": "This directly taps into the audience's motivation to use cosmetics for self-care and emotional benefit, moving beyond purely aesthetic purposes.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The rise of 'skin longevity' focuses on cellular health and long-term resilience, with an emphasis on prevention and regenerative ingredients.",
+        "relevance": "This aligns with the segment's shift towards evidence-based skincare and prioritizing long-term skin health over short-term cosmetic fixes.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Experimental and expressive eye makeup, featuring bold liners, geometric shapes, and playful pops of color, is set for a major resurgence.",
+        "relevance": "This trend caters to the audience's desire for self-expression and using makeup as a form of creative, personalized art.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your daily ritual, elevated. Beauty that feels as good as it looks.",
+      "emotionalDriver": "Empowered Self-Creation",
+      "callToAction": "Discover your personalized routine."
+    }
+  },
+  "PIA_4015": {
+    "segmentId": "PIA_4015",
+    "segmentName": "Deodorant and Anti-Perspirant",
+    "fullPath": "Purchase Intent > Health and Beauty > Personal Care > Deodorant and Anti-Perspirant",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:53:21.192Z",
+    "detailedInsight": "This audience is increasingly prioritizing health and wellness, driving a significant shift towards natural, aluminum-free, and organic deodorant formulations due to perceived health benefits. They are highly conscious of ingredient transparency and are moving beyond basic odor protection to seek products with added skincare benefits, such as microbiome-friendly ingredients. This consumer is also environmentally aware, showing a strong preference for sustainable and refillable packaging options over single-use plastics.",
+    "exampleAdvertisers": [
+      {
+        "name": "Athleisure & Fitness Apparel Brands",
+        "type": "category",
+        "rationale": "This audience leads an active lifestyle and values high-performance products that support their fitness goals, making them receptive to messaging around long-lasting freshness during workouts."
+      },
+      {
+        "name": "HelloFresh",
+        "type": "brand",
+        "rationale": "Consumers interested in natural and organic personal care products often extend this preference to their diet, making them a prime audience for healthy and convenient meal kit delivery services."
+      },
+      {
+        "name": "Whole Foods Market",
+        "type": "brand",
+        "rationale": "As a retailer known for natural and organic products, Whole Foods attracts consumers who actively seek clean-label deodorants and are willing to pay a premium for ingredient transparency."
+      },
+      {
+        "name": "Sustainable Fashion Brands",
+        "type": "category",
+        "rationale": "The deodorant consumer's focus on eco-friendly packaging aligns with the values of sustainable fashion brands, indicating a shared interest in reducing environmental impact through purchasing decisions."
+      },
+      {
+        "name": "Degree Deodorant",
+        "type": "brand",
+        "rationale": "As a major player in the market, Degree can target this segment by highlighting its long-lasting protection formulas and expanding its natural and aluminum-free product lines to meet evolving consumer demands."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global natural and organic deodorant market is projected to experience significant growth, with one report estimating a CAGR of 14.86% from 2025 to 2034. Another report projects the market to reach USD 553.44 million by 2034.",
+        "relevance": "This trend directly reflects the core values of the Deodorant and Anti-Perspirant audience, who are actively seeking out natural and aluminum-free alternatives. Their purchase decisions are increasingly driven by health consciousness and a desire for clean-label products.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Refillable deodorant systems are gaining significant traction, with the market projected to grow from $206.79 million in 2025 to $305.60 million by 2032. This shift is part of a broader movement in the beauty industry towards sustainable and circular packaging solutions.",
+        "relevance": "This aligns with the audience's growing environmental concerns and desire to reduce single-use plastic waste. Brands offering durable, reusable applicators with biodegradable or recyclable refills will resonate strongly with this segment's values.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Personalization in deodorants is an emerging trend, with AI-powered technologies enabling customized formulations based on individual skin PH, activity levels, and scent preferences. Subscription services are also on the rise, offering consumers a convenient way to receive their preferred products regularly.",
+        "relevance": "This trend caters to the audience's desire for products tailored to their specific needs and lifestyles. The convenience of subscription models appeals to their busy schedules, while personalized formulas offer a sense of individuality and enhanced efficacy.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Engineered for Your Biology, Kind to the Planet.",
+      "emotionalDriver": "Confidence in personal well-being and environmental responsibility.",
+      "callToAction": "Take our quiz to discover your personalized, sustainable deodorant solution."
+    }
+  },
+  "PIA_4028": {
+    "segmentId": "PIA_4028",
+    "segmentName": "Feminine Sanitary Supplies",
+    "fullPath": "Purchase Intent > Health and Beauty > Personal Care > Feminine Sanitary Supplies",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:53:36.835Z",
+    "detailedInsight": "This audience is increasingly prioritizing health and environmental factors, driving a significant shift towards organic, sustainable, and reusable menstrual products. They are digitally native, utilizing e-commerce for discreet purchasing and subscription models for convenience, and often engage with period tracking apps to better understand their cycles and overall health. This consumer is moving beyond basic functionality, seeking products from transparent, direct-to-consumer brands that align with their values and offer innovative solutions for comfort and wellness.",
+    "exampleAdvertisers": [
+      {
+        "name": "DTC Wellness & Vitamin Brands",
+        "type": "category",
+        "rationale": "This audience is proactively managing their health and wellness, making them prime customers for supplements tailored to hormonal balance, PMS relief, and overall well-being."
+      },
+      {
+        "name": "Clue",
+        "type": "brand",
+        "rationale": "As avid users of period tracking apps to monitor their health, this segment is highly receptive to the science-backed insights and data-driven approach that Clue offers for cycle and health management."
+      },
+      {
+        "name": "Sustainable Activewear Brands",
+        "type": "category",
+        "rationale": "Their preference for eco-friendly products extends to other areas of their lifestyle, making them a key market for activewear that is both high-performance and sustainably made."
+      },
+      {
+        "name": "Thinx",
+        "type": "brand",
+        "rationale": "Thinx's reusable period underwear directly caters to this segment's demand for sustainable, convenient, and innovative menstrual care solutions that reduce waste."
+      },
+      {
+        "name": "Natural & Organic Skincare Brands",
+        "type": "category",
+        "rationale": "Concerned about the ingredients in their sanitary products, this audience is equally discerning about their skincare, preferring clean, transparent, and natural formulations."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global market for eco-friendly and organic menstrual products is projected to grow significantly, with some forecasts showing a CAGR of over 22% and others around 7-14.5% through the early 2030s.",
+        "relevance": "This directly reflects the core values of the Feminine Sanitary Supplies audience, who are actively seeking out and purchasing sustainable alternatives like menstrual cups, biodegradable pads, and period underwear.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The integration of technology in menstrual care is expanding, with a focus on 'Femtech' innovations like smart menstrual products and advanced cycle-tracking apps that offer personalized health insights.",
+        "relevance": "This audience leverages technology for health management, making them early adopters for apps and products that provide deeper, data-driven understanding and control over their menstrual health and overall well-being.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Online retail and direct-to-consumer (DTC) subscription models are the fastest-growing distribution channels for feminine hygiene products, driven by the desire for convenience and discreet purchasing.",
+        "relevance": "This aligns with the shopping behavior of this segment, who prefer the privacy and personalized experience offered by online brands, allowing them to explore innovative and niche products away from traditional retail environments.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Cycle, Your Choice. Clean, Sustainable Period Care Delivered.",
+      "emotionalDriver": "Empowerment through informed choices and body autonomy.",
+      "callToAction": "Build Your Custom Cycle Kit & Sync Your Subscription."
+    }
+  },
+  "PIA_4034": {
+    "segmentId": "PIA_4034",
+    "segmentName": "Foot Care",
+    "fullPath": "Purchase Intent > Health and Beauty > Personal Care > Foot Care",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:53:57.268Z",
+    "detailedInsight": "This audience views foot care as an essential component of their overall health and wellness, moving beyond simple cosmetic concerns. Purchase triggers are often rooted in either proactive prevention, driven by active lifestyles or chronic conditions like diabetes, or reactive problem-solving for issues like pain or skin conditions. They are increasingly educated, seeking products with effective, often medical-grade or natural ingredients, and are influenced by a desire for mobility and an active life.",
+    "exampleAdvertisers": [
+      {
+        "name": "Dr. Scholl's",
+        "type": "brand",
+        "rationale": "As a leading brand in insoles and foot care products, Dr. Scholl's directly targets consumers seeking comfort, support, and relief from common foot ailments, aligning perfectly with the segment's problem-solving purchase triggers."
+      },
+      {
+        "name": "Athletic Footwear Brands",
+        "type": "category",
+        "rationale": "Companies like Brooks, Hoka, and New Balance, which emphasize support, stability, and comfort for active individuals, should target this segment as they are already predisposed to investing in products that support their physical activities and prevent foot-related issues."
+      },
+      {
+        "name": "Eucerin",
+        "type": "brand",
+        "rationale": "Known for its dermatologist-recommended, therapeutic skincare, Eucerin can effectively reach the portion of this segment focused on addressing skin-related foot issues like severe dryness and cracked heels with trusted, science-backed formulations."
+      },
+      {
+        "name": "Diabetic Care Product Manufacturers",
+        "type": "category",
+        "rationale": "This segment has a significant overlap with individuals managing diabetes who require specialized foot care to prevent serious complications. Advertisers in this space can offer targeted solutions like non-binding socks and therapeutic creams."
+      },
+      {
+        "name": "Spas and Wellness Centers",
+        "type": "category",
+        "rationale": "With the growing trend of self-care and 'medicure' services, establishments offering professional pedicures and specialized foot treatments can appeal to the segment's desire for both aesthetic and health-focused solutions."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The 'medi-pedi' or 'medicure' trend is gaining traction, blending medical-grade treatments with cosmetic pedicure services, focusing on hygiene, health, and addressing specific conditions like fungal infections or ingrown toenails.",
+        "relevance": "This audience is moving beyond superficial treatments and is actively seeking services and products that offer tangible health benefits, making them highly receptive to offerings that are clinically sound and recommended by professionals.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a growing demand for multifunctional and simplified skincare, leading to the launch of products that can be used on multiple areas, such as masks and treatments for feet, hands, and elbows.",
+        "relevance": "This audience, while health-conscious, also values convenience. All-in-one products that address various rough skin areas appeal to their desire for effective and efficient self-care routines.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "AI-powered personalization and tech integration, such as smart insoles with sensors to track gait and pressure points, are set to become more mainstream.",
+        "relevance": "Tech-savvy members of this segment, particularly athletes and those managing chronic conditions, will be drawn to data-driven solutions that offer personalized insights and preventative care for their foot health.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Don't Let Your Feet Dictate Your Day.",
+      "emotionalDriver": "The desire for unrestricted freedom and the ability to live an active, pain-free life.",
+      "callToAction": "Discover solutions that keep you moving. Shop our podiatrist-recommended foot care."
+    }
+  },
+  "PIA_4040": {
+    "segmentId": "PIA_4040",
+    "segmentName": "Hair Care",
+    "fullPath": "Purchase Intent > Health and Beauty > Personal Care > Hair Care",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:54:14.480Z",
+    "detailedInsight": "The hair care consumer of 2025 is increasingly sophisticated, viewing hair care as an extension of skin care, a concept termed \"skinification\". This audience prioritizes scalp health as the foundation for healthy hair and is highly influenced by scientific evidence and ingredient transparency, moving beyond superficial claims to seek products with proven efficacy. They are proactively addressing concerns like hair thinning and scalp health, driven by a broader wellness mindset that links hair appearance to overall well-being.",
+    "exampleAdvertisers": [
+      {
+        "name": "Nutrafol",
+        "type": "brand",
+        "rationale": "Directly targets the growing consumer concern around hair thinning and loss with a science-backed, wellness-oriented approach that resonates with the desire for proven, holistic solutions."
+      },
+      {
+        "name": "Dermatological Skincare Brands (e.g., The Ordinary, La Roche-Posay)",
+        "type": "category",
+        "rationale": "These brands can leverage their existing authority in science-backed skincare to expand into the \"skinification\" of hair, offering targeted scalp serums and treatments that appeal to ingredient-savvy consumers."
+      },
+      {
+        "name": "Function of Beauty",
+        "type": "brand",
+        "rationale": "Capitalizes on the strong demand for personalization, allowing consumers to create custom formulas based on their specific hair type and goals, which aligns with the move away from one-size-fits-all products."
+      },
+      {
+        "name": "Wearable Tech & Wellness Apps (e.g., Fitbit, Calm)",
+        "type": "category",
+        "rationale": "This audience connects hair health to overall wellness and stress levels. These advertisers can create content partnerships highlighting the link between a healthy lifestyle (stress management, nutrition) and hair vitality."
+      },
+      {
+        "name": "Whole Foods Market",
+        "type": "brand",
+        "rationale": "Appeals to the consumer's preference for natural, clean, and sustainable ingredients. They can curate a selection of \"clean beauty\" hair products and highlight food-inspired ingredients that align with a wellness-focused lifestyle."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The 'Skinification' of Hair: Consumers are increasingly adopting multi-step hair care routines inspired by skincare, focusing on scalp health with products like serums, scrubs, and masks containing active ingredients like peptides and hyaluronic acid.",
+        "relevance": "This audience is actively seeking solutions that treat the scalp as the foundation of hair health, moving beyond basic cleansing and conditioning to targeted treatments.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Personalization through AI: The use of AI-driven tools, such as online quizzes and selfie analysis, to provide customized hair care formulations and product recommendations is becoming a key differentiator for brands.",
+        "relevance": "This segment desires products tailored to their unique hair type, concerns, and lifestyle, and they are receptive to using technology to achieve this level of customization.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Holistic Hair Health & 'Hairceuticals': The market is seeing a rise in 'hairceuticals'—cosmetic products with pharmaceutical-like benefits—and supplements that address hair health from the inside out, linking it to overall wellness.",
+        "relevance": "This audience understands the connection between internal health and external appearance, making them prime consumers for supplements and products that offer scientifically-backed solutions for concerns like hair thinning and scalp imbalances.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Hair's Future is Rooted in Science.",
+      "emotionalDriver": "The desire for control and reassurance through scientifically-proven solutions.",
+      "callToAction": "Discover your personalized, science-backed hair care ritual."
+    }
+  },
+  "PIA_4063": {
+    "segmentId": "PIA_4063",
+    "segmentName": "Oral Care",
+    "fullPath": "Purchase Intent > Health and Beauty > Personal Care > Oral Care",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:54:30.026Z",
+    "detailedInsight": "The modern oral care consumer is increasingly viewing dental hygiene as an integral component of their overall wellness and self-care routine, moving beyond basic problem prevention. They are highly ingredient-conscious, actively seeking products with natural, 'clean' labels and sustainable packaging, while also showing significant interest in products that connect oral health to broader systemic benefits like gut health. This audience is also experience-driven, willing to pay more for products offering novel flavors, unique textures, and technologically advanced features like AI-powered feedback.",
+    "exampleAdvertisers": [
+      {
+        "name": "Probiotic Supplement Brands",
+        "type": "category",
+        "rationale": "This audience is increasingly aware of the mouth-gut axis. Probiotic brands can educate these consumers on how a healthy oral microbiome contributes to overall gut health and wellness."
+      },
+      {
+        "name": "Hello Products",
+        "type": "brand",
+        "rationale": "As a brand known for naturally friendly and sustainable oral care products, Hello directly appeals to this segment's preference for clean ingredients and eco-conscious packaging."
+      },
+      {
+        "name": "Waterpik",
+        "type": "brand",
+        "rationale": "Waterpik targets consumers looking for more effective, technologically advanced solutions beyond traditional flossing, aligning with the desire for upgraded daily routines and preventative care."
+      },
+      {
+        "name": "Cosmetic Dentistry Chains",
+        "type": "category",
+        "rationale": "The growing interest in aesthetic dentistry and smile enhancement makes this audience prime candidates for teeth whitening and other cosmetic procedures."
+      },
+      {
+        "name": "Philips Sonicare",
+        "type": "brand",
+        "rationale": "This brand's smart toothbrushes with AI-powered feedback cater directly to the tech-savvy consumer in this segment who seeks personalized data and coaching to improve their oral hygiene habits."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The integration of oral health with overall wellness, specifically the growing consumer awareness of the mouth-gut microbiome connection, is leading to the introduction of probiotic-fortified toothpastes and oral care supplements.",
+        "relevance": "This trend directly resonates with the Oral Care audience's holistic view of health, creating an opportunity for products that offer benefits beyond just clean teeth, such as supporting digestive health.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Personalized oral care products, tailored to an individual's specific needs based on factors like age, lifestyle, and specific dental issues (e.g., enamel erosion, sensitivity), are becoming more prevalent.",
+        "relevance": "This audience seeks customized solutions. Brands can leverage this trend by offering online quizzes or at-home tests to recommend personalized toothpaste and mouthwash formulations.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Sustainable and eco-friendly oral care is moving mainstream, with a focus on recyclable materials, waterless formats (like toothpaste tabs), and refillable packaging to reduce plastic waste.",
+        "relevance": "The environmentally conscious consumer within this segment is actively seeking brands that align with their values. Sustainable packaging and product formats are becoming key purchase drivers.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Mouth is the Gateway to Your Overall Health. Start Protecting It.",
+      "emotionalDriver": "Empowerment through proactive wellness and disease prevention.",
+      "callToAction": "Discover your personalized oral wellness score."
+    }
+  },
+  "PIA_4085": {
+    "segmentId": "PIA_4085",
+    "segmentName": "Shaving and Grooming",
+    "fullPath": "Purchase Intent > Health and Beauty > Personal Care > Shaving and Grooming",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:54:55.008Z",
+    "detailedInsight": "This audience approaches grooming as an integral part of a holistic wellness routine, moving beyond basic hygiene to craft a specific personal identity. They are increasingly informed, prioritizing product efficacy and ingredient transparency, often seeking out multi-functional items that offer convenience without sacrificing results. Purchase decisions are driven by a desire for self-mastery and confidence, viewing high-quality grooming tools and skincare as an investment in their overall health and self-image.",
+    "exampleAdvertisers": [
+      {
+        "name": "Hims",
+        "type": "brand",
+        "rationale": "Connects grooming directly to health and wellness, offering solutions for hair loss and skincare that appeal to the audience's growing focus on long-term self-care and vitality."
+      },
+      {
+        "name": "Manscaped",
+        "type": "brand",
+        "rationale": "Targets the expanding definition of men's grooming beyond the face, capitalizing on the trend of full-body care and a modern, confident approach to masculinity."
+      },
+      {
+        "name": "Athleisure & Fitness Apparel Brands",
+        "type": "category",
+        "rationale": "This audience often leads an active lifestyle and invests in self-improvement. Brands in this space can align with their values of performance, discipline, and well-being."
+      },
+      {
+        "name": "Dollar Shave Club",
+        "type": "brand",
+        "rationale": "Appeals to the segment's demand for convenience, value, and a simplified routine through its pioneering subscription model, delivering quality essentials directly to their door."
+      },
+      {
+        "name": "High-End Audio & Tech Gadgets",
+        "type": "category",
+        "rationale": "This consumer appreciates precision engineering, quality craftsmanship, and superior performance in their tools. Advertisers of premium tech can resonate with their desire for well-designed, effective products."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global men's grooming market is projected to reach $115.3 billion by 2028, driven by a convergence of beauty, wellness, and performance sometimes called 'bromeopathy'.",
+        "relevance": "This audience is expanding their grooming routines to be more holistic, incorporating dedicated skincare, hair health solutions, and even supplements, viewing grooming as a component of their overall health.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "AI-powered personalization is moving beyond quizzes to offer real-time, data-driven product recommendations and customized formulations for individual skin and hair needs.",
+        "relevance": "As consumers become more knowledgeable, they seek tailored solutions. This trend allows brands to offer hyper-specific products that address unique concerns, enhancing loyalty and results.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "The 'Faceification' of Body Care involves applying the ingredient-led and science-backed principles of facial skincare to products for the entire body.",
+        "relevance": "This segment's interest in total body grooming is evolving. They now seek body care products with active, proven ingredients that offer specific benefits beyond basic hygiene, such as hydration and skin barrier repair.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Engineered for Your Identity. Not for Everyone.",
+      "emotionalDriver": "Confidence in Self-Mastery",
+      "callToAction": "Build Your Personalized Grooming Blueprint"
+    }
+  },
+  "PIA_4099": {
+    "segmentId": "PIA_4099",
+    "segmentName": "Sleeping Aids",
+    "fullPath": "Purchase Intent > Health and Beauty > Personal Care > Sleeping Aids",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:55:17.244Z",
+    "detailedInsight": "This audience is increasingly proactive and data-driven in their approach to health, moving beyond temporary fixes to seek long-term sleep quality improvement. Primary purchase triggers are persistent issues like insomnia or sleep apnea, often exacerbated by high-stress lifestyles and irregular schedules. They are highly receptive to personalized solutions and demonstrate a strong preference for non-pharmaceutical options, including natural supplements and technology-driven aids, indicating a core value of holistic well-being and a degree of skepticism towards traditional medications due to potential side effects.",
+    "exampleAdvertisers": [
+      {
+        "name": "Oura Ring",
+        "type": "brand",
+        "rationale": "Directly targets the data-driven consumer within this segment by offering detailed sleep cycle and biometric monitoring, empowering them with actionable insights to improve sleep quality."
+      },
+      {
+        "name": "Smart Mattress Brands (e.g., Eight Sleep, Tempur-Pedic)",
+        "type": "category",
+        "rationale": "These brands appeal to the segment's desire for technologically advanced, personalized solutions that offer features like temperature regulation and biometric tracking to optimize the sleep environment."
+      },
+      {
+        "name": "Meditation and Mindfulness Apps (e.g., Calm, Headspace)",
+        "type": "category",
+        "rationale": "This audience often struggles with stress and anxiety, making them a prime target for apps that provide guided meditations and relaxation content specifically designed to aid sleep."
+      },
+      {
+        "name": "Herbal Supplement Companies (e.g., Gaia Herbs, Traditional Medicinals)",
+        "type": "category",
+        "rationale": "Capitalizes on the strong consumer shift towards natural, non-pharmaceutical sleep solutions, offering products with ingredients like valerian root, chamomile, and ashwagandha."
+      },
+      {
+        "name": "Wearable Technology Brands (e.g., Apple Watch, Fitbit)",
+        "type": "brand",
+        "rationale": "These brands are increasingly incorporating advanced sleep monitoring features, attracting consumers who want to track their sleep patterns as part of a broader health and fitness monitoring ecosystem."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The wearable sleep trackers market is projected to experience significant growth, with some estimates suggesting a compound annual growth rate (CAGR) of 10.84% between 2025 and 2034. Another forecast predicts the market will reach approximately $22.5 billion by 2025 with a CAGR of around 18% through 2033.",
+        "relevance": "This indicates a strong and growing desire within the 'Sleeping Aids' segment to quantify and analyze their sleep patterns, moving towards data-driven solutions. They are actively seeking devices that provide personalized insights and empower them to take control of their sleep health.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "AI-powered sleep optimization is a rapidly emerging field, with the global market for these solutions projected to grow from USD 4.46 billion in 2025 to USD 40.52 billion by 2034, exhibiting a CAGR of 27.8%. Innovations include AI-driven diagnostics, personalized recommendations, and smart home integrations that adjust the sleep environment.",
+        "relevance": "This trend directly addresses the audience's demand for personalized and effective solutions. They are likely to be early adopters of AI-powered devices and apps that offer tailored advice and automated adjustments to improve sleep quality, moving beyond one-size-fits-all remedies.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The market for natural and herbal sleep supplements is expanding, with projections showing the sleep supplements market reaching over USD 13 billion by 2035, growing at a CAGR of 6% from 2026. There is a notable consumer shift towards non-melatonin ingredients like magnesium glycinate, L-theanine, and botanicals such as ashwagandha and lemon balm.",
+        "relevance": "This reflects the audience's concern about the side effects of pharmaceuticals and a growing preference for holistic wellness. They are actively researching and purchasing supplements perceived as safer, gentler, and addressing root causes of sleep issues like stress, rather than just inducing sedation.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Stop Guessing, Start Optimizing: Unlock Your Best Sleep with Data-Driven Solutions.",
+      "emotionalDriver": "The desire for control and mastery over one's own well-being, moving from a feeling of helplessness about sleep to empowerment through personalized data and insights.",
+      "callToAction": "Offer a diagnostic tool or quiz to help them understand their sleep patterns and receive a personalized recommendation, leading them to a tailored product or service."
+    }
+  },
+  "PIA_4107": {
+    "segmentId": "PIA_4107",
+    "segmentName": "Vision Care",
+    "fullPath": "Purchase Intent > Health and Beauty > Personal Care > Vision Care",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:55:44.341Z",
+    "detailedInsight": "This audience actively researches pricing and retailers online, with purchase-related queries dominating their search behavior. However, they view vision care as a non-negotiable health expense and are highly influenced by the recommendations of their eye care professionals, creating a dynamic between cost-consciousness and trust in expertise. A primary purchase trigger is the increasing concern over digital eye strain, moving them to seek preventative solutions like blue light filtering lenses to maintain their screen-heavy lifestyles without compromising eye health.",
+    "exampleAdvertisers": [
+      {
+        "name": "Warby Parker",
+        "type": "brand",
+        "rationale": "Appeals to the segment's price-conscious research behavior by offering a convenient, direct-to-consumer model for stylish eyewear."
+      },
+      {
+        "name": "Alcon",
+        "type": "brand",
+        "rationale": "As a leading manufacturer of contact lenses and eye care products, Alcon can target this audience with innovations in materials and lens technology that address comfort and health."
+      },
+      {
+        "name": "Blue Light Blocking Technology Brands",
+        "type": "category",
+        "rationale": "Directly targets the growing concern of digital eye strain, offering solutions that align with the audience's desire to protect their vision during prolonged screen time."
+      },
+      {
+        "name": "Premium Skincare Brands",
+        "type": "category",
+        "rationale": "This health-conscious audience invests in personal care. Brands offering specialized eye creams and serums can align with their existing wellness routines."
+      },
+      {
+        "name": "Telehealth Service Providers",
+        "type": "category",
+        "rationale": "This segment is increasingly open to technology-enabled convenience in healthcare. Telehealth platforms offering virtual consultations and remote eye exams cater to this modern preference."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "Myopia control solutions, including specialized spectacle and contact lenses, are a major breakthrough category, registering the highest growth rates in the eyewear industry.",
+        "relevance": "As awareness of the rising prevalence of myopia grows, particularly among younger demographics, this audience will actively seek out these advanced, health-focused solutions for themselves and their families.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Advanced light-filtering contact lenses that manage blue light exposure from digital screens are becoming a mainstream solution for digital eye strain.",
+        "relevance": "This directly addresses a primary pain point for the Vision Care audience, offering a convenient alternative to blue light filtering glasses for those who prefer contact lenses.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Smart glasses and contact lenses are moving beyond niche applications to become more practical for daily health monitoring, such as tracking intraocular pressure for early glaucoma detection.",
+        "relevance": "This appeals to the segment's focus on proactive health and wellness, leveraging technology to manage long-term eye health rather than just correcting vision.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Clarity for Your Digital Life. See Brilliantly, Live Comfortably.",
+      "emotionalDriver": "Proactive Wellness: The desire to maintain a modern, screen-dependent lifestyle without sacrificing long-term health and comfort.",
+      "callToAction": "Explore advanced lens technologies and ask your eye doctor about personalized solutions for digital eye strain."
+    }
+  },
+  "PIA_4116": {
+    "segmentId": "PIA_4116",
+    "segmentName": "Bathroom Accessories",
+    "fullPath": "Purchase Intent > Home and Garden > Bathroom Accessories",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:56:00.222Z",
+    "detailedInsight": "This audience is moving beyond purely functional bathroom updates, increasingly viewing the bathroom as a wellness retreat and a space for self-expression. Purchase triggers are shifting from replacement to aspiration, driven by a desire for spa-like experiences at home and the integration of smart technology for convenience and efficiency. They are environmentally conscious, actively seeking sustainable materials like bamboo and recycled metals, indicating that eco-friendly attributes are becoming a key decision-making factor.",
+    "exampleAdvertisers": [
+      {
+        "name": "Kohler Co.",
+        "type": "brand",
+        "rationale": "As a leader in smart bathroom technology, from voice-activated showers to intelligent toilets, Kohler directly appeals to this segment's growing demand for tech-integrated and convenient bathroom solutions."
+      },
+      {
+        "name": "Sustainable Home Goods Retailers",
+        "type": "category",
+        "rationale": "This audience shows a strong preference for eco-friendly and sustainable materials. Retailers specializing in products made from bamboo, reclaimed wood, and recycled materials are perfectly positioned to meet this demand."
+      },
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "Catering to the DIY home renovation trend, The Home Depot offers a wide range of accessible and stylish bathroom accessories, appealing to homeowners looking to undertake smaller, impactful upgrades themselves."
+      },
+      {
+        "name": "Casper",
+        "type": "brand",
+        "rationale": "Known for its focus on the sleep and wellness lifestyle, Casper could extend its brand into bathroom accessories (e.g., premium bath linens, calming scents) to capture the 'bathroom as a sanctuary' trend."
+      },
+      {
+        "name": "Smart Home Technology Companies",
+        "type": "category",
+        "rationale": "Companies like Google (Nest) or Amazon (Alexa) can target this audience by highlighting the integration of their smart home ecosystems with bathroom accessories like smart mirrors and lighting for a connected home experience."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global bathroom accessories market is projected to grow at a CAGR of 9.7% from 2025 to 2032, indicating strong and sustained consumer spending in this category.",
+        "relevance": "This strong market growth signifies a prime opportunity to capture new customers who are actively looking to purchase and upgrade their bathroom accessories.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Smart bathroom integration is moving from niche to mainstream, with features like smart mirrors with LED lighting and anti-fog technology, and touchless faucets becoming increasingly common.",
+        "relevance": "This audience is adopting technology that adds convenience and a modern aesthetic to their daily routines, making tech-forward accessories highly desirable.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "There is a significant design shift towards biophilic and eco-friendly materials, incorporating natural elements like stone and wood, and prioritizing products made from sustainable sources.",
+        "relevance": "Messaging and products that emphasize natural materials, sustainability, and a connection to nature will resonate deeply with this segment's values.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Daily Ritual, Reimagined. The Sanctuary Awaits.",
+      "emotionalDriver": "The desire for a personal sanctuary; a space to decompress, recharge, and invest in self-care.",
+      "callToAction": "Transform Your Bathroom into a Retreat. Explore the Collection."
+    }
+  },
+  "PIA_4138": {
+    "segmentId": "PIA_4138",
+    "segmentName": "Business and Home Security",
+    "fullPath": "Purchase Intent > Home and Garden > Business and Home Security",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:56:19.562Z",
+    "detailedInsight": "This audience is increasingly comprised of tech-savvy millennials and Gen X homeowners who are motivated by a tangible sense of rising local crime, often amplified through social media, rather than abstract fear. They are moving beyond basic intrusion detection, seeking integrated systems that offer proactive surveillance and environmental monitoring like leak or fire detection. This segment is bifurcated between those who prefer the convenience of professional installation and monitoring, and a rapidly growing DIY contingent that values flexibility and lower upfront costs.",
+    "exampleAdvertisers": [
+      {
+        "name": "SimpliSafe",
+        "type": "brand",
+        "rationale": "SimpliSafe directly targets the growing DIY segment with its easy-to-install, no-contract systems, appealing to renters and homeowners who prioritize flexibility and cost-effectiveness."
+      },
+      {
+        "name": "ADT",
+        "type": "brand",
+        "rationale": "As a leading provider of professionally installed and monitored security, ADT appeals to consumers who value comprehensive service, smart home integration, and the peace of mind that comes with 24/7 professional oversight."
+      },
+      {
+        "name": "Homeowners Insurance Providers",
+        "type": "category",
+        "rationale": "These companies can offer significant premium discounts for homes with monitored security and environmental sensors, directly incentivizing the purchase of security systems as a risk-mitigation tool."
+      },
+      {
+        "name": "Smart Home Technology Brands (e.g., Google Nest, Amazon Ring)",
+        "type": "category",
+        "rationale": "These brands are driving the integration of security with broader smart home ecosystems, appealing to the audience's desire for convenience, automation, and centralized control of all home devices."
+      },
+      {
+        "name": "Data Storage and Cybersecurity Services",
+        "type": "category",
+        "rationale": "With the rise of cloud-based video storage and interconnected IoT devices, this audience is increasingly concerned about data privacy and hacking, creating a market for secure cloud storage and network protection services."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "AI-powered proactive surveillance and threat detection is becoming a standard expectation for both business and home security systems.",
+        "relevance": "This audience is moving beyond simple motion alerts to demand systems that can intelligently distinguish between genuine threats (like a person loitering) and false alarms (like a passing car), providing more meaningful and actionable notifications.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The convergence of physical and digital security is accelerating, with unified platforms managing everything from access control to cybersecurity alerts.",
+        "relevance": "For business owners and homeowners with extensive smart home setups, the ability to manage all security aspects—from door locks and cameras to network vulnerabilities—through a single, integrated platform is a powerful value proposition.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Biometric access control, using fingerprints or facial recognition, is becoming increasingly mainstream and replacing traditional keys.",
+        "relevance": "This trend appeals to the segment's desire for enhanced security and convenience, offering a more secure method of entry and eliminating the need for physical keys that can be lost or duplicated.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Stop Reacting to Threats. Start Preventing Them.",
+      "emotionalDriver": "The desire for proactive control and the assurance that they are taking the smartest, not just the loudest, measures to protect their property and loved ones.",
+      "callToAction": "Offer a free, personalized security assessment that highlights potential vulnerabilities AI can proactively address."
+    }
+  },
+  "PIA_4148": {
+    "segmentId": "PIA_4148",
+    "segmentName": "Decor",
+    "fullPath": "Purchase Intent > Home and Garden > Decor",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:56:35.115Z",
+    "detailedInsight": "This audience is moving beyond mere aesthetics, driven by a desire for their homes to be sanctuaries of well-being and personal expression. Purchases are increasingly intentional, prioritizing sustainable, eco-friendly materials and timeless pieces over fast furniture. They are integrating smart technology not just for convenience, but to enhance comfort and energy efficiency, reflecting a blend of practicality and modern living.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Sill",
+        "type": "brand",
+        "rationale": "Capitalizes on the growing biophilic design trend, where consumers actively incorporate nature and plants into their homes to improve well-being and air quality."
+      },
+      {
+        "name": "Smart Home Technology Providers",
+        "type": "category",
+        "rationale": "This segment is integrating technology like smart lighting and thermostats to enhance ambiance, functionality, and energy efficiency, making their spaces more comfortable and sustainable."
+      },
+      {
+        "name": "Etsy",
+        "type": "brand",
+        "rationale": "Appeals to the desire for unique, personalized, and handcrafted items, moving away from mass-produced decor to pieces with a story and individual character."
+      },
+      {
+        "name": "Secondhand & Vintage Marketplaces",
+        "type": "category",
+        "rationale": "Taps into the growing rejection of 'fast furniture' and the increasing interest in sustainability, quality craftsmanship, and unique, character-filled pieces."
+      },
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "Serves the need for organization and creating functional, uncluttered spaces, which is a core component of the minimalist and intentional design trends."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The 'Organic Modern' style, characterized by natural materials, earthy tones, and curved forms, is replacing stark minimalism as homeowners seek warmer, more inviting spaces.",
+        "relevance": "This audience is actively seeking decor that creates a calming and grounded atmosphere, prioritizing tactile textures and natural elements like wood and stone over colder, minimalist aesthetics.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "A shift away from open-concept layouts towards more defined, multi-functional rooms is underway, driven by a need for privacy and dedicated spaces for work and relaxation.",
+        "relevance": "The Decor segment will be purchasing items like partitions, distinct furniture sets, and varied decor to create unique moods and functions within each area of their home.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Neo-Deco is an emerging style for 2026, blending the geometric patterns and metallic accents of Art Deco with a cleaner, more contemporary and intentional aesthetic.",
+        "relevance": "For those seeking a touch of glamour and personality without clutter, this trend offers a sophisticated way to incorporate expressive, sculptural elements into their decor.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Home, Your Sanctuary: Design a Space That Nurtures and Inspires.",
+      "emotionalDriver": "The desire for control and comfort in one's personal environment, creating a safe and restorative space that reflects personal identity.",
+      "callToAction": "Explore curated collections that blend sustainable style with smart functionality."
+    }
+  },
+  "PIA_4280": {
+    "segmentId": "PIA_4280",
+    "segmentName": "Emergency Preparedness",
+    "fullPath": "Purchase Intent > Home and Garden > Emergency Preparedness",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:57:00.814Z",
+    "detailedInsight": "This audience is driven by a need for self-reliance and control in response to perceived increases in global and local instability. Purchase triggers are often specific news events, such as natural disasters or political unrest, which convert latent anxiety into active preparation. [12] They are pragmatic planners who value the convenience of pre-assembled kits to ensure all essential needs for their family, including pets, are met for at least 72 hours. [4, 8]",
+    "exampleAdvertisers": [
+      {
+        "name": "ReadyWise",
+        "type": "brand",
+        "rationale": "As a leading provider of long-term and emergency food supplies, ReadyWise directly addresses the core need for sustenance and long-term security that motivates this segment. [10]"
+      },
+      {
+        "name": "Home Backup Generator Manufacturers",
+        "type": "category",
+        "rationale": "Brands like Generac appeal to this segment's desire for self-sufficiency and maintaining normalcy during power outages, a common consequence of emergencies. [5]"
+      },
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "As a one-stop-shop for tools, hardware, and supplies, The Home Depot is a natural fit for consumers looking to assemble their own kits or fortify their homes against disasters."
+      },
+      {
+        "name": "Home Security Providers",
+        "type": "category",
+        "rationale": "Companies like SimpliSafe or ADT tap into the same underlying motivation of protecting one's family and property from external threats, making this audience highly receptive to their messaging."
+      },
+      {
+        "name": "Pet Supply Superstores",
+        "type": "category",
+        "rationale": "This segment often includes pets in their preparedness plans, making retailers that offer pet-specific emergency kits, food, and evacuation supplies highly relevant. [4, 6]"
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global market for disaster preparedness systems is experiencing robust growth, projected to reach approximately $226 billion in 2026 with a compound annual growth rate of around 9%. [9]",
+        "relevance": "This significant market growth indicates a mainstream shift in consumer mindset towards proactive preparation, expanding the potential customer base beyond traditional 'preppers' and validating increased investment in this space.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "There is a rising demand for technology-integrated preparedness, including mobile apps for real-time disaster alerts and smart surveillance systems for home security. [15, 17]",
+        "relevance": "This audience seeks to enhance their sense of control through information. Advertisers can appeal to them by offering tech solutions that provide early warnings and situational awareness, complementing physical supplies.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "The First 72 Hours Are In Your Control.",
+      "emotionalDriver": "Empowerment through proactive readiness.",
+      "callToAction": "Build your family's 3-day readiness kit."
+    }
+  },
+  "PIA_4286": {
+    "segmentId": "PIA_4286",
+    "segmentName": "Fireplace and Wood Stove Accessories",
+    "fullPath": "Purchase Intent > Home and Garden > Fireplace and Wood Stove Accessories",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:57:18.941Z",
+    "detailedInsight": "This audience is driven by a desire to create a sanctuary within their home, viewing their fireplace or wood stove as the central heart of their living space. Their purchases are triggered by a need for psychological comfort, relaxation, and fostering social connection, with research indicating that watching a fire can reduce blood pressure and anxiety. They are actively investing in accessories not just for utility, but to enhance the aesthetic and emotional warmth of their environment, making their hearth a focal point for family and social gatherings.",
+    "exampleAdvertisers": [
+      {
+        "name": "High-End Home Furnishing Brands",
+        "type": "category",
+        "rationale": "This audience invests in creating a comfortable and aesthetically pleasing home environment. Brands selling premium furniture, rugs, and decor are a natural fit for consumers looking to create an inviting atmosphere around their hearth."
+      },
+      {
+        "name": "Sherwin-Williams",
+        "type": "brand",
+        "rationale": "As homeowners focus on the fireplace as a focal point, they are often re-evaluating the entire room's aesthetic. Paint brands can target this audience with collections that complement fireplace materials and create a cozy ambiance."
+      },
+      {
+        "name": "Subscription Box Services (e.g., artisanal coffee, curated books)",
+        "type": "category",
+        "rationale": "The lifestyle associated with enjoying a fireplace—relaxation and quiet moments—aligns perfectly with products that enhance this experience. Curated subscription boxes for coffee, books, or wine can be positioned as the perfect companion to a cozy fire."
+      },
+      {
+        "name": "Drees Homes",
+        "type": "brand",
+        "rationale": "Custom and new home builders can appeal to this segment by showcasing fireplace options as a key feature of a dream home. Marketing materials can highlight the emotional and social benefits of having a central hearth."
+      },
+      {
+        "name": "American Red Cross",
+        "type": "brand",
+        "rationale": "With the increased use of fireplaces and stoves during colder months, there is a heightened risk of home fires. Safety-focused organizations can target this audience with campaigns about fire safety, chimney maintenance, and the importance of smoke alarms."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The integration of smart technology in fireplaces is on the rise, with features like app-controlled ignition, automated flame height, and thermostat integration becoming more common.",
+        "relevance": "This audience, while valuing the traditional comfort of a fire, is also interested in convenience and efficiency. Accessories that align with smart home ecosystems, such as remote-controlled blowers or smart thermostats that coordinate with the fireplace, will be highly appealing.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a strong movement towards minimalist and modern fireplace designs, featuring clean lines, large glass fronts, and seamless integration into walls, often using natural stone or tile surrounds.",
+        "relevance": "This trend directly influences accessory purchases. The audience will be seeking out sleek, contemporary toolsets, minimalist log holders, and unobtrusive screens that complement a modern aesthetic, moving away from traditional, ornate designs.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Energy efficiency is a primary concern for homeowners, leading to a growing demand for high-efficiency inserts and direct-vent gas systems that maximize heat output while minimizing energy waste.",
+        "relevance": "This audience is motivated by both the aesthetic and functional aspects of their hearth. Accessories that improve efficiency, such as high-quality glass doors, heat-circulating grates, and fireplace blowers, will be a key purchase driver for this segment as they look to optimize their heating investment.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Fireside Ritual, Perfected.",
+      "emotionalDriver": "The feeling of creating a personal sanctuary and a cherished space for connection.",
+      "callToAction": "Curate Your Hearth: Shop accessories that transform your fireplace into the heart of your home."
+    }
+  },
+  "PIA_4298": {
+    "segmentId": "PIA_4298",
+    "segmentName": "Fireplaces",
+    "fullPath": "Purchase Intent > Home and Garden > Fireplaces",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:57:34.876Z",
+    "detailedInsight": "This audience views a fireplace as more than a heat source; it's a central design element and a key component of their home's ambiance. They are actively engaged in home remodeling projects, with a significant portion undertaking kitchen and bath renovations, indicating a willingness to invest in high-value upgrades. Their purchase is often triggered by a desire to modernize their living space, improve energy efficiency, and increase their home's resale value.",
+    "exampleAdvertisers": [
+      {
+        "name": "Heat & Glo",
+        "type": "brand",
+        "rationale": "As a leading manufacturer of gas, wood, and electric fireplaces, Heat & Glo directly serves this audience's core interest in upgrading their home's hearth."
+      },
+      {
+        "name": "Luxury Outdoor Furniture Brands",
+        "type": "category",
+        "rationale": "Consumers investing in a high-end indoor fireplace are likely to also invest in creating sophisticated outdoor living spaces, making brands like Brown Jordan or Summer Classics a natural fit."
+      },
+      {
+        "name": "Control4",
+        "type": "brand",
+        "rationale": "This audience is increasingly adopting smart home technology, and Control4's automation systems can integrate with modern smart fireplaces for enhanced convenience and control."
+      },
+      {
+        "name": "High-End Home Renovation Contractors",
+        "type": "category",
+        "rationale": "A significant portion of this segment hires professionals for their remodeling projects. Contractors specializing in luxury renovations are well-positioned to incorporate new fireplaces into larger design plans."
+      },
+      {
+        "name": "Architectural Digest",
+        "type": "brand",
+        "rationale": "This publication caters to an audience passionate about interior design and high-end home features, making it an ideal platform to reach consumers actively seeking inspiration for statement-making fireplaces."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The integration of smart technology in fireplaces is rapidly advancing, with features like app-based controls, voice activation, and integration with home automation systems becoming key selling points.",
+        "relevance": "This audience is tech-savvy and values convenience. Smart features that allow for remote operation, programmable schedules, and seamless integration with their existing smart home ecosystem are highly appealing.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Linear and multi-sided (double-sided or three-sided) fireplaces are a major interior design trend, often integrated into media walls for a modern, seamless look.",
+        "relevance": "This audience is focused on the aesthetic impact of a fireplace. These contemporary designs serve as a bold focal point and align with the desire for a sophisticated and updated living space.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a growing demand for eco-friendly and sustainable fireplace options, including high-efficiency gas, electric, and bioethanol models that reduce emissions and energy consumption.",
+        "relevance": "While aesthetics are crucial, this audience is also increasingly environmentally conscious. Fireplaces that offer a clean-burning, energy-efficient solution align with their values and provide a guilt-free way to enjoy the ambiance of a fire.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "The Art of the Flame: More Than Warmth, It's the Heart of Your Home's Design.",
+      "emotionalDriver": "The desire for a sophisticated and curated living space that serves as a sanctuary and a reflection of personal style.",
+      "callToAction": "Explore our gallery of modern fireplace designs and schedule a consultation with a design expert."
+    }
+  },
+  "PIA_4299": {
+    "segmentId": "PIA_4299",
+    "segmentName": "Flood, Fire and Gas Safety",
+    "fullPath": "Purchase Intent > Home and Garden > Flood, Fire and Gas Safety",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:57:50.383Z",
+    "detailedInsight": "This audience is increasingly motivated by a sense of proactive control and a desire to mitigate risks, especially those amplified by climate change concerns. They are often early adopters of smart home technology, not just for convenience, but for the tangible peace of mind that remote monitoring and automated safety features provide. This segment is also financially savvy, actively seeking out insurance premium discounts associated with the installation of certified safety devices.",
+    "exampleAdvertisers": [
+      {
+        "name": "Home Insurance Providers",
+        "type": "category",
+        "rationale": "These companies can directly appeal to this audience's financial motivations by offering significant discounts on premiums for installing flood, fire, and gas safety devices."
+      },
+      {
+        "name": "Google Nest",
+        "type": "brand",
+        "rationale": "Nest's ecosystem of integrated smart home devices, including smoke/CO alarms and security cameras, aligns perfectly with the segment's desire for a unified and remotely accessible home safety solution."
+      },
+      {
+        "name": "Generac",
+        "type": "brand",
+        "rationale": "As concerns about extreme weather events grow, Generac's home backup generators are a logical purchase for an audience focused on maintaining safety and normalcy during power outages caused by floods or storms."
+      },
+      {
+        "name": "DIY Home Improvement Retailers",
+        "type": "category",
+        "rationale": "A growing portion of this segment prefers do-it-yourself (DIY) solutions for their affordability and ease of installation, making retailers like The Home Depot or Lowe's key suppliers for safety products."
+      },
+      {
+        "name": "First Alert",
+        "type": "brand",
+        "rationale": "A long-standing, trusted brand in home safety, First Alert's range of smoke detectors, carbon monoxide alarms, and fire extinguishers directly meets the core needs of this safety-conscious audience."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The integration of AI and predictive maintenance in smart home safety systems is moving beyond simple alerts to anticipating and preventing issues like leaks or electrical faults before they occur.",
+        "relevance": "This trend directly appeals to the segment's desire for proactive control and risk mitigation, offering a higher level of security and peace of mind.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "There is a growing consumer willingness to pay more for homes with pre-installed upgrades that mitigate climate change risks, such as flood sensors and resilient building materials.",
+        "relevance": "This indicates that safety upgrades are increasingly viewed as a long-term investment in property value and personal security, not just an expense.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The adoption of DIY home security and safety solutions is rapidly growing, driven by their affordability and the sense of empowerment they provide to homeowners.",
+        "relevance": "This audience is increasingly hands-on and seeks accessible, customizable solutions they can control and install themselves, presenting an opportunity for brands offering user-friendly products.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Home, Future-Proofed: Proactive Safety for What Matters Most.",
+      "emotionalDriver": "Peace of Mind through Proactive Prevention",
+      "callToAction": "Get a complimentary home risk assessment and discover potential insurance savings."
+    }
+  },
+  "PIA_4310": {
+    "segmentId": "PIA_4310",
+    "segmentName": "Household Appliance Accessories",
+    "fullPath": "Purchase Intent > Home and Garden > Household Appliance Accessories",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:58:06.391Z",
+    "detailedInsight": "This audience is moving beyond basic functionality, seeking accessories that offer seamless integration into their smart home ecosystems and reflect a desire for personalization. They are often driven by home improvement projects and a rising disposable income, leading them to invest in accessories that provide convenience, energy efficiency, and aesthetic upgrades. This segment is characterized by a proactive approach to upgrading their living spaces, often influenced by the latest technological innovations and a desire for multi-functional and space-saving solutions.",
+    "exampleAdvertisers": [
+      {
+        "name": "Samsung SmartThings",
+        "type": "brand",
+        "rationale": "Samsung's ecosystem of connected devices directly appeals to this segment's interest in smart home integration and remote management of appliances."
+      },
+      {
+        "name": "Bespoke Appliance Brands",
+        "type": "category",
+        "rationale": "Companies offering customizable appliance panels and hardware, like Café Appliances or Samsung's Bespoke line, cater to the growing demand for personalization and unique kitchen aesthetics."
+      },
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "As a primary destination for home improvement projects, they are a key retailer for consumers actively looking to upgrade and accessorize their household appliances."
+      },
+      {
+        "name": "Energy Star",
+        "type": "brand",
+        "rationale": "This audience shows a strong preference for energy-efficient products; aligning with Energy Star certification would resonate with their desire for sustainability and long-term cost savings."
+      },
+      {
+        "name": "Subscription-based Filter Services",
+        "type": "category",
+        "rationale": "Services that offer automated delivery of replacement filters for refrigerators, air purifiers, and other appliances provide the convenience and peace of mind this segment values."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The deep integration of smart technology and the Internet of Things (IoT) is transforming single-function accessories into interconnected, automated assistants, making it a core consumer expectation.",
+        "relevance": "This audience is actively seeking accessories that can be controlled remotely and integrate with their existing smart home hubs, such as voice-activated appliance modules or smart plugs for older devices.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a significant push toward personalization in appliances, with customizable finishes, colors, and hardware becoming a major factor in purchasing decisions.",
+        "relevance": "This segment is looking for accessories that allow them to personalize their appliances to match their home decor, such as custom handles, panel kits, or colored knobs, moving beyond standard stainless steel.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Multifunctional and compact designs are increasingly popular, especially for urban dwellers and those with smaller living spaces.",
+        "relevance": "This audience is drawn to accessories that add versatility to their existing appliances, such as air fryer attachments for ovens or stackable kits for washers and dryers, to maximize functionality without sacrificing space.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Upgrade Your Appliances, Elevate Your Life.",
+      "emotionalDriver": "The satisfaction of creating a smarter, more personalized, and efficient home environment.",
+      "callToAction": "Discover accessories that unlock your appliances' full potential."
+    }
+  },
+  "PIA_4340": {
+    "segmentId": "PIA_4340",
+    "segmentName": "Household Appliances",
+    "fullPath": "Purchase Intent > Home and Garden > Household Appliances",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:58:24.413Z",
+    "detailedInsight": "This audience is increasingly motivated by long-term value over initial cost, prioritizing energy efficiency to mitigate rising utility expenses and seeking out multifunctional appliances to optimize smaller living spaces. Their purchase decisions are heavily influenced by a blend of online and offline research, indicating an omnichannel journey where both digital reviews and in-person product assessments are critical. A significant portion of this segment consists of Gen X consumers, who place a high value on durability, quality, and energy savings, showing more brand loyalty than younger generations.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "As a primary destination for home improvement, The Home Depot attracts consumers actively engaged in renovation projects, a key trigger for large appliance purchases. Their omnichannel approach, combining extensive online resources with physical showrooms, caters to this segment's research-heavy buying process."
+      },
+      {
+        "name": "Samsung",
+        "type": "brand",
+        "rationale": "Samsung's focus on smart, connected appliances with AI-driven features directly appeals to the growing demand for convenience and technological integration in the home. Their reputation for innovation aligns with the segment's interest in premium, feature-rich products."
+      },
+      {
+        "name": "Energy Star",
+        "type": "category",
+        "rationale": "As a government-backed symbol for energy efficiency, the Energy Star certification is a powerful purchase driver for this audience. Advertisers who prominently feature this certification can effectively capture the attention of cost-conscious and environmentally aware consumers."
+      },
+      {
+        "name": "Apartment and Condo Developers",
+        "type": "category",
+        "rationale": "Developers of multi-family housing units are key purchasers of compact and multi-functional appliances, a growing trend in urban areas. Targeting this B2B segment allows appliance manufacturers to secure bulk orders and establish brand presence in new households."
+      },
+      {
+        "name": "Affirm",
+        "type": "brand",
+        "rationale": "Providing flexible payment solutions like 'buy now, pay later' addresses the price sensitivity of some consumers within this segment, particularly for major domestic appliances. This can encourage upgrades and purchases of more premium models by reducing the upfront financial burden."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global smart home appliances market is projected to experience significant growth, with some forecasts predicting a compound annual growth rate (CAGR) of 14.6% to reach USD 642.8 billion by 2032. This is driven by consumer demand for convenience, energy efficiency, and the increasing adoption of IoT technology.",
+        "relevance": "This trend indicates a strong and growing interest in connected appliances that offer remote control, automation, and optimized energy usage, making these features key selling points for the Household Appliances audience.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Sustainability and energy efficiency are becoming primary drivers for major domestic appliance purchases, with 45% of consumers considering the environmental impact in their buying decisions as of 2025. This is expected to continue as a leading purchase driver in 2026, as over 90% of a major appliance's lifetime energy consumption occurs during its use.",
+        "relevance": "This audience is actively seeking appliances that will lower their utility bills and reduce their environmental footprint. Highlighting energy-saving features and sustainable manufacturing processes is crucial for resonating with this segment.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Multi-functional and compact appliances are gaining popularity, especially in urban areas with smaller living spaces. By 2026, appliance design will increasingly focus on maximizing performance in a minimal footprint, with features like oven-air fryer combinations and washer-dryer hybrids becoming more common.",
+        "relevance": "This trend is highly relevant for households in apartments or smaller homes, as it addresses their need for space-saving solutions without compromising on functionality. This audience is looking for versatile appliances that can perform multiple tasks, thereby reducing clutter and maximizing their living area.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Upgrade Your Home's IQ: Intelligent Appliances for a More Efficient Life.",
+      "emotionalDriver": "The desire for a seamlessly functioning and resource-efficient home that simplifies daily routines and provides a sense of smart, responsible living.",
+      "callToAction": "Explore our 2026 collection of smart, energy-saving appliances and discover how much you could save."
+    }
+  },
+  "PIA_4375": {
+    "segmentId": "PIA_4375",
+    "segmentName": "Household Supplies",
+    "fullPath": "Purchase Intent > Home and Garden > Household Supplies",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:58:40.024Z",
+    "detailedInsight": "The Household Supplies audience consists of routine shoppers who are increasingly prioritizing sustainability and health-consciousness in their purchasing decisions. They are moving towards eco-friendly, non-toxic, and plant-based cleaning solutions, often willing to pay more for products with transparent ingredient lists and recyclable packaging. This segment is also characterized by a growing preference for private label brands, which they perceive as offering comparable quality and better value than national brands.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Clorox Company",
+        "type": "brand",
+        "rationale": "As a leading manufacturer of well-established cleaning and household product brands, The Clorox Company can target this segment to reinforce brand loyalty and introduce newer, eco-friendly product lines."
+      },
+      {
+        "name": "Private Label Household Goods Manufacturers",
+        "type": "category",
+        "rationale": "This segment shows a high affinity for private label products due to perceived value and quality, making them a prime target for retailers' own brands of cleaning and paper goods."
+      },
+      {
+        "name": "Grove Collaborative",
+        "type": "brand",
+        "rationale": "Grove Collaborative's focus on natural, sustainable, and direct-to-consumer household products directly aligns with the growing eco-conscious values of this audience."
+      },
+      {
+        "name": "Subscription Box Services for Cleaning Supplies",
+        "type": "category",
+        "rationale": "The routine nature of purchasing household supplies makes this segment ideal for subscription services that offer convenience and curated eco-friendly product selections."
+      },
+      {
+        "name": "Dyson",
+        "type": "brand",
+        "rationale": "For the sub-segment focused on home maintenance and cleaning efficiency, Dyson's premium, high-performance vacuums and air purifiers appeal to the desire for durable and effective solutions."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global market for eco-friendly cleaning products is projected to reach $40.4 billion by 2026, with a significant driver being consumer demand for plant-based and biodegradable ingredients.",
+        "relevance": "This trend directly reflects the core values of the Household Supplies audience, who are actively seeking out sustainable and non-toxic alternatives for their routine purchases.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Private label household products are experiencing significant growth, with sales increasing by 4% from 2024 to 2025 and nearly all households purchasing a private-label item in the past year.",
+        "relevance": "This indicates a major shift in purchasing behavior within the Household Supplies segment, where value and trust in store brands are increasingly influencing their choices.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The global household products market is expected to grow, driven by an increased focus on hygiene and the rising popularity of online retail channels for purchasing cleaning supplies.",
+        "relevance": "This audience is becoming more accustomed to the convenience of e-commerce and subscription models for their regular household needs, presenting new opportunities for online-focused brands.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Home, Your Health: Clean with Confidence.",
+      "emotionalDriver": "Peace of mind from providing a safe and healthy home environment for one's family.",
+      "callToAction": "Explore our collection of non-toxic, family-safe cleaning solutions."
+    }
+  },
+  "PIA_4380": {
+    "segmentId": "PIA_4380",
+    "segmentName": "Garbage Bags",
+    "fullPath": "Purchase Intent > Home and Garden > Household Supplies > Garbage Bags",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:58:55.885Z",
+    "detailedInsight": "The garbage bag market is experiencing a significant shift driven by heightened environmental consciousness, with a growing consumer preference for sustainable options like compostable and biodegradable bags. This audience prioritizes functionality, seeking durable, tear-resistant bags with features like odor control, but is increasingly willing to invest in eco-friendly alternatives. Purchase decisions are also influenced by convenience, with many consumers still preferring to buy household supplies in-store.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Clorox Company",
+        "type": "brand",
+        "rationale": "As a major player in the trash bag market with brands like Glad, they can leverage their established reputation for strength and reliability while innovating with sustainable materials to meet evolving consumer demands."
+      },
+      {
+        "name": "Home Depot",
+        "type": "category",
+        "rationale": "As a primary retail destination for home improvement and household supplies, these stores can target consumers undertaking projects that generate more waste, offering heavy-duty and specialized garbage bag options."
+      },
+      {
+        "name": "Seventh Generation",
+        "type": "brand",
+        "rationale": "Known for its eco-friendly cleaning products, this brand can appeal to the growing segment of environmentally conscious consumers who are actively seeking sustainable and plant-based garbage bag alternatives."
+      },
+      {
+        "name": "Subscription Box Services for Household Goods",
+        "type": "category",
+        "rationale": "These services can cater to the desire for convenience by offering scheduled deliveries of garbage bags, often with an emphasis on eco-friendly and natural product selections."
+      },
+      {
+        "name": "Smart Home Technology Companies",
+        "type": "category",
+        "rationale": "With the rise of smart waste management, companies in this space can target this audience with innovative solutions like smart trash cans that monitor fill levels and integrate with bag subscription services."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global market for compostable and biodegradable refuse bags is projected to grow significantly, reaching an estimated USD 610.48 million by 2030, with a CAGR of 7.4% from 2024.",
+        "relevance": "This indicates a strong and growing demand within the garbage bag audience for sustainable and environmentally friendly products, moving beyond a niche market to a significant growth sector.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Aroma-infused liners are a growing segment, with the market projected to reach USD 185.0 million in 2026, driven by consumer demand for odor control and enhanced hygiene.",
+        "relevance": "This highlights a consumer desire for value-added features that improve the user experience of waste disposal, presenting an opportunity for product differentiation beyond basic functionality.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Smart waste management technologies, including AI-powered sorting and IoT sensors in bins, are becoming more prevalent to enhance efficiency and promote a circular economy.",
+        "relevance": "This trend suggests that consumers, particularly those interested in sustainability and technology, will be more receptive to innovative garbage bag solutions that integrate with smart home ecosystems and support recycling efforts.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "The Strength You Need, The Planet You Love.",
+      "emotionalDriver": "The desire for a clean and organized home, combined with a sense of responsibility and making a positive environmental impact.",
+      "callToAction": "Upgrade to a stronger, smarter, and more sustainable trash bag. Explore our eco-friendly options."
+    }
+  },
+  "PIA_4381": {
+    "segmentId": "PIA_4381",
+    "segmentName": "Household Cleaning Supplies",
+    "fullPath": "Purchase Intent > Home and Garden > Household Supplies > Household Cleaning Supplies",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:59:11.759Z",
+    "detailedInsight": "This audience is increasingly prioritizing health and safety, driving demand for products with disinfectant and antibacterial properties. They are also highly motivated by sustainability, showing a strong preference for eco-friendly, plant-based ingredients and minimal, recyclable packaging. This consumer is willing to pay a premium for products that align with their wellness values and offer ingredient transparency, often seeking out certifications to validate claims.",
+    "exampleAdvertisers": [
+      {
+        "name": "HelloFresh",
+        "type": "brand",
+        "rationale": "This audience's focus on home wellness and ingredient transparency aligns with meal kit services that emphasize fresh, quality ingredients and the health benefits of home cooking."
+      },
+      {
+        "name": "Private Label Supermarket Brands",
+        "type": "category",
+        "rationale": "As consumers become more price-sensitive yet still demand quality, private label brands that offer effective, eco-friendly cleaning solutions at a lower price point are gaining significant market share."
+      },
+      {
+        "name": "iRobot",
+        "type": "brand",
+        "rationale": "Consumers in this segment are adopting smart home technology to increase cleaning efficiency and maintain a consistently clean environment with minimal effort."
+      },
+      {
+        "name": "Organic Baby Food Brands",
+        "type": "category",
+        "rationale": "The high value placed on non-toxic and child-safe formulas in cleaning products indicates a strong overlap with consumers who prioritize organic and natural products for their children's nutrition and well-being."
+      },
+      {
+        "name": "The Home Depot",
+        "type": "brand",
+        "rationale": "This audience is increasingly interested in DIY cleaning solutions, making retailers that provide the necessary ingredients like vinegar, baking soda, and essential oils a relevant channel."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global eco-friendly cleaning products market is projected to grow from USD 13.2 billion in 2025 to USD 31.1 billion by 2034, demonstrating a significant consumer shift towards sustainable options.",
+        "relevance": "This trend directly reflects the core values of the household cleaning supplies audience, who are actively seeking out and purchasing products with green certifications and plant-based ingredients.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Smart cleaning technology, including AI-powered robotic vacuums and mops, is seeing rapid adoption, with the market expected to reach USD 12.85 billion by 2030. Chinese brands are dominating this market through faster innovation and competitive pricing.",
+        "relevance": "This audience is leveraging automation to enhance cleaning efficiency and maintain a higher standard of hygiene in their homes, indicating a willingness to invest in technology that supports their wellness goals.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Cleaning is being framed as a form of self-care, with consumers increasingly using cleaning routines and products with pleasant scents, like essential oils, to de-stress and create a calming home environment.",
+        "relevance": "This aligns with the audience's focus on overall well-being, moving beyond simple cleanliness to incorporate cleaning as a mindful practice that contributes to mental and emotional health.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Home, Your Sanctuary: Cleanse Your Space, Calm Your Mind.",
+      "emotionalDriver": "The desire for a protected, stress-free, and healthy home environment for oneself and loved ones.",
+      "callToAction": "Discover our new line of plant-based cleaners with calming essential oils. Create your clean sanctuary today."
+    }
+  },
+  "PIA_4400": {
+    "segmentId": "PIA_4400",
+    "segmentName": "Household Paper Products",
+    "fullPath": "Purchase Intent > Home and Garden > Household Supplies > Household Paper Products",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:59:27.979Z",
+    "detailedInsight": "Shoppers in the Household Paper Products segment are increasingly driven by a dual focus on value and sustainability, a behavior amplified by recent inflationary pressures. This has led to a notable portion of consumers, nearly half, opting for private label brands which they perceive as equal in quality to name brands. Concurrently, there's a growing demand for eco-friendly options, with a significant number of consumers preferring products made from recycled or biodegradable materials.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Clorox Company",
+        "type": "brand",
+        "rationale": "As a leading manufacturer of cleaning and household products, Clorox can target this audience to bundle promotions for paper towels with their disinfectant wipes and sprays, appealing to the segment's focus on hygiene."
+      },
+      {
+        "name": "Subscription Box Services",
+        "type": "category",
+        "rationale": "The recurring purchase nature of household paper products makes this audience ideal for subscription services that offer convenience and cost savings on bulk deliveries."
+      },
+      {
+        "name": "Seventh Generation",
+        "type": "brand",
+        "rationale": "This brand's focus on recycled materials and eco-friendly products directly aligns with the growing sustainability concerns of this consumer segment."
+      },
+      {
+        "name": "Private Label Household Goods Retailers",
+        "type": "category",
+        "rationale": "Given that nearly half of consumers are switching to store brands to cut costs, retailers like Costco (Kirkland Signature) and Walmart (Great Value) are perfectly positioned to attract this audience."
+      },
+      {
+        "name": "Dyson",
+        "type": "brand",
+        "rationale": "As a manufacturer of high-end home cleaning technology, Dyson can target this segment with messaging that highlights the long-term value and waste reduction of their products compared to disposable paper towels."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global market for household paper products is projected to grow, with the toilet paper market expected to have a CAGR of 4.3% between 2026 and 2035.",
+        "relevance": "This steady growth indicates a consistent and predictable demand from this audience, making them a reliable target for ongoing marketing efforts.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "A significant shift towards sustainable and eco-friendly products is underway, with a growing consumer preference for items made from recycled and biodegradable materials.",
+        "relevance": "Advertisers can capitalize on this trend by highlighting the sustainable aspects of their products, such as recycled content or plastic-free packaging, to appeal to the environmental consciousness of this segment.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The rise of \"paperization\" continues, with a notable consumer preference for paper-based packaging over plastic due to environmental concerns.",
+        "relevance": "Brands that adopt paper-based packaging for their household products can better align with the values of this audience and gain a competitive edge.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Stock Up Smarter: Quality Essentials That Are Kind to Your Wallet and the Planet.",
+      "emotionalDriver": "The desire for savvy and responsible household management, ensuring family well-being without compromising on personal values like sustainability.",
+      "callToAction": "Explore our eco-friendly bundles and subscribe for effortless savings."
+    }
+  },
+  "PIA_4406": {
+    "segmentId": "PIA_4406",
+    "segmentName": "Laundry Supplies",
+    "fullPath": "Purchase Intent > Home and Garden > Household Supplies > Laundry Supplies",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T18:59:46.180Z",
+    "detailedInsight": "This audience is increasingly composed of millennial and Gen Z consumers who, despite being sustainability-conscious, often prioritize convenience and are sometimes confused by garment care, leading to damaged clothes. They are heavily influenced by social media for laundry tips and are drawn to products offering sensory benefits like long-lasting fragrance, alongside eco-friendly attributes. This segment is also characterized by busy parents seeking efficiency through routines and time-saving products, often involving their children in laundry tasks.",
+    "exampleAdvertisers": [
+      {
+        "name": "The Home Edit",
+        "type": "brand",
+        "rationale": "Their focus on aesthetically pleasing organization systems directly appeals to the desire for an orderly and efficient laundry routine, a key concern for busy parents in this segment."
+      },
+      {
+        "name": "Subscription Box Services (e.g., Grove Collaborative)",
+        "type": "category",
+        "rationale": "These services cater to the segment's dual desire for eco-friendly products and the convenience of automated replenishment, reducing the mental load of shopping for household staples."
+      },
+      {
+        "name": "Samsung",
+        "type": "brand",
+        "rationale": "As a manufacturer of smart washers and dryers, Samsung can target this audience with messaging around advanced fabric care, efficiency, and technology that simplifies laundry tasks."
+      },
+      {
+        "name": "Athleisure Apparel Brands (e.g., Lululemon, Athleta)",
+        "type": "category",
+        "rationale": "These brands can provide content and product recommendations on how to properly care for high-performance fabrics, addressing the uncertainty and potential for damage that younger consumers in this segment experience."
+      },
+      {
+        "name": "Aromatherapy & Essential Oil Brands",
+        "type": "category",
+        "rationale": "Given the audience's interest in a complete sensory experience and unique fragrances, these brands can position their products as laundry enhancers for a personalized and calming scent."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The demand for eco-friendly laundry detergents is rapidly growing, with a significant portion of consumers, particularly millennials, prioritizing biodegradable and plant-based options. This includes a move towards concentrated formulas and refillable packaging to reduce waste.",
+        "relevance": "This trend directly aligns with the stated values of the younger demographic within the Laundry Supplies segment who are actively seeking sustainable product choices.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Procter & Gamble is launching Tide EVO, a new eco-friendly detergent in a fully recyclable container, following successful test markets. This product innovation is part of a larger strategy to drive growth through superior and sustainable product offerings.",
+        "relevance": "This indicates that major players are responding to the demand for sustainability, and this new product is likely to be marketed heavily to the eco-conscious consumers in the Laundry Supplies segment.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "There is a growing interest in multi-functional products that simplify laundry routines, such as detergents that also sanitize or offer fabric softening benefits. Consumers are looking for efficiency and convenience in their household chores.",
+        "relevance": "For the busy parents in this segment, products that offer multiple benefits in one can be a significant purchase trigger, as they help to streamline the laundry process.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Finally, a laundry routine that's as smart and sustainable as you are.",
+      "emotionalDriver": "The feeling of effortless competence and responsible living.",
+      "callToAction": "Upgrade your laundry day - explore our curated collection of eco-friendly and efficient solutions."
+    }
+  },
+  "PIA_4469": {
+    "segmentId": "PIA_4469",
+    "segmentName": "Kitchen and Dining",
+    "fullPath": "Purchase Intent > Home and Garden > Kitchen and Dining",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:00:03.804Z",
+    "detailedInsight": "This audience is moving beyond mere aesthetics, prioritizing kitchen and dining spaces that serve as multifunctional hubs for gathering and working. Purchase decisions are increasingly driven by a desire for sustainability and wellness, with a strong preference for eco-friendly materials, artisanal goods, and products that support healthier, from-scratch cooking. They are actively investing in smart technology that offers convenience and efficiency, alongside seeking personalized and unique design elements like expressive natural stone and bold colors to reflect their individuality.",
+    "exampleAdvertisers": [
+      {
+        "name": "Samsung (Smart Appliances Division)",
+        "type": "brand",
+        "rationale": "Samsung's AI-powered and connected kitchen appliances directly appeal to this segment's demand for technology that streamlines meal prep, reduces food waste, and enhances convenience."
+      },
+      {
+        "name": "High-End Grocery Chains (e.g., Whole Foods Market)",
+        "type": "category",
+        "rationale": "This audience's focus on health, wellness, and from-scratch cooking aligns perfectly with premium grocery retailers that offer organic, locally-sourced, and high-quality ingredients."
+      },
+      {
+        "name": "Crate & Barrel",
+        "type": "brand",
+        "rationale": "Crate & Barrel's curated collections of quality cookware, unique serveware, and modern furniture cater to the segment's desire to create stylish, functional, and personalized kitchen and dining environments."
+      },
+      {
+        "name": "Custom Cabinetry and Countertop Installers",
+        "type": "category",
+        "rationale": "With a trend towards personalization and unique materials like expressive stone, local installers are perfectly positioned to meet the demand for bespoke kitchen renovations that reflect individual style."
+      },
+      {
+        "name": "HelloFresh",
+        "type": "brand",
+        "rationale": "Meal kit services appeal to the desire for convenient, healthy, home-cooked meals, fitting the lifestyle of busy consumers who still value the experience of cooking from scratch."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global eco-friendly kitchenware market is projected to reach $74.76 billion in 2025, driven by rising environmental awareness and a consumer shift away from plastics.",
+        "relevance": "This audience is actively seeking sustainable options, from recycled materials to bamboo and non-toxic cookware, making eco-credentials a primary purchase driver.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Smart kitchen appliance adoption is rapidly growing, with the market expected to reach over $21.8 billion in 2025, characterized by AI-driven features for personalization and convenience.",
+        "relevance": "This segment is investing in connected devices like smart refrigerators and ovens to save time, improve cooking results, and manage their homes more efficiently.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Kitchen design in 2026 will emphasize layered layouts with hidden storage and prep kitchens, alongside bold, earthy color palettes and expressive, natural materials like stone with prominent veining.",
+        "relevance": "Buyers are moving beyond standard finishes, seeking to create highly personalized and functional spaces that serve as both beautiful gathering hubs and practical work areas.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Kitchen, Reimagined: Where Smart Design Meets Sustainable Living.",
+      "emotionalDriver": "The pride of creating a personalized, efficient, and responsible home hub.",
+      "callToAction": "Explore curated collections for your 2026 kitchen upgrade."
+    }
+  },
+  "PIA_4487": {
+    "segmentId": "PIA_4487",
+    "segmentName": "Cookware and Bakeware",
+    "fullPath": "Purchase Intent > Home and Garden > Kitchen and Dining > Cookware and Bakeware",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:00:32.973Z",
+    "detailedInsight": "This audience views cooking as a form of personal expression and a core component of a healthy lifestyle, with 63% of the market comprised of intermediate-level cooks looking to upgrade their skills and equipment. Their primary purchase triggers are the replacement of worn-out items and the desire for specific tools to explore new culinary techniques, heavily influenced by online research and social media trends. They are increasingly prioritizing non-toxic materials (PFOA/PFAS-free) and sustainable production, viewing their cookware not just as a utility but as a long-term investment in both their health and kitchen aesthetic.",
+    "exampleAdvertisers": [
+      {
+        "name": "Caraway",
+        "type": "brand",
+        "rationale": "Directly targets the health-conscious consumer with its non-toxic ceramic coatings and minimalist, social-media-friendly designs that appeal to the aesthetic-driven home cook."
+      },
+      {
+        "name": "Meal Kit Delivery Services",
+        "type": "category",
+        "rationale": "This audience is already actively engaged in home cooking. These services can advertise to users looking to expand their culinary repertoire, which often requires new or specialized cookware."
+      },
+      {
+        "name": "Le Creuset",
+        "type": "brand",
+        "rationale": "Appeals to the segment of serious home cooks who are upgrading their kitchens and are willing to invest in premium, durable, and iconic pieces like enameled cast iron."
+      },
+      {
+        "name": "Artisanal Food Producers",
+        "type": "category",
+        "rationale": "Targets the foodie sub-segment that values the entire cooking process, from high-quality ingredients to the tools used to prepare them, aligning with the trend of exploring global cuisines."
+      },
+      {
+        "name": "ButcherBox",
+        "type": "brand",
+        "rationale": "Connects with the audience's core value of health and quality ingredients. Their subscription model ensures a recurring touchpoint with consumers who are consistently cooking at home and value high-performance cookware to prepare their proteins."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "A significant market shift towards non-toxic and sustainable materials is underway, driven by new regulations in 2025 banning PFAS chemicals and strong consumer demand for healthier, eco-friendly coatings like advanced ceramics.",
+        "relevance": "With over 51% of women prioritizing non-toxic materials, 'PFAS-free' has become a critical purchasing factor for this health-conscious audience, who actively research the safety of their kitchen products.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "The rise of multi-functional and smart cookware, which incorporates features like integrated sensors or designs that allow for baking, frying, and serving from a single piece, is accelerating.",
+        "relevance": "This trend addresses the audience's desire for space-saving efficiency in modern kitchens and appeals to the growing segment of tech-savvy cooks seeking precision and convenience.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Cookware and bakeware are increasingly being purchased as aesthetic pieces that complement kitchen decor, with unique colors, patterns, and materials designed to be displayed and used for serving.",
+        "relevance": "This audience views the kitchen as a space for personal expression. The 'Instagram-worthy' visual appeal of cookware is a powerful purchase driver, reflecting the social sharing aspect of their culinary hobby.",
+        "timeframe": "2026"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Master Your Craft. The Tools You Deserve.",
+      "emotionalDriver": "Creative Fulfillment",
+      "callToAction": "Discover the Collection and Elevate Your Cooking"
+    }
+  },
+  "PIA_4493": {
+    "segmentId": "PIA_4493",
+    "segmentName": "Food and Beverage Carriers",
+    "fullPath": "Purchase Intent > Home and Garden > Kitchen and Dining > Food and Beverage Carriers",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:00:49.276Z",
+    "detailedInsight": "This audience consists of health-conscious meal preppers and environmentally aware families who view food carriers as an essential tool for maintaining their lifestyle. Their purchase decisions are driven by a desire for portion control, waste reduction, and the convenience of portable, fresh meals. Aesthetics and customization are also key, as they seek stylish and functional designs that reflect their personal values.",
+    "exampleAdvertisers": [
+      {
+        "name": "Meal Kit Delivery Services",
+        "type": "category",
+        "rationale": "This audience is already engaged in meal prepping and values convenient, healthy food options, making them prime candidates for services that simplify the cooking process."
+      },
+      {
+        "name": "Hydro Flask",
+        "type": "brand",
+        "rationale": "Known for premium insulation and durable, stylish designs, Hydro Flask's lunch boxes and totes appeal directly to this segment's appreciation for quality and aesthetics in portable food solutions."
+      },
+      {
+        "name": "Organic Grocery Chains",
+        "type": "category",
+        "rationale": "These consumers prioritize fresh, healthy ingredients for their packed lunches, making them a core customer base for grocery stores focused on organic and natural foods."
+      },
+      {
+        "name": "Bentgo",
+        "type": "brand",
+        "rationale": "Bentgo specializes in bento-style lunch boxes that cater to the desire for portion control and organized, visually appealing meals, which strongly resonates with this audience's habits."
+      },
+      {
+        "name": "Fitness & Wellness Apps",
+        "type": "category",
+        "rationale": "Users in this segment are often tracking their nutrition and fitness goals. These apps can position portable food carriers as the ideal tool for adhering to a planned diet."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global market for eco-friendly food packaging is projected to grow significantly, reaching approximately $271.54 billion in 2025.",
+        "relevance": "This trend directly reflects the core values of the Food and Beverage Carriers audience, who actively seek reusable and sustainable options to reduce single-use plastic waste. Their interest in products made from materials like stainless steel, glass, and biodegradable composites will intensify.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "Smart and electric lunch boxes, which can reheat food, are a growing market segment, expected to exhibit a CAGR of 6.6% to 6.89% between 2026 and 2034.",
+        "relevance": "For consumers seeking ultimate convenience and a hot meal on the go, these tech-integrated carriers are a natural evolution, appealing to busy professionals and those who want to avoid communal microwaves.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "Consumers are increasingly prioritizing high-protein snacks and meals, with a corresponding decline in sugary options for packed lunches.",
+        "relevance": "This nutritional shift influences not just the food being packed but the type of carrier needed. Compartmentalized containers (like bento boxes) that can separate different food items to maintain freshness and texture for protein-rich meals will be in higher demand.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Meal Prep, Perfected. Keep it Fresh, Hot, and Healthy.",
+      "emotionalDriver": "Empowerment through Control: The satisfaction of having complete control over one's nutritional choices and environmental impact.",
+      "callToAction": "Explore designs that fit your life."
+    }
+  },
+  "PIA_4506": {
+    "segmentId": "PIA_4506",
+    "segmentName": "Food Storage",
+    "fullPath": "Purchase Intent > Home and Garden > Kitchen and Dining > Food Storage",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:01:13.631Z",
+    "detailedInsight": "This audience is largely composed of proactive household managers who view food storage as a key component of a well-run, efficient, and economically savvy home. Their purchasing decisions are driven by a desire to minimize food waste, a value rooted in both financial prudence and a growing sense of environmental responsibility. They actively engage in meal planning and preparation, seeing it as a method to control their diets, save time during busy weeks, and manage household budgets effectively.",
+    "exampleAdvertisers": [
+      {
+        "name": "HelloFresh",
+        "type": "brand",
+        "rationale": "As a meal kit service, HelloFresh's target audience of busy, health-conscious individuals and families directly overlaps with the food storage segment's meal prepping behaviors. They can be targeted with messaging around using high-quality food storage to keep their pre-portioned ingredients fresh until cooking."
+      },
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "This retailer's entire business model is built around organization, which is a core value for the food storage audience. Their marketing often targets affluent, educated, and busy women who are looking for creative and customized solutions to save time and space, making them a natural fit."
+      },
+      {
+        "name": "Rubbermaid",
+        "type": "brand",
+        "rationale": "A legacy brand in food storage, Rubbermaid's marketing frequently highlights durability and practical solutions for common kitchen frustrations like cluttered cabinets. Their focus on product features that ensure freshness and prevent leaks appeals to this segment's desire for reliability and waste reduction."
+      },
+      {
+        "name": "Imperfect Foods",
+        "type": "brand",
+        "rationale": "This grocery delivery service targets eco-conscious consumers who are keen on reducing food waste, a primary motivator for the food storage segment. Their value proposition of providing affordable, sustainable groceries aligns perfectly with this audience's values."
+      },
+      {
+        "name": "Premium Supermarket Chains",
+        "type": "category",
+        "rationale": "Retailers like Whole Foods or Trader Joe's attract shoppers who prioritize high-quality, fresh ingredients and are often engaged in cooking from scratch. This makes them an ideal audience for upselling on premium food storage solutions to protect their investment in quality groceries."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global food storage container market is projected to grow, with the US market expected to reach over $42 billion by 2029. This growth is partly driven by an increased interest in sustainable and reusable options, including glass, silicone, and biodegradable materials.",
+        "relevance": "This audience is increasingly seeking out environmentally friendly food storage solutions that align with their values of reducing waste. They are willing to invest in products that are durable and have a smaller ecological footprint.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a rising consumer demand for modular and stackable food storage containers that maximize kitchen space. This is coupled with a growing interest in smart storage solutions, such as containers with QR codes for tracking contents and freshness.",
+        "relevance": "As this audience is focused on kitchen organization and efficiency, products that offer space-saving designs and innovative features for better food management are highly appealing. They are early adopters of solutions that simplify their home systems.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "The popularity of meal prepping continues to grow, influenced by health and wellness trends and the desire for convenient, home-cooked meals. This is driving demand for portion-control containers and systems that facilitate batch cooking and organized meal planning.",
+        "relevance": "This trend directly fuels the need for a variety of food storage containers tailored to specific meal components and portion sizes. This audience actively seeks out products that make their meal prep process more streamlined and effective.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "Your Sunday Meal Prep Just Got an Upgrade.",
+      "emotionalDriver": "The feeling of control and accomplishment from a well-organized kitchen and a week of prepared meals.",
+      "callToAction": "Shop the System: Build Your Perfect Food Storage Collection."
+    }
+  },
+  "PIA_4515": {
+    "segmentId": "PIA_4515",
+    "segmentName": "Food Storage Accessories",
+    "fullPath": "Purchase Intent > Home and Garden > Kitchen and Dining > Food Storage Accessories",
+    "category": "Purchase Intent",
+    "generatedAt": "2025-12-20T19:01:34.228Z",
+    "detailedInsight": "This audience views kitchen organization as a form of self-care, crucial for maintaining a sense of control and calm in their daily lives. They are meticulous planners who engage in routines like 'Sunday resets' and batch cooking, indicating a proactive approach to managing their household. Their purchase of accessories like labels and organizers is often triggered by a desire to optimize their systems for meal prepping and reducing food waste, reflecting a core value of mindful consumption and efficiency.",
+    "exampleAdvertisers": [
+      {
+        "name": "OXO",
+        "type": "brand",
+        "rationale": "OXO's reputation for ergonomic, user-friendly kitchen gadgets and storage containers directly appeals to this segment's focus on functionality and efficient systems in their daily routines."
+      },
+      {
+        "name": "The Container Store",
+        "type": "brand",
+        "rationale": "As a specialized retailer for organization solutions, The Container Store is a primary destination for this audience seeking specific products like drawer dividers, canisters, and labeling systems to perfect their kitchen organization."
+      },
+      {
+        "name": "Meal Kit Delivery Services",
+        "type": "category",
+        "rationale": "Consumers who value kitchen organization are often also interested in streamlining their meal planning and preparation. Meal kit services can target this audience by highlighting the convenience and reduced food waste their services offer."
+      },
+      {
+        "name": "Professional Home Organizers",
+        "type": "category",
+        "rationale": "This audience is invested in creating and maintaining an organized home. Professional organizers can market their services to this segment by offering expert advice and hands-on assistance in creating hyper-organized, aesthetically pleasing kitchen spaces."
+      },
+      {
+        "name": "Rubbermaid",
+        "type": "brand",
+        "rationale": "Rubbermaid's durable and versatile food storage solutions cater to this segment's need for reliable products for meal prepping, storing leftovers, and maintaining a well-organized pantry and refrigerator."
+      }
+    ],
+    "currentTrends": [
+      {
+        "trend": "The global household food storage container market is projected to grow, reaching USD 47 billion by 2035, with a CAGR of 4.9% from 2025 to 2035.",
+        "relevance": "This growing market indicates a sustained and increasing demand for the very products this audience is interested in, suggesting a receptive market for new and innovative food storage accessories.",
+        "timeframe": "2025"
+      },
+      {
+        "trend": "There is a significant consumer shift towards sustainable and eco-friendly home organization products, with a rising interest in materials like glass, bamboo, and recycled plastics.",
+        "relevance": "This audience is increasingly making purchasing decisions based on environmental impact. Brands offering sustainable and aesthetically pleasing food storage accessories will resonate strongly with their values.",
+        "timeframe": "2026"
+      },
+      {
+        "trend": "The rise of 'cluttercore' and personalization in home organization reflects a move away from stark minimalism towards more expressive and individualized spaces.",
+        "relevance": "This indicates an opportunity to market food storage accessories not just on functionality, but also on style and the ability to personalize one's kitchen, appealing to the audience's desire for a home that reflects their personality.",
+        "timeframe": "2025"
+      }
+    ],
+    "strategicHook": {
+      "headline": "The Secret to a Stress-Free Week Isn't a Vacation, It's a Perfectly Organized Pantry.",
+      "emotionalDriver": "The feeling of accomplishment and tranquility that comes from having a perfectly ordered and efficient personal space.",
+      "callToAction": "Showcase Your System: Share a photo of your organized kitchen and tag us to inspire others."
+    }
   }
 }

@@ -292,6 +292,8 @@ export default function HomePage() {
       setAiAudienceInsights([]);
       setAiMarketSizing([]);
       setAiGeoCards([]);
+      setAiMarketingSWOT([]);
+      setAiCompanyProfiles([]);
       setAiMarketingNews([]);
       setAiCompetitiveIntelligence([]);
       setAiContentStrategy([]);

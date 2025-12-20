@@ -1,7 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDealsController } from '@/lib/controllers/dealsControllerWrapper';
 
+// Timeout for audience insights generation
+// AWS Amplify has a 60s limit for serverless functions
+// We set this to 55 seconds to leave buffer for response formatting
+const API_TIMEOUT_MS = process.env.NODE_ENV === 'production' 
+  ? 55000  // 55 seconds for production (leaves 5s buffer for Amplify 60s limit)
+  : 90000; // 90 seconds for development (more forgiving)
+
 export async function POST(request: NextRequest) {
+  // Create a timeout promise that rejects after API_TIMEOUT_MS
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => {
+      reject(new Error('API request timeout - serverless function limit reached'));
+    }, API_TIMEOUT_MS);
+  });
+
   try {
     // Parse request body with error handling
     let body;
@@ -52,9 +66,27 @@ export async function POST(request: NextRequest) {
 
     let result;
     try {
-      result = await controller.generateAudienceInsightsDirect(body);
-    } catch (controllerError) {
+      // Race between insights generation and timeout
+      const insightsPromise = controller.generateAudienceInsightsDirect(body);
+      result = await Promise.race([insightsPromise, timeoutPromise]);
+    } catch (controllerError: any) {
       console.error('Error in generateAudienceInsightsDirect:', controllerError);
+      
+      // Check if it's a timeout error
+      if (controllerError.message?.includes('timeout')) {
+        console.error('⏰ Request timed out before completion');
+        return NextResponse.json(
+          { 
+            success: false,
+            error: 'Request timeout',
+            message: 'The audience insights generation took too long. Please try a simpler query or try again.',
+            audienceInsights: [],
+            aiResponse: ''
+          },
+          { status: 504 } // Gateway Timeout
+        );
+      }
+      
       return NextResponse.json(
         { 
           success: false,

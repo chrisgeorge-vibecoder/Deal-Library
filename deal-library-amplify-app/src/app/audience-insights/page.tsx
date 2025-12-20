@@ -566,10 +566,29 @@ export default function AudienceInsightsPage() {
           
           // If we found matches, use them
           if (matchedSegments.length > 0) {
-            const sortedSegments = matchedSegments.sort((a: string, b: string) => a.localeCompare(b));
+            // Double-check: Only include segments that are in the exact mapping
+            // This prevents any segments from other categories from appearing
+            const validSegments = matchedSegments.filter(seg => 
+              exactSegments.includes(seg)
+            );
+            
+            if (validSegments.length !== matchedSegments.length) {
+              console.warn(`⚠️ Filtered out ${matchedSegments.length - validSegments.length} invalid segments`);
+            }
+            
+            const sortedSegments = validSegments.sort((a: string, b: string) => a.localeCompare(b));
             setSegments(sortedSegments);
             console.log(`✅ Mapped ${sortedSegments.length} segments for category: ${category}`);
             console.log(`   Available segments: ${sortedSegments.join(', ')}`);
+            console.log(`   Expected segments: ${exactSegments.join(', ')}`);
+            
+            // Validate that all segments are in the expected list
+            const unexpectedSegments = sortedSegments.filter(seg => !exactSegments.includes(seg));
+            if (unexpectedSegments.length > 0) {
+              console.error(`❌ Found unexpected segments: ${unexpectedSegments.join(', ')}`);
+              console.error(`   These should not appear in category: ${category}`);
+            }
+            
             return; // Success - exit early
           }
           
@@ -787,74 +806,120 @@ export default function AudienceInsightsPage() {
     setRecommendedDeals([]);
 
     try {
-      console.log('🔍 Loading pre-generated report for:', { selectedCategory, selectedSegment });
+      console.log('🔍 Loading report for:', { selectedCategory, selectedSegment });
       
-      // Use static pre-generated data for instant loading
+      // Try to use static pre-generated data first (instant loading)
       const preGeneratedReport = audienceInsightsReports[selectedSegment];
       
-      if (!preGeneratedReport) {
-        console.error('❌ No pre-generated report found for segment:', selectedSegment);
-        setError(`Report not found for "${selectedSegment}". Please ensure all segments have been pre-generated.`);
+      if (preGeneratedReport && Object.keys(audienceInsightsReports).length > 0) {
+        // Pre-generated data available - use it
+        console.log('✅ Found pre-generated report, loading instantly');
+        
+        const report: AudienceInsightsReport = {
+          segment: preGeneratedReport.segment,
+          category: preGeneratedReport.category,
+          executiveSummary: preGeneratedReport.executiveSummary,
+          personaName: preGeneratedReport.personaName,
+          personaEmoji: preGeneratedReport.personaEmoji,
+          personaDescription: preGeneratedReport.personaDescription,
+          keyMetrics: preGeneratedReport.keyMetrics,
+          geographicHotspots: preGeneratedReport.geographicHotspots,
+          demographics: preGeneratedReport.demographics,
+          behavioralOverlap: preGeneratedReport.behavioralOverlap,
+          strategicInsights: preGeneratedReport.strategicInsights
+        };
+        
+        // Still fetch recommended deals (this is fast and doesn't require AI)
+        try {
+          const dealsResponse = await fetch('/api/audience-insights/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              segment: selectedSegment,
+              category: selectedCategory,
+              includeCommercialZips,
+              skipStrategicContent: true  // We already have strategic content from static data
+            }),
+          });
+
+          if (dealsResponse.ok) {
+            const dealsData = await dealsResponse.json();
+            if (dealsData.recommendedDeals && Array.isArray(dealsData.recommendedDeals)) {
+              setRecommendedDeals(dealsData.recommendedDeals);
+              console.log(`🎯 Loaded ${dealsData.recommendedDeals.length} recommended deals`);
+            }
+          }
+        } catch (dealsError) {
+          console.warn('⚠️ Could not fetch recommended deals:', dealsError);
+          // Non-fatal - continue without deals
+        }
+
+        // Set the report immediately (instant loading!)
+        setReport(report);
         setLoading(false);
+        
+        // Reset strategic content state (already included in pre-generated report)
+        setStrategicContentGenerated(true); // Mark as generated since it's in static data
+        setStrategicContentError(null);
+        
+        console.log(`✅ Report loaded instantly from pre-generated data`);
         return;
       }
       
-      console.log('✅ Found pre-generated report, loading instantly');
+      // Fallback: Use API if pre-generated data not available
+      console.log('⚠️ No pre-generated report found, falling back to API generation');
+      console.log(`   Available pre-generated reports: ${Object.keys(audienceInsightsReports).length}`);
       
-      // Convert pre-generated report to the format expected by the component
-      // The types should match, but we ensure compatibility
-      const report: AudienceInsightsReport = {
-        segment: preGeneratedReport.segment,
-        category: preGeneratedReport.category,
-        executiveSummary: preGeneratedReport.executiveSummary,
-        personaName: preGeneratedReport.personaName,
-        personaEmoji: preGeneratedReport.personaEmoji,
-        personaDescription: preGeneratedReport.personaDescription,
-        keyMetrics: preGeneratedReport.keyMetrics,
-        geographicHotspots: preGeneratedReport.geographicHotspots,
-        demographics: preGeneratedReport.demographics,
-        behavioralOverlap: preGeneratedReport.behavioralOverlap,
-        strategicInsights: preGeneratedReport.strategicInsights
-      };
-      
-      // Still fetch recommended deals (this is fast and doesn't require AI)
-      try {
-        const dealsResponse = await fetch('/api/audience-insights/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            segment: selectedSegment,
-            category: selectedCategory,
-            includeCommercialZips,
-            skipStrategicContent: true  // We already have strategic content from static data
-          }),
-        });
+      // Create an AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout
 
-        if (dealsResponse.ok) {
-          const dealsData = await dealsResponse.json();
-          if (dealsData.recommendedDeals && Array.isArray(dealsData.recommendedDeals)) {
-            setRecommendedDeals(dealsData.recommendedDeals);
-            console.log(`🎯 Loaded ${dealsData.recommendedDeals.length} recommended deals`);
-          }
+      // Generate report via API (with strategic content for now)
+      const response = await fetch('/api/audience-insights/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          segment: selectedSegment,
+          category: selectedCategory,
+          includeCommercialZips,
+          skipStrategicContent: true  // Skip Gemini calls for faster response
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        if (response.status === 504 || response.status >= 500) {
+          setError('Request timed out. The report generation took too long. Please try again.');
+        } else {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          setError(errorData.message || errorData.error || 'Failed to generate report');
         }
-      } catch (dealsError) {
-        console.warn('⚠️ Could not fetch recommended deals:', dealsError);
-        // Non-fatal - continue without deals
+        setLoading(false);
+        return;
       }
 
-      // Set the report immediately (instant loading!)
-      setReport(report);
-      setLoading(false);
+      const data = await response.json();
       
-      // Reset strategic content state (already included in pre-generated report)
-      setStrategicContentGenerated(true); // Mark as generated since it's in static data
-      setStrategicContentError(null);
-      
-      console.log(`✅ Report loaded instantly from pre-generated data`);
+      if (data.success && data.report) {
+        console.log('✅ Report generated via API');
+        setReport(data.report);
+        setRecommendedDeals(data.recommendedDeals || []);
+        setStrategicContentGenerated(false); // API-generated reports may not have strategic content yet
+        setLoading(false);
+      } else {
+        setError(data.message || data.error || 'Failed to generate report');
+        setLoading(false);
+      }
       
     } catch (error) {
       console.error('❌ Error loading report:', error);
-      setError(error instanceof Error ? error.message : 'Failed to load report');
+      if (error instanceof Error && error.name === 'AbortError') {
+        setError('Request timed out. The report generation took too long. Please try again.');
+      } else {
+        setError(error instanceof Error ? error.message : 'Failed to load report');
+      }
       setLoading(false);
     }
   };

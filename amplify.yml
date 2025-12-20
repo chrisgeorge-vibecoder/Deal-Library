@@ -6,6 +6,14 @@ applications:
         preBuild:
           commands:
             - npm ci
+            # Generate pre-built audience insights reports (if GEMINI_API_KEY is available)
+            - |
+              if [ -n "$GEMINI_API_KEY" ]; then
+                echo "=== Pre-generating Audience Insights Reports ==="
+                npm run pregenerate:insights || echo "⚠️ Pre-generation failed, will use API fallback"
+              else
+                echo "⚠️ GEMINI_API_KEY not set, skipping pre-generation (will use API fallback)"
+              fi
         build:
           commands:
             - echo "=== Building Next.js ==="

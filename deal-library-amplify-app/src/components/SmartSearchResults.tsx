@@ -104,12 +104,6 @@ export default function SmartSearchResults({
 
         {/* Metrics */}
         <div className="flex items-center gap-2 mb-4 flex-wrap">
-          <span className="inline-flex items-center px-2 py-1 bg-primary-100 text-primary-800 text-xs font-medium rounded-full">
-            ${segment.cpm.toFixed(2)} CPM
-          </span>
-          <span className="inline-flex items-center px-2 py-1 bg-secondary-100 text-secondary-800 text-xs font-medium rounded-full">
-            {(segment.mediaPercentCost * 100).toFixed(0)}% Media Cost
-          </span>
           {segment.scale7DayUS && (
             <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
               {formatScale(segment.scale7DayUS)} reach

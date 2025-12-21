@@ -1,17 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles } from 'lucide-react';
-import CampaignPlannerForm from '@/components/CampaignPlannerForm';
+import { Sparkles, Loader } from 'lucide-react';
+import CampaignPlannerFormV2, { CampaignPlannerFormData } from '@/components/CampaignPlannerFormV2';
 import CampaignPlannerResults from '@/components/CampaignPlannerResults';
-import AgentProgressTracker from '@/components/AgentProgressTracker';
-import { ProgressUpdate, ComprehensiveReport } from '@/types/agentMode';
+import { ComprehensiveReport } from '@/types/agentMode';
 import { useCart, useSaveCard } from '@/components/AppLayout';
-import { Deal } from '@/types/deal';
 
 export default function CampaignPlannerPage() {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [progress, setProgress] = useState<ProgressUpdate | null>(null);
   const [report, setReport] = useState<ComprehensiveReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   
@@ -23,7 +20,6 @@ export default function CampaignPlannerPage() {
 
   const handleFormSubmit = async (formData: any) => {
     console.log('🚀 Campaign Planner: Starting generation with form data:', formData);
-    console.log('🔍 Browser Console: Client-side logging active');
     
     // Prevent duplicate submissions
     if (isGenerating) {
@@ -32,167 +28,47 @@ export default function CampaignPlannerPage() {
     }
     
     setIsGenerating(true);
-    setProgress(null);
     setReport(null);
     setError(null);
 
     try {
-      // Use Next.js API route (relative path)
-      const response = await fetch('/api/agent-mode/generate-recommendation', {
+      // Extract data from either new or old form format
+      const selectedAudiences = formData.selectedAudiences || formData.targetAudiences || [];
+      const campaignObjective = formData.campaignObjective || formData.campaignObjectives?.[0] || 'full-funnel';
+      
+      const response = await fetch('/api/campaign-planner/build', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ formData })
+        body: JSON.stringify({
+          advertiserName: formData.advertiserName,
+          selectedAudiences,
+          campaignObjective,
+          budgetRange: formData.budgetRange,
+          geographicFocus: formData.geographicFocus
+        })
       });
 
       if (!response.ok) {
-        let errorText = '';
-        let errorJson: any = null;
-        
-        try {
-          errorText = await response.text();
-          console.error('❌ Error response body:', errorText);
-          console.error('❌ Error response status:', response.status);
-          console.error('❌ Error response headers:', Object.fromEntries(response.headers.entries()));
-          
-          // Try to parse as JSON for better error messages
-          if (errorText && errorText.trim()) {
-            try {
-              errorJson = JSON.parse(errorText);
-              console.error('❌ Parsed error JSON:', errorJson);
-            } catch (parseError) {
-              console.error('❌ Error response is not JSON:', parseError);
-              // Not JSON, use as-is
-            }
-          } else {
-            console.warn('⚠️ Error response body is empty');
-          }
-        } catch (textError) {
-          console.error('❌ Error reading error response:', textError);
-        }
-        
-        // Build error message from JSON if available
-        if (errorJson) {
-          const errorMessage = errorJson.message || errorJson.error || 'Unknown error';
-          const hint = errorJson.hint || '';
-          const details = errorJson.details || '';
-          
-          let fullMessage = `HTTP error! status: ${response.status} - ${errorMessage}`;
-          if (hint) {
-            fullMessage += `\n\nHint: ${hint}`;
-          }
-          if (details && process.env.NODE_ENV === 'development') {
-            fullMessage += `\n\nDetails: ${details.substring(0, 500)}`;
-          }
-          
-          throw new Error(fullMessage);
-        }
-        
-        // If we still don't have error text, provide a default message
-        if (!errorText || !errorText.trim()) {
-          if (response.status === 500) {
-            errorText = 'Internal server error. The server encountered an unexpected error. Please check the server logs for details.';
-          } else if (response.status === 503) {
-            errorText = 'Service unavailable. The AI service may not be configured. Please ensure GEMINI_API_KEY is set.';
-          } else {
-            errorText = `HTTP ${response.status} error`;
-          }
-        }
-        
-        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || errorData.message || `HTTP ${response.status} error`);
       }
 
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      if (!reader) {
-        throw new Error('No response body');
-      }
-
-      let buffer = '';
-      let lastEventTime = Date.now();
-      const TIMEOUT_MS = 180000; // 3 minute timeout
-
-      while (true) {
-        // Check for timeout (no events received for 3 minutes)
-        if (Date.now() - lastEventTime > TIMEOUT_MS) {
-          console.warn('⚠️ SSE timeout - no events for 3 minutes');
-          throw new Error('Connection timeout - no response from server');
-        }
-
-        const { done, value } = await reader.read();
-        
-        if (done) {
-          console.log('✅ SSE stream ended (done=true)');
-          break;
-        }
-
-        if (!value || value.length === 0) {
-          console.log('⚠️ Empty chunk received, continuing...');
-          continue;
-        }
-
-        lastEventTime = Date.now(); // Reset timeout on each chunk received
-        const chunk = decoder.decode(value, { stream: true });
-        console.log(`📦 Received chunk (${chunk.length} bytes)`);
-        
-        buffer += chunk;
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (line.trim() === '') continue; // Skip empty lines
-          
-          // Handle SSE comments (heartbeat keepalives)
-          if (line.startsWith(':')) {
-            console.log('💓 Heartbeat received');
-            continue;
-          }
-          
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            try {
-              const update = JSON.parse(data);
-              console.log('📨 SSE Event:', update.type, update.step || '', update.status || '');
-              
-              if (update.type === 'progress') {
-                setProgress(update);
-              } else if (update.type === 'complete') {
-                console.log('🎉 [BROWSER] Complete event received!');
-                console.log('   [BROWSER] Report structure:', update.report ? Object.keys(update.report) : 'null');
-                console.log('   [BROWSER] Report.results:', update.report?.results ? Object.keys(update.report.results) : 'null');
-                console.log('   [BROWSER] Report.results.strategy:', update.report?.results?.strategy);
-                if (update.report?.results?.strategy) {
-                  console.log('   [BROWSER] Strategy competitors:', update.report.results.strategy.competitors);
-                  console.log('   [BROWSER] Strategy competitors count:', update.report.results.strategy.competitors?.length);
-                }
-                setReport(update.report);
-                setProgress(null);
-              } else if (update.type === 'error') {
-                throw new Error(update.message || 'Generation failed');
-              }
-            } catch (parseError) {
-              console.error('❌ Error parsing SSE data:', parseError, 'Data:', data);
-            }
-          }
-        }
+      const result = await response.json();
+      
+      if (result.success && result.report) {
+        console.log('✅ Campaign proposal generated successfully');
+        setReport(result.report);
+      } else {
+        throw new Error(result.error || 'Failed to generate proposal');
       }
     } catch (error) {
       console.error('❌ Campaign generation error:', error);
       
-      // Provide more helpful error messages
-      let errorMessage = 'Failed to generate campaign';
+      let errorMessage = 'Failed to generate campaign proposal';
       if (error instanceof Error) {
-        if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED') || error.message.includes('NetworkError')) {
-          errorMessage = 'Unable to connect to the backend server. Please ensure the backend is running on port 3002.';
-        } else if (error.message.includes('timeout')) {
-          errorMessage = 'Request timed out. The server may be taking longer than expected. Please try again.';
-        } else {
-          errorMessage = error.message;
-        }
-      } else {
-        errorMessage = String(error);
+        errorMessage = error.message;
       }
       
       setError(errorMessage);
@@ -227,7 +103,7 @@ export default function CampaignPlannerPage() {
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto bg-gray-50 px-8 py-8">
         {!report && !isGenerating && (
-          <CampaignPlannerForm
+          <CampaignPlannerFormV2
             onSubmit={handleFormSubmit}
             disabled={isGenerating}
           />
@@ -235,15 +111,11 @@ export default function CampaignPlannerPage() {
 
         {isGenerating && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            {progress ? (
-              <AgentProgressTracker progress={progress} />
-            ) : (
-              <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Initializing Campaign Generation</h3>
-                <p className="text-gray-600">Setting up AI analysis and preparing your comprehensive marketing recommendation...</p>
-              </div>
-            )}
+            <div className="text-center py-8">
+              <Loader className="w-12 h-12 animate-spin text-purple-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Building Your Campaign Proposal</h3>
+              <p className="text-gray-600">Assembling insights from pre-enriched audience data and matching deals...</p>
+            </div>
           </div>
         )}
 

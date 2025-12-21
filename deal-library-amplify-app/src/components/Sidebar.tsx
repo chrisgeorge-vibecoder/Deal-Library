@@ -113,14 +113,13 @@ export default function Sidebar({
           </button>
         </div>
         <div className="space-y-2">
-          {/* Campaign Planner - Hidden from navigation but route still accessible for testing */}
-          {/* <Link
+          <Link
             href="/campaign-planner"
             className="flex items-center gap-3 px-3 py-3 min-h-[44px] text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors touch-manipulation active:bg-neutral-200"
           >
             <Sparkles className="w-5 h-5 flex-shrink-0" />
             <span>Campaign Planner</span>
-          </Link> */}
+          </Link>
           <Link
             href="/audience-insights"
             className="flex items-center gap-3 px-3 py-3 min-h-[44px] text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors touch-manipulation active:bg-neutral-200"

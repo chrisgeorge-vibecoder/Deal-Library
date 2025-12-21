@@ -287,9 +287,11 @@ export default function CampaignPlannerResults({
           {/* Executive Summary */}
           <section className="mb-12">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Executive Summary</h2>
-            <p className="text-gray-700 leading-relaxed mb-6">
-              Sovrn is pleased to present a comprehensive marketing strategy to help {report.advertiserName} reach their target audiences across the United States. Through our advanced audience intelligence platform, we have identified and mapped precise audience segments that align with your campaign objectives.
-            </p>
+            <div className="text-gray-700 leading-relaxed mb-6 whitespace-pre-line">
+              {(report.results as any).executiveSummary || (
+                <p>Sovrn is pleased to present a comprehensive marketing strategy to help {report.advertiserName} reach their target audiences across the United States. Through our advanced audience intelligence platform, we have identified and mapped precise audience segments that align with your campaign objectives.</p>
+              )}
+            </div>
             
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-6">
               <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">

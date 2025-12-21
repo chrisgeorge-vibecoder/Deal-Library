@@ -202,6 +202,7 @@ We recommend a strategic ${input.campaignObjective} campaign that targets these 
 
   /**
    * Generate SWOT analysis using AI (lightweight call)
+   * Has a timeout to prevent blocking the entire request
    */
   private async generateSWOT(
     advertiserName: string
@@ -222,8 +223,19 @@ We recommend a strategic ${input.campaignObjective} campaign that targets these 
       };
     }
 
+    // Add timeout wrapper (20 seconds max for SWOT generation)
+    const SWOT_TIMEOUT_MS = 20000;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('SWOT generation timeout'));
+      }, SWOT_TIMEOUT_MS);
+    });
+
     try {
-      const swotResult = await geminiService.generateMarketingSWOT(advertiserName);
+      const swotResult = await Promise.race([
+        geminiService.generateMarketingSWOT(advertiserName),
+        timeoutPromise
+      ]);
       
       if (swotResult && swotResult.swot) {
         return {
@@ -241,8 +253,13 @@ We recommend a strategic ${input.campaignObjective} campaign that targets these 
           ).slice(0, 5)
         };
       }
-    } catch (error) {
-      console.error('❌ Error generating SWOT with AI:', error);
+    } catch (error: any) {
+      // Log timeout separately for visibility
+      if (error.message?.includes('timeout')) {
+        console.warn('⏰ SWOT generation timed out, using empty SWOT data');
+      } else {
+        console.error('❌ Error generating SWOT with AI:', error);
+      }
     }
 
     // Fallback to empty SWOT

@@ -128,13 +128,13 @@ export function CompetitiveIntelligenceDetailModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div className="bg-slate-50/60 p-4 rounded-lg border border-slate-200/50">
                 <h5 className="text-xs font-semibold text-slate-600 uppercase mb-2 tracking-wide">Market Share</h5>
-                <div className="text-xl font-semibold text-slate-900 -tracking-[0.01em]">
+                <div className="text-sm font-medium text-slate-900 leading-relaxed">
                   <HighlightedText text={competitiveIntel.marketPosition?.marketShare || 'N/A'} />
                 </div>
               </div>
               <div className="bg-slate-50/60 p-4 rounded-lg border border-slate-200/50">
                 <h5 className="text-xs font-semibold text-slate-600 uppercase mb-2 tracking-wide">Growth Trajectory</h5>
-                <div className="text-xl font-semibold text-slate-900 -tracking-[0.01em]">{competitiveIntel.marketPosition?.growthTrajectory || 'N/A'}</div>
+                <div className="text-sm font-medium text-slate-900 leading-relaxed">{competitiveIntel.marketPosition?.growthTrajectory || 'N/A'}</div>
               </div>
             </div>
 

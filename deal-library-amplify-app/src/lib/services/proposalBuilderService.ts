@@ -66,11 +66,14 @@ export class ProposalBuilderService {
     const matchedDeals = await this.matchDealsToAudiences(audienceReports, allDeals);
     console.log(`🎯 Matched ${matchedDeals.length} deals across all audiences`);
 
-    // Step 4: Generate executive summary (single AI call)
-    const executiveSummary = await this.generateExecutiveSummary(input, audienceReports);
+    // Step 4: Generate executive summary and SWOT analysis (parallel AI calls for performance)
+    const [executiveSummary, swotData] = await Promise.all([
+      this.generateExecutiveSummary(input, audienceReports),
+      this.generateSWOT(input.advertiserName)
+    ]);
 
     // Step 5: Assemble the comprehensive report
-    const report = this.assembleReport(input, audienceReports, matchedDeals, executiveSummary);
+    const report = this.assembleReport(input, audienceReports, matchedDeals, executiveSummary, swotData);
 
     return report;
   }
@@ -198,30 +201,94 @@ We recommend a strategic ${input.campaignObjective} campaign that targets these 
   }
 
   /**
+   * Generate SWOT analysis using AI (lightweight call)
+   */
+  private async generateSWOT(
+    advertiserName: string
+  ): Promise<{
+    strengths: string[];
+    weaknesses: string[];
+    opportunities: string[];
+    threats: string[];
+  }> {
+    const geminiService = this.getGeminiService();
+    if (!geminiService) {
+      // Return empty SWOT if Gemini unavailable
+      return {
+        strengths: [],
+        weaknesses: [],
+        opportunities: [],
+        threats: []
+      };
+    }
+
+    try {
+      const swotResult = await geminiService.generateMarketingSWOT(advertiserName);
+      
+      if (swotResult && swotResult.swot) {
+        return {
+          strengths: (swotResult.swot.strengths || []).map((s: any) => 
+            typeof s === 'string' ? s : `${s.title || ''}${s.description ? ': ' + s.description : ''}`.trim()
+          ).slice(0, 5),
+          weaknesses: (swotResult.swot.weaknesses || []).map((w: any) => 
+            typeof w === 'string' ? w : `${w.title || ''}${w.description ? ': ' + w.description : ''}`.trim()
+          ).slice(0, 5),
+          opportunities: (swotResult.swot.opportunities || []).map((o: any) => 
+            typeof o === 'string' ? o : `${o.title || ''}${o.description ? ': ' + o.description : ''}`.trim()
+          ).slice(0, 5),
+          threats: (swotResult.swot.threats || []).map((t: any) => 
+            typeof t === 'string' ? t : `${t.title || ''}${t.description ? ': ' + t.description : ''}`.trim()
+          ).slice(0, 5)
+        };
+      }
+    } catch (error) {
+      console.error('❌ Error generating SWOT with AI:', error);
+    }
+
+    // Fallback to empty SWOT
+    return {
+      strengths: [],
+      weaknesses: [],
+      opportunities: [],
+      threats: []
+    };
+  }
+
+  /**
    * Assemble the final comprehensive report
    */
   private assembleReport(
     input: ProposalBuilderInput,
     reports: PreGeneratedAudienceReport[],
     deals: Deal[],
-    executiveSummary: string
+    executiveSummary: string,
+    swotData: { strengths: string[]; weaknesses: string[]; opportunities: string[]; threats: string[] }
   ): ComprehensiveReport {
     // Extract personas from reports
-    const personas = reports.map(report => ({
-      name: report.personaName,
-      emoji: report.personaEmoji,
-      description: report.personaDescription || report.executiveSummary.substring(0, 300),
-      segmentId: report.segment,
-      category: report.category,
-      coreInsight: report.executiveSummary,
-      creativeHooks: this.extractCreativeHooks(report),
-      mediaTargeting: this.extractMediaTargeting(report),
-      audienceMotivation: report.strategicInsights?.targetPersona || '',
-      actionableStrategy: {
-        creativeHook: report.strategicInsights?.messagingRecommendations?.[0] || '',
-        mediaTargeting: report.strategicInsights?.channelRecommendations?.[0] || ''
-      }
-    }));
+    const personas = reports.map(report => {
+      const creativeHooks = this.extractCreativeHooks(report);
+      const mediaTargeting = this.extractMediaTargeting(report);
+      
+      // Extract first creative hook and media targeting for actionableStrategy
+      const firstHook = creativeHooks[0] || '';
+      const firstTargeting = mediaTargeting[0] || '';
+      
+      return {
+        name: report.personaName,
+        emoji: report.personaEmoji,
+        description: report.personaDescription || report.executiveSummary.substring(0, 300),
+        segmentId: report.segment,
+        category: report.category,
+        coreInsight: report.executiveSummary,
+        creativeHooks,
+        mediaTargeting,
+        audienceMotivation: report.strategicInsights?.targetPersona || '',
+        actionableStrategy: {
+          creativeHook: firstHook,
+          mediaTargeting: firstTargeting
+        }
+      };
+    });
 
     // Aggregate market sizing from reports
     const totalReach = reports.reduce((sum, report) => {
@@ -276,10 +343,10 @@ We recommend a strategic ${input.campaignObjective} campaign that targets these 
         coverageMap: null
       },
       swot: {
-        strengths: [],
-        weaknesses: [],
-        opportunities: [],
-        threats: []
+        strengths: swotData.strengths,
+        weaknesses: swotData.weaknesses,
+        opportunities: swotData.opportunities,
+        threats: swotData.threats
       },
       companyProfile: {
         industry: '',
@@ -317,12 +384,21 @@ We recommend a strategic ${input.campaignObjective} campaign that targets these 
     for (const msg of messaging) {
       if (typeof msg === 'string') {
         hooks.push(msg);
-      } else if (msg && typeof msg === 'object' && 'valueProposition' in msg) {
-        hooks.push(msg.valueProposition);
+      } else if (msg && typeof msg === 'object') {
+        // Handle object format: extract valueProposition, or fallback to stringifying
+        if ('valueProposition' in msg && typeof msg.valueProposition === 'string') {
+          hooks.push(msg.valueProposition);
+        } else if ('title' in msg && typeof msg.title === 'string') {
+          hooks.push(msg.title);
+        } else {
+          // Fallback: convert object to string representation
+          const fallback = JSON.stringify(msg).slice(0, 150);
+          hooks.push(fallback);
+        }
       }
     }
     
-    return hooks.slice(0, 3);
+    return hooks.slice(0, 3).filter(hook => hook.trim().length > 0);
   }
 
   /**
@@ -335,12 +411,25 @@ We recommend a strategic ${input.campaignObjective} campaign that targets these 
     for (const channel of channels) {
       if (typeof channel === 'string') {
         targeting.push(channel);
-      } else if (channel && typeof channel === 'object' && 'platform' in channel) {
-        targeting.push(`${channel.platform}: ${channel.targeting}`);
+      } else if (channel && typeof channel === 'object') {
+        // Handle object format with platform property
+        if ('platform' in channel) {
+          const platform = channel.platform || '';
+          const target = channel.targeting || '';
+          if (platform) {
+            targeting.push(target ? `${platform}: ${target}` : platform);
+          }
+        } else if ('title' in channel && typeof channel.title === 'string') {
+          targeting.push(channel.title);
+        } else {
+          // Fallback: convert object to string representation
+          const fallback = JSON.stringify(channel).slice(0, 150);
+          targeting.push(fallback);
+        }
       }
     }
     
-    return targeting.slice(0, 3);
+    return targeting.slice(0, 3).filter(target => target.trim().length > 0);
   }
 
   /**

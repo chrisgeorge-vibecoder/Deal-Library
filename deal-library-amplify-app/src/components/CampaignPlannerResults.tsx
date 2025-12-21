@@ -85,22 +85,45 @@ export default function CampaignPlannerResults({
   };
 
   // Transform data for modals
-  const transformPersonaForModal = (persona: any): Persona => ({
-    id: persona.id || `persona-${persona.name || persona.personaName}`,
-    name: persona.name || persona.personaName || 'Unknown',
-    emoji: persona.emoji || '👤',
-    segmentId: persona.segmentId || '',
-    category: persona.category || 'General',
-    coreInsight: persona.coreInsight || persona.description || '',
-    creativeHooks: persona.creativeHooks || [],
-    mediaTargeting: persona.mediaTargeting || [],
-    audienceMotivation: persona.audienceMotivation || persona.motivations?.[0] || '',
-    actionableStrategy: persona.actionableStrategy || {
-      creativeHook: persona.creativeHooks?.[0] || '',
-      mediaTargeting: persona.mediaTargeting?.[0] || ''
-    },
-    dealCount: persona.dealCount
-  });
+  const transformPersonaForModal = (persona: any): Persona => {
+    // Ensure creativeHooks is always string[]
+    let creativeHooks: string[] = [];
+    if (Array.isArray(persona.creativeHooks)) {
+      creativeHooks = persona.creativeHooks.map((hook: any) => {
+        if (typeof hook === 'string') return hook;
+        if (hook && typeof hook === 'object' && 'valueProposition' in hook) {
+          return hook.valueProposition || '';
+        }
+        return String(hook || '');
+      }).filter((h: string) => h.trim().length > 0);
+    }
+
+    // Ensure mediaTargeting is always string[]
+    let mediaTargeting: string[] = [];
+    if (Array.isArray(persona.mediaTargeting)) {
+      mediaTargeting = persona.mediaTargeting.map((target: any) => {
+        if (typeof target === 'string') return target;
+        return String(target || '');
+      }).filter((t: string) => t.trim().length > 0);
+    }
+
+    return {
+      id: persona.id || `persona-${persona.name || persona.personaName}`,
+      name: persona.name || persona.personaName || 'Unknown',
+      emoji: persona.emoji || '👤',
+      segmentId: persona.segmentId || '',
+      category: persona.category || 'General',
+      coreInsight: persona.coreInsight || persona.description || '',
+      creativeHooks,
+      mediaTargeting,
+      audienceMotivation: persona.audienceMotivation || persona.motivations?.[0] || '',
+      actionableStrategy: persona.actionableStrategy || {
+        creativeHook: creativeHooks[0] || '',
+        mediaTargeting: mediaTargeting[0] || ''
+      },
+      dealCount: persona.dealCount
+    };
+  };
 
   const transformMarketSizingForModal = (): MarketSizing => ({
     id: `market-sizing-${report.advertiserName}`,

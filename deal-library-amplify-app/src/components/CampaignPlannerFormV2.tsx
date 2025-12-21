@@ -45,15 +45,51 @@ export default function CampaignPlannerFormV2({ onSubmit, disabled = false }: Ca
   // Get all segments (computed once)
   const allSegments = useMemo(() => getAllSegments(), []);
 
-  // Filter segments based on search query
+  // Filter segments based on search query with improved matching
   const filteredSegments = useMemo(() => {
     if (!searchQuery.trim()) {
       return allSegments.slice(0, 50); // Show first 50 when no search
     }
-    const query = searchQuery.toLowerCase();
-    return allSegments
-      .filter(segment => segment.toLowerCase().includes(query))
-      .slice(0, 50); // Limit to 50 results for performance
+    const query = searchQuery.toLowerCase().trim();
+    
+    // Filter with better matching logic
+    const filtered = allSegments.filter(segment => {
+      const lowerSegment = segment.toLowerCase();
+      
+      // Exact match gets highest priority
+      if (lowerSegment === query) return true;
+      
+      // Starts with match (high priority)
+      if (lowerSegment.startsWith(query)) return true;
+      
+      // Word boundary match (avoid substring matches like "car" in "care")
+      const words = lowerSegment.split(/[\s&]+/);
+      if (words.some(word => word.startsWith(query))) return true;
+      
+      // Contains match (lowest priority)
+      return lowerSegment.includes(query);
+    });
+    
+    // Sort by relevance
+    const sorted = filtered.sort((a, b) => {
+      const aLower = a.toLowerCase();
+      const bLower = b.toLowerCase();
+      
+      // Prioritize exact matches
+      if (aLower === query && bLower !== query) return -1;
+      if (bLower === query && aLower !== query) return 1;
+      
+      // Prioritize starts-with matches
+      const aStarts = aLower.startsWith(query);
+      const bStarts = bLower.startsWith(query);
+      if (aStarts && !bStarts) return -1;
+      if (bStarts && !aStarts) return 1;
+      
+      // Alphabetical for same priority
+      return a.localeCompare(b);
+    });
+    
+    return sorted.slice(0, 50); // Limit to 50 results for performance
   }, [searchQuery, allSegments]);
 
   const handleAddAudience = (segment: string) => {

@@ -386,21 +386,40 @@ export default function HomePage() {
         
         if (selectedType === 'market-sizing') {
           try {
+            // Add timeout controller for fetch request
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 50000); // 50 second timeout
+            
             const response = await fetch('/api/market-sizing', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query, conversationHistory: conversationHistory || [] }),
+              signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
             
             if (response.ok) {
               const data = await response.json();
               setAiMarketSizing(data.marketSizing || []);
               setAiResponse(data.aiResponse || 'Here is the market sizing analysis for your query.');
+              setLoading(false);
+              return;
+            } else {
+              // Handle non-OK responses
+              const errorData = await response.json().catch(() => ({}));
+              setAiResponse(errorData.message || 'Market sizing analysis is temporarily unavailable. Please try again later.');
+              setLoading(false);
               return;
             }
-          } catch (error) {
+          } catch (error: any) {
             console.error('Market sizing request failed:', error);
-            setAiResponse('Market sizing analysis is temporarily unavailable. Please try again later.');
+            if (error.name === 'AbortError') {
+              setAiResponse('The market sizing request timed out. Please try again with a simpler query.');
+            } else {
+              setAiResponse('Market sizing analysis is temporarily unavailable. Please try again later.');
+            }
+            setLoading(false);
             return;
           }
         }

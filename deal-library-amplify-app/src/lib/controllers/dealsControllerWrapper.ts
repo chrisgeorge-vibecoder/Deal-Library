@@ -588,11 +588,18 @@ export class DealsControllerWrapper extends DealsController {
         try {
           const gemini = getGeminiService();
           if (gemini) {
-            const sizingResult = await gemini.generateMarketSizing(query || 'technology market');
+            // Add timeout wrapper for market sizing generation (20 seconds)
+            const MARKET_SIZING_TIMEOUT_MS = 20000;
+            const marketSizingTimeoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => reject(new Error('Market sizing generation timeout')), MARKET_SIZING_TIMEOUT_MS);
+            });
+            const marketSizingPromise = gemini.generateMarketSizing(query || 'technology market');
+            const sizingResult = await Promise.race([marketSizingPromise, marketSizingTimeoutPromise]);
             results.marketSizing = sizingResult.marketSizing || [];
           }
         } catch (error) {
           console.error('Error generating market sizing:', error);
+          // On timeout or error, continue without market sizing rather than failing the whole request
         }
       }
       

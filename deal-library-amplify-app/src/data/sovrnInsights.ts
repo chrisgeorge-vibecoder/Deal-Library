@@ -2091,6 +2091,77 @@ export const sovrnInsights: SovrnInsight[] = [
     category: 'Data Discoveries',
     tags: ['innovation-hubs', 'san-diego', 'genomics', 'biotech', 'specialized', 'b2b', 'tribeca', 'category-diversity'],
   },
+
+  // RETIREE HAVENS: THE SILVER ECONOMY INSIGHTS
+  // America's Top Retirement ZIP Codes Analysis
+  {
+    id: 'silver-economy-1',
+    headline: 'Sun City: The Original "Active Adult" Blueprint Generated $2.3B in Annual Retirement Spending',
+    didYouKnow: 'Sun City, Arizona (85351) pioneered the "active adult community" concept in 1960—and 65 years later, it remains the archetype for every retirement development in America. This ZIP code has 73% residents aged 65+ with median ages exceeding 71, generating an estimated $2.3B in annual healthcare, leisure, and wealth management spending. The Del Webb model Sun City pioneered is now a $100B+ industry.',
+    marketingImplication: 'Sun City residents are the "first wave" of active retirement—they expect activity programming, golf, and resort-style amenities as baseline, not premium features. Brands targeting 85351 must compete on experience depth, not novelty. These consumers wrote the rulebook.',
+    category: 'Geographic Markets',
+    tags: ['sun-city', 'arizona', 'retirement', 'active-adult', 'silver-economy', 'del-webb', 'seniors'],
+    featured: true,
+  },
+  {
+    id: 'silver-economy-2',
+    headline: 'Naples 34102: Where Wealth Managers Outnumber Pediatricians 47:1',
+    didYouKnow: 'Naples, Florida (34102) has America\'s highest concentration of wealth managers per capita—with an estimated 47 financial advisors for every pediatrician. This ultra-wealthy retirement enclave has median home values exceeding $1.2M, 68% residents 65+, and the highest density of $5M+ net worth households of any retirement ZIP. The average Naples 34102 resident has more financial products than family members under 18.',
+    marketingImplication: 'Naples 34102 is not a "retirement market"—it\'s an ultra-high-net-worth wealth preservation market. Luxury brands, private banking, estate planning, and concierge healthcare services compete for share of wallet. Mass-market senior messaging will fail spectacularly.',
+    category: 'Geographic Markets',
+    tags: ['naples', 'florida', 'ultra-wealthy', 'wealth-management', 'UHNW', 'retirement', 'silver-economy'],
+    featured: true,
+  },
+  {
+    id: 'silver-economy-3',
+    headline: 'Greenville SC: The "Silver City" Migration Is Reshaping Tax Revenue Maps',
+    didYouKnow: 'Greenville, South Carolina (29601) is America\'s fastest-growing retirement alternative—with 65+ population growing 4.2x faster than national average. Why? No state income tax on Social Security, property taxes 60% below Northeast averages, and healthcare costs 23% under national benchmarks. Retirees migrating from NJ, NY, and CT are bringing $47B in transferred assets annually to the Southeast "tax haven" corridor.',
+    marketingImplication: 'Greenville retirees are "financial refugees" from high-tax states—they\'re cost-conscious despite wealth, value-oriented, and research-driven. Lead with value propositions and savings messaging, not aspirational luxury. These are smart money movers, not status seekers.',
+    category: 'Geographic Markets',
+    tags: ['greenville', 'south-carolina', 'migration', 'tax-haven', 'retirement', 'silver-economy', 'value-conscious'],
+  },
+  {
+    id: 'silver-economy-4',
+    headline: 'St. George UT: National Parks Are the New Golf Courses for Outdoor Retirees',
+    didYouKnow: 'St. George, Utah (84770) is America\'s outdoor retirement capital—positioned within 2 hours of Zion, Bryce Canyon, and Grand Canyon. This ZIP has 58% residents 65+ but unusually high activity levels: hiking gear purchases index 340% above national average, e-bike sales index 520%, and outdoor recreation spending exceeds golf spending by 3:1. The "golf retirement" model is being replaced by "adventure retirement."',
+    marketingImplication: 'The next generation of retirees wants national parks, not country clubs. Outdoor brands targeting 60+ should focus on St. George, Sedona, and Asheville—not Sun City. Adventure-adjacent positioning beats leisure-adjacent for emerging silver markets.',
+    category: 'Lifestyle & Values',
+    tags: ['st-george', 'utah', 'outdoor', 'national-parks', 'adventure', 'retirement', 'active-seniors', 'hiking'],
+    featured: true,
+  },
+  {
+    id: 'silver-economy-5',
+    headline: 'The $8.3 Trillion Retirement Corridor: 5 ZIP Codes Control Silver Economy Access',
+    didYouKnow: 'America\'s top 5 "Retiree Haven" ZIP codes—The Villages FL (32162), Sun City AZ (85351), Naples FL (34102), Greenville SC (29601), and St. George UT (84770)—represent just 0.15% of U.S. population but control access to $8.3 trillion in retirement assets. Combined, these 5 ZIPs have more residents over 65 than the entire state of Wyoming has total residents.',
+    marketingImplication: 'National senior marketing is inefficient. Hyper-targeting these 5 ZIP codes delivers 40% of the affluent 65+ market at 0.15% of the geographic cost. Build localized campaigns for each haven\'s unique culture, then scale learnings nationally.',
+    category: 'Data Discoveries',
+    tags: ['retirement-corridor', 'silver-economy', 'zip-targeting', 'seniors', 'affluent', 'micro-markets'],
+  },
+  {
+    id: 'silver-economy-6',
+    headline: 'Healthcare in Retiree Havens Over-Indexes 2,400%—But It\'s Not What You Think',
+    didYouKnow: 'Healthcare spending in America\'s top Retiree Havens indexes 2,400% above national averages—but 73% of that spending is wellness, prevention, and optimization, not treatment. Retiree Haven residents over-index 890% on supplements, 670% on fitness technology, 540% on meal delivery services, and 420% on sleep optimization products. They\'re not managing illness—they\'re engineering longevity.',
+    marketingImplication: 'Drop the "senior health" messaging—Retiree Haven residents reject decline narratives. Position products around optimization, performance, and longevity. These consumers see themselves as "health engineers," not patients. Wellness tech and biohacking content resonates.',
+    category: 'Consumer Profiles',
+    tags: ['healthcare', 'wellness', 'longevity', 'optimization', 'seniors', 'silver-economy', 'biohacking'],
+  },
+  {
+    id: 'silver-economy-7',
+    headline: 'The Grandparent Economy: Retiree Haven Residents Spend $14,200/Year on Family 500+ Miles Away',
+    didYouKnow: 'Retiree Haven residents spend an average of $14,200 annually on family members living 500+ miles away—including travel (42%), gifts (28%), education contributions (18%), and "experience purchases" like Disney tickets and summer camps (12%). Amazon gift card purchases in these ZIPs spike 340% above national average. The grandparent economy is larger than the baby economy in these markets.',
+    marketingImplication: 'Target retiree havens for children\'s products—seriously. Grandparents are the hidden buyers of premium toys, education tech, and experience gifts. Position products as "gift-worthy" and enable easy cross-country shipping. The buyer and the user are in different ZIP codes.',
+    category: 'Consumer Profiles',
+    tags: ['grandparents', 'gifting', 'family', 'remote-grandparenting', 'silver-economy', 'children', 'experiences'],
+    featured: true,
+  },
+  {
+    id: 'silver-economy-8',
+    headline: 'Digital Adoption in Retiree Havens Exceeds National Average—By 23%',
+    didYouKnow: 'Contrary to stereotypes, Retiree Haven ZIP codes have 23% higher smartphone penetration, 31% higher streaming subscription rates, and 45% higher telehealth adoption than national averages. Naples FL (34102) has higher per-capita iPad ownership than San Francisco. The Villages has more Facebook users per capita than any college town. Affluent retirees aren\'t digitally hesitant—they\'re digitally dominant.',
+    marketingImplication: 'The "seniors don\'t use technology" assumption is costing marketers millions. Digital-first campaigns work in Retiree Havens—often better than in younger markets. These consumers have time, money, and motivation to master digital tools. Lead with digital, support with traditional.',
+    category: 'Data Discoveries',
+    tags: ['digital-adoption', 'technology', 'seniors', 'mobile', 'streaming', 'telehealth', 'silver-economy', 'digital-marketing'],
+  },
 ];
 
 // Helper function to get insights by category

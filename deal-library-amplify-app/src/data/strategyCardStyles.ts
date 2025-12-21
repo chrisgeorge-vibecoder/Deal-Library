@@ -170,14 +170,54 @@ export const usesSovrnData = (category: StrategyCardCategory): boolean => {
   return style?.dataSource === 'sovrn';
 };
 
+// Helper function to round decimal numbers to 1 digit after the decimal point
+const roundToOneDecimal = (numStr: string): string => {
+  // Match the numeric part (before any suffix like %, M, B, K, x)
+  const match = numStr.match(/^([\$]?)([\d,]+)(?:\.(\d+))?(.*)$/);
+  if (!match) return numStr;
+  
+  const [, prefix, intPart, decPart, suffix] = match;
+  
+  // If no decimal part, return as-is
+  if (!decPart) return numStr;
+  
+  // If decimal part is already 1 digit or less, return as-is
+  if (decPart.length <= 1) return numStr;
+  
+  // Round to 1 decimal place
+  const fullNum = parseFloat(`${intPart.replace(/,/g, '')}.${decPart}`);
+  const rounded = Math.round(fullNum * 10) / 10;
+  
+  // Format with commas if the original had commas
+  let formattedInt: string;
+  const roundedStr = rounded.toFixed(1);
+  const [newIntPart, newDecPart] = roundedStr.split('.');
+  
+  if (intPart.includes(',')) {
+    formattedInt = parseInt(newIntPart).toLocaleString('en-US');
+  } else {
+    formattedInt = newIntPart;
+  }
+  
+  return `${prefix}${formattedInt}.${newDecPart}${suffix}`;
+};
+
 // Helper function to format text with highlighted numbers and percentages
 export const formatWithHighlights = (text: string): string => {
   if (!text) return '';
   
   // Highlight numbers, percentages, dollar amounts, and multipliers
+  // Pattern breakdown:
+  // 1. Dollar amounts with optional decimals and M/B/K suffix: $11.9M, $5,000, $100.50K
+  // 2. Percentages (including comma-separated numbers): 10%, 5.5%, 115,932.136%
+  // 3. Multipliers: 168x, 1.5x, 1,000x
+  // 4. Plain numbers with optional decimals: 27.7, 5,000, 3.12
   return text.replace(
-    /(\$[\d,]+(?:\.\d+)?[BMK]?|\d+(?:\.\d+)?%|\d+(?:,\d+)*(?:\.\d+)?x|\d+(?:,\d+)*(?:\.\d+)?)/g,
-    '<span class="font-bold text-brand-orange">$1</span>'
+    /(\$[\d,]+(?:\.\d+)?[BMK]?|\d+(?:,\d+)*(?:\.\d+)?%|\d+(?:,\d+)*(?:\.\d+)?x|\d+(?:,\d+)*(?:\.\d+)?[BMK]|\d+(?:,\d+)*(?:\.\d+)?)/g,
+    (match) => {
+      const rounded = roundToOneDecimal(match);
+      return `<span class="font-bold text-brand-orange">${rounded}</span>`;
+    }
   );
 };
 

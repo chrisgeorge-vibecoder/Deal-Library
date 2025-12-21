@@ -369,6 +369,9 @@ export function InlineSWOTCard({ swot, onClick, onSave, isSaved }: InlineSWOTCar
 interface InlineCompetitiveIntelCardProps {
   intel: {
     competitorOrIndustry?: string;
+    marketPosition?: {
+      keyDifferentiators?: string[];
+    };
     competitiveAnalysis?: {
       mainCompetitors?: Array<{ name: string }>;
       marketPositioning?: string;
@@ -380,6 +383,11 @@ interface InlineCompetitiveIntelCardProps {
 }
 
 export function InlineCompetitiveIntelCard({ intel, onClick, onSave, isSaved }: InlineCompetitiveIntelCardProps) {
+  // Support both new structure (marketPosition.keyDifferentiators) and legacy (competitiveAnalysis.mainCompetitors)
+  const differentiators = intel.marketPosition?.keyDifferentiators || [];
+  const competitors = intel.competitiveAnalysis?.mainCompetitors || [];
+  const hasContent = differentiators.length > 0 || competitors.length > 0;
+  
   return (
     <div 
       onClick={onClick}
@@ -409,16 +417,23 @@ export function InlineCompetitiveIntelCard({ intel, onClick, onSave, isSaved }: 
         </div>
       </div>
       
-      {intel.competitiveAnalysis?.mainCompetitors && intel.competitiveAnalysis.mainCompetitors.length > 0 && (
+      {hasContent && (
         <div className="mt-4 flex flex-wrap gap-2">
-          {intel.competitiveAnalysis.mainCompetitors.slice(0, 3).map((comp, idx) => (
+          {/* Show key differentiators (new structure) */}
+          {differentiators.length > 0 && differentiators.slice(0, 3).map((diff, idx) => (
+            <span key={idx} className="px-2.5 py-1 bg-slate-100/80 text-slate-700 text-xs font-medium rounded-full border border-slate-200/60">
+              {diff}
+            </span>
+          ))}
+          {/* Show competitors (legacy structure) */}
+          {competitors.length > 0 && competitors.slice(0, 3).map((comp, idx) => (
             <span key={idx} className="px-2.5 py-1 bg-slate-100/80 text-slate-700 text-xs font-medium rounded-full border border-slate-200/60">
               {comp.name}
             </span>
           ))}
-          {intel.competitiveAnalysis.mainCompetitors.length > 3 && (
+          {(differentiators.length > 3 || competitors.length > 3) && (
             <span className="px-2.5 py-1 bg-slate-50/80 text-slate-600 text-xs font-medium rounded-full border border-slate-200/60">
-              +{intel.competitiveAnalysis.mainCompetitors.length - 3} more
+              +{Math.max(differentiators.length, competitors.length) - 3} more
             </span>
           )}
         </div>

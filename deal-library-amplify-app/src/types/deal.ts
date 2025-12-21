@@ -206,7 +206,30 @@ export interface MarketingNews {
 
 // Competitive Intelligence type
 export interface CompetitiveIntelligence {
+  id?: string;
+  competitorOrIndustry?: string;
   company?: string;
+  marketPosition?: {
+    marketShare?: string;
+    growthTrajectory?: string;
+    keyDifferentiators?: string[];
+  };
+  strengthsWeaknesses?: {
+    strengths?: string[];
+    weaknesses?: string[];
+  };
+  messagingPositioning?: {
+    coreMessaging?: string;
+    targetAudience?: string;
+    valueProposition?: string;
+  };
+  strategicRecommendations?: string[];
+  sources?: Array<{
+    title?: string;
+    url?: string;
+    note?: string;
+  }>;
+  // Legacy fields for backward compatibility
   competitors?: Array<{
     name: string;
     marketShare?: string;

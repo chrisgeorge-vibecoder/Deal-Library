@@ -617,13 +617,24 @@ export class DealsControllerWrapper extends DealsController {
         try {
           const gemini = getGeminiService();
           if (gemini) {
-            const personaResult = await gemini.generatePersona(query || 'general audience');
+            // Add timeout wrapper for persona generation (20 seconds)
+            const PERSONA_TIMEOUT_MS = 20000;
+            const personaTimeoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => {
+                reject(new Error('Persona generation timeout'));
+              }, PERSONA_TIMEOUT_MS);
+            });
+            
+            const personaPromise = gemini.generatePersona(query || 'general audience');
+            const personaResult = await Promise.race([personaPromise, personaTimeoutPromise]);
+            
             if (personaResult.success && personaResult.persona) {
               results.personas = [personaResult.persona];
             }
           }
         } catch (error) {
           console.error('Error generating persona:', error);
+          // On timeout or error, continue without personas rather than failing the whole request
         }
       }
       
@@ -632,7 +643,12 @@ export class DealsControllerWrapper extends DealsController {
         try {
           const gemini = getGeminiService();
           if (gemini) {
-            const geoResult = await gemini.generateGeographicInsights(query || 'United States');
+            const GEO_TIMEOUT_MS = 20000; // 20 seconds
+            const geoTimoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => reject(new Error('Geographic insights generation timeout')), GEO_TIMEOUT_MS);
+            });
+            const geoPromise = gemini.generateGeographicInsights(query || 'United States');
+            const geoResult = await Promise.race([geoPromise, geoTimoutPromise]);
             results.geoCards = geoResult.geoCards || [];
           }
         } catch (error) {
@@ -645,7 +661,12 @@ export class DealsControllerWrapper extends DealsController {
         try {
           const gemini = getGeminiService();
           if (gemini) {
-            const contentResult = await gemini.generateContentStrategy(query || 'digital marketing');
+            const CONTENT_TIMEOUT_MS = 20000; // 20 seconds
+            const contentTimeoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => reject(new Error('Content strategy generation timeout')), CONTENT_TIMEOUT_MS);
+            });
+            const contentPromise = gemini.generateContentStrategy(query || 'digital marketing');
+            const contentResult = await Promise.race([contentPromise, contentTimeoutPromise]);
             if (contentResult.success && contentResult.data) {
               results.contentStrategy = [contentResult.data];
             }
@@ -660,7 +681,12 @@ export class DealsControllerWrapper extends DealsController {
         try {
           const gemini = getGeminiService();
           if (gemini) {
-            const brandResult = await gemini.generateBrandStrategy(query || 'brand strategy');
+            const BRAND_TIMEOUT_MS = 20000; // 20 seconds
+            const brandTimeoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => reject(new Error('Brand strategy generation timeout')), BRAND_TIMEOUT_MS);
+            });
+            const brandPromise = gemini.generateBrandStrategy(query || 'brand strategy');
+            const brandResult = await Promise.race([brandPromise, brandTimeoutPromise]);
             if (brandResult.success && brandResult.data) {
               results.brandStrategy = [brandResult.data];
             }
@@ -675,7 +701,12 @@ export class DealsControllerWrapper extends DealsController {
         try {
           const gemini = getGeminiService();
           if (gemini) {
-            const compResult = await gemini.generateCompetitiveIntelligence(query || 'competitive analysis');
+            const COMP_TIMEOUT_MS = 20000; // 20 seconds
+            const compTimeoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => reject(new Error('Competitive intelligence generation timeout')), COMP_TIMEOUT_MS);
+            });
+            const compPromise = gemini.generateCompetitiveIntelligence(query || 'competitive analysis');
+            const compResult = await Promise.race([compPromise, compTimeoutPromise]);
             if (compResult.success && compResult.data) {
               results.competitiveIntelligence = [compResult.data];
             }
@@ -690,9 +721,14 @@ export class DealsControllerWrapper extends DealsController {
         try {
           const gemini = getGeminiService();
           if (gemini) {
+            const COMPANY_TIMEOUT_MS = 20000; // 20 seconds
+            const companyTimeoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => reject(new Error('Company profile generation timeout')), COMPANY_TIMEOUT_MS);
+            });
             // Extract company name or symbol from query
             const companyName = query?.trim() || 'Unknown Company';
-            const companyResult = await gemini.generateCompanyProfile(companyName);
+            const companyPromise = gemini.generateCompanyProfile(companyName);
+            const companyResult = await Promise.race([companyPromise, companyTimeoutPromise]);
             if (companyResult.success && companyResult.data) {
               results.companyProfiles = [companyResult.data];
             }

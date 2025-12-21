@@ -574,8 +574,9 @@ export default function ChatInterface({
                           key={persona.id}
                           className="card p-4 cursor-pointer hover:shadow-sovrn-lg transition-all duration-200 group"
                           onClick={() => {
-                            setSelectedPersona(persona);
-                            setIsPersonaModalOpen(true);
+                            console.log('Persona card clicked:', persona);
+                            const event = new CustomEvent('openPersonaModal', { detail: { persona } });
+                            window.dispatchEvent(event);
                           }}
                         >
                           {/* Persona Header */}
@@ -606,8 +607,9 @@ export default function ChatInterface({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setSelectedPersona(persona);
-                                setIsPersonaModalOpen(true);
+                                console.log('Persona View Details clicked:', persona);
+                                const event = new CustomEvent('openPersonaModal', { detail: { persona } });
+                                window.dispatchEvent(event);
                               }}
                               className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary-100 text-primary-800 rounded-lg hover:bg-primary-200 transition-colors text-xs font-medium"
                             >
@@ -803,7 +805,10 @@ export default function ChatInterface({
                             <h4 className="font-semibold text-neutral-900">{intel.competitorOrIndustry}</h4>
                           </div>
                           <p className="text-sm text-neutral-600 line-clamp-2">
-                            {intel.competitiveAnalysis?.marketPositioning || 'Competitive analysis available'}
+                            {intel.marketPosition?.growthTrajectory || 
+                             intel.messagingPositioning?.coreMessaging || 
+                             intel.competitiveAnalysis?.marketPositioning || 
+                             'Competitive analysis available'}
                           </p>
                         </div>
                       ))}

@@ -3028,27 +3028,26 @@ Return ONLY valid JSON in this exact format:
   "data": {
     "id": "competitive-intel-${Date.now()}",
     "competitorOrIndustry": "${query}",
-    "competitiveAnalysis": {
-      "mainCompetitors": [
-        {
-          "name": "Competitor Name",
-          "positioning": "Brief positioning description",
-          "keyStrengths": ["Strength 1", "Strength 2", "Strength 3"]
-        }
-      ],
-      "marketPositioning": "Overall market positioning summary",
-      "differentiationOpportunities": ["Opportunity 1", "Opportunity 2", "Opportunity 3"]
+    "marketPosition": {
+      "marketShare": "Estimated market share percentage or description (e.g., '15% of global market' or 'Leading position in North America')",
+      "growthTrajectory": "Growth trajectory description (e.g., 'Growing', 'Stable', 'Declining', 'Rapid expansion')",
+      "keyDifferentiators": ["Differentiator 1", "Differentiator 2", "Differentiator 3", "Differentiator 4"]
     },
-    "messagingAnalysis": {
-      "commonThemes": ["Theme 1", "Theme 2", "Theme 3"],
-      "messagingGaps": ["Gap 1", "Gap 2"],
-      "toneAndVoice": "Description of typical messaging tone in this category"
+    "strengthsWeaknesses": {
+      "strengths": ["Strength 1", "Strength 2", "Strength 3"],
+      "weaknesses": ["Weakness 1", "Weakness 2", "Weakness 3"]
     },
-    "strategicRecommendations": {
-      "positioning": ["Positioning recommendation 1", "Positioning recommendation 2"],
-      "messaging": ["Messaging strategy 1", "Messaging strategy 2"],
-      "channels": ["Channel recommendation 1", "Channel recommendation 2"]
+    "messagingPositioning": {
+      "coreMessaging": "Core messaging strategy and key value propositions",
+      "targetAudience": "Primary target audience description",
+      "valueProposition": "Main value proposition and competitive advantages"
     },
+    "strategicRecommendations": [
+      "Strategic recommendation 1",
+      "Strategic recommendation 2",
+      "Strategic recommendation 3",
+      "Strategic recommendation 4"
+    ],
     "sources": [
       {"title": "Industry Report", "url": "https://example.com", "note": "Market analysis data"},
       {"title": "Competitive Study", "url": "https://example.com", "note": "Strategic insights"}

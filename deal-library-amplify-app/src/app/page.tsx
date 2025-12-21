@@ -579,11 +579,18 @@ export default function HomePage() {
         
         if (selectedType === 'personas') {
           try {
+            // Add timeout controller for fetch request
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 50000); // 50 second timeout
+            
             const response = await fetch('/api/unified-search', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query, cardType: 'personas' }),
+              signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
             
             if (response.ok) {
               const data = await response.json();
@@ -596,13 +603,26 @@ export default function HomePage() {
                   : `Found ${personas.length} relevant personas for your query.`
                 );
               } else {
-                setAiResponse('No personas found for your query. Please try different search terms.');
+                setAiResponse(data.message || 'No personas found for your query. Please try different search terms.');
               }
               return;
+            } else if (response.status === 504) {
+              // Gateway timeout
+              const errorData = await response.json().catch(() => ({}));
+              setAiResponse(errorData.message || 'The persona generation request timed out. Please try a simpler query or try again.');
+              return;
+            } else {
+              const errorData = await response.json().catch(() => ({}));
+              setAiResponse(errorData.message || 'Personas search is temporarily unavailable. Please try again later.');
+              return;
             }
-          } catch (error) {
+          } catch (error: any) {
             console.error('Personas search request failed:', error);
-            setAiResponse('Personas search is temporarily unavailable. Please try again later.');
+            if (error.name === 'AbortError') {
+              setAiResponse('The persona generation request timed out. Please try a simpler query or try again.');
+            } else {
+              setAiResponse('Personas search is temporarily unavailable. Please try again later.');
+            }
             return;
           }
         }
@@ -974,11 +994,18 @@ export default function HomePage() {
       if (isPersonaSearch) {
         console.log('🎭 Persona search detected, using unified search...');
         try {
+          // Add timeout controller for fetch request
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 50000); // 50 second timeout
+          
           const response = await fetch('/api/unified-search', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query, cardType: 'personas' }),
+            signal: controller.signal
           });
+          
+          clearTimeout(timeoutId);
           
           if (response.ok) {
             const data = await response.json();
@@ -993,16 +1020,26 @@ export default function HomePage() {
               );
               return;
             } else {
-              setAiResponse('No personas found for your query. Please try different search terms.');
+              setAiResponse(data.message || 'No personas found for your query. Please try different search terms.');
               return;
             }
+          } else if (response.status === 504) {
+            // Gateway timeout
+            const errorData = await response.json().catch(() => ({}));
+            setAiResponse(errorData.message || 'The persona generation request timed out. Please try a simpler query or try again.');
+            return;
           } else {
-            setAiResponse('Persona search is temporarily unavailable. Please try again later.');
+            const errorData = await response.json().catch(() => ({}));
+            setAiResponse(errorData.message || 'Persona search is temporarily unavailable. Please try again later.');
             return;
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error('Persona search request failed:', error);
-          setAiResponse('Persona search is temporarily unavailable. Please try again later.');
+          if (error.name === 'AbortError') {
+            setAiResponse('The persona generation request timed out. Please try a simpler query or try again.');
+          } else {
+            setAiResponse('Persona search is temporarily unavailable. Please try again later.');
+          }
           return;
         }
       }

@@ -943,6 +943,7 @@ export default function HomePage() {
       }
 
       // Check for market sizing queries - after news check to avoid conflicts
+      // Priority check: if query contains "market size" or "market sizing", route to market sizing
       const marketSizingKeywords = [
         'market sizing', 'market size', 'what\'s the market size', 'what is the market size',
         'total addressable market', 'tam', 'market opportunity', 
@@ -951,6 +952,9 @@ export default function HomePage() {
         'ad spend', 'programmatic spend', 'digital ad spend', 'advertising spend', 
         'industry statistics', 'market data', 'size of the market'
       ];
+      
+      // Always prioritize market sizing if query clearly asks about market size
+      const hasMarketSizeKeyword = marketSizingKeywords.some(keyword => queryLower.includes(keyword));
       
       // General knowledge/analysis questions should be handled conversationally, NOT routed to market sizing
       // These patterns indicate the user wants analysis/opinion, not data cards
@@ -964,8 +968,9 @@ export default function HomePage() {
       
       // Only use keyword detection when no card types are explicitly selected
       // AND the query is NOT a general analysis question (which should go to conversational AI)
-      const isMarketSizingSearch = (!cardTypes || cardTypes.length === 0) && 
-        marketSizingKeywords.some(keyword => queryLower.includes(keyword)) &&
+      // IMPORTANT: If query contains "market size" keywords, ALWAYS route to market sizing (highest priority)
+      const isMarketSizingSearch = hasMarketSizeKeyword && 
+        (!cardTypes || cardTypes.length === 0 || cardTypes.includes('market-sizing')) &&
         !isGeneralAnalysisQuestion;
 
       console.log('🔍 Market sizing check:', {
@@ -996,12 +1001,24 @@ export default function HomePage() {
             const data = await response.json();
             setAiMarketSizing(data.marketSizing || []);
             setAiResponse(data.aiResponse || 'Here is the market sizing analysis for your query.');
+            setLoading(false);
+            return;
+          } else {
+            // Handle non-OK responses - don't fall through to deals
+            const errorData = await response.json().catch(() => ({}));
+            setAiResponse(errorData.message || 'Market sizing analysis is temporarily unavailable. Please try again later.');
+            setLoading(false);
             return;
           }
-        } catch (error) {
+        } catch (error: any) {
           clearTimeout(timeoutId);
           console.error('Market sizing request failed:', error);
-          setAiResponse('Market sizing analysis is temporarily unavailable. Please try again later.');
+          if (error.name === 'AbortError') {
+            setAiResponse('The market sizing request timed out. Please try again with a simpler query.');
+          } else {
+            setAiResponse('Market sizing analysis is temporarily unavailable. Please try again later.');
+          }
+          setLoading(false);
           return;
         }
       }

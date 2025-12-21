@@ -122,11 +122,71 @@ export class GeminiService {
   }
 
   /**
+   * Detect if a query is a follow-up question about previously recommended deals
+   */
+  private detectFollowUpQuestion(query: string): boolean {
+    const queryLower = query.toLowerCase();
+    const FOLLOWUP_PATTERNS = [
+      /why did you (recommend|suggest|show)/i,
+      /tell me more about (these|the|those)/i,
+      /explain (these|the|those|your)/i,
+      /what about (these|the|those)/i,
+      /can you explain/i,
+      /why (these|those) deals/i,
+      /why (these|those)/i,
+      /what makes (these|those|them)/i,
+      /how (are|do) (these|those|they)/i
+    ];
+    
+    return FOLLOWUP_PATTERNS.some(pattern => pattern.test(query));
+  }
+
+  /**
+   * Extract deal IDs from conversation history
+   */
+  private extractPreviousDealIds(conversationHistory?: Array<{role: string, content: string, dealIds?: string[]}>): string[] {
+    if (!conversationHistory || conversationHistory.length === 0) {
+      return [];
+    }
+    
+    const dealIds: string[] = [];
+    // Look for deal IDs in assistant messages
+    for (const msg of conversationHistory) {
+      if (msg.role === 'assistant' && msg.dealIds && msg.dealIds.length > 0) {
+        dealIds.push(...msg.dealIds);
+      }
+    }
+    
+    return [...new Set(dealIds)]; // Remove duplicates
+  }
+
+  /**
    * Smart pre-filtering to reduce prompt size and improve performance
    * Filters deals based on keyword matching before sending to Gemini
+   * For follow-up questions, includes previously recommended deals
    */
-  private preFilterDeals(query: string, deals: Deal[], forceDeals?: boolean): Deal[] {
+  private preFilterDeals(query: string, deals: Deal[], forceDeals?: boolean, previousDealIds?: string[]): Deal[] {
     const queryLower = query.toLowerCase();
+    const isFollowUp = this.detectFollowUpQuestion(query);
+    
+    // If this is a follow-up and we have previous deal IDs, prioritize those deals
+    if (isFollowUp && previousDealIds && previousDealIds.length > 0) {
+      console.log(`🔍 Follow-up question detected. Including ${previousDealIds.length} previously recommended deals.`);
+      
+      // Get the previously recommended deals
+      const previousDeals = deals.filter(deal => previousDealIds.includes(deal.dealId));
+      
+      // If we found the previous deals, include them and add some context deals
+      if (previousDeals.length > 0) {
+        // Include all previous deals plus some additional context deals
+        const remainingDeals = deals.filter(deal => !previousDealIds.includes(deal.dealId));
+        const maxContextDeals = Math.max(20, 50 - previousDeals.length);
+        
+        // For follow-ups, we want to include previous deals + some context
+        // Don't do aggressive filtering - just include previous deals and a reasonable set
+        return [...previousDeals, ...remainingDeals.slice(0, maxContextDeals)];
+      }
+    }
     
     // If forceDeals is true, include more deals to ensure we don't miss anything
     const maxDeals = forceDeals ? 100 : 50;
@@ -215,14 +275,26 @@ export class GeminiService {
   /**
    * Direct analysis: Have Gemini analyze and score all deals for a query
    */
-  async analyzeAllDeals(query: string, deals: Deal[], conversationHistory?: Array<{role: string, content: string}>, forceDeals?: boolean): Promise<GeminiSearchResult> {
+  async analyzeAllDeals(query: string, deals: Deal[], conversationHistory?: Array<{role: string, content: string, dealIds?: string[]}>, forceDeals?: boolean): Promise<GeminiSearchResult> {
     console.log(`🤖 Gemini analyzing ${deals.length} deals for query: "${query}"`);
     
     // Clean up expired cache entries periodically
     this.cleanCache();
     
-    // Check cache first for identical queries (without conversation history for better cache hit rate)
-    const cacheKey = `${query.toLowerCase()}_${forceDeals || false}`;
+    // Detect if this is a follow-up question
+    const isFollowUp = this.detectFollowUpQuestion(query);
+    const previousDealIds = this.extractPreviousDealIds(conversationHistory);
+    
+    // For follow-up questions, skip cache or use a more specific cache key
+    // Follow-ups are contextual and shouldn't use cached responses from different conversations
+    let cacheKey = `${query.toLowerCase()}_${forceDeals || false}`;
+    if (isFollowUp && previousDealIds.length > 0) {
+      // Include previous deal IDs in cache key for follow-ups, or skip cache entirely
+      const dealIdsHash = previousDealIds.sort().join(',');
+      cacheKey = `${query.toLowerCase()}_${forceDeals || false}_followup_${dealIdsHash.substring(0, 50)}`;
+      console.log(`🔍 Follow-up detected with ${previousDealIds.length} previous deals. Using contextual cache key.`);
+    }
+    
     const cached = this.responseCache.get(cacheKey);
     if (cached && (Date.now() - cached.timestamp) < this.CACHE_TTL) {
       console.log(`⚡ Cache hit! Returning cached result for query: "${query}"`);
@@ -230,7 +302,8 @@ export class GeminiService {
     }
     
     // Smart pre-filtering to reduce prompt size and improve performance
-    const filteredDeals = this.preFilterDeals(query, deals, forceDeals);
+    // Pass previous deal IDs for follow-up handling
+    const filteredDeals = this.preFilterDeals(query, deals, forceDeals, previousDealIds);
     console.log(`🎯 Pre-filtered to ${filteredDeals.length} relevant deals (${Math.round((filteredDeals.length/deals.length)*100)}% of total)`);
     
     // Create optimized prompt with fewer deals
@@ -727,7 +800,7 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
   /**
    * Analyze user query and find relevant deals using Gemini AI
    */
-  async analyzeQuery(query: string, deals: Deal[], conversationHistory?: Array<{role: string, content: string}>): Promise<GeminiSearchResult> {
+  async analyzeQuery(query: string, deals: Deal[], conversationHistory?: Array<{role: string, content: string, dealIds?: string[]}>): Promise<GeminiSearchResult> {
     try {
       console.log(`🤖 Gemini analyzing query: "${query}"`);
       
@@ -789,7 +862,7 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
   /**
    * Create a structured prompt for Gemini to analyze deals
    */
-  private createAnalysisPrompt(query: string, deals: Deal[], conversationHistory?: Array<{role: string, content: string}>): string {
+  private createAnalysisPrompt(query: string, deals: Deal[], conversationHistory?: Array<{role: string, content: string, dealIds?: string[]}>): string {
     // Prioritize relevant deals based on query
     let prioritizedDeals = deals;
     

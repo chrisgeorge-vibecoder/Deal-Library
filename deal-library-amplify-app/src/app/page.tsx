@@ -279,7 +279,7 @@ export default function HomePage() {
   };
 
   // Handle search
-  const handleSearch = async (query: string, conversationHistory?: Array<{role: string, content: string}>, cardTypes?: string[]) => {
+  const handleSearch = async (query: string, conversationHistory?: Array<{role: string, content: string, dealIds?: string[]}>, cardTypes?: string[]) => {
     if (!query.trim()) return;
 
     try {

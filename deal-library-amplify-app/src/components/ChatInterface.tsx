@@ -36,7 +36,7 @@ interface ChatMessage {
 }
 
 interface ChatInterfaceProps {
-  onSearch: (query: string, conversationHistory?: Array<{role: string, content: string}>, cardTypes?: string[]) => void;
+  onSearch: (query: string, conversationHistory?: Array<{role: string, content: string, dealIds?: string[]}>, cardTypes?: string[]) => void;
   deals: Deal[];
   loading: boolean;
   onDealClick: (deal: Deal) => void;
@@ -468,7 +468,7 @@ export default function ChatInterface({
 
     // If a card type is explicitly selected, start with fresh context (no conversation history)
     // to avoid confusion from previous queries about different topics
-    let conversationHistory: Array<{role: string, content: string}> = [];
+    let conversationHistory: Array<{role: string, content: string, dealIds?: string[]}> = [];
     
     if (!selectedCardTypes || selectedCardTypes.length === 0) {
       // Only use conversation history for general queries without card type selection
@@ -480,13 +480,19 @@ export default function ChatInterface({
           };
         } else {
           let content = msg.content;
+          const dealIds: string[] = [];
+          
           if (msg.deals && msg.deals.length > 0) {
             const dealNames = msg.deals.map(d => d.dealName).join(', ');
             content = `${msg.content}\n\nRecommended deals: ${dealNames}`;
+            // Extract deal IDs for structured tracking
+            dealIds.push(...msg.deals.map(d => d.dealId).filter(id => id));
           }
+          
           return {
             role: 'assistant',
-            content
+            content,
+            dealIds: dealIds.length > 0 ? dealIds : undefined
           };
         }
       });

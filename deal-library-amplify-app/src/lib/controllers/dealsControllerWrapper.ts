@@ -560,7 +560,11 @@ export class DealsControllerWrapper extends DealsController {
         audienceInsights: [],
         marketSizing: [],
         geoCards: [],
-        marketingNews: []
+        marketingNews: [],
+        contentStrategy: [],
+        brandStrategy: [],
+        competitiveIntelligence: [],
+        companyProfiles: []
       };
       
       // Search deals if requested
@@ -608,10 +612,106 @@ export class DealsControllerWrapper extends DealsController {
         }
       }
       
+      // Generate personas if requested
+      if (requestedTypes.includes('personas')) {
+        try {
+          const gemini = getGeminiService();
+          if (gemini) {
+            const personaResult = await gemini.generatePersona(query || 'general audience');
+            if (personaResult.success && personaResult.persona) {
+              results.personas = [personaResult.persona];
+            }
+          }
+        } catch (error) {
+          console.error('Error generating persona:', error);
+        }
+      }
+      
+      // Generate geographic insights if requested
+      if (requestedTypes.includes('geographic')) {
+        try {
+          const gemini = getGeminiService();
+          if (gemini) {
+            const geoResult = await gemini.generateGeographicInsights(query || 'United States');
+            results.geoCards = geoResult.geoCards || [];
+          }
+        } catch (error) {
+          console.error('Error generating geographic insights:', error);
+        }
+      }
+      
+      // Generate content strategy if requested
+      if (requestedTypes.includes('content-strategy')) {
+        try {
+          const gemini = getGeminiService();
+          if (gemini) {
+            const contentResult = await gemini.generateContentStrategy(query || 'digital marketing');
+            if (contentResult.success && contentResult.data) {
+              results.contentStrategy = [contentResult.data];
+            }
+          }
+        } catch (error) {
+          console.error('Error generating content strategy:', error);
+        }
+      }
+      
+      // Generate brand strategy if requested
+      if (requestedTypes.includes('brand-strategy')) {
+        try {
+          const gemini = getGeminiService();
+          if (gemini) {
+            const brandResult = await gemini.generateBrandStrategy(query || 'brand strategy');
+            if (brandResult.success && brandResult.data) {
+              results.brandStrategy = [brandResult.data];
+            }
+          }
+        } catch (error) {
+          console.error('Error generating brand strategy:', error);
+        }
+      }
+      
+      // Generate competitive intelligence if requested
+      if (requestedTypes.includes('competitive-intelligence')) {
+        try {
+          const gemini = getGeminiService();
+          if (gemini) {
+            const compResult = await gemini.generateCompetitiveIntelligence(query || 'competitive analysis');
+            if (compResult.success && compResult.data) {
+              results.competitiveIntelligence = [compResult.data];
+            }
+          }
+        } catch (error) {
+          console.error('Error generating competitive intelligence:', error);
+        }
+      }
+      
+      // Generate company profile if requested
+      if (requestedTypes.includes('company-profiles')) {
+        try {
+          const gemini = getGeminiService();
+          if (gemini) {
+            // Extract company name or symbol from query
+            const companyName = query?.trim() || 'Unknown Company';
+            const companyResult = await gemini.generateCompanyProfile(companyName);
+            if (companyResult.success && companyResult.data) {
+              results.companyProfiles = [companyResult.data];
+            }
+          }
+        } catch (error) {
+          console.error('Error generating company profile:', error);
+        }
+      }
+      
       console.log(`✅ Unified search direct results:`, {
         deals: results.deals.length,
+        personas: results.personas.length,
         marketSizing: results.marketSizing.length,
-        marketingNews: results.marketingNews.length
+        marketingNews: results.marketingNews.length,
+        geoCards: results.geoCards.length,
+        contentStrategy: results.contentStrategy.length,
+        brandStrategy: results.brandStrategy.length,
+        competitiveIntelligence: results.competitiveIntelligence.length,
+        companyProfiles: results.companyProfiles.length
       });
       
       return {
@@ -1792,13 +1892,39 @@ export class DealsControllerWrapper extends DealsController {
 
   // Generate persona card directly
   async generatePersonaCardDirect(body: any): Promise<any> {
-    return {
-      success: true,
-      persona: {
-        name: body.audience || 'Unknown Persona',
-        description: 'Generated persona'
+    try {
+      const query = body.query || body.audience || 'general audience';
+      console.log(`🎭 Generating persona card for: "${query}"`);
+      
+      const gemini = getGeminiService();
+      if (!gemini) {
+        return {
+          success: false,
+          error: 'Gemini service not available',
+          persona: null
+        };
       }
-    };
+      
+      return await gemini.generatePersona(query);
+    } catch (error) {
+      console.error('❌ Error generating persona:', error);
+      // Return a fallback persona
+      return {
+        success: true,
+        persona: {
+          id: `persona-${Date.now()}`,
+          name: body.audience || body.query || 'General Audience',
+          emoji: '👤',
+          category: 'General',
+          coreInsight: 'Audience insight for ' + (body.audience || body.query || 'this audience'),
+          description: `A persona representing ${body.audience || body.query || 'this audience'}.`,
+          creativeHooks: ['Engage with relevant content', 'Focus on audience needs'],
+          mediaTargeting: ['Digital channels', 'Targeted advertising'],
+          audienceMotivation: 'Addressing audience needs and interests',
+          dealCount: 0
+        }
+      };
+    }
   }
 
   // Check if agent mode service is available

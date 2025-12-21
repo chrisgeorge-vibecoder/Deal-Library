@@ -3416,4 +3416,81 @@ Return ONLY valid JSON in this exact format:
       throw error;
     }
   }
+
+  /**
+   * Generate a persona for an audience query
+   */
+  async generatePersona(query: string): Promise<any> {
+    console.log(`🎭 Generating persona for: "${query}"`);
+    
+    const prompt = `You are an expert at creating humanized personas that help marketers develop empathy for their audience.
+
+AUDIENCE: "${query}"
+
+A PERSONA is a humanized profile that includes:
+1. Demographics: Basic facts about who they are (age, location, occupation)
+2. Psychographics: Their goals, motivations, values, and personality traits
+3. Behaviors: Daily routines, purchasing habits, how they use products
+4. Pain Points: Challenges and frustrations they face
+
+Return ONLY valid JSON in this exact format:
+{
+  "success": true,
+  "persona": {
+    "id": "persona-${Date.now()}",
+    "name": "The [Adjective] [Audience Type]",
+    "emoji": "single relevant emoji",
+    "category": "General or specific category",
+    "coreInsight": "One sentence core insight about this persona",
+    "description": "A humanized, storytelling description (2-3 sentences) that describes their daily life, motivations, and challenges. No statistics or percentages.",
+    "creativeHooks": ["Creative hook 1", "Creative hook 2", "Creative hook 3"],
+    "mediaTargeting": ["Channel 1", "Channel 2", "Channel 3"],
+    "audienceMotivation": "What drives this audience to engage",
+    "dealCount": 0
+  }
+}`;
+
+    const startTime = Date.now();
+    try {
+      const response = await this.proModel.generateContent(prompt);
+      const responseText = response.response.text();
+      this.logModelPerformance('pro', 'Persona Generation', startTime);
+      
+      // Parse JSON from response
+      let jsonText = responseText.trim();
+      // Remove markdown code fences if present
+      if (jsonText.startsWith('```json')) {
+        jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?$/g, '');
+      } else if (jsonText.startsWith('```')) {
+        jsonText = jsonText.replace(/```\n?/g, '');
+      }
+      
+      const parsed = JSON.parse(jsonText);
+      
+      if (parsed.success && parsed.persona) {
+        console.log(`✅ Persona generated: ${parsed.persona.name}`);
+        return parsed;
+      } else {
+        throw new Error('Invalid persona response format');
+      }
+    } catch (error) {
+      console.error('❌ Error generating persona:', error);
+      // Return a fallback persona
+      return {
+        success: true,
+        persona: {
+          id: `persona-${Date.now()}`,
+          name: query || 'General Audience',
+          emoji: '👤',
+          category: 'General',
+          coreInsight: `Audience insight for ${query || 'this audience'}`,
+          description: `A persona representing ${query || 'this audience'}.`,
+          creativeHooks: ['Engage with relevant content', 'Focus on audience needs'],
+          mediaTargeting: ['Digital channels', 'Targeted advertising'],
+          audienceMotivation: 'Addressing audience needs and interests',
+          dealCount: 0
+        }
+      };
+    }
+  }
 }

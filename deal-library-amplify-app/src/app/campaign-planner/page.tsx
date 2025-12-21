@@ -79,7 +79,6 @@ export default function CampaignPlannerPage() {
 
   const handleStartNew = () => {
     setReport(null);
-    setProgress(null);
     setError(null);
   };
 

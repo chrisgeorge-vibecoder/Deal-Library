@@ -233,7 +233,7 @@ export default function CampaignPlannerResults({
       },
       messagingPositioning: {
         coreMessaging: marketPositioningText,
-        targetAudience: report.targetAudience || 'Target market segments',
+        targetAudience: report.results.parsedBrief.targetAudiences?.join(', ') || 'Target market segments',
         valueProposition: strategy?.differentiators?.join('. ') || 'Competitive advantages in the market'
       },
       // Array format expected by modal

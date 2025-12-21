@@ -10,7 +10,7 @@ import { audienceInsightsReports, PreGeneratedAudienceReport } from '@/data/audi
 import { ComprehensiveReport, AnalysisResults, ParsedBrief } from '@/types/agentMode';
 import { Deal } from '@/types/deal';
 import { DealsController } from '@/lib/controllers/dealsController';
-import { AudienceInsightsService } from './audienceInsightsService';
+import { audienceInsightsService } from './audienceInsightsService';
 import { GeminiService } from './geminiService';
 
 export interface ProposalBuilderInput {
@@ -23,12 +23,10 @@ export interface ProposalBuilderInput {
 
 export class ProposalBuilderService {
   private dealsController: DealsController;
-  private audienceInsightsService: AudienceInsightsService;
   private geminiService: GeminiService | null = null;
 
   constructor() {
     this.dealsController = new DealsController();
-    this.audienceInsightsService = new AudienceInsightsService();
   }
 
   /**
@@ -107,7 +105,7 @@ export class ProposalBuilderService {
     for (const report of reports) {
       try {
         // Use existing getRecommendedDeals method from audienceInsightsService
-        const recommended = await this.audienceInsightsService.getRecommendedDeals(
+        const recommended = await audienceInsightsService.getRecommendedDeals(
           report.segment,
           report.category,
           allDeals
@@ -303,8 +301,7 @@ We recommend a strategic ${input.campaignObjective} campaign that targets these 
         totalPersonas: personas.length,
         estimatedReach: totalReach || 30000000,
         recommendedBudget: input.budgetRange || 'TBD',
-      },
-      targetAudience: input.selectedAudiences.join(', ')
+      }
     };
 
     return report;

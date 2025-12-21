@@ -11,6 +11,8 @@ build/
 .next/
 out/
 *.tsbuildinfo
+# Allow Next.js API routes in build/ directories
+!**/api/**/build/route.ts
 
 # Environment variables (contains API keys and secrets)
 .env

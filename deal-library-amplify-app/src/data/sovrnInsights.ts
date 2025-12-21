@@ -32,6 +32,93 @@ export const CATEGORY_ICONS: Record<InsightCategory, string> = {
 };
 
 export const sovrnInsights: SovrnInsight[] = [
+  // LUXURY & AFFLUENT DISTRICTS INSIGHTS (2025 Launchpad Data)
+  // America's Top 10 Wealth ZIP Codes Analysis
+  {
+    id: 'luxury-1',
+    headline: 'Fisher Island: America\'s $11.9M Secret',
+    didYouKnow: 'ZIP code 33109 (Fisher Island, FL) commands a median home sale price of $11.9M+—making it America\'s most expensive address. This ultra-exclusive island is accessible only by private ferry or helicopter, creating a natural moat for the ultra-wealthy. Fisher Island\'s median home price is 168x the US national median of $71K.',
+    marketingImplication: 'Targeting Fisher Island requires concierge-level personalization. Mass advertising fails here—think private banking, yacht services, and invitation-only experiences.',
+    category: 'Geographic Markets',
+    tags: ['luxury', 'ultra-wealthy', 'florida', 'exclusive', 'UHNW'],
+    featured: true,
+  },
+  {
+    id: 'luxury-2',
+    headline: 'The California Wealth Corridor: 5 of 10 Top ZIP Codes',
+    didYouKnow: 'California dominates America\'s most affluent addresses, claiming 5 of the top 10 luxury ZIP codes: Atherton (94027, $8.3M), Newport Beach (92661, $5.7M), Montecito (93108, $5.2M), Stinson Beach (94970, $5.2M), and Newport Coast (92657, $5.1M). The combined median home value of these 5 ZIPs exceeds $29M.',
+    marketingImplication: 'California\'s wealthy cluster geographically. A concentrated luxury media strategy across NorCal (Atherton/Stinson Beach) and SoCal (Newport/Montecito) corridors maximizes reach to high-net-worth audiences.',
+    category: 'Geographic Markets',
+    tags: ['california', 'luxury', 'real-estate', 'regional', 'wealth-corridor'],
+    featured: true,
+  },
+  {
+    id: 'luxury-3',
+    headline: 'The Hamptons Premium: New York\'s $11.4M Address Pair',
+    didYouKnow: 'The Hamptons (Long Island) boasts two back-to-back entries in America\'s top 10 luxury ZIPs: Sagaponack (11962, $5.9M) and Water Mill (11976, $5.5M). Combined, these neighboring ZIP codes represent $11.4M in median home value—and less than 5 miles of oceanfront real estate.',
+    marketingImplication: 'Hamptons luxury buyers cluster in micro-markets. Hyper-local targeting within 5-mile radiuses outperforms broader "New York luxury" campaigns.',
+    category: 'Geographic Markets',
+    tags: ['hamptons', 'new-york', 'luxury', 'oceanfront', 'micro-markets'],
+  },
+  {
+    id: 'luxury-4',
+    headline: 'Beverly Hills 90210: America\'s Most Famous—Not Most Expensive',
+    didYouKnow: 'Despite its global fame, Beverly Hills (90210) ranks only 9th in America\'s most expensive ZIP codes at $4.0M median home price. Fisher Island\'s median is nearly 3x higher at $11.9M. Brand recognition doesn\'t equal wealth concentration—Atherton residents are twice as wealthy on average.',
+    marketingImplication: 'Celebrity-driven markets like Beverly Hills attract aspirational wealth, while "hidden" wealth centers like Atherton and Fisher Island concentrate actual purchasing power. Target both, but with different messaging.',
+    category: 'Data Discoveries',
+    tags: ['beverly-hills', 'celebrity', 'aspirational', 'wealth', 'brand'],
+    featured: true,
+  },
+  {
+    id: 'luxury-5',
+    headline: 'Lower Manhattan: The $2.7M Urban Outlier',
+    didYouKnow: 'ZIP code 10007 (Lower Manhattan) is the only urban high-rise district in America\'s top 10 luxury ZIPs—and at $2.7M median, it\'s the "most affordable" on the list. Every other top-10 ZIP is a low-density, single-family enclave. Manhattan wealth lives vertically; everywhere else, it sprawls.',
+    marketingImplication: 'Urban luxury buyers value convenience and walkability over square footage. Marketing luxury products to Manhattan 10007 should emphasize efficiency, access, and vertical living—not acreage or estates.',
+    category: 'Consumer Profiles',
+    tags: ['manhattan', 'urban', 'vertical-living', 'finance', 'luxury'],
+  },
+  {
+    id: 'luxury-6',
+    headline: 'The $5M Sweet Spot: Where Most Luxury Lives',
+    didYouKnow: 'Six of America\'s top 10 luxury ZIP codes cluster between $5.1M and $5.9M median home prices: Sagaponack, Newport Beach, Water Mill, Montecito, Stinson Beach, and Newport Coast. This $5M "sweet spot" represents the threshold where ultra-high-net-worth households concentrate before the $8M+ ultra-elite tier.',
+    marketingImplication: 'The $5M-$6M home price band is where luxury marketing scales. Below $4M is aspirational affluent; above $8M is ultra-bespoke. Target the $5M sweet spot for luxury brand reach at scale.',
+    category: 'Data Discoveries',
+    tags: ['wealth-tiers', 'luxury', 'market-segmentation', 'UHNW', 'targeting'],
+  },
+  {
+    id: 'luxury-7',
+    headline: 'Silicon Valley\'s Stealth Wealth: Atherton\'s $8.3M Average',
+    didYouKnow: 'Atherton (94027) in Silicon Valley has a median home price of $8.3M—making it America\'s 2nd most expensive ZIP. Unlike flashy celebrity enclaves, Atherton has no sidewalks, no commercial districts, and actively discourages development. Tech billionaires and venture capitalists choose invisibility over visibility.',
+    marketingImplication: 'Silicon Valley wealth responds to privacy, exclusivity, and understatement. Luxury brands targeting tech money should lead with discretion and bespoke service, not status symbols.',
+    category: 'Lifestyle & Values',
+    tags: ['silicon-valley', 'tech-wealth', 'stealth-wealth', 'privacy', 'atherton'],
+    featured: true,
+  },
+  {
+    id: 'luxury-8',
+    headline: 'Coastal Premium: 9 of 10 Top ZIPs Touch Water',
+    didYouKnow: '90% of America\'s most affluent ZIP codes are waterfront properties: Fisher Island (Atlantic), Atherton (near SF Bay), Sagaponack & Water Mill (Atlantic), Newport Beach & Newport Coast (Pacific), Montecito (Pacific), Stinson Beach (Pacific), and Lower Manhattan (Hudson/East Rivers). Only Beverly Hills lacks direct water access.',
+    marketingImplication: 'Water adjacency is the ultimate wealth marker. Luxury brands should incorporate coastal, maritime, and waterfront themes—sailing, yachting, beachfront leisure—into creative targeting affluent audiences.',
+    category: 'Lifestyle & Values',
+    tags: ['coastal', 'waterfront', 'maritime', 'luxury-lifestyle', 'real-estate'],
+  },
+  {
+    id: 'luxury-9',
+    headline: 'The 3-State Luxury Lock: FL, CA, NY Control America\'s Wealth',
+    didYouKnow: 'Just three states—Florida, California, and New York—contain 100% of America\'s top 10 most expensive ZIP codes. California leads with 5 ZIPs, New York has 3 (Hamptons + Manhattan), and Florida has 1 (Fisher Island at #1). No other state cracks the $2.7M+ median home price threshold.',
+    marketingImplication: 'National luxury campaigns can achieve 90%+ UHNW reach by focusing exclusively on FL, CA, and NY media markets. Concentrate budgets in these three states for maximum ROI on affluent targeting.',
+    category: 'Geographic Markets',
+    tags: ['geographic-targeting', 'luxury', 'three-state', 'media-planning', 'UHNW'],
+  },
+  {
+    id: 'luxury-10',
+    headline: 'The $40M Question: Top 10 ZIPs Total $64M in Median Value',
+    didYouKnow: 'The combined median home value of America\'s top 10 luxury ZIP codes totals $64.3M. The top 3 ZIPs alone (Fisher Island, Atherton, Sagaponack) account for $26.1M—over 40% of the total. Wealth concentration accelerates exponentially at the top; the #1 ZIP is worth 4.4x more than #10.',
+    marketingImplication: 'Luxury market segmentation must account for exponential wealth gaps. The messaging, products, and price points that work in Beverly Hills (#9) won\'t resonate in Fisher Island (#1). Create tiered luxury strategies.',
+    category: 'Data Discoveries',
+    tags: ['wealth-concentration', 'market-tiers', 'luxury', 'segmentation', 'ultra-wealth'],
+  },
+
   // COMMERCE AUDIENCE + CENSUS DATA INSIGHTS
   // Income & Wealth Insights (1-4)
   {
@@ -1934,6 +2021,75 @@ export const sovrnInsights: SovrnInsight[] = [
     category: 'Geographic Markets',
     tags: ['sec', 'college-towns', 'media', 'streaming', 'podcasts', 'connected-tv', 'digital-media', 'content'],
     featured: true,
+  },
+
+  // INNOVATION HUBS 2025 INSIGHTS (hub-1 through hub-8)
+  // Data-grounded insights from Launchpad Commerce + Census analysis of top 10 innovation zip codes
+  {
+    id: 'hub-1',
+    headline: 'Tribeca Generates 3x More Commerce Activity Than Silicon Valley\'s Heart',
+    didYouKnow: 'Tribeca (10013) generates 6 million in commerce weight—nearly 3x San Francisco\'s SoMa district (94103) and 15x Palo Alto (94301). Yet Palo Alto residents earn 48% more ($235K vs $159K median HHI). The "Creative Tech & Luxury Tech" hub outspends venture capital zip codes by buying across 195 distinct product categories.',
+    marketingImplication: 'Don\'t confuse income with spending propensity. Tribeca\'s density of high-earners in small spaces creates category diversity that suburban wealth can\'t match. Media buyers should weight 10013 for reach and breadth, not just affluence.',
+    category: 'Geographic Markets',
+    tags: ['innovation-hubs', 'tribeca', 'nyc', 'silicon-valley', 'san-francisco', 'palo-alto', 'commerce', 'spending'],
+    featured: true,
+  },
+  {
+    id: 'hub-2',
+    headline: 'The Highest-STEM Innovation Hub Isn\'t San Francisco—It\'s Denver',
+    didYouKnow: 'Denver (80202) and Seattle (98101) tie for highest STEM education at 79.2-79.4%—beating San Francisco\'s 73.4% and even Cambridge\'s 70.8%. Yet Denver\'s median income ($110K) is 10% lower than Seattle\'s ($128K). These are the most technically-educated buyers at the most efficient CPMs.',
+    marketingImplication: 'Technical product marketers: Denver is your arbitrage opportunity. Same STEM concentration as coastal hubs, 40% lower home values, and significantly less ad competition. Shift budget from saturated Bay Area to 80202.',
+    category: 'Geographic Markets',
+    tags: ['innovation-hubs', 'denver', 'seattle', 'stem', 'education', 'technical', 'b2b', 'arbitrage'],
+    featured: true,
+  },
+  {
+    id: 'hub-3',
+    headline: 'Innovation Hubs Spend 8,588 Index Points on Baby Products—14% Above Average',
+    didYouKnow: 'Baby & Toddler products have the highest average purchase weight (8,588) across all 9 active innovation hubs—exceeding even Computers (7,237). Tribeca alone accounts for 156K in baby commerce weight. These "disruption zones" are actually family formation zones.',
+    marketingImplication: 'Baby brands: stop targeting suburban demographics. Innovation hub residents are having children in urban cores, paying premium prices, and buying across every baby subcategory. Target 10013, 02139, and 94103 as primary markets.',
+    category: 'Consumer Profiles',
+    tags: ['innovation-hubs', 'baby', 'toddler', 'parents', 'urban', 'tribeca', 'cambridge', 'san-francisco', 'premium'],
+  },
+  {
+    id: 'hub-4',
+    headline: 'Camera Lenses Over-Index 10,828 in Innovation Hubs—The Highest of Any Category',
+    didYouKnow: 'Camera Lenses have the highest average weight (10,828) of any category in innovation hubs—46% higher than Computers. These zip codes concentrate professional photographers, content creators, and visual documentation specialists. Tribeca alone: 175,176 commerce weight in camera lenses.',
+    marketingImplication: 'Content creation is the hidden economy of innovation hubs. Brands targeting these zips should lead with visual storytelling, professional-grade imagery, and creator partnerships—not just tech specs.',
+    category: 'Consumer Profiles',
+    tags: ['innovation-hubs', 'camera', 'photography', 'content-creators', 'tribeca', 'visual', 'professional'],
+  },
+  {
+    id: 'hub-5',
+    headline: 'Atlanta\'s Innovation Hub Has the Lowest Income But Highest STEM Education Concentration',
+    didYouKnow: 'Atlanta (30308) has only 17.7% higher income than national average—the lowest of any innovation hub—but 78.7% STEM education, among the highest. With home values at $387K (half of Seattle\'s), this is the most technically-educated, cost-efficient audience in America.',
+    marketingImplication: 'Atlanta 30308 is the value play for B2B tech. High technical sophistication, low ad saturation, and buyers who understand specs without paying Bay Area premiums. Test here before scaling to coastal markets.',
+    category: 'Geographic Markets',
+    tags: ['innovation-hubs', 'atlanta', 'cybersecurity', 'stem', 'value', 'b2b', 'tech', 'cost-efficient'],
+  },
+  {
+    id: 'hub-6',
+    headline: 'Hardware Innovation is Real: Circuit Boards Over-Index 35x in These 10 Zip Codes',
+    didYouKnow: 'Circuit Boards & Components index at 35.00x national average across innovation hubs—with San Francisco (7,500) and Cambridge (6,340) leading. This isn\'t just software—these zip codes are prototyping physical products, building hardware startups, and supporting the "atoms economy."',
+    marketingImplication: 'The "software eating the world" narrative is incomplete. Innovation hubs are hardware-intensive. Component suppliers, maker tools, and physical prototyping services should target 94103 and 02139 specifically.',
+    category: 'Data Discoveries',
+    tags: ['innovation-hubs', 'hardware', 'circuit-boards', 'components', 'san-francisco', 'cambridge', 'prototyping', 'makers'],
+  },
+  {
+    id: 'hub-7',
+    headline: 'Cambridge Has the Youngest Innovators (29.9 Years)—Palo Alto the Oldest (45.4)',
+    didYouKnow: 'Cambridge (02139) median age is 29.9 years—15.5 years younger than Palo Alto (94301). San Diego\'s innovation hub (92121) is also young at 32.7 years. The life sciences and academic hubs skew young; the established tech wealth hubs skew older.',
+    marketingImplication: 'Age-targeted messaging must vary by hub. Cambridge and San Diego respond to career-building, skill-acquisition messaging. Palo Alto responds to legacy, wealth management, and family security messaging. Same "innovation" audience, 15-year age gap.',
+    category: 'Consumer Profiles',
+    tags: ['innovation-hubs', 'cambridge', 'palo-alto', 'san-diego', 'age', 'demographics', 'life-sciences', 'generational'],
+  },
+  {
+    id: 'hub-8',
+    headline: 'San Diego\'s Innovation Hub Only Engages with 40 Commerce Categories—Tribeca Engages 195',
+    didYouKnow: 'San Diego (92121) shows commerce activity across just 40 categories—the lowest diversity of any innovation hub. Compare to Tribeca\'s 195 categories. San Diego\'s "Genomics & Wireless Tech" focus creates hyper-specialized buyers who ignore most consumer categories.',
+    marketingImplication: 'San Diego 92121 is NOT a general consumer target—it\'s a highly specialized B2B zone. Mass-market campaigns will underperform; niche biotech, scientific equipment, and professional services will over-perform.',
+    category: 'Data Discoveries',
+    tags: ['innovation-hubs', 'san-diego', 'genomics', 'biotech', 'specialized', 'b2b', 'tribeca', 'category-diversity'],
   },
 ];
 

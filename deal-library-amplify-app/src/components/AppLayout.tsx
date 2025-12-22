@@ -57,7 +57,7 @@ import { ContentStrategyDetailModal } from './ContentStrategyDetailModal';
 import { BrandStrategyDetailModal } from './BrandStrategyDetailModal';
 import CampaignBriefModal from './CampaignBriefModal';
 import CustomDealForm from './CustomDealForm';
-import { Deal, Persona, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy, CampaignBrief } from '@/types/deal';
+import { Deal, Persona, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy, CampaignBrief } from '@/types/deal';
 import { AudienceInsights } from '@/components/AudienceInsightsCard';
 import { MarketSizing } from '@/components/MarketSizingCard';
 import { SavedCard } from '@/types/deal';
@@ -80,8 +80,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [isAudienceInsightsModalOpen, setIsAudienceInsightsModalOpen] = useState(false);
   const [selectedMarketSizing, setSelectedMarketSizing] = useState<MarketSizing | null>(null);
   const [isMarketSizingModalOpen, setIsMarketSizingModalOpen] = useState(false);
-  const [selectedGeo, setSelectedGeo] = useState<GeoCard | null>(null);
-  const [isGeoModalOpen, setIsGeoModalOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [isDealModalOpen, setIsDealModalOpen] = useState(false);
   const [selectedMarketingSWOT, setSelectedMarketingSWOT] = useState<MarketingSWOT | null>(null);
@@ -185,8 +183,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
         return `audience-insights-${(card.data as AudienceInsights).audienceName}`;
       case 'market-sizing':
         return `market-sizing-${(card.data as MarketSizing).marketName}`;
-      case 'geo-cards':
-        return `geo-cards-${(card.data as GeoCard).id}`;
       case 'marketing-swot':
         return `marketing-swot-${(card.data as MarketingSWOT).companyName}`;
       case 'company-profile':
@@ -226,10 +222,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
       case 'market-sizing':
         setSelectedMarketSizing(card.data as any);
         setIsMarketSizingModalOpen(true);
-        break;
-      case 'geo-cards':
-        setSelectedGeo(card.data as GeoCard);
-        setIsGeoModalOpen(true);
         break;
       case 'deal':
         setSelectedDeal(card.data as Deal);

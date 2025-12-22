@@ -1,4 +1,4 @@
-import { AudienceInsights, GeoCard } from '@/types/deal';
+import { AudienceInsights } from '@/types/deal';
 import { MarketSizing } from '@/components/MarketSizingCard';
 
 export const sampleAudienceInsights: AudienceInsights[] = [
@@ -111,45 +111,6 @@ export const sampleMarketSizing: MarketSizing[] = [
       barriers: ['Price sensitivity', 'Brand loyalty', 'Seasonal spending'],
       opportunities: ['Senior pet owners', 'First-time owners', 'Pet-specific social media']
     },
-    sampleData: true
-  }
-];
-
-export const sampleGeoCards: GeoCard[] = [
-  {
-    id: 'geo-1',
-    audienceName: 'Tech Professionals',
-    topMarkets: [
-      { region: 'San Francisco Bay Area', percentage: '23%' },
-      { region: 'Seattle Metro', percentage: '18%' },
-      { region: 'Austin, TX', percentage: '12%' },
-      { region: 'New York Metro', percentage: '11%' }
-    ],
-    insights: [
-      'Highest concentration in major tech hubs',
-      'Strong presence in secondary tech cities',
-      'Remote work driving suburban expansion',
-      'High disposable income in target areas'
-    ],
-    totalAddressable: '2.3M professionals',
-    sampleData: true
-  },
-  {
-    id: 'geo-2',
-    audienceName: 'New Parents',
-    topMarkets: [
-      { region: 'Suburban areas nationwide', percentage: '35%' },
-      { region: 'California suburbs', percentage: '15%' },
-      { region: 'Texas suburbs', percentage: '12%' },
-      { region: 'Florida suburbs', percentage: '10%' }
-    ],
-    insights: [
-      'Concentrated in family-friendly suburbs',
-      'Strong presence in warm weather states',
-      'Growing in mid-size cities',
-      'High engagement in community-focused areas'
-    ],
-    totalAddressable: '4.1M households',
     sampleData: true
   }
 ];

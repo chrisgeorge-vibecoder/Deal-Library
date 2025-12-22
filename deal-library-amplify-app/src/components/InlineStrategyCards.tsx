@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { 
-  Users, Target, BarChart3, MapPin, TrendingUp, Building2, 
+  Users, Target, BarChart3, TrendingUp, Building2, 
   Lightbulb, FileText, Award, Newspaper, Shield, AlertTriangle,
   ChevronRight, Bookmark, BookmarkCheck, Presentation
 } from 'lucide-react';
@@ -206,77 +206,6 @@ export function InlineMarketSizingCard({ sizing, onClick, onSave, isSaved }: Inl
       
       <div className="mt-5 pt-4 border-t border-slate-100/80 flex items-center justify-between text-xs text-slate-400">
         <span>4 slides available</span>
-        <span className="text-slate-500 font-medium group-hover:text-slate-700 transition-colors">View Slides →</span>
-      </div>
-    </div>
-  );
-}
-
-// ===========================================
-// INLINE GEO INSIGHTS CARD
-// ===========================================
-interface InlineGeoCardProps {
-  geo: {
-    audienceName?: string;
-    totalAddressable?: string;
-    topMarkets?: Array<{ region?: string; city?: string; state?: string; percentage?: string }>;
-  };
-  onClick: () => void;
-  onSave?: () => void;
-  isSaved?: boolean;
-}
-
-export function InlineGeoCard({ geo, onClick, onSave, isSaved }: InlineGeoCardProps) {
-  const topMarket = geo.topMarkets?.[0];
-  
-  return (
-    <div 
-      onClick={onClick}
-      className="group bg-white border border-slate-200/50 rounded-xl p-6 shadow-[0_1px_2px_0_rgba(0,0,0,0.03),0_1px_3px_0_rgba(0,0,0,0.05)] hover:shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08),0_4px_12px_-4px_rgba(0,0,0,0.06)] hover:border-slate-300/60 hover:-translate-y-px transition-all duration-200 cursor-pointer"
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-slate-50/80 rounded-lg flex items-center justify-center flex-shrink-0 border border-slate-100/80">
-            <MapPin className="w-5 h-5 text-slate-600" />
-          </div>
-          <div>
-            <h4 className="font-semibold text-slate-900 -tracking-[0.01em] leading-tight">{geo.audienceName || 'Geographic Insights'}</h4>
-            <p className="text-xs text-slate-400 mt-1">Location Analysis</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-1 flex-shrink-0">
-          {onSave && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onSave(); }}
-              className={`p-1.5 rounded transition-colors ${isSaved ? 'text-slate-700' : 'text-slate-300 hover:text-slate-500'}`}
-            >
-              {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
-            </button>
-          )}
-          <Presentation className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
-          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
-        </div>
-      </div>
-      
-      <div className="mt-4 flex items-center gap-6">
-        {geo.totalAddressable && (
-          <div>
-            <div className="text-xl font-semibold text-slate-900 -tracking-[0.01em]">{geo.totalAddressable}</div>
-            <div className="text-xs text-slate-400 mt-1">Addressable Market</div>
-          </div>
-        )}
-        {topMarket && (
-          <div className="text-sm">
-            <div className="text-xs text-slate-400 mb-1">Top Market</div>
-            <div className="font-medium text-slate-900 leading-tight">
-              {topMarket.city ? `${topMarket.city}, ${topMarket.state}` : topMarket.region}
-            </div>
-          </div>
-        )}
-      </div>
-      
-      <div className="mt-5 pt-4 border-t border-slate-100/80 flex items-center justify-between text-xs text-slate-400">
-        <span>{geo.topMarkets?.length || 0} markets analyzed</span>
         <span className="text-slate-500 font-medium group-hover:text-slate-700 transition-colors">View Slides →</span>
       </div>
     </div>

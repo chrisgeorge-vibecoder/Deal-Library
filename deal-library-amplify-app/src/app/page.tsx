@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Deal, DealFilters, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews } from '@/types/deal';
+import { Deal, DealFilters, Persona, AudienceInsights, MarketingSWOT, CompanyProfile, MarketingNews } from '@/types/deal';
 import { useSaveCard, useCart } from '@/components/AppLayout';
 import { MarketSizing } from '@/components/MarketSizingCard';
 // Removed mockDeals import - using real data only
-import { sampleAudienceInsights, sampleMarketSizing, sampleGeoCards } from '@/data/sampleCards';
+import { sampleAudienceInsights, sampleMarketSizing } from '@/data/sampleCards';
 import ChatInterface from '@/components/ChatInterface';
 import FilterPanel from '@/components/FilterPanel';
 import DealGrid from '@/components/DealGrid';
@@ -104,7 +104,7 @@ function getRelevantDeals(deals: Deal[], query: string, limit: number = 6): Deal
 
 interface HomePageProps {
   sidebarOpen?: boolean;
-  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards', data: any }) => void;
+  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing', data: any }) => void;
   onUnsaveCard?: (cardId: string) => void;
   isSaved?: (cardId: string) => boolean;
 }
@@ -130,7 +130,6 @@ export default function HomePage() {
   const [aiPersonas, setAiPersonas] = useState<any[]>([]);
   const [aiAudienceInsights, setAiAudienceInsights] = useState<any[]>([]);
   const [aiMarketSizing, setAiMarketSizing] = useState<any[]>([]);
-  const [aiGeoCards, setAiGeoCards] = useState<any[]>([]);
   const [aiMarketingSWOT, setAiMarketingSWOT] = useState<MarketingSWOT[]>([]);
   const [aiCompanyProfiles, setAiCompanyProfiles] = useState<CompanyProfile[]>([]);
   const [aiMarketingNews, setAiMarketingNews] = useState<MarketingNews[]>([]);
@@ -301,7 +300,6 @@ export default function HomePage() {
       setAiPersonas([]);
       setAiAudienceInsights([]);
       setAiMarketSizing([]);
-      setAiGeoCards([]);
       setAiMarketingSWOT([]);
       setAiCompanyProfiles([]);
       setAiMarketingNews([]);
@@ -341,9 +339,6 @@ export default function HomePage() {
             }
             if (cardTypes.includes('market-sizing')) {
               setAiMarketSizing(data.marketSizing || []);
-            }
-            if (cardTypes.includes('geographic')) {
-              setAiGeoCards(data.geoCards || []);
             }
             if (cardTypes.includes('marketing-news')) {
               setAiMarketingNews(data.marketingNews || []);
@@ -738,31 +733,6 @@ export default function HomePage() {
           } catch (error) {
             console.error('Audience insights request failed:', error);
             setAiResponse('Audience insights are temporarily unavailable. Please try again later.');
-            return;
-          }
-        }
-        
-        if (selectedType === 'geographic') {
-          try {
-            const response = await fetch('/api/geographic-insights', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ 
-                query, 
-                conversationHistory: conversationHistory || [],
-                cardTypes: ['geographic']
-              }),
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              setAiGeoCards(data.geoCards || []);
-              setAiResponse(data.aiResponse || 'Here are the geographic insights for your query.');
-              return;
-            }
-          } catch (error) {
-            console.error('Geographic insights request failed:', error);
-            setAiResponse('Geographic insights are temporarily unavailable. Please try again later.');
             return;
           }
         }
@@ -1237,38 +1207,6 @@ export default function HomePage() {
       }
 
 
-      // Geographic insights search
-      const geoKeywords = ['geographic', 'location', 'zip code', 'city', 'state', 'region', 'geo'];
-      const isGeoSearch = (!cardTypes || cardTypes.length === 0) && geoKeywords.some(keyword => queryLower.includes(keyword));
-
-      if (isGeoSearch) {
-        try {
-          const response = await fetch('/api/geographic-insights', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              query, 
-              conversationHistory: conversationHistory || [],
-              cardTypes: cardTypes || ['geo-cards']
-            }),
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            setAiGeoCards(data.geoCards || []);
-            setAiResponse(data.aiResponse || 'Here are the geographic insights for your query.');
-            return;
-          } else {
-            setAiResponse('Geographic insights are temporarily unavailable. Please try again later.');
-            return;
-          }
-        } catch (error) {
-          console.error('Geographic insights request failed:', error);
-          setAiResponse('Geographic insights are temporarily unavailable. Please try again later.');
-          return;
-        }
-      }
-
       // Handle competitive intelligence separately 
       if (cardTypes && cardTypes.length === 1 && cardTypes[0] === 'competitive-intelligence') {
         try {
@@ -1482,7 +1420,6 @@ export default function HomePage() {
               aiPersonas={aiPersonas}
               aiAudienceInsights={aiAudienceInsights}
               aiMarketSizing={aiMarketSizing}
-              aiGeoCards={aiGeoCards}
               aiMarketingSWOT={aiMarketingSWOT}
               aiCompanyProfiles={aiCompanyProfiles}
               aiMarketingNews={aiMarketingNews}

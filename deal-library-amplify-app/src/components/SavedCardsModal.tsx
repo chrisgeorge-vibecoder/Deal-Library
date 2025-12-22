@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, BookmarkCheck, Users, BarChart3, MapPin, Lightbulb, TrendingUp, Target, Building2, Newspaper, FileText, Award, Sparkles, Zap } from 'lucide-react';
+import { X, BookmarkCheck, Users, BarChart3, Lightbulb, TrendingUp, Target, Building2, Newspaper, FileText, Award, Sparkles, Zap } from 'lucide-react';
 import { SavedCard } from '@/types/deal';
 
 interface SavedCardsModalProps {
@@ -59,8 +59,6 @@ export default function SavedCardsModal({
         return <Lightbulb className="w-4 h-4 text-purple-600" />;
       case 'market-sizing':
         return <BarChart3 className="w-4 h-4 text-orange-600" />;
-      case 'geo-cards':
-        return <MapPin className="w-4 h-4 text-indigo-600" />;
       case 'marketing-swot':
         return <Target className="w-4 h-4 text-red-600" />;
       case 'company-profile':
@@ -96,8 +94,6 @@ export default function SavedCardsModal({
         return (card.data as any).audienceName;
       case 'market-sizing':
         return (card.data as any).marketName;
-      case 'geo-cards':
-        return (card.data as any).audienceName;
       case 'marketing-swot':
         return `Marketing SWOT: ${(card.data as any).companyName}`;
       case 'company-profile':
@@ -135,8 +131,6 @@ export default function SavedCardsModal({
         return 'Audience Insights';
       case 'market-sizing':
         return 'Market Analysis';
-      case 'geo-cards':
-        return 'Geo Insights';
       case 'marketing-swot':
         return 'Marketing SWOT Analysis';
       case 'company-profile':
@@ -180,8 +174,6 @@ export default function SavedCardsModal({
         return `audience-insights-${(card.data as any).audienceName}`;
       case 'market-sizing':
         return `market-sizing-${(card.data as any).marketName}`;
-      case 'geo-cards':
-        return `geo-cards-${(card.data as any).id}`;
       case 'marketing-swot':
         return `marketing-swot-${(card.data as any).companyName}`;
       case 'company-profile':

@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy } from '@/types/deal';
+import { Deal, Persona, AudienceInsights, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy } from '@/types/deal';
 import { MarketSizing } from './MarketSizingCard';
-import { Search, Filter, Users, Target, Lightbulb, TrendingUp, MapPin, BarChart3, ShoppingCart, Trash2, Sparkles, Building2, Newspaper, FileText, Award } from 'lucide-react';
+import { Search, Filter, Users, Target, Lightbulb, TrendingUp, BarChart3, ShoppingCart, Trash2, Sparkles, Building2, Newspaper, FileText, Award } from 'lucide-react';
 import { getCategoryFromType, getStrategyCardStyle } from '@/data/strategyCardStyles';
 import PersonaDetailModal from './PersonaDetailModal';
 import { AudienceInsightsDetailModal } from './AudienceInsightsDetailModal';
 import { MarketSizingDetailModal } from './MarketSizingDetailModal';
-import GeoDetailModal from './GeoDetailModal';
 import MarketingSWOTCard from './MarketingSWOTCard';
 import CompanyProfileCard from './CompanyProfileCard';
 import MarketingNewsCard from './MarketingNewsCard';
@@ -18,13 +17,13 @@ import { ContentStrategyDetailModal } from './ContentStrategyDetailModal';
 import { BrandStrategyDetailModal } from './BrandStrategyDetailModal';
 
 interface AudienceExplorerProps {
-  onSaveCard?: (card: { type: 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy', data: any }) => void;
+  onSaveCard?: (card: { type: 'persona' | 'audience-insights' | 'market-sizing' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy', data: any }) => void;
   onUnsaveCard?: (cardId: string) => void;
   isSaved?: (cardId: string) => boolean;
   onSwitchToChat?: (query: string) => void;
 }
 
-type CardType = 'all' | 'deals' | 'personas' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy';
+type CardType = 'all' | 'deals' | 'personas' | 'audience-insights' | 'market-sizing' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'competitive-intelligence' | 'content-strategy' | 'brand-strategy';
 
 interface SearchResult {
   type: CardType;
@@ -79,7 +78,6 @@ export default function AudienceExplorer({
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
   const [selectedAudienceInsights, setSelectedAudienceInsights] = useState<AudienceInsights | null>(null);
   const [selectedMarketSizing, setSelectedMarketSizing] = useState<MarketSizing | null>(null);
-  const [selectedGeoCard, setSelectedGeoCard] = useState<GeoCard | null>(null);
   const [selectedMarketingSWOT, setSelectedMarketingSWOT] = useState<MarketingSWOT | null>(null);
   const [selectedCompanyProfile, setSelectedCompanyProfile] = useState<CompanyProfile | null>(null);
   const [selectedMarketingNews, setSelectedMarketingNews] = useState<MarketingNews | null>(null);
@@ -89,7 +87,6 @@ export default function AudienceExplorer({
   const [isPersonaModalOpen, setIsPersonaModalOpen] = useState(false);
   const [isAudienceInsightsModalOpen, setIsAudienceInsightsModalOpen] = useState(false);
   const [isMarketSizingModalOpen, setIsMarketSizingModalOpen] = useState(false);
-  const [isGeoModalOpen, setIsGeoModalOpen] = useState(false);
   const [isMarketingSWOTModalOpen, setIsMarketingSWOTModalOpen] = useState(false);
   const [isCompanyProfileModalOpen, setIsCompanyProfileModalOpen] = useState(false);
   const [isMarketingNewsModalOpen, setIsMarketingNewsModalOpen] = useState(false);
@@ -162,17 +159,6 @@ export default function AudienceExplorer({
       ]
     },
     {
-      id: 'geographic',
-      name: 'Geo Insights',
-      description: 'Location-based audience and market data',
-      icon: MapPin,
-      subcategories: [
-        { id: 'regional-analysis', name: 'Regional Analysis', description: 'Analyze broad regional markets (e.g., "California", "Northeast")', cardType: 'geo-cards' },
-        { id: 'local-insights', name: 'Local Insights', description: 'City and local market data (e.g., "New York City", "Austin")', cardType: 'geo-cards' },
-        { id: 'international', name: 'International Markets', description: 'Global market opportunities (e.g., "Europe", "Asia-Pacific")', cardType: 'geo-cards' }
-      ]
-    },
-    {
       id: 'market-data',
       name: 'Market Intelligence',
       description: 'Market sizing and industry analysis',
@@ -220,17 +206,6 @@ export default function AudienceExplorer({
             default:
               return userQuery;
           }
-        case 'geo-cards':
-          switch (subcategory.id) {
-            case 'regional-analysis':
-              return `${userQuery} regional market analysis and demographics`;
-            case 'local-insights':
-              return `${userQuery} local market data and demographics`;
-            case 'international':
-              return `${userQuery} international market opportunities`;
-            default:
-              return userQuery;
-          }
         default:
           return userQuery;
       }
@@ -238,17 +213,6 @@ export default function AudienceExplorer({
     
     // Generate context-aware queries based on subcategory when no user input
     switch (subcategory.cardType) {
-      case 'geo-cards':
-        switch (subcategory.id) {
-          case 'regional-analysis':
-            return 'United States regional market analysis and demographic insights';
-          case 'local-insights':
-            return 'major US cities local market data and demographics';
-          case 'international':
-            return 'global international market opportunities and demographics';
-          default:
-            return subcategory.name;
-        }
       case 'market-sizing':
         switch (subcategory.id) {
           case 'market-trends':
@@ -564,47 +528,6 @@ export default function AudienceExplorer({
             } else {
               setError('Failed to connect to AI service. Please check your connection and try again.');
             }
-          }
-          break;
-          
-        case 'geo-cards':
-          try {
-            // Generate AI-powered geographic insights
-            const query = getQueryForSubcategory(subcategory, audienceFilter);
-            const geoResponse = await fetch('/api/geographic-insights', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ query }),
-            });
-            
-            if (geoResponse.ok) {
-              const geoData = await geoResponse.json();
-              console.log(`🗺️ Loaded geographic insights data:`, geoData);
-              if (geoData.geoCards && geoData.geoCards.length > 0) {
-                geoData.geoCards.forEach((geo: GeoCard) => {
-                  results.push({ type: 'geo-cards', data: geo });
-                });
-                console.log(`✅ Added ${geoData.geoCards.length} geographic insight cards`);
-              } else {
-                console.log('⚠️ No geographic cards found in response');
-              }
-            } else {
-              console.error(`❌ Failed to fetch geographic insights: ${geoResponse.status} ${geoResponse.statusText}`);
-              try {
-                const errorData = await geoResponse.json();
-                console.error('Error details:', errorData);
-                // Check for both 'message' and 'error' fields for compatibility
-                const errorMessage = errorData.message || errorData.error || 'Please try again.';
-                setError(`Failed to load geographic insights: ${errorMessage}`);
-              } catch (e) {
-                console.error('Could not parse error response:', e);
-                setError('Failed to load geographic insights. Please check your configuration and try again.');
-              }
-            }
-          } catch (error) {
-            console.error('❌ Error loading geographic insights:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            setError(`Failed to load geographic insights: ${errorMessage}. Please check your configuration and try again.`);
           }
           break;
           
@@ -1192,10 +1115,6 @@ export default function AudienceExplorer({
         setSelectedMarketSizing(result.data);
         setIsMarketSizingModalOpen(true);
         break;
-      case 'geo-cards':
-        setSelectedGeoCard(result.data);
-        setIsGeoModalOpen(true);
-        break;
       case 'marketing-swot':
         setSelectedMarketingSWOT(result.data);
         setIsMarketingSWOTModalOpen(true);
@@ -1377,7 +1296,6 @@ export default function AudienceExplorer({
               {result.type === 'personas' && 'Strategic insights included'}
               {result.type === 'audience-insights' && 'AI-generated insights'}
               {result.type === 'market-sizing' && 'Market analysis'}
-              {result.type === 'geo-cards' && 'Geographic insights'}
               {result.type === 'marketing-swot' && 'Marketing SWOT analysis'}
               {result.type === 'company-profile' && 'Company profile'}
               {result.type === 'marketing-news' && 'Marketing news'}
@@ -1414,7 +1332,6 @@ export default function AudienceExplorer({
     const isAIPowered = subcategory && [
       'audience-insights', 
       'market-sizing', 
-      'geo-cards', 
       'marketing-swot', 
       'company-profile',
       'marketing-news'
@@ -1434,7 +1351,6 @@ export default function AudienceExplorer({
               {subcategory.cardType === 'company-profile' && "Try searching for a stock symbol (e.g., 'AAPL', 'NKE')"}
               {subcategory.cardType === 'audience-insights' && "Try searching for an audience (e.g., 'sports fans', 'millennials')"}
               {subcategory.cardType === 'market-sizing' && "Try searching for a market (e.g., 'automotive', 'healthcare')"}
-              {subcategory.cardType === 'geo-cards' && "Try searching for a location (e.g., 'California', 'United States')"}
             </div>
           )}
         </div>
@@ -1788,28 +1704,6 @@ export default function AudienceExplorer({
             setSelectedMarketSizing(null);
             if (onSwitchToChat) {
               onSwitchToChat(`request deals for ${sizing.marketName} market`);
-            }
-          }}
-          onSaveCard={onSaveCard}
-          onUnsaveCard={onUnsaveCard}
-          isSaved={isSaved}
-        />
-      )}
-
-      {isGeoModalOpen && selectedGeoCard && (
-        <GeoDetailModal
-          geo={selectedGeoCard}
-          isOpen={isGeoModalOpen}
-          onClose={() => {
-            setIsGeoModalOpen(false);
-            setSelectedGeoCard(null);
-          }}
-          onViewDeals={(geo) => {
-            // Close modal and switch to chat interface
-            setIsGeoModalOpen(false);
-            setSelectedGeoCard(null);
-            if (onSwitchToChat) {
-              onSwitchToChat(`request deals for ${geo.audienceName} geographic targeting`);
             }
           }}
           onSaveCard={onSaveCard}

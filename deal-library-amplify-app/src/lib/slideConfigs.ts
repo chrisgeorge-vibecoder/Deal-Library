@@ -5,7 +5,7 @@ import {
   FileText, Calendar, DollarSign, Smartphone, Globe, AlertTriangle,
   LucideIcon
 } from 'lucide-react';
-import { BrandStrategy, CompanyProfile, CompetitiveIntelligence, ContentStrategy, MarketingSWOT, MarketingNews, Persona, GeoCard } from '@/types/deal';
+import { BrandStrategy, CompanyProfile, CompetitiveIntelligence, ContentStrategy, MarketingSWOT, MarketingNews, Persona } from '@/types/deal';
 
 // ============================================
 // UTILITY: Split list items across multiple slides
@@ -822,81 +822,6 @@ export function generateMarketingSWOTSlides(data: MarketingSWOT): SlideData[] {
 }
 
 // ============================================
-// 9. GEO INSIGHTS CARD - 4 slides
-// ============================================
-export function generateGeoInsightsSlides(data: GeoCard): SlideData[] {
-  return [
-    // Slide 1: Geographic Overview
-    {
-      id: 'geo-overview',
-      title: 'Geographic Overview',
-      type: 'title',
-      content: {
-        title: `Geo Insights: ${data.audienceName || 'Geographic Analysis'}`,
-        subtitle: `Total Addressable Market: ${data.totalAddressable || 'N/A'}`,
-        category: 'Geo Insights',
-        icon: MapPin,
-        accentColor: '#3B82F6'
-      }
-    },
-    // Slide 2: Top Markets
-    {
-      id: 'geo-markets',
-      title: 'Top Markets',
-      type: 'table',
-      content: {
-        title: 'Top Markets',
-        icon: TrendingUp,
-        accentColor: '#22C55E',
-        headers: ['Region', 'Percentage', 'Status'],
-        rows: (data.topMarkets || []).map((market: any, index: number) => ({
-          cells: [market.region, market.percentage, index === 0 ? 'Primary' : index === 1 ? 'Secondary' : 'Tertiary'],
-          highlight: index === 0,
-          tag: index === 0 ? 'Top' : undefined,
-          tagColor: '#22C55E'
-        }))
-      }
-    },
-    // Slide 3: Demographics & Market Characteristics
-    {
-      id: 'geo-demographics',
-      title: 'Demographics & Market',
-      type: 'grid',
-      content: {
-        title: 'Demographics & Market Characteristics',
-        icon: Users,
-        accentColor: '#6366F1',
-        columns: 2,
-        items: [
-          { label: 'Population', value: (data as any).demographics?.population || 'N/A' },
-          { label: 'Median Age', value: String(data.demographics?.medianAge || 'N/A') },
-          { label: 'Median Income', value: String(data.demographics?.medianIncome || 'N/A') },
-          { label: 'Urban/Rural', value: (data as any).demographics?.urbanRuralSplit || 'N/A' }
-        ]
-      }
-    },
-    // Slide 4: Advertising Opportunities
-    {
-      id: 'geo-advertising',
-      title: 'Advertising Opportunities',
-      type: 'grid',
-      content: {
-        title: 'Advertising Opportunities',
-        icon: Target,
-        accentColor: '#F59E0B',
-        columns: 2,
-        items: [
-          { label: 'Optimal Channels', value: (data.advertisingOpportunities?.optimalChannels || []).join(', ') || 'N/A' },
-          { label: 'Peak Engagement', value: (data.advertisingOpportunities?.peakEngagement || []).join(', ') || 'N/A' },
-          { label: 'Creative Considerations', value: (data.advertisingOpportunities?.creativeConsiderations || []).join(', ') || 'N/A' },
-          { label: 'Budget Recommendations', value: data.advertisingOpportunities?.budgetRecommendations || 'N/A' }
-        ]
-      }
-    }
-  ];
-}
-
-// ============================================
 // 10. MARKETING NEWS CARD - 4 slides (expanded)
 // ============================================
 export function generateMarketingNewsSlides(data: MarketingNews): SlideData[] {
@@ -1181,7 +1106,6 @@ export type CardType =
   | 'competitive-intelligence' 
   | 'content-strategy' 
   | 'marketing-swot' 
-  | 'geo-cards' 
   | 'marketing-news'
   | 'market-profile'
   | 'campaign-brief';
@@ -1204,8 +1128,6 @@ export function generateSlides(cardType: CardType, data: any): SlideData[] {
       return generateContentStrategySlides(data);
     case 'marketing-swot':
       return generateMarketingSWOTSlides(data);
-    case 'geo-cards':
-      return generateGeoInsightsSlides(data);
     case 'marketing-news':
       return generateMarketingNewsSlides(data);
     case 'market-profile':

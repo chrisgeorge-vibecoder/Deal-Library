@@ -1389,13 +1389,10 @@ export class DealsController {
       }
 
       // Handle both single cardType and array of cardTypes for multiple selection
-      const rawRequestedTypes = cardTypes && Array.isArray(cardTypes) ? cardTypes : (cardType === 'all' ? ['deals', 'personas', 'audience-insights', 'market-sizing', 'geographic', 'marketing-news'] : [cardType]);
+      const rawRequestedTypes = cardTypes && Array.isArray(cardTypes) ? cardTypes : (cardType === 'all' ? ['deals', 'personas', 'audience-insights', 'market-sizing', 'marketing-news'] : [cardType]);
       
       // Normalize card type names (handle frontend/backend naming inconsistencies)
-      const requestedTypes = rawRequestedTypes.map(type => {
-        if (type === 'geo-cards') return 'geographic';
-        return type;
-      });
+      const requestedTypes = rawRequestedTypes.map(type => type);
       
       console.log(`🔍 Unified search: "${query}", types: ${JSON.stringify(requestedTypes)}`);
 
@@ -1404,7 +1401,6 @@ export class DealsController {
         personas: [],
         audienceInsights: [],
         marketSizing: [],
-        geoCards: [],
         marketingNews: []
       };
 
@@ -1607,18 +1603,6 @@ export class DealsController {
         }
       }
 
-      // Generate geographic insights if requested
-      if (requestedTypes.includes('geographic')) {
-        try {
-          if (this.geminiService) {
-            const geoResult = await this.geminiService.generateGeographicInsights(query);
-            results.geoCards = geoResult.geoCards || [];
-          }
-        } catch (error) {
-          console.error('Error generating geographic insights:', error);
-        }
-      }
-
       // Generate marketing news if requested
       if (requestedTypes.includes('marketing-news')) {
         try {
@@ -1639,7 +1623,6 @@ export class DealsController {
         personas: results.personas.length,
         audienceInsights: results.audienceInsights.length,
         marketSizing: results.marketSizing.length,
-        geoCards: results.geoCards.length,
         marketingNews: results.marketingNews.length
       });
 
@@ -2044,35 +2027,6 @@ export class DealsController {
 
       return true;
     });
-  }
-
-  /**
-   * Generate geographic insights using AI
-   */
-  async generateGeographicInsights(req: Request, res: Response): Promise<void> {
-    try {
-      const { query } = req.body;
-      
-      if (!query) {
-        res.status(400).json({ error: 'Query is required' });
-        return;
-      }
-
-      if (!this.geminiService) {
-        res.status(500).json({ error: 'AI service not available' });
-        return;
-      }
-
-      console.log(`🔍 Generating geographic insights for: "${query}"`);
-      
-      const result = await this.geminiService.generateGeographicInsights(query);
-      
-      res.json(result);
-      
-    } catch (error) {
-      console.error('Error generating geographic insights:', error);
-      res.status(500).json({ error: 'Failed to generate geographic insights' });
-    }
   }
 
   /**

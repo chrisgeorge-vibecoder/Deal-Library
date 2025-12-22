@@ -1,6 +1,6 @@
 import React from 'react';
-import { BookmarkCheck, X, ShoppingCart, Users, BarChart3, MapPin, Lightbulb, TrendingUp, Target, Building2, Newspaper, FileText, Award, Sparkles, Zap } from 'lucide-react';
-import { Deal, Persona, AudienceInsights, MarketSizing, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy, SavedCard, CampaignBrief } from '@/types/deal';
+import { BookmarkCheck, X, ShoppingCart, Users, BarChart3, Lightbulb, TrendingUp, Target, Building2, Newspaper, FileText, Award, Sparkles, Zap } from 'lucide-react';
+import { Deal, Persona, AudienceInsights, MarketSizing, MarketingSWOT, CompanyProfile, MarketingNews, CompetitiveIntelligence, ContentStrategy, BrandStrategy, SavedCard, CampaignBrief } from '@/types/deal';
 
 interface SavedCardsProps {
   savedCards: SavedCard[];
@@ -19,8 +19,6 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return <Lightbulb className="w-4 h-4 text-purple-600" />;
       case 'market-sizing':
         return <BarChart3 className="w-4 h-4 text-orange-600" />;
-      case 'geo-cards':
-        return <MapPin className="w-4 h-4 text-indigo-600" />;
       case 'marketing-swot':
         return <Target className="w-4 h-4 text-red-600" />;
       case 'company-profile':
@@ -56,8 +54,6 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return (card.data as AudienceInsights).audienceName;
       case 'market-sizing':
         return (card.data as MarketSizing).marketName;
-      case 'geo-cards':
-        return (card.data as GeoCard).audienceName;
       case 'marketing-swot':
         return `Marketing SWOT: ${(card.data as MarketingSWOT).companyName}`;
       case 'company-profile':
@@ -95,8 +91,6 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return 'Audience Insights';
       case 'market-sizing':
         return 'Market Analysis';
-      case 'geo-cards':
-        return 'Geo Insights';
       case 'marketing-swot':
         return 'Marketing SWOT Analysis';
       case 'company-profile':
@@ -140,8 +134,6 @@ export default function SavedCards({ savedCards, onUnsaveCard, onCardClick }: Sa
         return `audience-insights-${(card.data as AudienceInsights).audienceName}`;
       case 'market-sizing':
         return `market-sizing-${(card.data as MarketSizing).marketName}`;
-      case 'geo-cards':
-        return `geo-cards-${(card.data as GeoCard).id}`;
       case 'marketing-swot':
         return `marketing-swot-${(card.data as MarketingSWOT).companyName}`;
       case 'company-profile':

@@ -39,7 +39,6 @@ export async function POST(request: NextRequest) {
           personas: [],
           deals: [],
           marketSizing: [],
-          geoCards: [],
           marketingNews: [],
           contentStrategy: [],
           brandStrategy: [],

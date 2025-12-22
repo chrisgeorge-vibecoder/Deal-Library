@@ -1,15 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, Target, BarChart3, MapPin, TrendingUp, Building2, Lightbulb, ShoppingCart, Plus, Check, Bookmark, BookmarkCheck, Shield, AlertTriangle, Presentation, ChevronRight } from 'lucide-react';
+import { Users, Target, BarChart3, TrendingUp, Building2, Lightbulb, ShoppingCart, Plus, Check, Bookmark, BookmarkCheck, Shield, AlertTriangle, Presentation, ChevronRight } from 'lucide-react';
 import { ComprehensiveReport } from '@/types/agentMode';
-import { Deal, MarketingSWOT, CompetitiveIntelligence, Persona, GeoCard } from '@/types/deal';
+import { Deal, MarketingSWOT, CompetitiveIntelligence, Persona } from '@/types/deal';
 import { MarketSizing } from './MarketSizingCard';
 import DealCard from './DealCard';
 import {
   InlinePersonaCard,
   InlineMarketSizingCard,
-  InlineGeoCard,
   InlineSWOTCard,
   InlineCompetitiveIntelCard
 } from './InlineStrategyCards';
@@ -17,7 +16,6 @@ import {
 // Import Detail Modals
 import PersonaDetailModal from './PersonaDetailModal';
 import { MarketSizingDetailModal } from './MarketSizingDetailModal';
-import GeoDetailModal from './GeoDetailModal';
 import { MarketingSWOTDetailModal } from './MarketingSWOTDetailModal';
 import { CompetitiveIntelligenceDetailModal } from './CompetitiveIntelligenceDetailModal';
 
@@ -63,7 +61,6 @@ export default function CampaignPlannerResults({
   // Modal state
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
   const [selectedMarketSizing, setSelectedMarketSizing] = useState<MarketSizing | null>(null);
-  const [selectedGeo, setSelectedGeo] = useState<GeoCard | null>(null);
   const [selectedSwot, setSelectedSwot] = useState<MarketingSWOT | null>(null);
   const [selectedCompetitiveIntel, setSelectedCompetitiveIntel] = useState<CompetitiveIntelligence | null>(null);
 
@@ -148,25 +145,6 @@ export default function CampaignPlannerResults({
       keyDrivers: report.results.marketSizing.marketInsights?.keyDrivers || [],
       barriers: report.results.marketSizing.marketInsights?.barriers || [],
       opportunities: report.results.marketSizing.marketInsights?.opportunities || []
-    }
-  });
-
-  const transformGeoForModal = (): GeoCard => ({
-    id: `geo-insights-${report.advertiserName}`,
-    audienceName: `${report.advertiserName} Geographic Insights`,
-    totalAddressable: formatNumber(report.results.marketSizing.totalAddressableMarket || 0),
-    topMarkets: report.results.geographic.topMarkets?.slice(0, 10).map((m: any) => ({
-      city: m.city,
-      state: m.state,
-      region: `${m.city}, ${m.state}`,
-      concentration: m.concentration,
-      population: m.population,
-      medianIncome: m.medianIncome,
-      urbanRural: m.urbanRural,
-      percentage: `${(m.concentration * 100).toFixed(1)}%`
-    })) || [],
-    demographics: {
-      medianIncome: report.results.geographic.topMarkets?.[0]?.medianIncome
     }
   });
 
@@ -761,15 +739,6 @@ export default function CampaignPlannerResults({
         isOpen={!!selectedMarketSizing}
         onClose={() => setSelectedMarketSizing(null)}
         onSaveCard={onSaveCard ? (card) => onSaveCard({ type: card.type, data: card.data }) : undefined}
-        onUnsaveCard={onUnsaveCard}
-        isSaved={isSaved}
-      />
-
-      <GeoDetailModal
-        geo={selectedGeo}
-        isOpen={!!selectedGeo}
-        onClose={() => setSelectedGeo(null)}
-        onSaveCard={onSaveCard}
         onUnsaveCard={onUnsaveCard}
         isSaved={isSaved}
       />

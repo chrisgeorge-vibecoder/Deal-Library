@@ -123,22 +123,6 @@ export interface MarketSizing {
   [key: string]: any;
 }
 
-// Geographic Card type
-export interface GeoCard {
-  location?: string;
-  locationName?: string;
-  population?: number;
-  demographics?: {
-    medianAge?: number;
-    medianIncome?: number;
-    educationLevel?: string;
-  };
-  marketPotential?: string;
-  keyInsights?: string[];
-  recommendations?: string[];
-  [key: string]: any;
-}
-
 // Marketing SWOT type
 export interface MarketingSWOT {
   id?: string;
@@ -301,7 +285,6 @@ export type SavedCardType =
   | 'persona' 
   | 'audience-insights' 
   | 'market-sizing' 
-  | 'geo-cards' 
   | 'marketing-swot' 
   | 'company-profile' 
   | 'marketing-news' 
@@ -317,6 +300,6 @@ export type SavedCardType =
 
 export interface SavedCard {
   type: SavedCardType;
-  data: Deal | Persona | MarketSizing | GeoCard | MarketingSWOT | CompanyProfile | MarketingNews | CompetitiveIntelligence | ContentStrategy | BrandStrategy | CampaignBrief | any;
+  data: Deal | Persona | MarketSizing | MarketingSWOT | CompanyProfile | MarketingNews | CompetitiveIntelligence | ContentStrategy | BrandStrategy | CampaignBrief | any;
   savedAt: string;
 }

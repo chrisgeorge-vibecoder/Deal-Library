@@ -9,7 +9,7 @@ interface DealCardProps {
   onAddToCart?: () => void;
   onRemoveFromCart?: () => void;
   isInCart?: boolean;
-  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards', data: any }) => void;
+  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing', data: any }) => void;
   onUnsaveCard?: (cardId: string) => void;
   isSaved?: (cardId: string) => boolean;
   // Optional: show additional details like bid guidance and media type

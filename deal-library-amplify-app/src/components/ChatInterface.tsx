@@ -47,7 +47,6 @@ interface ChatInterfaceProps {
   aiPersonas?: Persona[];
   aiAudienceInsights?: AudienceInsights[];
   aiMarketSizing?: MarketSizing[];
-  aiGeoCards?: GeoCard[];
   aiMarketingSWOT?: MarketingSWOT[];
   aiCompanyProfiles?: CompanyProfile[];
   aiMarketingNews?: MarketingNews[];
@@ -59,7 +58,7 @@ interface ChatInterfaceProps {
   onPersonaClick?: (persona: Persona) => void;
   inputValue?: string;
   onInputValueChange?: (value: string) => void;
-  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'geo-cards' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'audience-taxonomy', data: any }) => void;
+  onSaveCard?: (card: { type: 'deal' | 'persona' | 'audience-insights' | 'market-sizing' | 'marketing-swot' | 'company-profile' | 'marketing-news' | 'audience-taxonomy', data: any }) => void;
   onUnsaveCard?: (cardId: string) => void;
   isSaved?: (cardId: string) => boolean;
   sidebarOpen?: boolean;
@@ -79,7 +78,6 @@ export default function ChatInterface({
   aiPersonas,
   aiAudienceInsights,
   aiMarketSizing,
-  aiGeoCards,
   aiMarketingSWOT,
   aiCompanyProfiles,
   aiMarketingNews,
@@ -115,8 +113,6 @@ export default function ChatInterface({
   const [selectedCardTypes, setSelectedCardTypes] = useState<string[]>([]);
   const [hasUserManuallySelected, setHasUserManuallySelected] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [selectedGeo, setSelectedGeo] = useState<GeoCard | null>(null);
-  const [isGeoModalOpen, setIsGeoModalOpen] = useState(false);
   
   
   const lastProcessedResponse = useRef<string>('');
@@ -181,9 +177,6 @@ export default function ChatInterface({
     if (query.includes('market') || query.includes('sizing') || query.includes('market analysis')) {
       suggestedTypes.push('market-sizing');
     }
-    if (query.includes('geographic') || query.includes('location') || query.includes('geo')) {
-      suggestedTypes.push('geographic');
-    }
     
     // Only auto-select if we found suggestions and user hasn't manually selected anything
     if (suggestedTypes.length > 0 && selectedCardTypes.length === 0) {
@@ -239,8 +232,6 @@ export default function ChatInterface({
         audienceInsights: aiAudienceInsights && aiAudienceInsights.length > 0 ? aiAudienceInsights : undefined,
         // Include market sizing if available
         marketSizing: aiMarketSizing && aiMarketSizing.length > 0 ? aiMarketSizing : undefined,
-        // Include geo cards if available
-        geoCards: aiGeoCards && aiGeoCards.length > 0 ? aiGeoCards : undefined,
         // Include marketing SWOT if available
         marketingSWOT: aiMarketingSWOT && aiMarketingSWOT.length > 0 ? aiMarketingSWOT : undefined,
         // Include company profiles if available
@@ -270,7 +261,7 @@ export default function ChatInterface({
         typingTimeoutRef.current = null;
       }
     }
-  }, [aiResponse, isTyping, deals, aiPersonas, aiAudienceInsights, aiMarketSizing, aiGeoCards, aiMarketingSWOT, aiCompanyProfiles, aiMarketingNews, aiCoaching, aiAudiences]);
+  }, [aiResponse, isTyping, deals, aiPersonas, aiAudienceInsights, aiMarketSizing, aiMarketingSWOT, aiCompanyProfiles, aiMarketingNews, aiCoaching, aiAudiences]);
 
   // Handle audience insights updates after the initial message is created
   useEffect(() => {
@@ -690,24 +681,6 @@ export default function ChatInterface({
                   </div>
                 )}
                 
-                {message.geoCards && message.geoCards.length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-xs font-medium text-neutral-600 mb-3">Geographic distribution:</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {message.geoCards.map((geo) => (
-                        <GeoCardComponent
-                          key={geo.id}
-                          geo={geo}
-                          onClick={() => {
-                            const event = new CustomEvent('openGeoModal', { detail: { geo: geo } });
-                            window.dispatchEvent(event);
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {message.marketingSWOT && message.marketingSWOT.length > 0 && (
                   <div className="mt-4">
                     <p className="text-xs font-medium text-neutral-600 mb-3">Marketing SWOT analysis:</p>

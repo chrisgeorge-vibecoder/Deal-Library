@@ -544,13 +544,10 @@ export class DealsControllerWrapper extends DealsController {
       const queryLower = (query || '').toLowerCase();
       
       // Handle both single cardType and array of cardTypes for multiple selection
-      const rawRequestedTypes = cardTypes && Array.isArray(cardTypes) ? cardTypes : (cardType === 'all' ? ['deals', 'personas', 'audience-insights', 'market-sizing', 'geographic', 'marketing-news'] : [cardType]);
+      const rawRequestedTypes = cardTypes && Array.isArray(cardTypes) ? cardTypes : (cardType === 'all' ? ['deals', 'personas', 'audience-insights', 'market-sizing', 'marketing-news'] : [cardType]);
       
       // Normalize card type names
-      const requestedTypes = rawRequestedTypes.map((type: string) => {
-        if (type === 'geo-cards') return 'geographic';
-        return type;
-      });
+      const requestedTypes = rawRequestedTypes.map((type: string) => type);
       
       console.log(`🔍 Unified search direct: "${query}", types: ${JSON.stringify(requestedTypes)}`);
       
@@ -559,7 +556,6 @@ export class DealsControllerWrapper extends DealsController {
         personas: [],
         audienceInsights: [],
         marketSizing: [],
-        geoCards: [],
         marketingNews: [],
         contentStrategy: [],
         brandStrategy: [],
@@ -642,24 +638,6 @@ export class DealsControllerWrapper extends DealsController {
         } catch (error) {
           console.error('Error generating persona:', error);
           // On timeout or error, continue without personas rather than failing the whole request
-        }
-      }
-      
-      // Generate geographic insights if requested
-      if (requestedTypes.includes('geographic')) {
-        try {
-          const gemini = getGeminiService();
-          if (gemini) {
-            const GEO_TIMEOUT_MS = 20000; // 20 seconds
-            const geoTimoutPromise = new Promise<never>((_, reject) => {
-              setTimeout(() => reject(new Error('Geographic insights generation timeout')), GEO_TIMEOUT_MS);
-            });
-            const geoPromise = gemini.generateGeographicInsights(query || 'United States');
-            const geoResult = await Promise.race([geoPromise, geoTimoutPromise]);
-            results.geoCards = geoResult.geoCards || [];
-          }
-        } catch (error) {
-          console.error('Error generating geographic insights:', error);
         }
       }
       
@@ -750,7 +728,6 @@ export class DealsControllerWrapper extends DealsController {
         personas: results.personas.length,
         marketSizing: results.marketSizing.length,
         marketingNews: results.marketingNews.length,
-        geoCards: results.geoCards.length,
         contentStrategy: results.contentStrategy.length,
         brandStrategy: results.brandStrategy.length,
         competitiveIntelligence: results.competitiveIntelligence.length,
@@ -1728,67 +1705,6 @@ export class DealsControllerWrapper extends DealsController {
           debugId,
           elapsedMs: totalElapsed
         }
-      };
-    }
-  }
-
-  // Generate geographic insights directly - FIXED: Now uses GeminiService
-  async generateGeographicInsightsDirect(body: any): Promise<any> {
-    try {
-      console.log('🗺️ generateGeographicInsightsDirect called with:', body);
-      
-      // Check for GEMINI_API_KEY before attempting to get service
-      if (!process.env.GEMINI_API_KEY) {
-        const errorMsg = 'GEMINI_API_KEY environment variable is not configured. Please set it in your environment variables.';
-        console.error('❌', errorMsg);
-        return {
-          success: false,
-          geoCards: [],
-          error: errorMsg
-        };
-      }
-      
-      const gemini = getGeminiService();
-      const query = body.query || body.location || 'United States';
-      
-      if (!query || query.trim() === '') {
-        const errorMsg = 'Query is required to generate geographic insights.';
-        console.error('❌', errorMsg);
-        return {
-          success: false,
-          geoCards: [],
-          error: errorMsg
-        };
-      }
-      
-      const result = await gemini.generateGeographicInsights(query, body.conversationHistory);
-      
-      console.log('✅ Geographic insights generated:', result.geoCards?.length || 0, 'cards');
-      
-      return {
-        success: true,
-        geoCards: result.geoCards || [],
-        aiResponse: result.aiResponse || ''
-      };
-    } catch (error) {
-      console.error('❌ Error generating geographic insights:', error);
-      
-      // Provide more specific error messages
-      let errorMessage = 'Failed to generate geographic insights.';
-      if (error instanceof Error) {
-        if (error.message.includes('GEMINI_API_KEY')) {
-          errorMessage = 'AI service is not configured. Please set GEMINI_API_KEY environment variable.';
-        } else if (error.message.includes('API key')) {
-          errorMessage = 'Invalid API key. Please check your GEMINI_API_KEY configuration.';
-        } else {
-          errorMessage = `Failed to generate geographic insights: ${error.message}`;
-        }
-      }
-      
-      return { 
-        success: false, 
-        geoCards: [],
-        error: errorMessage
       };
     }
   }

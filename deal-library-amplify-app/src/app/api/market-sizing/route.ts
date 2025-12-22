@@ -1,22 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDealsController } from '@/lib/controllers/dealsControllerWrapper';
 
-// AWS Amplify serverless functions have timeout limits (10-30 seconds)
-// We need to ensure we return before that limit
-const API_TIMEOUT_MS = 25000; // 25 seconds - leave buffer for Amplify timeout
+// AWS Amplify serverless functions have timeout limits (varies by tier, typically 10-30 seconds)
+// Increased to 35 seconds to allow for complex market sizing queries (controller has 32s timeout)
+const API_TIMEOUT_MS = 35000; // 35 seconds - leave buffer for Amplify timeout
 
 export async function POST(request: NextRequest) {
+  const requestStartTime = Date.now();
+  const debugId = `api-market-sizing-${Date.now()}`;
+  
+  console.log(`📊 [${debugId}] Market sizing API route called`);
+  
   // Create a timeout promise that rejects after API_TIMEOUT_MS
   const timeoutPromise = new Promise<never>((_, reject) => {
     setTimeout(() => {
-      reject(new Error('API request timeout - serverless function limit reached'));
+      const elapsed = Date.now() - requestStartTime;
+      console.error(`⏰ [${debugId}] API route timeout: ${elapsed}ms elapsed (limit: ${API_TIMEOUT_MS}ms)`);
+      reject(new Error(`API request timeout - serverless function limit reached after ${elapsed}ms`));
     }, API_TIMEOUT_MS);
   });
 
   let result: any = null;
   try {
     const body = await request.json();
+    console.log(`📊 [${debugId}] Request body parsed:`, {
+      hasQuery: !!body.query,
+      query: body.query?.substring(0, 100), // Log first 100 chars
+      hasConversationHistory: !!(body.conversationHistory && body.conversationHistory.length > 0)
+    });
+    
     const controller = getDealsController();
+    if (!controller) {
+      console.error(`❌ [${debugId}] DealsController not available`);
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Service unavailable',
+          message: 'Controller service is not initialized',
+          marketSizing: [],
+          aiResponse: 'Service is temporarily unavailable. Please try again later.'
+        },
+        { status: 503 }
+      );
+    }
+    
+    console.log(`📊 [${debugId}] Starting generateMarketSizingDirect...`);
+    const controllerStartTime = Date.now();
     
     // Race between the actual market sizing generation and the timeout
     result = await Promise.race([
@@ -24,20 +53,43 @@ export async function POST(request: NextRequest) {
       timeoutPromise
     ]);
     
+    const controllerElapsed = Date.now() - controllerStartTime;
+    const totalElapsed = Date.now() - requestStartTime;
+    
+    console.log(`✅ [${debugId}] Market sizing API completed successfully:`, {
+      success: result.success,
+      hasMarketSizing: !!(result.marketSizing && result.marketSizing.length > 0),
+      marketSizingCount: result.marketSizing?.length || 0,
+      controllerElapsed: `${controllerElapsed}ms`,
+      totalElapsed: `${totalElapsed}ms`
+    });
+    
     return NextResponse.json(result);
   } catch (error: any) {
-    console.error('❌ Error generating market sizing:', error);
+    const totalElapsed = Date.now() - requestStartTime;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    console.error(`❌ [${debugId}] Error in market sizing API route (elapsed: ${totalElapsed}ms):`, {
+      error: errorMessage,
+      errorName: error instanceof Error ? error.name : typeof error,
+      result: result ? { success: result.success, error: result.error } : null
+    });
     
     // If it's a timeout, return a specific error
-    if (error.message?.includes('timeout') || error.name === 'AbortError' || (result && result.error === 'timeout')) {
-      console.error('⏰ Request timed out before completion');
+    if (errorMessage.includes('timeout') || error.name === 'AbortError' || (result && result.error === 'timeout')) {
+      console.error(`⏰ [${debugId}] Confirmed timeout - total elapsed: ${totalElapsed}ms`);
       return NextResponse.json(
         { 
           success: false,
           error: 'Request timeout',
-          message: 'The market sizing request took too long. Market sizing analysis can be complex and may take up to 20 seconds. Please try again with a more specific query, or try again later.',
+          message: `The market sizing request timed out after ${Math.round(totalElapsed/1000)}s. Market sizing analysis can be complex and may take 30+ seconds for detailed queries. Please try a more specific query, or try again later.`,
           marketSizing: [],
-          aiResponse: 'I apologize, but the market sizing request timed out. This can happen with complex queries. Please try a more specific query (e.g., "vitamin supplements market" instead of "vitamin buyers market sizing and competitive landscape") or try again.'
+          aiResponse: `Market sizing generation timed out. The query may be too complex. Please try a more specific query or try again later.`,
+          debugInfo: {
+            debugId,
+            elapsedMs: totalElapsed,
+            timeoutLimit: API_TIMEOUT_MS
+          }
         },
         { status: 504 } // Gateway Timeout
       );
@@ -48,9 +100,13 @@ export async function POST(request: NextRequest) {
       { 
         success: false,
         error: 'Failed to generate market sizing',
-        message: error.message || 'Unknown error occurred',
+        message: errorMessage || 'Unknown error occurred',
         marketSizing: [],
-        aiResponse: 'I encountered an error while generating market sizing. Please try again.'
+        aiResponse: 'I encountered an error while generating market sizing. Please try again.',
+        debugInfo: {
+          debugId,
+          elapsedMs: totalElapsed
+        }
       },
       { status: 500 }
     );

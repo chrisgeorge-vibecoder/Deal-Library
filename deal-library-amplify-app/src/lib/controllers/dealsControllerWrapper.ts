@@ -1636,23 +1636,57 @@ export class DealsControllerWrapper extends DealsController {
 
   // Generate market sizing directly - FIXED: Now uses GeminiService with timeout protection
   async generateMarketSizingDirect(body: any): Promise<any> {
+    const startTime = Date.now();
+    const debugId = `market-sizing-${Date.now()}`;
+    
     try {
-      console.log('📊 generateMarketSizingDirect called with:', body);
-      const gemini = getGeminiService();
-      const query = body.query || body.market || 'technology market';
+      console.log(`📊 [${debugId}] generateMarketSizingDirect called:`, {
+        query: body.query,
+        hasConversationHistory: !!(body.conversationHistory && body.conversationHistory.length > 0),
+        conversationHistoryLength: body.conversationHistory?.length || 0
+      });
       
-      // Add timeout wrapper (20 seconds - slightly less than API timeout to fail fast)
-      const GEMINI_TIMEOUT_MS = 20000; // 20 seconds
+      const gemini = getGeminiService();
+      if (!gemini) {
+        console.error(`❌ [${debugId}] Gemini service not available`);
+        return {
+          success: false,
+          marketSizing: [],
+          error: 'AI service not available',
+          message: 'AI service is not initialized. Please check server configuration.'
+        };
+      }
+      
+      const query = body.query || body.market || 'technology market';
+      console.log(`📊 [${debugId}] Starting market sizing generation for query: "${query}"`);
+      
+      // Increase timeout to 32 seconds to allow for complex queries (API route has 35s timeout)
+      const GEMINI_TIMEOUT_MS = 32000; // 32 seconds - increased from 20s for complex queries
+      const timeoutStart = Date.now();
+      
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => {
-          reject(new Error('Market sizing generation timeout - Gemini API call exceeded 20 seconds'));
+          const elapsed = Date.now() - timeoutStart;
+          console.error(`⏰ [${debugId}] TIMEOUT: Market sizing generation exceeded ${GEMINI_TIMEOUT_MS}ms (actual: ${elapsed}ms)`);
+          reject(new Error(`Market sizing generation timeout - Gemini API call exceeded ${GEMINI_TIMEOUT_MS}ms`));
         }, GEMINI_TIMEOUT_MS);
       });
       
+      console.log(`📊 [${debugId}] Calling gemini.generateMarketSizing...`);
+      const geminiStartTime = Date.now();
       const geminiPromise = gemini.generateMarketSizing(query, body.conversationHistory);
       const result = await Promise.race([geminiPromise, timeoutPromise]);
+      const geminiElapsed = Date.now() - geminiStartTime;
       
-      console.log('✅ Market sizing generated:', result.marketSizing?.length || 0, 'results');
+      console.log(`✅ [${debugId}] Gemini call completed in ${geminiElapsed}ms:`, {
+        hasMarketSizing: !!(result.marketSizing && result.marketSizing.length > 0),
+        marketSizingCount: result.marketSizing?.length || 0,
+        hasAiResponse: !!result.aiResponse,
+        aiResponseLength: result.aiResponse?.length || 0
+      });
+      
+      const totalElapsed = Date.now() - startTime;
+      console.log(`✅ [${debugId}] Market sizing generated successfully in ${totalElapsed}ms total`);
       
       return {
         success: true,
@@ -1660,23 +1694,40 @@ export class DealsControllerWrapper extends DealsController {
         aiResponse: result.aiResponse || ''
       };
     } catch (error) {
-      console.error('❌ Error generating market sizing:', error);
+      const totalElapsed = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : String(error);
       
+      console.error(`❌ [${debugId}] Error generating market sizing (total elapsed: ${totalElapsed}ms):`, {
+        error: errorMessage,
+        errorName: error instanceof Error ? error.name : typeof error,
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      
       // Check if it's a timeout error
-      if (errorMessage.includes('timeout')) {
+      if (errorMessage.includes('timeout') || errorMessage.includes('TIMEOUT')) {
+        console.error(`⏰ [${debugId}] Confirmed timeout error after ${totalElapsed}ms`);
         return { 
           success: false, 
           marketSizing: [],
           error: 'timeout',
-          message: 'Market sizing generation timed out. The query may be too complex. Please try a more specific query or try again later.'
+          message: `Market sizing generation timed out after ${Math.round(totalElapsed/1000)}s. The query may be too complex. Please try a more specific query or try again later.`,
+          debugInfo: {
+            debugId,
+            elapsedMs: totalElapsed,
+            timeoutLimit: 32000
+          }
         };
       }
       
       return { 
         success: false, 
         marketSizing: [],
-        error: errorMessage
+        error: errorMessage,
+        message: errorMessage,
+        debugInfo: {
+          debugId,
+          elapsedMs: totalElapsed
+        }
       };
     }
   }

@@ -2264,7 +2264,11 @@ Return ONLY valid JSON. No other text.`;
    * Generate market sizing data using Gemini AI
    */
   async generateMarketSizing(query: string, conversationHistory?: Array<{role: string, content: string}>): Promise<{marketSizing: any[], aiResponse: string}> {
-    console.log(`📊 Generating market sizing for query: "${query}"`);
+    const debugId = `gemini-market-sizing-${Date.now()}`;
+    const startTime = Date.now();
+    
+    console.log(`📊 [${debugId}] generateMarketSizing called for query: "${query}"`);
+    console.log(`📊 [${debugId}] Conversation history: ${conversationHistory?.length || 0} messages`);
 
     // Build conversation context
     const conversationContext = conversationHistory && conversationHistory.length > 0 
@@ -2352,31 +2356,43 @@ Return your response as JSON in this exact format:
   }
 }`;
 
-    const startTime = Date.now();
+    const geminiStartTime = Date.now();
     try {
+      console.log(`📊 [${debugId}] Calling Gemini Pro model...`);
       // Use Pro model for quality-critical market sizing analysis
       const response = await this.proModel.generateContent(prompt);
+      const geminiElapsed = Date.now() - geminiStartTime;
       const responseText = response.response.text();
       this.logModelPerformance('pro', 'Market Sizing', startTime);
       
-      console.log('📊 Gemini Pro market sizing response:', responseText);
+      console.log(`📊 [${debugId}] Gemini Pro response received in ${geminiElapsed}ms:`, {
+        responseLength: responseText.length,
+        first500Chars: responseText.substring(0, 500)
+      });
       
       // Parse the JSON response
       let parsed;
       try {
+        console.log(`📊 [${debugId}] Parsing JSON response...`);
         // Try to extract JSON from code blocks first
         const codeBlockMatch = responseText.match(/```json\s*(\{[\s\S]*?\})\s*```/);
         if (codeBlockMatch && codeBlockMatch[1]) {
+          console.log(`📊 [${debugId}] Found JSON in code block`);
           parsed = JSON.parse(codeBlockMatch[1]);
         } else {
           // Look for JSON object in the response
           const objectMatch = responseText.match(/\{[\s\S]*\}/);
           if (objectMatch && objectMatch[0]) {
+            console.log(`📊 [${debugId}] Found JSON object in response`);
             parsed = JSON.parse(objectMatch[0]);
           } else {
             throw new Error('No JSON found in response');
           }
         }
+        console.log(`✅ [${debugId}] JSON parsed successfully:`, {
+          hasMarketSizing: !!(parsed.marketSizing && parsed.marketSizing.length > 0),
+          marketSizingCount: parsed.marketSizing?.length || 0
+        });
         
         // Validate that we got proper market sizing data
         if (!parsed || typeof parsed !== 'object') {
@@ -2395,8 +2411,9 @@ Return your response as JSON in this exact format:
         }
         
       } catch (error) {
-        console.error('❌ Failed to parse market sizing JSON:', error);
-        console.log('📄 Raw Gemini response (first 500 chars):', responseText.substring(0, 500));
+        const parseElapsed = Date.now() - geminiStartTime;
+        console.error(`❌ [${debugId}] Failed to parse market sizing JSON (${parseElapsed}ms elapsed):`, error);
+        console.log(`📄 [${debugId}] Raw Gemini response (first 500 chars):`, responseText.substring(0, 500));
         
         // Check if the entire response looks like JSON (common issue)
         const trimmedResponse = responseText.trim();
@@ -2432,13 +2449,21 @@ Return your response as JSON in this exact format:
 
       let finalResponse = parsed.aiResponse || "Here are the market sizing insights you requested.";
       
+      const totalElapsed = Date.now() - startTime;
+      console.log(`✅ [${debugId}] Market sizing generation completed successfully in ${totalElapsed}ms`);
+      
       return {
         marketSizing: parsed.marketSizing || [],
         aiResponse: finalResponse
       };
       
     } catch (error) {
-      console.error('❌ Failed to generate market sizing:', error);
+      const totalElapsed = Date.now() - startTime;
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`❌ [${debugId}] Failed to generate market sizing (${totalElapsed}ms elapsed):`, {
+        error: errorMessage,
+        errorName: error instanceof Error ? error.name : typeof error
+      });
       return {
         marketSizing: [],
         aiResponse: "I encountered an error while generating market sizing data. Please try again."

@@ -117,16 +117,25 @@ export default function GeoDetailModal({
             
             {/* Interactive Map */}
             <div className="rounded-lg overflow-hidden border border-neutral-200 mb-4">
-              <InteractiveMap 
-                zipData={geo.topZipCodes.map(z => ({
-                  zip: z.zipCode,
-                  indexScore: z.indexScore,
-                  rawCount: z.reachIndex || 0,
-                  geoLocation: z.geoLocation || { lat: 0, lon: 0 },
-                  population: z.population || 0
-                }))}
-                audienceName={geo.audienceName}
-              />
+              {geo.topZipCodes && geo.topZipCodes.length > 0 ? (
+                <InteractiveMap 
+                  zipData={geo.topZipCodes.map(z => ({
+                    zip: z.zipCode,
+                    indexScore: z.indexScore,
+                    rawCount: z.reachIndex || 0,
+                    geoLocation: z.geoLocation || { lat: 0, lon: 0 },
+                    population: z.population || 0
+                  }))}
+                  audienceName={geo.audienceName}
+                />
+              ) : (
+                <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                    <p>No ZIP code data available</p>
+                  </div>
+                </div>
+              )}
             </div>
             
             {/* Key Stats */}
@@ -134,7 +143,7 @@ export default function GeoDetailModal({
               <div className="bg-teal-50 p-4 rounded-xl border border-teal-200">
                 <h5 className="text-xs font-semibold text-teal-600 uppercase mb-1">Total ZIPs</h5>
                 <div className="text-2xl font-bold text-teal-900">
-                  <HighlightedText text={String(geo.summary?.totalZipCodes || geo.topZipCodes.length)} />
+                  <HighlightedText text={String(geo.summary?.totalZipCodes || geo.topZipCodes?.length || 0)} />
                 </div>
               </div>
               <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
@@ -150,44 +159,73 @@ export default function GeoDetailModal({
             </div>
           </div>
 
-          {/* Section 2: Top ZIP Codes - The Opportunity */}
+          {/* Section 2: Top ZIP Codes or Top Markets - The Opportunity */}
           <div className={`${style.bg} border ${style.border} rounded-xl p-5`}>
             <div className="flex items-center gap-2 mb-4">
               <BarChart3 className={`w-5 h-5 ${style.text}`} />
-              <h4 className={`font-semibold ${style.text}`}>Top ZIP Codes</h4>
+              <h4 className={`font-semibold ${style.text}`}>
+                {geo.topZipCodes && geo.topZipCodes.length > 0 ? 'Top ZIP Codes' : 'Top Markets'}
+              </h4>
             </div>
             
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-white/50">
-                    <th className="px-3 py-2 text-left font-semibold text-neutral-700">ZIP Code</th>
-                    <th className="px-3 py-2 text-left font-semibold text-neutral-700">City/Area</th>
-                    <th className="px-3 py-2 text-right font-semibold text-neutral-700">Index Score</th>
-                    <th className="px-3 py-2 text-right font-semibold text-neutral-700">Population</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {geo.topZipCodes.slice(0, 6).map((zip, index) => (
-                    <tr key={index} className="border-t border-teal-100">
-                      <td className="px-3 py-2 font-mono text-neutral-900">{zip.zipCode}</td>
-                      <td className="px-3 py-2 text-neutral-700">{zip.cityName || 'N/A'}</td>
-                      <td className="px-3 py-2 text-right">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          zip.indexScore >= 200 ? 'bg-green-100 text-green-700' :
-                          zip.indexScore >= 150 ? 'bg-blue-100 text-blue-700' :
-                          'bg-neutral-100 text-neutral-700'
-                        }`}>
-                          {zip.indexScore}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 text-right text-neutral-600">
-                        {zip.population?.toLocaleString() || 'N/A'}
-                      </td>
+              {geo.topZipCodes && geo.topZipCodes.length > 0 ? (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-white/50">
+                      <th className="px-3 py-2 text-left font-semibold text-neutral-700">ZIP Code</th>
+                      <th className="px-3 py-2 text-left font-semibold text-neutral-700">City/Area</th>
+                      <th className="px-3 py-2 text-right font-semibold text-neutral-700">Index Score</th>
+                      <th className="px-3 py-2 text-right font-semibold text-neutral-700">Population</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {geo.topZipCodes.slice(0, 6).map((zip, index) => (
+                      <tr key={index} className="border-t border-teal-100">
+                        <td className="px-3 py-2 font-mono text-neutral-900">{zip.zipCode}</td>
+                        <td className="px-3 py-2 text-neutral-700">{zip.cityName || 'N/A'}</td>
+                        <td className="px-3 py-2 text-right">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                            zip.indexScore >= 200 ? 'bg-green-100 text-green-700' :
+                            zip.indexScore >= 150 ? 'bg-blue-100 text-blue-700' :
+                            'bg-neutral-100 text-neutral-700'
+                          }`}>
+                            {zip.indexScore}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 text-right text-neutral-600">
+                          {zip.population?.toLocaleString() || 'N/A'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : geo.topMarkets && geo.topMarkets.length > 0 ? (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-white/50">
+                      <th className="px-3 py-2 text-left font-semibold text-neutral-700">Region</th>
+                      <th className="px-3 py-2 text-right font-semibold text-neutral-700">Market Share</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {geo.topMarkets.slice(0, 6).map((market: any, index: number) => (
+                      <tr key={index} className="border-t border-teal-100">
+                        <td className="px-3 py-2 text-neutral-900">{market.region || market.city || 'N/A'}</td>
+                        <td className="px-3 py-2 text-right">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                            {market.percentage || 'N/A'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="text-center py-8 text-neutral-500">
+                  <p>No geographic data available</p>
+                </div>
+              )}
             </div>
           </div>
 

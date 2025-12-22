@@ -81,29 +81,33 @@ export const GeoCard: React.FC<GeoCardProps> = ({ geo, onClick }) => {
 
       {/* Key Geographic Insights */}
       <div className="space-y-3">
-        <div>
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Top Markets</h4>
-          <div className="space-y-1">
-            {geo.topMarkets.map((market, index) => (
-              <div key={index} className="flex justify-between items-center text-sm">
-                <span className="text-gray-700">{market.region}</span>
-                <span className="font-medium text-gray-900">{market.percentage}</span>
-              </div>
-            ))}
+        {geo.topMarkets && geo.topMarkets.length > 0 && (
+          <div>
+            <h4 className="text-sm font-medium text-gray-900 mb-2">Top Markets</h4>
+            <div className="space-y-1">
+              {geo.topMarkets.map((market, index) => (
+                <div key={index} className="flex justify-between items-center text-sm">
+                  <span className="text-gray-700">{market.region}</span>
+                  <span className="font-medium text-gray-900">{market.percentage}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        <div>
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Geo Insights</h4>
-          <ul className="text-sm text-gray-600 space-y-1">
-            {geo.insights.map((insight, index) => (
-              <li key={index} className="flex items-start">
-                <span className="text-blue-500 mr-2">•</span>
-                <span>{insight}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {geo.insights && geo.insights.length > 0 && (
+          <div>
+            <h4 className="text-sm font-medium text-gray-900 mb-2">Geo Insights</h4>
+            <ul className="text-sm text-gray-600 space-y-1">
+              {geo.insights.map((insight, index) => (
+                <li key={index} className="flex items-start">
+                  <span className="text-blue-500 mr-2">•</span>
+                  <span>{insight}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="pt-2 border-t border-gray-100">
           <div className="flex justify-between text-sm">

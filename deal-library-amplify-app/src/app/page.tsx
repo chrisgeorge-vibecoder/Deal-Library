@@ -1290,6 +1290,16 @@ export default function HomePage() {
         }
       }
 
+      // CRITICAL SAFEGUARD: If market-sizing was selected, we should NEVER reach here
+      // If we do, it means the market-sizing handler didn't return properly
+      if (cardTypes && (cardTypes.includes('market-sizing') || cardTypes.includes('market-intelligence'))) {
+        console.error('❌ CRITICAL: Market sizing card was selected but code reached general search path! This should never happen.');
+        setAiResponse('An error occurred while processing your market sizing request. Please try again.');
+        setAiMarketSizing([]);
+        setLoading(false);
+        return;
+      }
+
       // Default: general AI search with timeout
       console.log('🔍 USING GENERAL SEARCH PATH for:', query);
       const controller = new AbortController();

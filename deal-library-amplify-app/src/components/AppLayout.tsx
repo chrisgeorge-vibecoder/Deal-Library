@@ -47,7 +47,6 @@ import SavedCardsModal from './SavedCardsModal';
 import PersonaDetailModal from './PersonaDetailModal';
 import { AudienceInsightsDetailModal } from './AudienceInsightsDetailModal';
 import { MarketSizingDetailModal } from './MarketSizingDetailModal';
-import GeoDetailModal from './GeoDetailModal';
 import DealDetailModal from './DealDetailModal';
 import { MarketingSWOTDetailModal } from './MarketingSWOTDetailModal';
 import { CompanyProfileDetailModal } from './CompanyProfileDetailModal';
@@ -454,11 +453,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
       console.log('📊 Modal state set to open');
     };
 
-    const handleOpenGeoModal = (event: any) => {
-      setSelectedGeo(event.detail.geo);
-      setIsGeoModalOpen(true);
-    };
-
     const handleOpenDealModal = (event: any) => {
       console.log('🔍 AppLayout: Opening deal modal for:', event.detail.deal?.dealName);
       console.log('🔍 AppLayout: Current modal state before:', isDealModalOpen);
@@ -557,7 +551,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
     window.addEventListener('openPersonaModal', handleOpenPersonaModal);
     window.addEventListener('openAudienceInsightsModal', handleOpenAudienceInsightsModal);
     window.addEventListener('openMarketSizingModal', handleOpenMarketSizingModal);
-    window.addEventListener('openGeoModal', handleOpenGeoModal);
     window.addEventListener('openDealModal', handleOpenDealModal);
     window.addEventListener('openMarketingSWOTModal', handleOpenMarketingSWOTModal);
     window.addEventListener('openCompanyProfileModal', handleOpenCompanyProfileModal);
@@ -575,7 +568,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
       window.removeEventListener('openPersonaModal', handleOpenPersonaModal);
       window.removeEventListener('openAudienceInsightsModal', handleOpenAudienceInsightsModal);
       window.removeEventListener('openMarketSizingModal', handleOpenMarketSizingModal);
-      window.removeEventListener('openGeoModal', handleOpenGeoModal);
       window.removeEventListener('openDealModal', handleOpenDealModal);
       window.removeEventListener('openMarketingSWOTModal', handleOpenMarketingSWOTModal);
       window.removeEventListener('openCompanyProfileModal', handleOpenCompanyProfileModal);
@@ -739,26 +731,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
           setSelectedMarketSizing(null);
           // Navigate to main chat with pre-populated prompt
           const dealPrompt = `Find relevant deals for the ${sizing.marketName} market`;
-          window.location.href = `/?prompt=${encodeURIComponent(dealPrompt)}`;
-        }}
-        onSaveCard={handleSaveCard}
-        onUnsaveCard={handleUnsaveCard}
-        isSaved={isCardSaved}
-      />
-
-      <GeoDetailModal
-        geo={selectedGeo}
-        isOpen={isGeoModalOpen}
-        onClose={() => {
-          setIsGeoModalOpen(false);
-          setSelectedGeo(null);
-        }}
-        onViewDeals={(geo) => {
-          console.log('🎯 Finding deals for geo:', geo.audienceName);
-          setIsGeoModalOpen(false);
-          setSelectedGeo(null);
-          // Navigate to main chat with pre-populated prompt
-          const dealPrompt = `Find relevant deals for ${geo.audienceName}`;
           window.location.href = `/?prompt=${encodeURIComponent(dealPrompt)}`;
         }}
         onSaveCard={handleSaveCard}

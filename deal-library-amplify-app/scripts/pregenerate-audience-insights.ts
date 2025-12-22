@@ -786,20 +786,37 @@ async function pregenerateInsights(): Promise<void> {
   const limit = limitArg ? parseInt(limitArg.split('=')[1] || '0') : undefined;
   const specificSegment = segmentArg ? segmentArg.split('=')[1] || '' : undefined;
   
-  // Step 1: Load commerce audience data
-  console.log('📦 Step 1: Loading commerce audience data...');
-  const loadResult = await commerceAudienceService.loadCommerceData();
-  if (!loadResult.success) {
-    console.error('❌ Failed to load commerce data:', loadResult.message);
-    process.exit(1);
-  }
-  console.log(`   ✅ Loaded ${loadResult.stats?.totalRecords?.toLocaleString() || 'N/A'} records\n`);
+  // Step 1: Get all segments using fast RPC function
+  // This avoids loading 10M rows - just gets the 199 unique segment names
+  console.log('📦 Step 1: Getting audience segments via RPC (fast method)...');
+  let allSegments: { name: string; category: string }[] = [];
   
-  // Step 2: Get all segments
-  console.log('📋 Step 2: Getting audience segments...');
-  let allSegments = commerceAudienceService.getAudienceSegments()
-    .map((s: any) => ({ name: s.name, category: s.category || 'General' }))
-    .sort((a: any, b: any) => a.name.localeCompare(b.name));
+  try {
+    // Use the new RPC-based method that doesn't require loading all commerce data
+    const segments = await commerceAudienceService.getAudienceSegmentsFromRPC();
+    allSegments = segments
+      .map((s: any) => ({ name: s.name, category: s.category || 'General' }))
+      .sort((a: any, b: any) => a.name.localeCompare(b.name));
+    console.log(`   ✅ Retrieved ${allSegments.length} segments via RPC\n`);
+  } catch (rpcError) {
+    console.warn('⚠️ RPC method failed, falling back to full data load...');
+    console.warn('   Error:', rpcError);
+    
+    // Fallback to the old method if RPC fails
+    const loadResult = await commerceAudienceService.loadCommerceData();
+    if (!loadResult.success) {
+      console.error('❌ Failed to load commerce data:', loadResult.message);
+      process.exit(1);
+    }
+    console.log(`   ✅ Loaded ${loadResult.stats?.totalRecords?.toLocaleString() || 'N/A'} records\n`);
+    
+    allSegments = commerceAudienceService.getAudienceSegments()
+      .map((s: any) => ({ name: s.name, category: s.category || 'General' }))
+      .sort((a: any, b: any) => a.name.localeCompare(b.name));
+  }
+  
+  // Step 2: Filter segments if specified
+  console.log('📋 Step 2: Filtering segments...');
   
   if (specificSegment) {
     allSegments = allSegments.filter((s: any) => 

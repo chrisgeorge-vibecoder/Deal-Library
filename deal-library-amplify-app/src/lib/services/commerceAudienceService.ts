@@ -909,6 +909,100 @@ export class CommerceAudienceService {
   }
 
   /**
+   * Get audience segments directly from Supabase using RPC function (FAST - no data loading needed)
+   * This uses the get_commerce_segments() RPC function which returns distinct segment names
+   * with record counts, avoiding the need to load millions of rows.
+   */
+  async getAudienceSegmentsFromRPC(): Promise<AudienceSegment[]> {
+    if (!this.useSupabase) {
+      console.log('📋 getAudienceSegmentsFromRPC: Supabase not enabled, falling back to loaded data');
+      return this.getAudienceSegments();
+    }
+
+    try {
+      console.log('📊 Fetching segments via RPC function get_commerce_segments()...');
+      const supabase = SupabaseService.getClient();
+      
+      const { data, error } = await supabase.rpc('get_commerce_segments');
+      
+      if (error) {
+        console.error('❌ RPC error:', error);
+        throw error;
+      }
+      
+      if (!data || data.length === 0) {
+        console.warn('⚠️ No segments returned from RPC');
+        return [];
+      }
+      
+      // Filter out excluded categories and map to AudienceSegment format
+      const segments: AudienceSegment[] = data
+        .filter((row: { audience_name: string }) => !this.isExcludedCategory(row.audience_name))
+        .map((row: { audience_name: string; record_count: number }) => ({
+          name: row.audience_name,
+          totalZipCodes: Number(row.record_count),
+          totalWeight: 0, // Not available from RPC, but not needed for pregeneration
+          averageWeight: 0
+        }));
+      
+      console.log(`✅ RPC returned ${segments.length} segments (filtered from ${data.length})`);
+      
+      // Mark as "loaded" for the getAudienceSegments() method
+      this.isLoaded = true;
+      
+      return segments;
+    } catch (error) {
+      console.error('❌ Failed to get segments from RPC:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Load commerce data for a specific segment from Supabase using RPC function (FAST)
+   */
+  async getSegmentDataFromRPC(segmentName: string, limit: number = 5000): Promise<CommerceAudienceData[]> {
+    if (!this.useSupabase) {
+      console.log('📋 getSegmentDataFromRPC: Supabase not enabled');
+      return [];
+    }
+
+    try {
+      console.log(`📊 Fetching data for segment "${segmentName}" via RPC...`);
+      const supabase = SupabaseService.getClient();
+      
+      const { data, error } = await supabase.rpc('get_commerce_segment_data', {
+        p_audience_name: segmentName,
+        p_limit: limit
+      });
+      
+      if (error) {
+        console.error('❌ RPC error:', error);
+        throw error;
+      }
+      
+      if (!data || data.length === 0) {
+        console.warn(`⚠️ No data returned for segment "${segmentName}"`);
+        return [];
+      }
+      
+      // Map to CommerceAudienceData format
+      const commerceData: CommerceAudienceData[] = data.map((row: any) => ({
+        zipCode: row.sanitized_value,
+        weight: row.weight,
+        audienceName: row.audience_name,
+        seed: row.seed,
+        date: row.dt
+      }));
+      
+      console.log(`✅ RPC returned ${commerceData.length} records for "${segmentName}"`);
+      return commerceData;
+    } catch (error) {
+      console.error(`❌ Failed to get data for segment "${segmentName}" from RPC:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Load commerce data for a specific segment from Supabase (on-demand, much faster)
    */
   async loadSegmentDataFromSupabase(segmentName: string, limit: number = 5000): Promise<CommerceAudienceData[]> {

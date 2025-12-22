@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { Deal, Persona, AudienceInsights, GeoCard, MarketingSWOT, CompanyProfile, MarketingNews } from '@/types/deal';
+import { Deal, Persona, AudienceInsights, MarketingSWOT, CompanyProfile, MarketingNews } from '@/types/deal';
 import { useSidebar } from './AppLayout';
 import DealGrid from './DealGrid';
 import DealCard from './DealCard';
 import AudienceInsightsCard from './AudienceInsightsCard';
 import MarketSizingCard, { MarketSizing } from './MarketSizingCard';
-import { GeoCard as GeoCardComponent } from './GeoCard';
 import MarketingSWOTCard from './MarketingSWOTCard';
 import CompanyProfileCard from './CompanyProfileCard';
 import MarketingNewsCard from './MarketingNewsCard';
@@ -24,7 +23,6 @@ interface ChatMessage {
   personas?: Persona[];
   audienceInsights?: AudienceInsights[];
   marketSizing?: MarketSizing[];
-  geoCards?: GeoCard[];
   marketingSWOT?: MarketingSWOT[];
   companyProfiles?: CompanyProfile[];
   marketingNews?: MarketingNews[];

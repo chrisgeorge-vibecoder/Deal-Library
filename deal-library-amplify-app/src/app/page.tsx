@@ -385,6 +385,7 @@ export default function HomePage() {
         const selectedType = cardTypes[0];
         
         if (selectedType === 'market-sizing') {
+          console.log('📊 Market Intelligence card selected - routing to market sizing API');
           try {
             // Add timeout controller for fetch request
             const controller = new AbortController();
@@ -398,27 +399,55 @@ export default function HomePage() {
             });
             
             clearTimeout(timeoutId);
+            console.log('📊 Market sizing API response status:', response.status, response.ok);
+            
+            let data: any = {};
+            try {
+              const responseText = await response.text();
+              if (responseText) {
+                data = JSON.parse(responseText);
+              }
+            } catch (parseError) {
+              console.error('📊 Failed to parse market sizing response:', parseError);
+              setAiResponse('Market sizing analysis returned an invalid response. Please try again later.');
+              setAiMarketSizing([]);
+              setLoading(false);
+              return;
+            }
             
             if (response.ok) {
-              const data = await response.json();
+              // Check if the response indicates success and has market sizing data
+              if (data.success === false || (!data.marketSizing || (Array.isArray(data.marketSizing) && data.marketSizing.length === 0))) {
+                // API returned OK but with error or empty data
+                console.log('📊 Market sizing API returned success:false or empty data:', data);
+                setAiResponse(data.message || data.aiResponse || 'Market sizing analysis is temporarily unavailable. Please try again later.');
+                setAiMarketSizing([]);
+                setLoading(false);
+                return;
+              }
+              
+              // Success case - has market sizing data
+              console.log('📊 Market sizing API success - setting data:', data.marketSizing?.length || 0, 'items');
               setAiMarketSizing(data.marketSizing || []);
               setAiResponse(data.aiResponse || 'Here is the market sizing analysis for your query.');
               setLoading(false);
               return;
             } else {
-              // Handle non-OK responses
-              const errorData = await response.json().catch(() => ({}));
-              setAiResponse(errorData.message || 'Market sizing analysis is temporarily unavailable. Please try again later.');
+              // Handle non-OK responses (4xx, 5xx)
+              console.log('📊 Market sizing API returned non-OK status:', response.status);
+              setAiResponse(data.message || data.aiResponse || 'Market sizing analysis is temporarily unavailable. Please try again later.');
+              setAiMarketSizing([]);
               setLoading(false);
               return;
             }
           } catch (error: any) {
-            console.error('Market sizing request failed:', error);
+            console.error('📊 Market sizing request failed:', error);
             if (error.name === 'AbortError') {
               setAiResponse('The market sizing request timed out. Please try again with a simpler query.');
             } else {
               setAiResponse('Market sizing analysis is temporarily unavailable. Please try again later.');
             }
+            setAiMarketSizing([]);
             setLoading(false);
             return;
           }

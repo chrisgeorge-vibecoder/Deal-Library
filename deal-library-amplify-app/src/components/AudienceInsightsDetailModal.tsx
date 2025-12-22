@@ -171,9 +171,9 @@ export const AudienceInsightsDetailModal: React.FC<AudienceInsightsDetailModalPr
               <div className="mt-4 flex items-center gap-4 bg-slate-50/60 p-3 rounded-lg border border-slate-200/50">
                 <Smartphone className="w-4 h-4 text-slate-600" />
                 <div className="flex gap-4 text-sm">
-                  <span><span className="font-bold text-brand-orange">{insights.behavior.deviceUsage.mobile}%</span> Mobile</span>
-                  <span><span className="font-bold text-brand-orange">{insights.behavior.deviceUsage.desktop}%</span> Desktop</span>
-                  <span><span className="font-bold text-brand-orange">{insights.behavior.deviceUsage.tablet}%</span> Tablet</span>
+                  <span><span className="font-bold">{insights.behavior.deviceUsage.mobile}%</span> Mobile</span>
+                  <span><span className="font-bold">{insights.behavior.deviceUsage.desktop}%</span> Desktop</span>
+                  <span><span className="font-bold">{insights.behavior.deviceUsage.tablet}%</span> Tablet</span>
                 </div>
               </div>
             )}

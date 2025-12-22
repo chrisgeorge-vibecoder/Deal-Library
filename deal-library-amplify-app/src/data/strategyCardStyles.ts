@@ -216,7 +216,7 @@ export const formatWithHighlights = (text: string): string => {
     /(\$[\d,]+(?:\.\d+)?[BMK]?|\d+(?:,\d+)*(?:\.\d+)?%|\d+(?:,\d+)*(?:\.\d+)?x|\d+(?:,\d+)*(?:\.\d+)?[BMK]|\d+(?:,\d+)*(?:\.\d+)?)/g,
     (match) => {
       const rounded = roundToOneDecimal(match);
-      return `<span class="font-bold text-brand-orange">${rounded}</span>`;
+      return `<span class="font-bold">${rounded}</span>`;
     }
   );
 };

@@ -38,7 +38,7 @@ export default function InsightCard({
     // Excludes numbers followed by "D" (like "3D") to avoid highlighting "3" in "3D Printers"
     return text.replace(
       /(\$[\d,]+(?:\.\d+)?[K]?[+]?|\d+(?:\.\d+)?%(?:x)?[K]?[+]?|\d+(?:,\d+)+(?:\.\d+)?[K]?[+]?)(?![D])/g,
-      '<span class="font-bold text-brand-orange">$1</span>'
+      '<span class="font-bold">$1</span>'
     );
   };
 

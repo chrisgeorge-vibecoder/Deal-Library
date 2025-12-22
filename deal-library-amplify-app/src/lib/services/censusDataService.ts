@@ -203,7 +203,7 @@ export class CensusDataService {
         const { data: censusRecords, error } = await supabase
           .from('census_data')
           .select('*')
-          .order('zip_code')
+          .order('zip')
           .range(offset, offset + pageSize - 1);
       
         if (error) {

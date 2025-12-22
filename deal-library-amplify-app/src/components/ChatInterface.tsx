@@ -164,8 +164,17 @@ export default function ChatInterface({
     const query = inputValue.toLowerCase();
     const suggestedTypes: string[] = [];
     
-    // Check for explicit card type keywords
-    if (query.includes('deal') || query.includes('request deals') || query.includes('show deals')) {
+    // Check for AUDIENCES card type keywords FIRST (highest priority for segment-related queries)
+    // This should match when users ask for audience segments to target/reach
+    if (query.includes('audience segment') || query.includes('segment') || 
+        query.includes('recommend audience') || query.includes('suggest audience') ||
+        query.includes('audiences for') || query.includes('audiences to reach') ||
+        query.includes('target audience') || query.includes('targeting audience') ||
+        (query.includes('audience') && (query.includes('reach') || query.includes('target') || query.includes('campaign')))) {
+      suggestedTypes.push('audiences');
+    }
+    // Check for explicit deal keywords (only if not already suggesting audiences)
+    else if (query.includes('deal') || query.includes('request deals') || query.includes('show deals')) {
       suggestedTypes.push('deals');
     }
     if (query.includes('persona') || query.includes('audience persona')) {

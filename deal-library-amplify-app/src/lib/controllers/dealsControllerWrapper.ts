@@ -560,7 +560,8 @@ export class DealsControllerWrapper extends DealsController {
         contentStrategy: [],
         brandStrategy: [],
         competitiveIntelligence: [],
-        companyProfiles: []
+        companyProfiles: [],
+        audiences: []
       };
       
       // Search deals if requested
@@ -576,6 +577,38 @@ export class DealsControllerWrapper extends DealsController {
           }
         } catch (error) {
           console.error('Error searching deals:', error);
+        }
+      }
+      
+      // Search audiences if requested
+      if (requestedTypes.includes('audiences')) {
+        try {
+          const gemini = getGeminiService();
+          if (gemini) {
+            const AUDIENCE_TIMEOUT_MS = 25000; // 25 seconds
+            const audienceTimeoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => reject(new Error('Audience search timeout')), AUDIENCE_TIMEOUT_MS);
+            });
+            
+            // Import and use AudienceSearchService
+            const { AudienceSearchService } = await import('../services/audienceSearchService');
+            const audienceSearchService = new AudienceSearchService(gemini);
+            const audiencePromise = audienceSearchService.searchAudiencesHybrid(query || 'general audience', {});
+            const audienceResult = await Promise.race([audiencePromise, audienceTimeoutPromise]);
+            
+            // Combine all audience categories
+            const allAudiences = [
+              ...(audienceResult.bestFit || []),
+              ...(audienceResult.highValue || []),
+              ...(audienceResult.related || [])
+            ];
+            
+            results.audiences = allAudiences;
+            console.log(`🎯 Unified search: Found ${allAudiences.length} audience segments`);
+          }
+        } catch (error) {
+          console.error('Error searching audiences:', error);
+          // On timeout or error, continue without audiences rather than failing the whole request
         }
       }
       

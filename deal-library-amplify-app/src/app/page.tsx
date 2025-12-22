@@ -352,6 +352,9 @@ export default function HomePage() {
             if (cardTypes.includes('brand-strategy')) {
               setAiBrandStrategy(data.brandStrategy || []);
             }
+            if (cardTypes.includes('audiences')) {
+              setAiAudiences(data.audiences || []);
+            }
             
             // Generate a more helpful AI response message
             const queryLower = query.toLowerCase();
@@ -612,15 +615,23 @@ export default function HomePage() {
               const data = await response.json();
               console.log('🎯 Audience search results:', data);
               
+              // API returns { success: true, results: { bestFit, highValue, related, ... } }
+              const results = data.results || data;
+              
               // Combine all audience categories
               const allAudiences = [
-                ...(data.bestFit || []),
-                ...(data.highValue || []),
-                ...(data.related || [])
+                ...(results.bestFit || []),
+                ...(results.highValue || []),
+                ...(results.related || [])
               ];
               
               setAiAudiences(allAudiences);
-              setAiResponse(data.aiResponse || `Found ${allAudiences.length} relevant audience segments for your query.`);
+              setAiResponse(`Found ${allAudiences.length} relevant audience segments for your query.`);
+              return;
+            } else {
+              // API returned non-OK status - show error and return (don't fall through to deals!)
+              console.error('Audience search API returned non-OK status:', response.status);
+              setAiResponse('Audience search is temporarily unavailable. Please try again later.');
               return;
             }
           } catch (error) {
@@ -866,16 +877,25 @@ export default function HomePage() {
         'provide relevant deals', 'relevant deals for', 'find relevant deals',
         'reach new parents', 'reach parents', 'target new parents', 'target parents',
         'media director', 'media strategy', 'building a', 'pet related', 'pet strategy',
-        'sports fans', 'reach sports fans', 'target sports fans', 'sports', 'athletics', 'fitness',
+        'sports fans', 'reach sports fans', 'target sports fans', 'sports', 'athletics', 'fitness'
         // Removed 'luxury goods', 'fashion', 'accessories' from explicit deal keywords
         // These can be part of market sizing queries and should not force deals mode
-        'targeting', 'reach'
+        // Removed 'targeting', 'reach' - these are too generic and conflict with audience segment requests
       ];
       
+      // Check if this is an audience segment request (should NOT be treated as a deal request)
+      const audienceSegmentKeywords = [
+        'audience segment', 'segment', 'recommend audience', 'suggest audience',
+        'audiences for', 'audiences to reach', 'target audience', 'targeting audience'
+      ];
+      const isAudienceSegmentRequest = audienceSegmentKeywords.some(keyword => queryLower.includes(keyword)) ||
+        (queryLower.includes('audience') && (queryLower.includes('reach') || queryLower.includes('target') || queryLower.includes('campaign')));
+      
       // Only use keyword detection when no card types are explicitly selected
-      const isExplicitDealRequest = (!cardTypes || cardTypes.length === 0) && explicitDealKeywords.some(keyword => 
-        queryLower.includes(keyword)
-      );
+      // AND this is NOT an audience segment request
+      const isExplicitDealRequest = (!cardTypes || cardTypes.length === 0) && 
+        !isAudienceSegmentRequest &&
+        explicitDealKeywords.some(keyword => queryLower.includes(keyword));
 
       if (isExplicitDealRequest) {
         console.log('🔍 Explicit deal request detected, searching for deals...');
@@ -916,7 +936,50 @@ export default function HomePage() {
         }
         return;
       }
-      
+
+      // Audience segment requests - route to audiences API when user asks for audience segments
+      if (isAudienceSegmentRequest && (!cardTypes || cardTypes.length === 0)) {
+        console.log('🎯 USING AUDIENCES SEARCH PATH (auto-detected) for:', query);
+        try {
+          const response = await fetch('/api/audiences/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              query,
+              filters: {}
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('🎯 Audience search results:', data);
+            
+            // API returns { success: true, results: { bestFit, highValue, related, ... } }
+            const results = data.results || data;
+            
+            // Combine all audience categories
+            const allAudiences = [
+              ...(results.bestFit || []),
+              ...(results.highValue || []),
+              ...(results.related || [])
+            ];
+            
+            setAiAudiences(allAudiences);
+            setAiResponse(`Found ${allAudiences.length} relevant audience segments for your query.`);
+            return;
+          } else {
+            // API returned non-OK status - show error and return (don't fall through to deals!)
+            console.error('Audience search API returned non-OK status:', response.status);
+            setAiResponse('Audience search is temporarily unavailable. Please try again later.');
+            return;
+          }
+        } catch (error) {
+          console.error('Audience search request failed:', error);
+          setAiResponse('Audience search is temporarily unavailable. Please try again later.');
+          return;
+        }
+      }
+
       // Marketing News search - check this BEFORE market sizing
       const newsKeywords = ['news', 'headlines', 'latest', 'marketing news', 'advertising news', 'industry news', 'today\'s marketing', 'today\'s advertising', 'commerce media headlines', 'share headlines', 'commerce headlines'];
       const isMarketingNewsSearch = (!cardTypes || cardTypes.length === 0) && (
@@ -1291,6 +1354,16 @@ export default function HomePage() {
         console.error('❌ CRITICAL: Market sizing card was selected but code reached general search path! This should never happen.');
         setAiResponse('An error occurred while processing your market sizing request. Please try again.');
         setAiMarketSizing([]);
+        setLoading(false);
+        return;
+      }
+
+      // CRITICAL SAFEGUARD: If audiences was selected, we should NEVER reach here
+      // If we do, it means the audiences handler didn't return properly
+      if (cardTypes && cardTypes.includes('audiences')) {
+        console.error('❌ CRITICAL: Audiences card was selected but code reached general search path! This should never happen.');
+        setAiResponse('An error occurred while processing your audience search request. Please try again.');
+        setAiAudiences([]);
         setLoading(false);
         return;
       }

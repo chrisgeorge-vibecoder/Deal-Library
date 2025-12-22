@@ -282,6 +282,16 @@ export default function HomePage() {
   const handleSearch = async (query: string, conversationHistory?: Array<{role: string, content: string, dealIds?: string[]}>, cardTypes?: string[]) => {
     if (!query.trim()) return;
 
+    // CRITICAL DEBUG: Log card types at the very start
+    console.log('🔍 handleSearch called with:', {
+      query,
+      cardTypes,
+      cardTypesLength: cardTypes?.length,
+      cardTypesValue: cardTypes,
+      isMarketSizingSelected: cardTypes?.includes('market-sizing'),
+      isMarketIntelligenceSelected: cardTypes?.includes('market-intelligence')
+    });
+
     try {
       setLoading(true);
       setError(null);
@@ -835,6 +845,51 @@ export default function HomePage() {
         
       }
       
+      // CRITICAL: Check for market sizing keywords FIRST - these should NEVER route to deals
+      const marketSizingKeywords = [
+        'market size', 'market sizing', 'what\'s the market size', 'what is the market size',
+        'how big is the market', 'total market', 'addressable market', 'market opportunity',
+        'market value', 'market worth', 'market potential', 'market analysis'
+      ];
+      const hasMarketSizingKeywords = marketSizingKeywords.some(keyword => queryLower.includes(keyword));
+      
+      // If query contains market sizing keywords, NEVER route to deals search
+      if (hasMarketSizingKeywords) {
+        console.log('📊 CRITICAL: Query contains market sizing keywords - preventing deals search routing');
+        // This should have been handled by the market-sizing handler above
+        // If we reach here, something went wrong - route to market sizing API directly
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 50000);
+          
+          const response = await fetch('/api/market-sizing', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, conversationHistory: conversationHistory || [] }),
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.marketSizing && data.marketSizing.length > 0) {
+              setAiMarketSizing(data.marketSizing);
+              setAiResponse(data.aiResponse || 'Here is the market sizing analysis for your query.');
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('📊 Market sizing fallback failed:', error);
+        }
+        // If market sizing API fails, show error instead of falling through to deals
+        setAiResponse('Market sizing analysis is temporarily unavailable. Please try again later.');
+        setAiMarketSizing([]);
+        setLoading(false);
+        return;
+      }
+
       // Explicit deal requests - check this FIRST to avoid conflicts with market sizing
       const explicitDealKeywords = [
         'request deals', 'find deals', 'show me deals', 'get deals', 'deal request',
@@ -842,7 +897,9 @@ export default function HomePage() {
         'reach new parents', 'reach parents', 'target new parents', 'target parents',
         'media director', 'media strategy', 'building a', 'pet related', 'pet strategy',
         'sports fans', 'reach sports fans', 'target sports fans', 'sports', 'athletics', 'fitness',
-        'luxury goods', 'fashion', 'accessories', 'targeting', 'reach'
+        // Removed 'luxury goods', 'fashion', 'accessories' from explicit deal keywords
+        // These can be part of market sizing queries and should not force deals mode
+        'targeting', 'reach'
       ];
       
       // Only use keyword detection when no card types are explicitly selected

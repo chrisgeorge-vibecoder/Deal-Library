@@ -28,6 +28,7 @@ export interface GeminiSearchResult {
 export class GeminiService {
   private genAI: GoogleGenerativeAI;
   private model: any;           // Flash model for speed-critical operations (search, chat)
+  private chatModel: any;       // Flash-Lite model for ultra-fast chat responses
   private proModel: any;        // Pro model for quality-critical operations (insights, analysis)
   private responseCache: Map<string, { result: GeminiSearchResult, timestamp: number }>;
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache TTL
@@ -50,6 +51,24 @@ export class GeminiService {
       }
     });
     
+    // Chat model: Ultra-fast Flash-Lite for simple chat queries (2-3x faster than Flash)
+    // Falls back to Flash if Flash-Lite is not available
+    try {
+      this.chatModel = this.genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-lite", // Try Flash-Lite first
+        generationConfig: {
+          temperature: 0.1,
+          topP: 0.8,
+          maxOutputTokens: 2048, // Reduced for faster responses
+        }
+      });
+      console.log('   🚀 Flash-Lite (gemini-2.0-flash-lite): Ultra-fast chat responses');
+    } catch (error) {
+      // Fallback to Flash if Flash-Lite not available
+      console.warn('⚠️  Flash-Lite not available, using Flash for chat');
+      this.chatModel = this.model;
+    }
+    
     // Pro model: Higher quality for strategic analysis, insights, and business-critical outputs
     this.proModel = this.genAI.getGenerativeModel({ 
       model: "gemini-2.5-pro",
@@ -70,13 +89,59 @@ export class GeminiService {
   // Performance tracking for hybrid model usage
   private modelStats = {
     flash: { calls: 0, totalTime: 0, errors: 0 },
+    chat: { calls: 0, totalTime: 0, errors: 0 },
     pro: { calls: 0, totalTime: 0, errors: 0 }
   };
 
   /**
+   * Classify query to determine optimal model selection
+   */
+  private classifyQuery(query: string): 'chat' | 'flash' | 'pro' {
+    const queryLower = query.toLowerCase();
+    const queryLength = query.length;
+    
+    // Simple, short queries -> chat model (fastest)
+    if (queryLength < 50 && 
+        !queryLower.includes('analyze') && 
+        !queryLower.includes('strategy') && 
+        !queryLower.includes('swot') &&
+        !queryLower.includes('market sizing') &&
+        !queryLower.includes('comprehensive')) {
+      return 'chat';
+    }
+    
+    // Complex analysis queries -> pro model (highest quality)
+    if (queryLower.includes('strategy') || 
+        queryLower.includes('swot') || 
+        queryLower.includes('market sizing') ||
+        queryLower.includes('comprehensive analysis') ||
+        queryLower.includes('detailed insights')) {
+      return 'pro';
+    }
+    
+    // Default -> flash (balanced speed/quality)
+    return 'flash';
+  }
+
+  /**
+   * Get the appropriate model based on query classification
+   */
+  private getModelForQuery(query: string): any {
+    const modelType = this.classifyQuery(query);
+    switch (modelType) {
+      case 'chat':
+        return this.chatModel;
+      case 'pro':
+        return this.proModel;
+      default:
+        return this.model;
+    }
+  }
+
+  /**
    * Log model performance and track stats
    */
-  private logModelPerformance(model: 'flash' | 'pro', operation: string, startTime: number, success: boolean = true): void {
+  private logModelPerformance(model: 'flash' | 'chat' | 'pro', operation: string, startTime: number, success: boolean = true): void {
     const duration = Date.now() - startTime;
     const stats = this.modelStats[model];
     
@@ -85,21 +150,26 @@ export class GeminiService {
     if (!success) stats.errors++;
     
     const avgTime = stats.calls > 0 ? Math.round(stats.totalTime / stats.calls) : 0;
-    const emoji = model === 'flash' ? '⚡' : '🎯';
+    const emoji = model === 'flash' ? '⚡' : model === 'chat' ? '🚀' : '🎯';
     const status = success ? '✅' : '❌';
     
     console.log(`${emoji} [${model.toUpperCase()}] ${status} ${operation} | ${duration}ms | Avg: ${avgTime}ms | Total calls: ${stats.calls}`);
   }
 
   /**
-   * Get performance stats for both models
+   * Get performance stats for all models
    */
-  getModelStats(): { flash: { calls: number; avgTime: number; errors: number }; pro: { calls: number; avgTime: number; errors: number } } {
+  getModelStats(): { flash: { calls: number; avgTime: number; errors: number }; chat: { calls: number; avgTime: number; errors: number }; pro: { calls: number; avgTime: number; errors: number } } {
     return {
       flash: {
         calls: this.modelStats.flash.calls,
         avgTime: this.modelStats.flash.calls > 0 ? Math.round(this.modelStats.flash.totalTime / this.modelStats.flash.calls) : 0,
         errors: this.modelStats.flash.errors
+      },
+      chat: {
+        calls: this.modelStats.chat.calls,
+        avgTime: this.modelStats.chat.calls > 0 ? Math.round(this.modelStats.chat.totalTime / this.modelStats.chat.calls) : 0,
+        errors: this.modelStats.chat.errors
       },
       pro: {
         calls: this.modelStats.pro.calls,
@@ -139,6 +209,26 @@ export class GeminiService {
     ];
     
     return FOLLOWUP_PATTERNS.some(pattern => pattern.test(query));
+  }
+
+  /**
+   * Limit conversation history to last 3 exchanges (6 messages) to prevent timeout
+   * This significantly reduces prompt size and improves response time
+   */
+  private limitConversationHistory(conversationHistory?: Array<{role: string, content: string, dealIds?: string[]}>): Array<{role: string, content: string, dealIds?: string[]}> {
+    if (!conversationHistory || conversationHistory.length === 0) {
+      return [];
+    }
+    
+    // Keep only the last 6 messages (3 exchanges: user + assistant pairs)
+    // This prevents prompt bloat that causes 60s+ timeouts
+    const limited = conversationHistory.slice(-6);
+    
+    if (conversationHistory.length > 6) {
+      console.log(`📝 Limited conversation history from ${conversationHistory.length} to ${limited.length} messages to optimize performance`);
+    }
+    
+    return limited;
   }
 
   /**
@@ -332,9 +422,12 @@ export class GeminiService {
        - Bid Guidance: ${deal.bidGuidance}`
     ).join('\n\n');
 
+    // Limit conversation history to last 3 exchanges to prevent timeout
+    const limitedHistory = this.limitConversationHistory(conversationHistory);
+    
     // Build conversation context
-    const conversationContext = conversationHistory && conversationHistory.length > 0 
-      ? `\n\nPrevious conversation context:\n${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n`
+    const conversationContext = limitedHistory && limitedHistory.length > 0 
+      ? `\n\nPrevious conversation context:\n${limitedHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n`
       : '';
 
     const prompt = `You are a deal analyst. 
@@ -462,15 +555,19 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
 
     const startTime = Date.now();
     try {
-      // Add timeout to prevent hanging (increased to 60 seconds for complex queries)
+      // Classify query to select optimal model
+      const modelType = this.classifyQuery(query);
+      const selectedModel = this.getModelForQuery(query);
+      
+      // Add timeout to prevent hanging (reduced to 30 seconds for faster responses)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Gemini API timeout after 60 seconds')), 60000);
+        setTimeout(() => reject(new Error('Gemini API timeout after 30 seconds')), 30000);
       });
       
-      const apiPromise = this.model.generateContent(prompt);
+      const apiPromise = selectedModel.generateContent(prompt);
       
       const response = await Promise.race([apiPromise, timeoutPromise]);
-      this.logModelPerformance('flash', 'Deal Analysis', startTime);
+      this.logModelPerformance(modelType, 'Deal Analysis', startTime);
       console.log('📦 Raw response object:', JSON.stringify(response.response, null, 2).substring(0, 500));
       const responseText = response.response.text();
       
@@ -819,6 +916,69 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
   }
 
   /**
+   * Stream analysis of user query using Gemini AI (for real-time chat responses)
+   * Returns an async generator that yields text chunks as they're generated, then the final result
+   */
+  async *analyzeQueryStream(query: string, deals: Deal[], conversationHistory?: Array<{role: string, content: string, dealIds?: string[]}>): AsyncGenerator<string | GeminiSearchResult, GeminiSearchResult> {
+    try {
+      console.log(`🤖 Gemini streaming analysis for query: "${query}"`);
+      
+      // Create a structured prompt for Gemini with conversation context
+      const prompt = this.createAnalysisPrompt(query, deals, conversationHistory);
+      
+      // Classify query to select optimal model
+      const modelType = this.classifyQuery(query);
+      const selectedModel = this.getModelForQuery(query);
+      
+      const startTime = Date.now();
+      
+      // Use streaming API for real-time response
+      const result = await selectedModel.generateContentStream(prompt);
+      let fullText = '';
+      
+      // Stream chunks as they arrive
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        fullText += chunkText;
+        yield chunkText; // Send chunk to client immediately
+      }
+      
+      this.logModelPerformance(modelType, 'Query Analysis (Stream)', startTime);
+      console.log(`🤖 Gemini streaming complete: ${fullText.length} characters`);
+      
+      // Parse the complete response
+      const analysis = await this.parseGeminiResponse(fullText, deals, query);
+      
+      // Return final result
+      const finalResult: GeminiSearchResult = {
+        deals: analysis.deals,
+        aiResponse: analysis.aiResponse,
+        searchMethod: 'gemini-stream',
+        confidence: analysis.confidence,
+        coaching: analysis.coaching
+      };
+      
+      yield finalResult; // Yield final result
+      return finalResult;
+      
+    } catch (error) {
+      console.error('❌ Gemini streaming analysis failed:', error);
+      
+      // Return fallback response
+      const fallbackResult: GeminiSearchResult = {
+        deals: [],
+        aiResponse: "I encountered an issue processing your request. Please try again or rephrase your question.",
+        confidence: 0.1,
+        searchMethod: 'error-fallback',
+        coaching: undefined
+      };
+      
+      yield fallbackResult;
+      return fallbackResult;
+    }
+  }
+
+  /**
    * Analyze user query and find relevant deals using Gemini AI
    */
   async analyzeQuery(query: string, deals: Deal[], conversationHistory?: Array<{role: string, content: string, dealIds?: string[]}>): Promise<GeminiSearchResult> {
@@ -828,18 +988,22 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
       // Create a structured prompt for Gemini with conversation context
       const prompt = this.createAnalysisPrompt(query, deals, conversationHistory);
       
-      // Add timeout to prevent hanging (60s for complex prompts with deal analysis and coaching)
+      // Classify query to select optimal model
+      const modelType = this.classifyQuery(query);
+      const selectedModel = this.getModelForQuery(query);
+      
+      // Add timeout to prevent hanging (reduced to 30 seconds for faster responses)
       const startTime = Date.now();
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Gemini API timeout after 60 seconds')), 60000);
+        setTimeout(() => reject(new Error('Gemini API timeout after 30 seconds')), 30000);
       });
       
-      const apiPromise = this.model.generateContent(prompt);
+      const apiPromise = selectedModel.generateContent(prompt);
       
       const result = await Promise.race([apiPromise, timeoutPromise]);
       const response = await result.response;
       const text = response.text();
-      this.logModelPerformance('flash', 'Query Analysis', startTime);
+      this.logModelPerformance(modelType, 'Query Analysis', startTime);
       
       console.log(`🤖 Gemini response: ${text.substring(0, 200)}...`);
       
@@ -1074,11 +1238,14 @@ MANDATORY: Only return deals if the query is actually requesting deals. For gene
       console.log(`  ${index + 1}. ${deal.dealName}`);
     });
 
+    // Limit conversation history to last 3 exchanges to prevent timeout
+    const limitedHistory = this.limitConversationHistory(conversationHistory);
+    
     // Build conversation context if available
     let conversationContext = '';
-    if (conversationHistory && conversationHistory.length > 0) {
+    if (limitedHistory && limitedHistory.length > 0) {
       conversationContext = '\nCONVERSATION HISTORY:\n';
-      conversationHistory.forEach((msg, index) => {
+      limitedHistory.forEach((msg, index) => {
         conversationContext += `${msg.role}: ${msg.content}\n`;
       });
       conversationContext += '\n';
@@ -2009,9 +2176,12 @@ Keep it conversational and helpful.`;
   }> {
     console.log(`🎯 Gemini generating audience insights for: "${query}"`);
     
+    // Limit conversation history to last 3 exchanges to prevent timeout
+    const limitedHistory = this.limitConversationHistory(conversationHistory);
+    
     // Build conversation context
-    const conversationContext = conversationHistory && conversationHistory.length > 0 
-      ? `\n\nPrevious conversation context:\n${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n`
+    const conversationContext = limitedHistory && limitedHistory.length > 0 
+      ? `\n\nPrevious conversation context:\n${limitedHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n`
       : '';
 
     const prompt = `You are a world-class account planner at a top advertising agency. You are prolific at generating deep, strategic audience insights that drive breakthrough creative and media strategies.
@@ -2270,9 +2440,12 @@ Return ONLY valid JSON. No other text.`;
     console.log(`📊 [${debugId}] generateMarketSizing called for query: "${query}"`);
     console.log(`📊 [${debugId}] Conversation history: ${conversationHistory?.length || 0} messages`);
 
+    // Limit conversation history to last 3 exchanges to prevent timeout
+    const limitedHistory = this.limitConversationHistory(conversationHistory);
+    
     // Build conversation context
-    const conversationContext = conversationHistory && conversationHistory.length > 0 
-      ? `\n\nPrevious conversation context:\n${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n`
+    const conversationContext = limitedHistory && limitedHistory.length > 0 
+      ? `\n\nPrevious conversation context:\n${limitedHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n`
       : '';
 
     const prompt = `You are a market research analyst generating market sizing insights.
@@ -2479,8 +2652,11 @@ Return your response as JSON in this exact format:
     aiResponse: string;
   }> {
     
-    const conversationContext = conversationHistory && conversationHistory.length > 0 
-      ? `\n\nConversation context: ${JSON.stringify(conversationHistory.slice(-3))}` 
+    // Limit conversation history to last 3 exchanges to prevent timeout
+    const limitedHistory = this.limitConversationHistory(conversationHistory);
+    
+    const conversationContext = limitedHistory && limitedHistory.length > 0 
+      ? `\n\nConversation context: ${JSON.stringify(limitedHistory)}` 
       : '';
 
     const prompt = `You are a world-class market research analyst specializing in geographic audience insights and location-based advertising strategies. You excel at analyzing regional market trends, demographic distributions, and geographic targeting opportunities.

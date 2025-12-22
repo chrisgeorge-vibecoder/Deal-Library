@@ -1030,7 +1030,7 @@ export default function HomePage() {
 
       // Check for market sizing queries - after news check to avoid conflicts
       // Priority check: if query contains "market size" or "market sizing", route to market sizing
-      const marketSizingKeywords = [
+      const extendedMarketSizingKeywords = [
         'market sizing', 'market size', 'what\'s the market size', 'what is the market size',
         'total addressable market', 'tam', 'market opportunity', 
         'market trends', 'market analysis', 'industry trends', 'market growth',
@@ -1040,7 +1040,7 @@ export default function HomePage() {
       ];
       
       // Always prioritize market sizing if query clearly asks about market size
-      const hasMarketSizeKeyword = marketSizingKeywords.some(keyword => queryLower.includes(keyword));
+      const hasMarketSizeKeyword = extendedMarketSizingKeywords.some(keyword => queryLower.includes(keyword));
       
       // General knowledge/analysis questions should be handled conversationally, NOT routed to market sizing
       // These patterns indicate the user wants analysis/opinion, not data cards
@@ -1064,7 +1064,7 @@ export default function HomePage() {
         queryLower: queryLower,
         isMarketSizingSearch: isMarketSizingSearch,
         isGeneralAnalysisQuestion: isGeneralAnalysisQuestion,
-        matchedKeywords: marketSizingKeywords.filter(keyword => queryLower.includes(keyword)),
+        matchedKeywords: extendedMarketSizingKeywords.filter(keyword => queryLower.includes(keyword)),
         matchedAnalysisPatterns: generalAnalysisPatterns.filter(pattern => queryLower.includes(pattern))
       });
 

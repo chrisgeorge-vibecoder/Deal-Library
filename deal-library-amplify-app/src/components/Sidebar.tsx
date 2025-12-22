@@ -56,7 +56,16 @@ export default function Sidebar({
         className={`fixed inset-0 bg-black transition-opacity lg:hidden z-40 ${
           isOpen ? 'bg-opacity-50' : 'bg-opacity-0 pointer-events-none'
         }`}
-        onClick={onToggle}
+        onClick={(e) => {
+          // Close sidebar when clicking overlay
+          e.stopPropagation();
+          onToggle();
+        }}
+        onTouchStart={(e) => {
+          // Also handle touch events
+          e.stopPropagation();
+          onToggle();
+        }}
         aria-hidden="true"
       />
       

@@ -117,8 +117,16 @@ export default function CampaignPlannerForm({ onSubmit, disabled = false }: Camp
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
 
+    if (!formData.advertiserName || formData.advertiserName.trim().length === 0) {
+      newErrors.advertiserName = 'Advertiser name is required';
+    }
+
     if (formData.targetAudiences.length === 0) {
       newErrors.targetAudiences = 'At least one target audience is required';
+    }
+
+    if (!formData.campaignObjectives || formData.campaignObjectives.length === 0) {
+      newErrors.campaignObjectives = 'At least one campaign objective is required';
     }
 
     setErrors(newErrors);
@@ -178,16 +186,24 @@ export default function CampaignPlannerForm({ onSubmit, disabled = false }: Camp
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Advertiser Name
-            <span className="text-gray-400 ml-1">(Optional)</span>
+            <span className="text-red-500 ml-1">*</span>
           </label>
           <input
             type="text"
             value={formData.advertiserName}
-            onChange={(e) => setFormData(prev => ({ ...prev, advertiserName: e.target.value }))}
+            onChange={(e) => {
+              setFormData(prev => ({ ...prev, advertiserName: e.target.value }));
+              if (errors.advertiserName) {
+                setErrors(prev => ({ ...prev, advertiserName: '' }));
+              }
+            }}
             placeholder="e.g., Nike, Starbucks, Tesla"
-            className="input w-full"
+            className={`input w-full ${errors.advertiserName ? 'border-red-500' : ''}`}
             disabled={disabled}
           />
+          {errors.advertiserName && (
+            <p className="text-red-500 text-sm mt-1">{errors.advertiserName}</p>
+          )}
         </div>
 
         {/* Target Audiences (Required) */}
@@ -249,15 +265,20 @@ export default function CampaignPlannerForm({ onSubmit, disabled = false }: Camp
         {/* Campaign Objectives */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Campaign Objectives
-            <span className="text-gray-400 ml-1">(Optional)</span>
+            Campaign Objective
+            <span className="text-red-500 ml-1">*</span>
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
             {OBJECTIVE_OPTIONS.map((objective) => (
               <button
                 key={objective}
                 type="button"
-                onClick={() => handleObjectiveToggle(objective)}
+                onClick={() => {
+                  handleObjectiveToggle(objective);
+                  if (errors.campaignObjectives) {
+                    setErrors(prev => ({ ...prev, campaignObjectives: '' }));
+                  }
+                }}
                 className={`px-3 py-2 min-h-[44px] rounded-lg text-sm font-medium transition-colors touch-manipulation active:scale-95 ${
                   formData.campaignObjectives?.includes(objective)
                     ? 'bg-purple-600 text-white'
@@ -269,6 +290,9 @@ export default function CampaignPlannerForm({ onSubmit, disabled = false }: Camp
               </button>
             ))}
           </div>
+          {errors.campaignObjectives && (
+            <p className="text-red-500 text-sm mt-1">{errors.campaignObjectives}</p>
+          )}
         </div>
 
         {/* Budget Range */}

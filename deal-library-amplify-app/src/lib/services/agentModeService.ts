@@ -321,9 +321,9 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
     console.log(`   Target audiences from brief:`, parsedBrief.targetAudiences);
 
     try {
-      // Expand search queries to include related terms for better coverage (LabCorp-quality results)
-      const baseQueries = parsedBrief.targetAudiences.slice(0, 2); // Top 2 audiences for performance
-      console.log(`📝 Base queries (top 3):`, baseQueries);
+      // Use all target audiences (up to 5) for better discovery
+      const baseQueries = parsedBrief.targetAudiences.slice(0, 5);
+      console.log(`📝 Base queries (using ${baseQueries.length} audiences):`, baseQueries);
       
       const expandedQueries = this.expandSearchQueries(baseQueries);
       console.log(`📝 Expanded ${baseQueries.length} queries to ${expandedQueries.length}:`);
@@ -387,11 +387,17 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       console.log(`📦 After deduplication: ${dedupedSegments.length} segments`);
 
       // Filter out obviously irrelevant segments based on original query intent
+      // Use less aggressive filtering to keep more segments
       const filteredSegments = this.filterIrrelevantSegments(dedupedSegments, parsedBrief.targetAudiences, baseQueries);
       console.log(`🔍 After relevance filtering: ${filteredSegments.length} segments (removed ${dedupedSegments.length - filteredSegments.length})`);
       
-      const uniqueSegments = filteredSegments
-        .slice(0, 25) // Increase to 25 segments for LabCorp-quality results (was 10)
+      // If filtering removed too many, keep more segments (relaxed filtering)
+      const segmentsToUse = filteredSegments.length < 10 && dedupedSegments.length > filteredSegments.length
+        ? [...filteredSegments, ...dedupedSegments.filter(s => !filteredSegments.includes(s))].slice(0, 20)
+        : filteredSegments;
+      
+      const uniqueSegments = segmentsToUse
+        .slice(0, 25) // Keep up to 25 segments for better discovery
         .map(segment => this.normalizeSegment(segment));
 
       console.log(`✅ Final unique segments: ${uniqueSegments.length}`);
@@ -675,7 +681,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
         expanded.add('household');
       }
       
-      // Fitness/Health expansions
+      // Fitness/Health/Sports expansions
       if (lower.includes('health')) {
         expanded.add('wellness');
         expanded.add('fitness');
@@ -684,6 +690,27 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       if (lower.includes('wellness')) {
         expanded.add('health');
         expanded.add('fitness');
+      }
+      if (lower.includes('athlete') || lower.includes('athletic')) {
+        expanded.add('sports');
+        expanded.add('fitness');
+        expanded.add('exercise');
+        expanded.add('athletic');
+        expanded.add('sports fans');
+        expanded.add('active lifestyle');
+      }
+      if (lower.includes('sport')) {
+        expanded.add('fitness');
+        expanded.add('athletic');
+        expanded.add('exercise');
+        expanded.add('active lifestyle');
+        expanded.add('sports fans');
+      }
+      if (lower.includes('fitness') || lower.includes('exercise')) {
+        expanded.add('sports');
+        expanded.add('athletic');
+        expanded.add('health');
+        expanded.add('wellness');
       }
       
       // Food/Beverage expansions
@@ -2105,9 +2132,14 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
         console.log(`   🔍 Generating Marketing SWOT for "${parsedBrief.advertiserName}"...`);
         const swotResult = await this.geminiService.generateMarketingSWOT(parsedBrief.advertiserName);
         
-        if (swotResult && swotResult.swot) {
-          swotFromCard = swotResult.swot;
+        // Handle wrapped response structure: { success: true, data: { swot: {...} } }
+        // Or direct structure: { swot: {...} }
+        const swotData = swotResult?.data || swotResult;
+        if (swotData && swotData.swot) {
+          swotFromCard = swotData.swot;
           console.log(`   ✅ Generated Marketing SWOT with ${swotFromCard.strengths?.length || 0} strengths`);
+        } else {
+          console.log(`   ⚠️ SWOT result missing swot data:`, swotResult);
         }
       } catch (error) {
         console.log(`   ⚠️ Could not generate Marketing SWOT:`, error);

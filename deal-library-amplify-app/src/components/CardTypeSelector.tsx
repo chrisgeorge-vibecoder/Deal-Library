@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShoppingCart, Users, Lightbulb, BarChart3, MapPin, Target, Building2, Newspaper, FileText, Award, CheckSquare, TrendingUp } from 'lucide-react';
+import { ShoppingCart, Users, Lightbulb, BarChart3, Target, Building2, Newspaper, FileText, Award, CheckSquare, TrendingUp } from 'lucide-react';
 
 export interface CardType {
   id: string;
@@ -25,13 +25,6 @@ export const CARD_TYPES: CardType[] = [
     name: 'Audience Personas',
     icon: Users,
     description: 'Explore detailed audience personas and their characteristics',
-    category: 'plan'
-  },
-  {
-    id: 'geographic',
-    name: 'Geo Insights',
-    icon: MapPin,
-    description: 'Location-based audience and market data',
     category: 'plan'
   },
   {

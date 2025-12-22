@@ -8,7 +8,6 @@ export type StrategyCardCategory =
   | 'Company Profiles'
   | 'Competitive Intelligence'
   | 'Content Strategy'
-  | 'Geo Insights'
   | 'Market Intelligence'
   | 'Marketing News'
   | 'Marketing SWOT'
@@ -63,16 +62,6 @@ export const STRATEGY_CARD_COLORS: Record<StrategyCardCategory, CategoryStyle> =
     headerBg: SOVRN_HEADER_BG,
     headerText: 'text-[#282828]',
     icon: '💡',
-    dataSource: 'sovrn',
-  },
-  'Geo Insights': {
-    bg: 'bg-[#FFD42B]/10',
-    bgSolid: 'bg-[#FFD42B]',
-    text: 'text-[#282828]',
-    border: 'border-[#FFD42B]/30',
-    headerBg: SOVRN_HEADER_BG,
-    headerText: 'text-[#282828]',
-    icon: '🗺️',
     dataSource: 'sovrn',
   },
   'Sovrn Insights': {
@@ -229,7 +218,6 @@ export const CARD_TYPE_TO_CATEGORY: Record<string, StrategyCardCategory> = {
   'company-profile': 'Company Profiles',
   'competitive-intelligence': 'Competitive Intelligence',
   'content-strategy': 'Content Strategy',
-  'geo-insights': 'Geo Insights',
   'market-sizing': 'Market Intelligence',
   'marketing-news': 'Marketing News',
   'marketing-swot': 'Marketing SWOT',

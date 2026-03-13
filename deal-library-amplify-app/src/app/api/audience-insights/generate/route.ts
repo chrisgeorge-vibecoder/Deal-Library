@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { audienceInsightsService } from '@/lib/services/audienceInsightsService';
 import { DealsController } from '@/lib/controllers/dealsController';
+import { audienceInsightsReports, PreGeneratedAudienceReport } from '@/data/audienceInsightsReports';
 
 // Timeout for report generation
 // Note: AWS Amplify has a 60s limit for serverless functions
@@ -69,12 +70,40 @@ export async function POST(request: NextRequest) {
     }
     
     const skipStrategicContent = body.skipStrategicContent === true;
-    console.log('🎯 Generating audience insights report:', { segment, category, includeCommercialZips, skipStrategicContent });
+    const usePregenerated = body.usePregenerated !== false; // Default to using pre-generated if available
     
-    // Race between report generation and timeout
-    // Skip strategic content (Gemini calls) for faster initial response - can be loaded separately
-    const reportPromise = audienceInsightsService.generateReport(segment.trim(), category, includeCommercialZips, skipStrategicContent);
-    const report = await Promise.race([reportPromise, timeoutPromise]);
+    console.log('🎯 Processing audience insights request:', { segment, category, includeCommercialZips, skipStrategicContent, usePregenerated });
+    
+    // Check for pre-generated data first (much faster, no API calls needed)
+    let report: any;
+    const preGeneratedReport = usePregenerated ? audienceInsightsReports[segment.trim()] : null;
+    
+    if (preGeneratedReport) {
+      console.log(`✅ Found pre-generated report for "${segment}" - using cached data (instant)`);
+      report = {
+        segment: preGeneratedReport.segment,
+        category: preGeneratedReport.category,
+        executiveSummary: preGeneratedReport.executiveSummary,
+        personaName: preGeneratedReport.personaName,
+        personaEmoji: preGeneratedReport.personaEmoji,
+        personaDescription: preGeneratedReport.personaDescription,
+        keyMetrics: preGeneratedReport.keyMetrics,
+        geographicHotspots: preGeneratedReport.geographicHotspots,
+        demographics: preGeneratedReport.demographics,
+        behavioralOverlap: preGeneratedReport.behavioralOverlap,
+        strategicInsights: preGeneratedReport.strategicInsights,
+        _source: 'pregenerated'
+      };
+    } else {
+      // Fall back to generating report dynamically
+      console.log(`⚠️ No pre-generated report for "${segment}" - generating dynamically...`);
+      console.log(`   Available pre-generated reports: ${Object.keys(audienceInsightsReports).length}`);
+      
+      // Race between report generation and timeout
+      const reportPromise = audienceInsightsService.generateReport(segment.trim(), category, includeCommercialZips, skipStrategicContent);
+      report = await Promise.race([reportPromise, timeoutPromise]);
+      report._source = 'dynamic';
+    }
     
     console.log('✅ Report generated successfully:', {
       segment: report.segment,

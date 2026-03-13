@@ -27,7 +27,11 @@ interface AudienceInsightsReport {
     zipCode: string;
     city: string;
     state: string;
+    latitude?: number;
+    longitude?: number;
     density: number;
+    population?: number;
+    overIndex?: number;
   }>;
   demographics: {
     incomeDistribution: Array<{ bracket: string; percentage: number; nationalAvg: number }>;
@@ -292,7 +296,7 @@ class AudienceInsightsService {
 
     // Step 1: Get top geographic concentration
     stepStart = Date.now();
-    let topZipCodes: Array<{ zipCode: string; weight: number; city?: string; state?: string; population?: number; overIndex?: number }>;
+    let topZipCodes: Array<{ zipCode: string; weight: number; city?: string; state?: string; latitude?: number; longitude?: number; population?: number; overIndex?: number }>;
     try {
       topZipCodes = await this.getTopGeographicConcentration(trimmedSegment, 50, includeCommercialZips);
       console.log(`📍 Found ${topZipCodes.length} high-concentration ZIP codes (${Date.now() - stepStart}ms)`);
@@ -504,9 +508,11 @@ class AudienceInsightsService {
         zipCode: zip.zipCode,
         city: zip.city || 'Unknown',
         state: zip.state || 'Unknown',
+        latitude: zip.latitude,
+        longitude: zip.longitude,
         density: zip.weight,
-        population: zip.population,  // ADD: population from census data
-        overIndex: zip.overIndex     // ADD: over-index calculation
+        population: zip.population,
+        overIndex: zip.overIndex
       })),
       demographics: {
         incomeDistribution: demographics.incomeDistribution,
@@ -879,6 +885,8 @@ class AudienceInsightsService {
     weight: number;
     city?: string;
     state?: string;
+    latitude?: number;
+    longitude?: number;
     population?: number;
     overIndex?: number;
     penetration?: number;
@@ -949,6 +957,8 @@ class AudienceInsightsService {
         weight: item.weight,
         city: censusData?.geography?.city || undefined,
         state: censusData?.geography?.state || undefined,
+        latitude: censusData?.latitude || undefined,
+        longitude: censusData?.longitude || undefined,
         population,
         overIndex,
         penetration

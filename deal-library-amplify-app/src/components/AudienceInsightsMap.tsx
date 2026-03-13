@@ -6,6 +6,8 @@ interface GeographicHotspot {
   zipCode: string;
   city: string;
   state: string;
+  latitude?: number;
+  longitude?: number;
   density: number;
   population?: number;
   overIndex?: number;
@@ -182,15 +184,27 @@ export default function AudienceInsightsMap({ hotspots, segmentName }: AudienceI
       if (index < 3) {
         console.log(`🗺️ [DEBUG] Processing hotspot ${index + 1}:`, hotspot);
       }
-      const position = getCityCoordinates(hotspot.city, hotspot.state);
       
-      if (!position) {
-        console.warn(`⚠️ [DEBUG] No coordinates found for: ${hotspot.city}, ${hotspot.state}`);
-        return null;
+      // Use actual ZIP code coordinates if available, otherwise fall back to city/state lookup
+      let position: [number, number] | null = null;
+      
+      if (hotspot.latitude && hotspot.longitude) {
+        // Use actual ZIP code coordinates for precise placement
+        position = [hotspot.latitude, hotspot.longitude];
+        if (index < 3) {
+          console.log(`📍 [DEBUG] Using actual ZIP coordinates for ${hotspot.zipCode}:`, position);
+        }
+      } else {
+        // Fall back to city/state coordinates (less precise, may cause overlaps)
+        position = getCityCoordinates(hotspot.city, hotspot.state);
+        if (index < 3 && position) {
+          console.log(`🏙️ [DEBUG] Using city fallback for ${hotspot.zipCode}:`, position);
+        }
       }
       
-      if (index < 3) {
-        console.log(`✅ [DEBUG] Coordinates for ${hotspot.city}, ${hotspot.state}:`, position);
+      if (!position) {
+        console.warn(`⚠️ [DEBUG] No coordinates found for: ${hotspot.zipCode} (${hotspot.city}, ${hotspot.state})`);
+        return null;
       }
       
       return {

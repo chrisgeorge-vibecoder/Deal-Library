@@ -50,9 +50,6 @@ ${this.generateCampaignRecommendations(results, brief)}
 ${this.generateDealRecommendations(results.deals.recommendations)}
 
 
-Marketing SWOT Analysis
-
-${this.generateSWOTSection(results.swot)}
 
 Measurement & Success Metrics
 
@@ -472,22 +469,6 @@ Market Penetration: ${((sizing.reachEstimate / sizing.totalAddressableMarket) * 
     return section;
   }
 
-  /**
-   * Generate SWOT section
-   */
-  private generateSWOTSection(swot: any): string {
-    return `Strengths:
-${swot.strengths.map((s: string) => `• ${s}`).join('\n')}
-
-Weaknesses:
-${swot.weaknesses.map((w: string) => `• ${w}`).join('\n')}
-
-Opportunities:
-${swot.opportunities.map((o: string) => `• ${o}`).join('\n')}
-
-Threats:
-${swot.threats.map((t: string) => `• ${t}`).join('\n')}`;
-  }
 
   /**
    * Generate metrics section

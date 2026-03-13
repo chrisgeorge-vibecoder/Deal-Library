@@ -49,7 +49,7 @@ export const STRATEGY_CARD_COLORS: Record<StrategyCardCategory, CategoryStyle> =
     bgSolid: 'bg-[#FFD42B]',
     text: 'text-[#282828]',
     border: 'border-[#FFD42B]/30',
-    headerBg: SOVRN_HEADER_BG,
+    headerBg: 'bg-white/80',
     headerText: 'text-[#282828]',
     icon: '👤',
     dataSource: 'sovrn',

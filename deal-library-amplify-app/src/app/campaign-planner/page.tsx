@@ -63,18 +63,9 @@ export default function CampaignPlannerPage() {
         // Check result quality and show warnings
         const report = result.report;
         const audienceCount = report.results?.audiences?.count || report.results?.audiences?.segments?.length || 0;
-        const swotHasData = report.results?.swot && 
-          (report.results.swot.strengths?.length > 0 || 
-           report.results.swot.weaknesses?.length > 0 ||
-           report.results.swot.opportunities?.length > 0 ||
-           report.results.swot.threats?.length > 0);
         
         if (audienceCount < 5) {
           console.warn(`⚠️ Only ${audienceCount} audience segments found. Expected 10-20 for optimal results.`);
-        }
-        
-        if (!swotHasData) {
-          console.warn('⚠️ SWOT analysis appears to be empty. Fallback data should be used.');
         }
         
         setReport(report);

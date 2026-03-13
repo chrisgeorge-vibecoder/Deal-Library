@@ -30,14 +30,13 @@ export class AgentModeService {
   private audienceSearchService: AudienceSearchService;
   private strategyGenerator: StrategyGeneratorService;
 
-  // Analysis steps configuration (MVP: Only 4 priority features)
+  // Analysis steps configuration (MVP: Only 3 priority features - Audiences, Deals, Personas)
   private readonly ANALYSIS_STEPS: AnalysisStep[] = [
     { id: 'parse', name: 'Analyzing brief', description: 'Extracting key requirements', order: 1, weight: 0.15 },
-    { id: 'audiences', name: 'Searching audiences', description: 'Finding relevant audience segments', order: 2, weight: 0.25 },
-    { id: 'deals', name: 'Finding deals', description: 'Identifying matching deals', order: 3, weight: 0.25 },
+    { id: 'audiences', name: 'Searching audiences', description: 'Finding relevant audience segments', order: 2, weight: 0.30 },
+    { id: 'deals', name: 'Finding deals', description: 'Identifying matching deals', order: 3, weight: 0.30 },
     { id: 'personas', name: 'Generating personas', description: 'Creating audience personas', order: 4, weight: 0.20 },
-    { id: 'swot', name: 'Building SWOT', description: 'Creating SWOT analysis', order: 5, weight: 0.10 },
-    { id: 'compile', name: 'Compiling report', description: 'Finalizing recommendations', order: 6, weight: 0.05 }
+    { id: 'compile', name: 'Compiling report', description: 'Finalizing recommendations', order: 5, weight: 0.05 }
   ];
 
   constructor(geminiService: GeminiService) {
@@ -66,11 +65,11 @@ export class AgentModeService {
       // Step 1: Parse the brief
       const parsedBrief = await this.analyzeBrief(brief, progressCallback);
       
-      // Steps 2-5: Run MVP analyses (Audiences, Deals, Personas, SWOT)
+      // Steps 2-4: Run MVP analyses (Audiences, Deals, Personas)
       const results = await this.orchestrateAnalyses(parsedBrief, progressCallback);
       
-      // Step 6: Compile final report (this will be handled by reportGenerationService)
-      this.emitProgress(progressCallback, 6, 'compile', 'in_progress', 'Compiling final report...');
+      // Step 5: Compile final report (this will be handled by reportGenerationService)
+      this.emitProgress(progressCallback, 5, 'compile', 'in_progress', 'Compiling final report...');
       
       const report: ComprehensiveReport = {
         advertiserName: parsedBrief.advertiserName,
@@ -252,7 +251,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
   }
 
   /**
-   * Steps 2-5: Orchestrate MVP analyses (Audiences, Deals, Personas, SWOT)
+   * Steps 2-4: Orchestrate MVP analyses (Audiences, Deals, Personas)
    */
   private async orchestrateAnalyses(
     parsedBrief: ParsedBrief,
@@ -296,13 +295,6 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
     results.personas = await this.generatePersonas(parsedBrief, results.audiences, progressCallback).catch(err => {
       results.errors.push({ step: 'personas', error: err.message });
       return { profiles: [], count: 0 };
-    });
-
-    // Step 3: Build SWOT (simplified, no strategy dependency)
-    console.log('🔄 Building SWOT analysis...');
-    results.swot = await this.buildSWOT(parsedBrief, progressCallback).catch(err => {
-      results.errors.push({ step: 'swot', error: err.message });
-      return { strengths: [], weaknesses: [], opportunities: [], threats: [] };
     });
 
     console.log(`✅ MVP orchestration complete: ${results.errors.length} errors`);
@@ -1269,7 +1261,7 @@ Now extract from the actual brief. Return ONLY valid JSON with this structure:
       }
       
       console.log(`   ✅ Total personas: ${personas.length} (${personas.filter(p => p.isAIGenerated).length} AI-generated)`);
-      this.emitProgress(progressCallback, 4, 'personas', 'completed', `Generated ${personas.length} personas`, 85);
+      this.emitProgress(progressCallback, 4, 'personas', 'completed', `Generated ${personas.length} personas`, 90);
       return { profiles: personas, count: personas.length };
     } catch (error) {
       console.error('❌ Persona generation failed:', error);

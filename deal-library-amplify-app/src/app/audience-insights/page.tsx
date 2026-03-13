@@ -48,6 +48,8 @@ interface AudienceInsightsReport {
     zipCode: string;
     city: string;
     state: string;
+    latitude?: number;
+    longitude?: number;
     density: number;
     population?: number;
     overIndex?: number;
@@ -137,6 +139,19 @@ export default function AudienceInsightsPage() {
   const [strategicContentGenerated, setStrategicContentGenerated] = useState(false);  // Track if strategic content has been requested/generated
   const [strategicContentError, setStrategicContentError] = useState<string | null>(null);  // Track errors during generation
   const reportRef = useRef<HTMLDivElement>(null);  // Ref for PDF export
+  
+  // Diagnostic: Log pre-generated data availability on mount
+  useEffect(() => {
+    const reportCount = Object.keys(audienceInsightsReports).length;
+    console.log(`📦 [INIT] Pre-generated reports loaded: ${reportCount}`);
+    if (reportCount > 0) {
+      const sampleKeys = Object.keys(audienceInsightsReports).slice(0, 5);
+      console.log(`   Sample keys: ${sampleKeys.join(', ')}`);
+      console.log(`   Has "Cosmetics": ${!!audienceInsightsReports['Cosmetics']}`);
+    } else {
+      console.warn('⚠️ [INIT] No pre-generated reports found! Will fall back to API generation.');
+    }
+  }, []);
   
   // Deal Modal State
   const [isDealModalOpen, setIsDealModalOpen] = useState(false);
@@ -808,8 +823,16 @@ export default function AudienceInsightsPage() {
     try {
       console.log('🔍 Loading report for:', { selectedCategory, selectedSegment });
       
+      // Debug: Log pre-generated data availability
+      const availableReports = Object.keys(audienceInsightsReports);
+      console.log(`📊 Pre-generated reports available: ${availableReports.length}`);
+      if (availableReports.length > 0) {
+        console.log(`   Sample keys: ${availableReports.slice(0, 5).join(', ')}...`);
+      }
+      
       // Try to use static pre-generated data first (instant loading)
       const preGeneratedReport = audienceInsightsReports[selectedSegment];
+      console.log(`🔎 Looking for segment "${selectedSegment}": ${preGeneratedReport ? 'FOUND' : 'NOT FOUND'}`);
       
       if (preGeneratedReport && Object.keys(audienceInsightsReports).length > 0) {
         // Pre-generated data available - use it
@@ -866,9 +889,11 @@ export default function AudienceInsightsPage() {
         return;
       }
       
-      // Fallback: Use API if pre-generated data not available
-      console.log('⚠️ No pre-generated report found, falling back to API generation');
-      console.log(`   Available pre-generated reports: ${Object.keys(audienceInsightsReports).length}`);
+      // Fallback: Use API - the API will check for pre-generated data server-side first
+      // This handles cases where client-side bundle didn't include the data
+      console.log('⚠️ No pre-generated report found client-side, falling back to API');
+      console.log(`   Available client-side reports: ${Object.keys(audienceInsightsReports).length}`);
+      console.log(`   The API will check for pre-generated data server-side (more reliable)`);
       
       // Create an AbortController for timeout
       const controller = new AbortController();

@@ -32,6 +32,8 @@ export interface PreGeneratedAudienceReport {
     zipCode: string;
     city: string;
     state: string;
+    latitude?: number;
+    longitude?: number;
     density: number;
     population?: number;
     overIndex?: number;

@@ -3,20 +3,18 @@
 import { useState } from 'react';
 import { Users, Target, BarChart3, TrendingUp, Building2, Lightbulb, ShoppingCart, Plus, Check, Bookmark, BookmarkCheck, Shield, AlertTriangle, Presentation, ChevronRight } from 'lucide-react';
 import { ComprehensiveReport } from '@/types/agentMode';
-import { Deal, MarketingSWOT, CompetitiveIntelligence, Persona } from '@/types/deal';
+import { Deal, CompetitiveIntelligence, Persona } from '@/types/deal';
 import { MarketSizing } from './MarketSizingCard';
 import DealCard from './DealCard';
 import {
   InlinePersonaCard,
   InlineMarketSizingCard,
-  InlineSWOTCard,
   InlineCompetitiveIntelCard
 } from './InlineStrategyCards';
 
 // Import Detail Modals
 import PersonaDetailModal from './PersonaDetailModal';
 import { MarketSizingDetailModal } from './MarketSizingDetailModal';
-import { MarketingSWOTDetailModal } from './MarketingSWOTDetailModal';
 import { CompetitiveIntelligenceDetailModal } from './CompetitiveIntelligenceDetailModal';
 
 interface CampaignPlannerResultsProps {
@@ -61,7 +59,6 @@ export default function CampaignPlannerResults({
   // Modal state
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
   const [selectedMarketSizing, setSelectedMarketSizing] = useState<MarketSizing | null>(null);
-  const [selectedSwot, setSelectedSwot] = useState<MarketingSWOT | null>(null);
   const [selectedCompetitiveIntel, setSelectedCompetitiveIntel] = useState<CompetitiveIntelligence | null>(null);
 
   const formatDate = () => {
@@ -148,26 +145,6 @@ export default function CampaignPlannerResults({
     }
   });
 
-  const transformSwotForModal = (): MarketingSWOT => ({
-    id: `marketing-swot-${report.advertiserName}`,
-    companyName: report.advertiserName,
-    swot: {
-      strengths: (report.results.swot?.strengths || []).map((s: any) => 
-        typeof s === 'string' ? { title: s, description: '' } : s
-      ),
-      weaknesses: (report.results.swot?.weaknesses || []).map((w: any) => 
-        typeof w === 'string' ? { title: w, description: '' } : w
-      ),
-      opportunities: (report.results.swot?.opportunities || []).map((o: any) => 
-        typeof o === 'string' ? { title: o, description: '' } : o
-      ),
-      threats: (report.results.swot?.threats || []).map((t: any) => 
-        typeof t === 'string' ? { title: t, description: '' } : t
-      )
-    },
-    summary: report.results.swot?.summary || `Marketing SWOT analysis for ${report.advertiserName}`,
-    recommendedActions: report.results.swot?.recommendedActions || []
-  });
 
   const transformCompetitiveIntelForModal = (): CompetitiveIntelligence => {
     const strategy = report.results.strategy as any;
@@ -220,8 +197,7 @@ export default function CampaignPlannerResults({
         strategy: c.positioning
       })),
       competitiveAdvantages: strategy?.differentiators || [],
-      recommendations: strategicRecsArray.length > 0 ? strategicRecsArray : 
-                       (report.results.swot?.recommendedActions?.slice(0, 3) || []),
+      recommendations: strategicRecsArray.length > 0 ? strategicRecsArray : [],
       // Structure expected by modal (CompetitiveIntelligenceDetailModal)
       marketPosition: {
         marketShare: 'Competitive market position',
@@ -238,8 +214,7 @@ export default function CampaignPlannerResults({
         valueProposition: strategy?.differentiators?.join('. ') || 'Competitive advantages in the market'
       },
       // Array format expected by modal
-      strategicRecommendations: strategicRecsArray.length > 0 ? strategicRecsArray : 
-                                 (report.results.swot?.recommendedActions?.slice(0, 4) || []),
+      strategicRecommendations: strategicRecsArray.length > 0 ? strategicRecsArray : [],
       // Structure expected by generateCompetitiveIntelSlides
       competitiveAnalysis: {
         marketPositioning: marketPositioningText,
@@ -292,21 +267,6 @@ export default function CampaignPlannerResults({
               {(report.results as any).executiveSummary || (
                 <p>Sovrn is pleased to present a comprehensive marketing strategy to help {report.advertiserName} reach their target audiences across the United States. Through our advanced audience intelligence platform, we have identified and mapped precise audience segments that align with your campaign objectives.</p>
               )}
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-6">
-              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                <div className="text-xs text-purple-700 mb-1 uppercase tracking-wide">Audience Segments</div>
-                <div className="text-3xl font-bold text-purple-900">{report.results.audiences?.segments?.length || report.summary.totalAudiences || 0}</div>
-              </div>
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <div className="text-xs text-blue-700 mb-1 uppercase tracking-wide">Deal Recommendations</div>
-                <div className="text-3xl font-bold text-blue-900">{report.results.deals?.recommendations?.length || report.summary.totalDeals || 0}</div>
-              </div>
-              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-                <div className="text-xs text-indigo-700 mb-1 uppercase tracking-wide">Audience Personas</div>
-                <div className="text-3xl font-bold text-indigo-900">{report.results.personas?.profiles?.length || report.summary.totalPersonas || 0}</div>
-              </div>
             </div>
           </section>
 
@@ -394,32 +354,6 @@ export default function CampaignPlannerResults({
                   />
                 );
               })}
-
-              {/* SWOT Card */}
-              {report.results.swot && (
-                <InlineSWOTCard
-                  swot={{
-                    companyName: report.advertiserName,
-                    summary: report.results.swot.summary,
-                    swot: {
-                      strengths: report.results.swot.strengths,
-                      weaknesses: report.results.swot.weaknesses,
-                      opportunities: report.results.swot.opportunities,
-                      threats: report.results.swot.threats
-                    }
-                  }}
-                  onClick={() => setSelectedSwot(transformSwotForModal())}
-                  onSave={() => {
-                    const cardId = `marketing-swot-${report.advertiserName}`;
-                    if (isSaved?.(cardId)) {
-                      onUnsaveCard?.(cardId);
-                    } else {
-                      onSaveCard?.({ type: 'marketing-swot', data: transformSwotForModal() });
-                    }
-                  }}
-                  isSaved={isSaved?.(`marketing-swot-${report.advertiserName}`)}
-                />
-              )}
 
             </div>
           </section>
@@ -611,10 +545,6 @@ export default function CampaignPlannerResults({
                     <span className="text-purple-600">•</span>
                     <span>Extensive interest-based targeting options</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-600">•</span>
-                    <span>20M+ daily US reach across engaged consumers</span>
-                  </li>
                 </ul>
               </div>
 
@@ -627,7 +557,7 @@ export default function CampaignPlannerResults({
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-600">•</span>
-                    <span>Real-time audience refresh (7-day cookie scale)</span>
+                    <span>Real-time audience refresh</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-600">•</span>
@@ -743,14 +673,6 @@ export default function CampaignPlannerResults({
         isSaved={isSaved}
       />
 
-      <MarketingSWOTDetailModal
-        swot={selectedSwot}
-        isOpen={!!selectedSwot}
-        onClose={() => setSelectedSwot(null)}
-        onSaveCard={onSaveCard ? (card) => onSaveCard({ type: card.type, data: card.data }) : undefined}
-        onUnsaveCard={onUnsaveCard}
-        isSaved={isSaved}
-      />
 
       <CompetitiveIntelligenceDetailModal
         competitiveIntel={selectedCompetitiveIntel}
